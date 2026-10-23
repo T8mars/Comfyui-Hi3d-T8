@@ -1,0 +1,22 @@
+{
+  "version": "0.2.2",
+  "server_executable": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.2.2\\runtime\\python.exe",
+  "server_command": [
+    "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.2.2\\runtime\\python.exe",
+    "-m",
+    "hi3d_workbench",
+    "--port",
+    "8378"
+  ],
+  "models_ready": true,
+  "active": null,
+  "owned_code_matches_source": {
+    "comfy_nodes.py": "a12cfeb6a4bee0e65d53e1ae89706c17a81797d0149f170613e5c717f4563141",
+    "hi3d_workbench/common.py": "71f563ca2fc978193c2c04b1f1a3631f0d0c8f0097a8d7ddea7ad4fbe8b78692",
+    "hi3d_workbench/server.py": "e04413ad71fe5a4946af93193e5add12e15a476fa4e8ef3183cc94a320dad4c3",
+    "hi3d_workbench/jobs.py": "2bdfc64fe1b3b3bdaf893ae05b4150acf192e82334a13d5bc44d2267e457294d",
+    "hi3d_workbench/geometry.py": "13d455f88fc0c2a0a1c6dd7121a9ed7effb15accba143baf9d10534f646d8162",
+    "hi3d_workbench/web/app.js": "dd1d736f374380703155ba291235e811277a2de4b3a4679755fcb4c755c47c1b"
+  },
+  "runtime_packages_unchanged": true
+}

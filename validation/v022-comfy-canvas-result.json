@@ -1,0 +1,97 @@
+{
+  "version": "0.2.2",
+  "backend_job_id": "f815e82833d4474e9a8ededa733cef33",
+  "comfyui": "0.34.0",
+  "frontend": "1.53.6",
+  "canvas_roundtrip": true,
+  "api_example_delivered": false,
+  "canvas": {
+    "nodes": [
+      {
+        "id": "1",
+        "type": "Hi3DBackend",
+        "widgets": [
+          {
+            "name": "url",
+            "value": "http://127.0.0.1:8378"
+          }
+        ]
+      },
+      {
+        "id": "2",
+        "type": "LoadImage",
+        "widgets": [
+          {
+            "name": "image",
+            "value": "reference.png"
+          },
+          {
+            "name": "upload",
+            "value": "image"
+          }
+        ]
+      },
+      {
+        "id": "3",
+        "type": "Hi3DLoadMesh",
+        "widgets": [
+          {
+            "name": "path",
+            "value": "C:/your-model/coarse.glb"
+          }
+        ]
+      },
+      {
+        "id": "4",
+        "type": "Hi3DRefine",
+        "widgets": [
+          {
+            "name": "resolution",
+            "value": 512
+          },
+          {
+            "name": "steps",
+            "value": 25
+          },
+          {
+            "name": "seed",
+            "value": 0
+          },
+          {
+            "name": "control_after_generate",
+            "value": "fixed"
+          },
+          {
+            "name": "cpu_offload",
+            "value": true
+          },
+          {
+            "name": "attention",
+            "value": "sdpa"
+          }
+        ]
+      },
+      {
+        "id": "5",
+        "type": "SaveGLB",
+        "widgets": [
+          {
+            "name": "filename_prefix",
+            "value": "Hi3D/refined"
+          },
+          {
+            "name": "image",
+            "value": ""
+          }
+        ]
+      }
+    ],
+    "links": 6
+  },
+  "prompt_id": "92959748-211c-485c-9b63-9a9f12f81842",
+  "status": "success",
+  "seconds": 339.17,
+  "real_inference": true,
+  "output_glb_bytes": 18007616,
+  "javascript_errors": []
+}

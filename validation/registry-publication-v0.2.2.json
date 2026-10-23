@@ -1,0 +1,19 @@
+{
+  "publisher": "t8star",
+  "node_id": "hi3d-t8",
+  "version": "0.2.2",
+  "registry_status": "NodeVersionStatusPending",
+  "action": "https://github.com/T8mars/Comfyui-Hi3d-T8/actions/runs/39963002688",
+  "action_conclusion": "success",
+  "install_http": 200,
+  "cdn_http": 200,
+  "files": 14,
+  "sha256": "5b26cbe8cac218805ddb185759e8ba9ee7daa307504b56ab47127f09504b5ee1",
+  "node_source_matches_git_blob": true,
+  "git_commit": "2abf900",
+  "working_tree_line_ending": "CRLF",
+  "canvas_workflow": true,
+  "api_example_delivered": false,
+  "registry_url": "https://registry.comfy.org/nodes/hi3d-t8",
+  "checked_utc": "2026-10-23T13:43:11.037965+00:00"
+}

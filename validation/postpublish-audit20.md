@@ -18,3 +18,7 @@
 | 20 | 收紧QA归属：只等待当前画布实际提交返回的prompt_id，不接受其他并发成功记录；样例图使用唯一文件名，避免覆盖现有input。最终核对新节点/源码/完整包、画布格式、官方源码与模型哈希，并按不可变版本发布v0.2.2。 | 本轮真实画布结果与dist/RELEASE-VERIFIED-0.2.2.json；Registry发布回执 |
 
 故障注入均在临时ROOT或明确HTTP夹具中完成，不替换生产模型、输入或历史；界面夹具不计为真实模型推理。模型权重、官方Hi3D源码与采样数学未改变。冻结后整套 **102项测试通过**（46.34秒，唯一警告为Starlette/AnyIO依赖弃用），见postpublish-pytest.txt。真实推理及发行状态以单独验收回执为准。
+
+集成验收已使用新 `dist/Hi3D-Workbench-Windows-0.2.2/runtime/python.exe` 完成：实际画布加载、保存、重载后执行512 / 25步 / seed 0 / CPU卸载 / SDPA；prompt `92959748-211c-485c-9b63-9a9f12f81842` 对应job `f815e82833d4474e9a8ededa733cef33`，画布全过程339.17秒，worker313.36秒，原生GLB18,007,616字节，零JS错误。详见 [回执](v022-comfy-canvas-result.json)、[截图](v022-comfy-canvas.png)、[报告](v022-inference-report.json)。本轮没有重测1024/1536；旧记录保留版本范围。
+
+实际推理时GPU诊断409；空闲后工作台模型加载/蒙版/800px布局冒烟通过，零JS错误和外部HTTP请求。并行冒烟曾因运行时输入禁用而超时，该次不计通过。6条旧历史任务完整复制并保留旧目录。Registry新版安装与CDN返回200、14文件归档的节点源码与2abf900 Git对象完全相同，官方Action成功，平台状态仍Pending；详见registry-publication-v0.2.2.json。最终ZIP内容和SHA以dist/RELEASE-VERIFIED-0.2.2.json为准。

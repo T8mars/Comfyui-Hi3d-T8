@@ -1,0 +1,19 @@
+# Native Windows/Blackwell compatibility port; upstream official path is Linux.
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+triton-windows==3.6.0.post26
+spconv-cu126==2.3.8
+transformers==4.46.3
+accelerate==1.6.0
+numpy==1.26.4
+safetensors==0.5.3
+huggingface-hub==0.34.4
+hf_xet==1.7.0
+pyfqmr==0.4.0
+Pillow==11.2.1
+trimesh==4.6.8
+scipy==1.15.3
+networkx==3.4.2
+psutil>=7,<8
+termcolor==2.4.0
+Pygments==2.17.2

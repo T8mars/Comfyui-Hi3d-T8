@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "ok": true,
+  "errors": [],
+  "time": 1792755218.1995509,
+  "components": {
+    "hi3d": {
+      "snapshot": {
+        "manifest_sha256": "52f89487530c97a62c6ac44d30ef03757874878e7671f851eb89361d27890b33",
+        "files": {
+          "model_index.json": {
+            "bytes": 224,
+            "mtime_ns": 1792738298949694400,
+            "ctime_ns": 1792754864311619700,
+            "inode": 281474986458103,
+            "device": 2828584801,
+            "change_time": 134372172394058679
+          },
+          "scheduler/scheduler_config.json": {
+            "bytes": 127,
+            "mtime_ns": 1792738300174338700,
+            "ctime_ns": 1792754864315352800,
+            "inode": 281474986458106,
+            "device": 2828584801,
+            "change_time": 134372172394078688
+          },
+          "vae/config.json": {
+            "bytes": 131,
+            "mtime_ns": 1792738301379924400,
+            "ctime_ns": 1792754867356784400,
+            "inode": 281474986458126,
+            "device": 2828584801,
+            "change_time": 134372173196036611
+          },
+          "vae/model.safetensors": {
+            "bytes": 376629712,
+            "mtime_ns": 1792738629234385800,
+            "ctime_ns": 1792754867358495700,
+            "inode": 281474986458127,
+            "device": 2828584801,
+            "change_time": 134372173197688684
+          },
+          "transformer_512/config.json": {
+            "bytes": 1336,
+            "mtime_ns": 1792738631573538000,
+            "ctime_ns": 1792754866324377000,
+            "inode": 562949963168776,
+            "device": 2828584801,
+            "change_time": 134372173173539094
+          },
+          "transformer_512/model.safetensors": {
+            "bytes": 3675679280,
+            "mtime_ns": 1792742117325032000,
+            "ctime_ns": 1792754866325382400,
+            "inode": 281474986458122,
+            "device": 2828584801,
+            "change_time": 134372173196026612
+          },
+          "transformer_1024/config.json": {
+            "bytes": 1337,
+            "mtime_ns": 1792742125040659200,
+            "ctime_ns": 1792754864318607200,
+            "inode": 281474986458109,
+            "device": 2828584801,
+            "change_time": 134372172394212617
+          },
+          "transformer_1024/model.safetensors": {
+            "bytes": 3675679280,
+            "mtime_ns": 1792743225406910100,
+            "ctime_ns": 1792754864319649200,
+            "inode": 281474986458110,
+            "device": 2828584801,
+            "change_time": 134372173173519083
+          }
+        }
+      },
+      "ok": true,
+      "errors": []
+    },
+    "dino": {
+      "snapshot": {
+        "manifest_sha256": "40ad15595a2980348b35a877bea13fde4e06694e6465f8b3badb3bcf130c211d",
+        "files": {
+          "config.json": {
+            "bytes": 549,
+            "mtime_ns": 1792743239479032100,
+            "ctime_ns": 1792754863933995800,
+            "inode": 281474986458098,
+            "device": 2828584801,
+            "change_time": 134372172234004861
+          },
+          "model.safetensors": {
+            "bytes": 1217522888,
+            "mtime_ns": 1792741965079012700,
+            "ctime_ns": 1792754863935061000,
+            "inode": 281474986458099,
+            "device": 2828584801,
+            "change_time": 134372172390678124
+          }
+        }
+      },
+      "ok": true,
+      "errors": []
+    },
+    "clip": {
+      "snapshot": {
+        "manifest_sha256": "4b460eb50f30fb91f1be8538d93b8ad255478e65254cd82395d42a60a609102d",
+        "files": {
+          "config.json": {
+            "bytes": 4519,
+            "mtime_ns": 1792743243090528300,
+            "ctime_ns": 1792754863444601800,
+            "inode": 281474986458091,
+            "device": 2828584801,
+            "change_time": 134372172215114120
+          },
+          "model.safetensors": {
+            "bytes": 1710540580,
+            "mtime_ns": 1792742202624075200,
+            "ctime_ns": 1792754863445140400,
+            "inode": 281474986458092,
+            "device": 2828584801,
+            "change_time": 134372172233984030
+          }
+        }
+      },
+      "ok": true,
+      "errors": []
+    }
+  }
+}

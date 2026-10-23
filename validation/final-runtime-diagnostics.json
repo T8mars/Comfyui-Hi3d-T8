@@ -1,0 +1,30 @@
+{
+  "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+  "platform": "Windows-10-10.0.26300-SP0",
+  "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "torchvision": "0.26.0+cu128",
+    "triton-windows": "3.6.0.post26",
+    "spconv-cu126": "2.3.8",
+    "transformers": "4.46.3",
+    "accelerate": "1.6.0",
+    "numpy": "1.26.4"
+  },
+  "cuda": true,
+  "kernel_probe": "passed",
+  "official_validated_environment": false,
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "capability": [
+    12,
+    0
+  ],
+  "free_vram_mb": 23151,
+  "total_vram_mb": 24435,
+  "torch_cuda": "12.8",
+  "probe_voxels": 14672,
+  "official_sparse_conv_dtypes": [
+    "float32",
+    "float16"
+  ]
+}

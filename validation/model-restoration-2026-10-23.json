@@ -1,0 +1,119 @@
+{
+  "all_ok": true,
+  "count": 16,
+  "source_manifest_matches_backup": true,
+  "files": [
+    {
+      "file": "hi3d/model_index.json",
+      "bytes": 224,
+      "expected": "e24988612733dad44b7354fbfa0b2ef50073ba6ef8d7a677e41023dc2d651386",
+      "actual": "e24988612733dad44b7354fbfa0b2ef50073ba6ef8d7a677e41023dc2d651386",
+      "ok": true
+    },
+    {
+      "file": "hi3d/scheduler/scheduler_config.json",
+      "bytes": 127,
+      "expected": "40cdcdaaa6149dea32b86a5ff730e581b069ae619d7f580444ef503737fb0bf3",
+      "actual": "40cdcdaaa6149dea32b86a5ff730e581b069ae619d7f580444ef503737fb0bf3",
+      "ok": true
+    },
+    {
+      "file": "hi3d/vae/config.json",
+      "bytes": 131,
+      "expected": "71c629eb188485786227277c7bb5b0fa0a1bfcf07a3d21316174da6b4d04f92f",
+      "actual": "71c629eb188485786227277c7bb5b0fa0a1bfcf07a3d21316174da6b4d04f92f",
+      "ok": true
+    },
+    {
+      "file": "hi3d/vae/model.safetensors",
+      "bytes": 376629712,
+      "expected": "605d207c77f8db0b33c567a5861252f0090cf3c3604dfda1cfee09e8f0b53f3e",
+      "actual": "605d207c77f8db0b33c567a5861252f0090cf3c3604dfda1cfee09e8f0b53f3e",
+      "ok": true
+    },
+    {
+      "file": "hi3d/transformer_512/config.json",
+      "bytes": 1336,
+      "expected": "809189b8183c3f44118751322f2cb6fe6fa4ca1922ea16c88cd032970d4bc937",
+      "actual": "809189b8183c3f44118751322f2cb6fe6fa4ca1922ea16c88cd032970d4bc937",
+      "ok": true
+    },
+    {
+      "file": "hi3d/transformer_512/model.safetensors",
+      "bytes": 3675679280,
+      "expected": "8ba88311dccf23463c6e10dd0d3bd5e0c5c35d1608c6f466413b6428b5ad8e56",
+      "actual": "8ba88311dccf23463c6e10dd0d3bd5e0c5c35d1608c6f466413b6428b5ad8e56",
+      "ok": true
+    },
+    {
+      "file": "hi3d/transformer_1024/config.json",
+      "bytes": 1337,
+      "expected": "2f96d851844e159523cb6cf5e5b29ddbc1354e222a333232612c19e1eaf278c2",
+      "actual": "2f96d851844e159523cb6cf5e5b29ddbc1354e222a333232612c19e1eaf278c2",
+      "ok": true
+    },
+    {
+      "file": "hi3d/transformer_1024/model.safetensors",
+      "bytes": 3675679280,
+      "expected": "a2ca5e44dde51cacecd59b42fceeb5f14e75d55e6dd047337752c4e6f281008c",
+      "actual": "a2ca5e44dde51cacecd59b42fceeb5f14e75d55e6dd047337752c4e6f281008c",
+      "ok": true
+    },
+    {
+      "file": "hi3d/AUTHORS",
+      "bytes": 713,
+      "expected": "996bb0bcc8829a22ae9f1a57d874ce7b9bc29f5f6acfd397cfc7d1d1f6e574cc",
+      "actual": "996bb0bcc8829a22ae9f1a57d874ce7b9bc29f5f6acfd397cfc7d1d1f6e574cc",
+      "ok": true
+    },
+    {
+      "file": "hi3d/LICENSE",
+      "bytes": 27470,
+      "expected": "e7914ddbb068110d9f9e1e1283dd4bc23ec2a5223909b7fd2a2ca9a152d853fe",
+      "actual": "e7914ddbb068110d9f9e1e1283dd4bc23ec2a5223909b7fd2a2ca9a152d853fe",
+      "ok": true
+    },
+    {
+      "file": "hi3d/NOTICE",
+      "bytes": 2157,
+      "expected": "fb56f04476d143ed5d9f44cb90dba2a7d7c67ee387d0be138937dd2586a16912",
+      "actual": "fb56f04476d143ed5d9f44cb90dba2a7d7c67ee387d0be138937dd2586a16912",
+      "ok": true
+    },
+    {
+      "file": "hi3d/THIRD_PARTY_LICENSES.md",
+      "bytes": 24344,
+      "expected": "0b3316bbe649b762a4a0c14aa19bdd6e112ba6291e87fb33aa79de3c4cdb4a9a",
+      "actual": "0b3316bbe649b762a4a0c14aa19bdd6e112ba6291e87fb33aa79de3c4cdb4a9a",
+      "ok": true
+    },
+    {
+      "file": "dino/config.json",
+      "bytes": 549,
+      "expected": "12df51c069a2dc1305e34ba71ef58bc2407ea553b75f4722a1715c1bce3bbed0",
+      "actual": "12df51c069a2dc1305e34ba71ef58bc2407ea553b75f4722a1715c1bce3bbed0",
+      "ok": true
+    },
+    {
+      "file": "dino/model.safetensors",
+      "bytes": 1217522888,
+      "expected": "399fba97a95f22c36834418bc69373364a99af3a1153da1c0fb31db567c92e23",
+      "actual": "399fba97a95f22c36834418bc69373364a99af3a1153da1c0fb31db567c92e23",
+      "ok": true
+    },
+    {
+      "file": "clip/config.json",
+      "bytes": 4519,
+      "expected": "8a09b467700c58138c29d53c605b34ebc69beaadd13274a8a2af8ad2c2f4032a",
+      "actual": "8a09b467700c58138c29d53c605b34ebc69beaadd13274a8a2af8ad2c2f4032a",
+      "ok": true
+    },
+    {
+      "file": "clip/model.safetensors",
+      "bytes": 1710540580,
+      "expected": "a2bf730a0c7debf160f7a6b50b3aaf3703e7e88ac73de7a314903141db026dcb",
+      "actual": "a2bf730a0c7debf160f7a6b50b3aaf3703e7e88ac73de7a314903141db026dcb",
+      "ok": true
+    }
+  ]
+}

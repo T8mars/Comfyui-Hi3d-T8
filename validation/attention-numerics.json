@@ -1,0 +1,26 @@
+[
+  {
+    "lengths": [
+      31,
+      47
+    ],
+    "head_dim": 96,
+    "max_abs_error_vs_fp32": 0.0005425214767456055
+  },
+  {
+    "lengths": [
+      48,
+      48
+    ],
+    "head_dim": 96,
+    "max_abs_error_vs_fp32": 0.0004954338073730469
+  },
+  {
+    "cross_attention_finite": true,
+    "shape": [
+      30,
+      22,
+      96
+    ]
+  }
+]

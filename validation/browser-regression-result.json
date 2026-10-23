@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "pink_white_branding_and_visible_beginner_action",
+    "empty_steps_expand_advanced_and_block_submission",
+    "submission_lock_survives_health_polls_no_duplicate",
+    "offline_disables_mutations_and_reconnect_recovers",
+    "real_history_log_conditioning_and_legacy_reuse_clear_stale_results",
+    "failed_job_exports_only_existing_coarse_and_loads_own_log",
+    "active_task_stop_remains_accessible_while_viewing_history",
+    "sample_pair_is_atomic_when_second_upload_fails",
+    "expired_token_refresh_and_same_file_reselection",
+    "external_comfy_job_does_not_discard_prepared_draft_inputs",
+    "desktop_tablet_390_375_no_overflow_chinese_nav_and_action_visible"
+  ],
+  "javascript_errors": [],
+  "remote_requests": [],
+  "fault_responses": "UI-only simulated failures and active states; no inference launched",
+  "history": "real saved success used for preview/log/reuse check"
+}

@@ -1,0 +1,96 @@
+{
+  "checked_utc": "2026-10-23T12:03:14.568638+00:00",
+  "scope": "read-only fixed-revision metadata; no weight transfer",
+  "components": [
+    {
+      "key": "hi3d",
+      "repo": "hi3d-official/Hi3Dv1.0",
+      "revision": "705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a",
+      "revision_ok": true,
+      "git_files": [
+        {
+          "file": "model_index.json",
+          "expected_git_blob": "b63881777731bd5093112b934721202d01771065",
+          "actual_git_blob": "b63881777731bd5093112b934721202d01771065",
+          "ok": true
+        },
+        {
+          "file": "scheduler/scheduler_config.json",
+          "expected_git_blob": "2a070592ea631dc2f158cf56ef0076cc87f2b872",
+          "actual_git_blob": "2a070592ea631dc2f158cf56ef0076cc87f2b872",
+          "ok": true
+        },
+        {
+          "file": "vae/config.json",
+          "expected_git_blob": "c4f94b13cc30945292da5aac233405496a271dcc",
+          "actual_git_blob": "c4f94b13cc30945292da5aac233405496a271dcc",
+          "ok": true
+        },
+        {
+          "file": "transformer_512/config.json",
+          "expected_git_blob": "47d2b9e97f8002913a47dbd58c55ee1ae6fa2cf5",
+          "actual_git_blob": "47d2b9e97f8002913a47dbd58c55ee1ae6fa2cf5",
+          "ok": true
+        },
+        {
+          "file": "transformer_1024/config.json",
+          "expected_git_blob": "daa180abc108fc26a5d60501d77b1118ae94a0f6",
+          "actual_git_blob": "daa180abc108fc26a5d60501d77b1118ae94a0f6",
+          "ok": true
+        },
+        {
+          "file": "AUTHORS",
+          "expected_git_blob": "94be57617e3a9eca4c225a3b07be9b71b9726d11",
+          "actual_git_blob": "94be57617e3a9eca4c225a3b07be9b71b9726d11",
+          "ok": true
+        },
+        {
+          "file": "LICENSE",
+          "expected_git_blob": "c1dd18a6714185099b3893a4aba16b8f5be15de0",
+          "actual_git_blob": "c1dd18a6714185099b3893a4aba16b8f5be15de0",
+          "ok": true
+        },
+        {
+          "file": "NOTICE",
+          "expected_git_blob": "74d937fa449c019014e2de4960dc7ea61aa18b26",
+          "actual_git_blob": "74d937fa449c019014e2de4960dc7ea61aa18b26",
+          "ok": true
+        },
+        {
+          "file": "THIRD_PARTY_LICENSES.md",
+          "expected_git_blob": "3839b2fc051b23382b9375ec50c67552b256d956",
+          "actual_git_blob": "3839b2fc051b23382b9375ec50c67552b256d956",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "key": "dino",
+      "repo": "facebook/dinov2-large",
+      "revision": "47b73eefe95e8d44ec3623f8890bd894b6ea2d6c",
+      "revision_ok": true,
+      "git_files": [
+        {
+          "file": "config.json",
+          "expected_git_blob": "5def28dd2a0ecb2561a4649703f13c4dc595ee95",
+          "actual_git_blob": "5def28dd2a0ecb2561a4649703f13c4dc595ee95",
+          "ok": true
+        }
+      ]
+    },
+    {
+      "key": "clip",
+      "repo": "openai/clip-vit-large-patch14",
+      "revision": "32bd64288804d66eefd0ccbe215aa642df71cc41",
+      "revision_ok": true,
+      "git_files": [
+        {
+          "file": "config.json",
+          "expected_git_blob": "2c19f6666e0e163c7954df66cb901353fcad088e",
+          "actual_git_blob": "2c19f6666e0e163c7954df66cb901353fcad088e",
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

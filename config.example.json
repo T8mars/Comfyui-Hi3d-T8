@@ -1,0 +1,8 @@
+{
+  "worker_python": ".venv/Scripts/python.exe",
+  "worker_command": [],
+  "minimum_free_vram_mb": 1500,
+  "download_workers": 6,
+  "download_trust_env": true,
+  "port": 8378
+}

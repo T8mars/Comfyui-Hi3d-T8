@@ -1,0 +1,114 @@
+{
+  "status": "succeeded",
+  "requested_resolution": 512,
+  "actual_resolution": 512,
+  "steps": 25,
+  "seed": 0,
+  "offload": true,
+  "attention": "sdpa",
+  "compatibility_port": true,
+  "seconds": 203.85,
+  "peak_allocated_mb": 1722,
+  "peak_reserved_mb": 1798,
+  "stage_metrics": [
+    {
+      "stage": "voxelizing",
+      "seconds": 0.583,
+      "peak_vram_mb": 33,
+      "rss_mb": 14407
+    },
+    {
+      "stage": "sampling",
+      "seconds": 142.449,
+      "peak_vram_mb": 674,
+      "rss_mb": 15110
+    },
+    {
+      "stage": "decoding",
+      "seconds": 7.449,
+      "peak_vram_mb": 1722,
+      "rss_mb": 15290
+    },
+    {
+      "stage": "extracting",
+      "seconds": 3.974,
+      "peak_vram_mb": 1331,
+      "rss_mb": 15472
+    },
+    {
+      "stage": "postprocessing",
+      "seconds": 4.451,
+      "peak_vram_mb": 418,
+      "rss_mb": 16393
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "environment": {
+    "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "torchvision": "0.26.0+cu128",
+      "triton-windows": "3.6.0.post26",
+      "spconv-cu126": "2.3.8",
+      "transformers": "4.46.3",
+      "accelerate": "1.6.0",
+      "numpy": "1.26.4"
+    },
+    "cuda": true,
+    "kernel_probe": "not_run",
+    "official_validated_environment": false,
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "capability": [
+      12,
+      0
+    ],
+    "free_vram_mb": 21577,
+    "total_vram_mb": 24435,
+    "torch_cuda": "12.8"
+  },
+  "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+  "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+  "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+  "coarse_sha256": "4e808212b10701d21770fa35aac9bfe55b24a6fb7e7886148bb2b97b1fe55371",
+  "geometry": {
+    "vertices": 500000,
+    "faces": 1000000,
+    "bounds": [
+      [
+        -0.9438595652301914,
+        -0.8618032618230475,
+        -0.995243047672698
+      ],
+      [
+        0.8563196037776921,
+        0.9433704875282248,
+        0.914213894924625
+      ]
+    ],
+    "extents": [
+      1.8001791690078837,
+      1.8051737493512723,
+      1.909456942597323
+    ],
+    "watertight": false,
+    "winding_consistent": true,
+    "boundary_edges": 12,
+    "nonmanifold_edges": 6,
+    "degenerate_faces": 2,
+    "components": 4,
+    "unchecked": [
+      "自交",
+      "壁厚",
+      "最小零件强度",
+      "切片可打印性"
+    ],
+    "units": "unknown",
+    "warnings": [
+      "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+    ]
+  },
+  "normalized": true,
+  "texture_generated": false
+}

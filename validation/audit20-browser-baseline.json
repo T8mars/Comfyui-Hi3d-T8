@@ -1,0 +1,98 @@
+{
+  "mode": "baseline",
+  "rounds": [
+    {
+      "round": 11,
+      "check": "health_http_error_disables_submission",
+      "passed": false,
+      "evidence": {
+        "run_disabled": false,
+        "badge": "● 本地模型已就绪"
+      }
+    },
+    {
+      "round": 12,
+      "check": "missing_selected_job_recovers_controls",
+      "passed": false,
+      "evidence": {
+        "new_task_enabled": false,
+        "detail": "Not Found"
+      }
+    },
+    {
+      "round": 13,
+      "check": "reconnect_preserves_attention_choice",
+      "passed": false,
+      "evidence": {
+        "selected": "flash",
+        "after_reconnect": "sdpa"
+      }
+    },
+    {
+      "round": 14,
+      "check": "export_freezes_dimension_parameters",
+      "passed": false,
+      "evidence": {
+        "parameters_locked_while_exporting": false,
+        "displayed_height": "100"
+      }
+    },
+    {
+      "round": 15,
+      "check": "mask_encoding_locks_input_before_async_callback",
+      "passed": false,
+      "evidence": {
+        "input_locked_during_toBlob": false
+      }
+    },
+    {
+      "round": 16,
+      "check": "camera_pan_sync_and_reset",
+      "passed": false,
+      "evidence": {
+        "targets": {
+          "before": [
+            0.2,
+            0.1,
+            0
+          ],
+          "after": [
+            -0.0,
+            -0.0,
+            -0.0
+          ]
+        },
+        "reset_target": "0.2m 0.1m 0m"
+      }
+    },
+    {
+      "round": 17,
+      "check": "new_mesh_does_not_show_previous_scene_while_loading",
+      "passed": false,
+      "evidence": {
+        "old_scene_hidden": false,
+        "loading_placeholder_visible": false
+      }
+    },
+    {
+      "round": 18,
+      "check": "missing_job_artifacts_are_not_previewed_or_reused",
+      "passed": false,
+      "evidence": {
+        "missing_refined_preview_hidden": false,
+        "reuse_disabled": false
+      }
+    },
+    {
+      "round": 19,
+      "check": "updated_assets_have_versioned_cache_keys",
+      "passed": false,
+      "evidence": {
+        "css": "http://127.0.0.1:8379/static/style.css",
+        "js": "http://127.0.0.1:8379/static/app.js"
+      }
+    }
+  ],
+  "javascript_errors": [],
+  "data": "temporary sandbox; HTTP fixtures do not execute model inference"
+}

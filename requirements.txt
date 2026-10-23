@@ -1,0 +1,4 @@
+# ComfyUI node-side dependencies only. No torch/CUDA replacement.
+numpy>=1.26,<3
+Pillow>=10.3
+trimesh>=4.6,<5

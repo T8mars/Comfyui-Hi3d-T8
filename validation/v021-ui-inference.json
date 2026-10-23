@@ -1,0 +1,14 @@
+{
+  "version": "0.2.1",
+  "real_inference": true,
+  "job_id": "15ee1fca706f441b80d26d6221a01f92",
+  "status": "succeeded",
+  "seconds": 203.85,
+  "peak_allocated_mb": 1722,
+  "resolution": 512,
+  "diagnostic_during_inference_http": 409,
+  "export_height_mm": 80,
+  "glb_z_m": 0.07999999821186066,
+  "original_result_unchanged": true,
+  "javascript_errors": []
+}

@@ -1,0 +1,8 @@
+{
+  "portable_api": true,
+  "actual_glb_z_m": 0.10000000149011612,
+  "height_mm": 100,
+  "coordinate_units": "m",
+  "source_preserved": true,
+  "kernel_probe": "passed"
+}

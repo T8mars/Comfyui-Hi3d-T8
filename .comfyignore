@@ -1,0 +1,21 @@
+# Registry archive: ComfyUI nodes and canvas examples only.
+hi3d_workbench/
+scripts/
+tools/
+tests/
+validation/
+samples/
+research/
+licenses/
+.github/
+docs/WORKBENCH.zh-CN.md
+docs/HUGGINGFACE.md
+docs/HUGGINGFACE.zh-CN.md
+docs/CHANGELOG.md
+docs/PUBLISHING.md
+requirements-worker-windows.txt
+Start-Workbench.cmd
+config.example.json
+upstream-source-manifest.json
+VALIDATION.md
+IMPLEMENTATION_STATUS.md

@@ -1,0 +1,138 @@
+{
+  "status": "succeeded",
+  "requested_resolution": 1024,
+  "actual_resolution": 1024,
+  "steps": 25,
+  "seed": 0,
+  "offload": true,
+  "attention": "sdpa",
+  "compatibility_port": true,
+  "seconds": 950.74,
+  "peak_allocated_mb": 8033,
+  "peak_reserved_mb": 8458,
+  "stage_metrics": [
+    {
+      "stage": "voxelizing",
+      "seconds": 2.979,
+      "peak_vram_mb": 33,
+      "rss_mb": 15724
+    },
+    {
+      "stage": "sampling",
+      "seconds": 163.456,
+      "peak_vram_mb": 674,
+      "rss_mb": 16436
+    },
+    {
+      "stage": "decoding",
+      "seconds": 4.986,
+      "peak_vram_mb": 1722,
+      "rss_mb": 16614
+    },
+    {
+      "stage": "extracting",
+      "seconds": 2.536,
+      "peak_vram_mb": 1333,
+      "rss_mb": 16797
+    },
+    {
+      "stage": "voxelizing",
+      "seconds": 1.292,
+      "peak_vram_mb": 617,
+      "rss_mb": 16855
+    },
+    {
+      "stage": "sampling",
+      "seconds": 681.533,
+      "peak_vram_mb": 3183,
+      "rss_mb": 16845
+    },
+    {
+      "stage": "decoding",
+      "seconds": 6.251,
+      "peak_vram_mb": 8033,
+      "rss_mb": 16845
+    },
+    {
+      "stage": "extracting",
+      "seconds": 15.333,
+      "peak_vram_mb": 5884,
+      "rss_mb": 17145
+    },
+    {
+      "stage": "postprocessing",
+      "seconds": 21.894,
+      "peak_vram_mb": 1772,
+      "rss_mb": 21001
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+  "environment": {
+    "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "torchvision": "0.26.0+cu128",
+      "triton-windows": "3.6.0.post26",
+      "spconv-cu126": "2.3.8",
+      "transformers": "4.46.3",
+      "accelerate": "1.6.0",
+      "numpy": "1.26.4"
+    },
+    "cuda": true,
+    "kernel_probe": "not_run",
+    "official_validated_environment": false,
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "capability": [
+      12,
+      0
+    ],
+    "free_vram_mb": 16697,
+    "total_vram_mb": 24435,
+    "torch_cuda": "12.8"
+  },
+  "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+  "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+  "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+  "coarse_sha256": "4e808212b10701d21770fa35aac9bfe55b24a6fb7e7886148bb2b97b1fe55371",
+  "geometry": {
+    "vertices": 500007,
+    "faces": 1000000,
+    "bounds": [
+      [
+        -0.9687674392996948,
+        -0.8859653661179093,
+        -0.9762863363105785
+      ],
+      [
+        0.8364081219102455,
+        0.9257467819801074,
+        0.9338581021241102
+      ]
+    ],
+    "extents": [
+      1.8051755612099403,
+      1.8117121480980167,
+      1.9101444384346888
+    ],
+    "watertight": false,
+    "winding_consistent": true,
+    "boundary_edges": 162,
+    "nonmanifold_edges": 42,
+    "degenerate_faces": 0,
+    "components": 34,
+    "unchecked": [
+      "自交",
+      "壁厚",
+      "最小零件强度",
+      "切片可打印性"
+    ],
+    "units": "unknown",
+    "warnings": [
+      "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+    ]
+  },
+  "normalized": true,
+  "texture_generated": false
+}

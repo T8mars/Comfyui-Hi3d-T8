@@ -4,5 +4,6 @@
   "verified_files": 23,
   "model_artifacts": 16,
   "identical_to_offline_edition": true,
-  "url": "https://huggingface.co/t8star/Hi3d-Comfy/commit/a358d3d22e8181ed9ca15f8becab2c46ce6a69a7"
+  "url": "https://huggingface.co/t8star/Hi3d-Comfy/commit/a358d3d22e8181ed9ca15f8becab2c46ce6a69a7",
+  "documentation_commit": "c51d1d051eca20b6d5bf21c37565e982e3e49eae"
 }

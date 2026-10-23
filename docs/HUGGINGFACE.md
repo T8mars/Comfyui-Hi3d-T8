@@ -2,7 +2,6 @@
 license: other
 license_name: hi3d-open-license-v1.0
 license_link: https://huggingface.co/t8star/Hi3d-Comfy/blob/main/LICENSE
-base_model: hi3d-official/Hi3Dv1.0
 language:
   - en
   - zh

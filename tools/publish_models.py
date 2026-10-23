@@ -1,10 +1,14 @@
 """Upload the exact verified offline-model files with the official Hub client."""
 import hashlib
 import json
+import argparse
+import sys
 from pathlib import Path
 from huggingface_hub import HfApi, CommitOperationAdd, hf_hub_download
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT))
+from hi3d_workbench.common import VERSION
 REPO = 't8star/Hi3d-Comfy'
 
 def sha256(path):
@@ -14,10 +18,11 @@ def sha256(path):
     return h.hexdigest()
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--offline-release',type=Path,default=ROOT/'dist'/f'Hi3D-Workbench-Windows-{VERSION}');args=parser.parse_args()
     api=HfApi()
     assert api.whoami()['name']=='t8star','Unexpected Hugging Face identity'
     manifest=json.loads((ROOT/'models/manifest.json').read_text(encoding='utf-8'))
-    offline=json.loads((ROOT/'dist/Hi3D-Workbench-Windows-0.2.1/models/manifest.json').read_text(encoding='utf-8'))
+    offline=json.loads((args.offline_release/'models/manifest.json').read_text(encoding='utf-8'))
     assert manifest['components']==offline['components'],'Models differ from offline edition'
     files={}
     for key,component in manifest['components'].items():

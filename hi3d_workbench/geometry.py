@@ -15,11 +15,19 @@ def validate(mesh):
         raise ValueError("三角面索引无效")
     if np.ptp(v, axis=0).max() <= 0:
         raise ValueError("模型尺寸为零")
+    # The upload/interchange format is GLB, whose positions are float32.
+    # Reject a lossy overflow/collapse before exporting an apparently valid mesh.
+    with np.errstate(over='ignore',invalid='ignore'):
+        encoded=np.asarray(v,dtype=np.float32)
+    if not np.isfinite(encoded).all() or np.ptp(encoded.astype(np.float64),axis=0).max()<=0:
+        raise ValueError("模型坐标超出 GLB 精度范围，请先居中并调整模型尺寸")
     return trimesh.Trimesh(v.copy(), f.copy(), process=False)
 
 def load_mesh(path: Path):
     if path.suffix.lower() == ".npz":
         with np.load(path, allow_pickle=False) as x:
+            if not np.isrealobj(x["vertices"]):
+                raise ValueError("网格顶点必须为实数坐标")
             if not np.issubdtype(x["faces"].dtype,np.integer):
                 raise ValueError("三角面索引必须为整数")
             return validate(trimesh.Trimesh(x["vertices"], x["faces"], process=False))
@@ -47,6 +55,7 @@ def export_mesh(mesh, target: Path, height_mm: float | None = None):
         # glTF/GLB encodes linear distances in meters; STL/PLY use our mm convention.
         coordinate_height=height_mm/1000 if target.suffix.lower()=='.glb' else height_mm
         mesh.apply_scale(coordinate_height / mesh.extents[2])
+        mesh=validate(mesh)
     mesh.export(target)
     return {"format": target.suffix, "height_axis": "Z", "height_mm": height_mm,
             "units": ("m" if target.suffix.lower()=='.glb' else "mm") if height_mm else "normalized/unknown", "bounds": mesh.bounds.tolist()}

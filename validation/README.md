@@ -1,5 +1,7 @@
 # 随包验证证据
 
+v0.2.2 新一轮20轮检查见 `postpublish-audit20.md`，后端与前端分别有独立记录。`postpublish-ui-baseline.json` 和 `postpublish-ui-result.json` 是四组新增浏览器基线/修复回归；`postpublish-existing-ui-result.json` 保留原九组回归。`postpublish-mask-result.png` 是实际蒙版画布，`postpublish-wheel-contract.json` 验证标准源码构建与独立导入，`postpublish-geometry-proof.json` 记录异常坐标原行为与明确拒绝。新真实推理及最终测试回执另列，不把夹具检查计作模型推理。
+
 发布前新增 `comfy-canvas-result.json`：实际 ComfyUI 0.34.0 / 前端1.53.6，5节点6连线画布加载、保存、重新加载后执行真实512 / 25步推理，273.89秒，GLB18007536字节，零JavaScript错误。`examples/Hi3D-Refine.json` 使用前端实际保存的画布结构，发布包不提供API格式示例。`huggingface-publication.json` 记录上传提交及远端23文件校验，含16个与离线包相同的模型工件。
 
 v0.2.1 的20轮检查见 `audit20-rounds.md` 与 `audit20-backend-rounds-01-10.md`。`audit20-browser-baseline.json` 是修复前隔离复现，`audit20-browser-result.json` 是修复后第11–19轮回归；`audit20-existing-browser-regression.json` 和 `audit20-browser-basic.json` 是新版运行时上的既有流程 / 蒙版测试。上述故障响应和临时worker均不代表模型推理。`audit20-model-provenance.json` 核对11个官方固定版本Git配置 / 通知文件。

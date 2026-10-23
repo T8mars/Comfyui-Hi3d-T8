@@ -16,3 +16,4 @@ comfy-runtime/
 .env.*
 .publishenv/
 node.zip
+build/

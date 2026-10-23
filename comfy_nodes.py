@@ -10,6 +10,9 @@ import uuid
 import os
 
 _LOCAL_HTTP=urllib.request.build_opener(urllib.request.ProxyHandler({}))
+_READ_TIMEOUT=15
+_WRITE_TIMEOUT=600
+_CANCEL_TIMEOUT=10
 
 def request(base,path,payload=None,token=None,raw=False,content_type=None):
     parsed=urlparse(base)
@@ -24,7 +27,10 @@ def request(base,path,payload=None,token=None,raw=False,content_type=None):
     if content_type:headers["content-type"]=content_type
     req=urllib.request.Request(base.rstrip('/')+path,data=payload,headers=headers)
     try:
-        with _LOCAL_HTTP.open(req,timeout=600) as r:
+        # Polling and stopping a local worker must not wait for the long upload
+        # timeout; ComfyUI checks its interruption flag between these calls.
+        timeout=_CANCEL_TIMEOUT if payload is not None and path.endswith('/cancel') else (_WRITE_TIMEOUT if payload is not None else _READ_TIMEOUT)
+        with _LOCAL_HTTP.open(req,timeout=timeout) as r:
             data=r.read()
             return data if raw else json.loads(data)
     except urllib.error.HTTPError as e:
@@ -116,25 +122,35 @@ class Hi3DRefine:
     CATEGORY='Hi3D'
     def refine(self,backend,image,mesh,resolution,steps,seed,cpu_offload,attention,mask=None):
         import numpy as np
-        import torch
         from PIL import Image
         import comfy.model_management as mm
         from comfy.utils import ProgressBar
-        if image.shape[0]!=1:raise ValueError('Hi3D 只支持单张参考图')
-        pixels=(image[0].detach().cpu().numpy().clip(0,1)*255).round().astype('uint8')
+        if len(image.shape)!=4 or image.shape[0]!=1 or image.shape[-1] not in (3,4) or min(image.shape[1:3])<=0:
+            raise ValueError('Hi3D 只支持单张 RGB / RGBA 参考图，形状须为 1×H×W×3/4')
+        pixels=image[0].detach().cpu().numpy()
+        if not np.isfinite(pixels).all():raise ValueError('参考图包含无效数值')
+        pixels=(pixels.clip(0,1)*255).round().astype('uint8')
         im=Image.fromarray(pixels).convert('RGBA')
         if mask is not None:
             m=mask.detach().cpu().numpy()
             if m.ndim==3:
                 if m.shape[0]!=1:raise ValueError('Hi3D 只支持单个蒙版')
                 m=m[0]
+            if m.ndim!=2 or min(m.shape)<=0 or not np.isfinite(m).all():raise ValueError('蒙版须为有效的 H×W 或 1×H×W 数值')
             # ComfyUI MASK: 1 means masked-out, so alpha is its inverse.
             alpha=Image.fromarray(((1-m.clip(0,1))*255).round().astype('uint8'))
             if alpha.size!=im.size:alpha=alpha.resize(im.size,Image.Resampling.BILINEAR)
-            im.putalpha(alpha)
+            # A connected MASK can remove more pixels but must never make an
+            # existing transparent IMAGE background opaque. min also avoids
+            # applying the same soft alpha twice when both inputs carry it.
+            im.putalpha(Image.fromarray(np.minimum(np.asarray(im.getchannel('A')),np.asarray(alpha))))
         imagebuf=io.BytesIO();im.save(imagebuf,format='PNG')
         v,f=arrays(mesh);meshbuf=io.BytesIO();np.savez_compressed(meshbuf,vertices=v,faces=f)
-        imageitem=upload(backend,'reference.png',imagebuf.getvalue());meshitem=upload(backend,'coarse.npz',meshbuf.getvalue())
+        mm.throw_exception_if_processing_interrupted()
+        imageitem=upload(backend,'reference.png',imagebuf.getvalue())
+        mm.throw_exception_if_processing_interrupted()
+        meshitem=upload(backend,'coarse.npz',meshbuf.getvalue())
+        mm.throw_exception_if_processing_interrupted()
         mm.unload_all_models();mm.soft_empty_cache()
         job=request(backend['url'],'/api/jobs',{'image':imageitem['id'],'mesh':meshitem['id'],'resolution':resolution,'steps':steps,'seed':seed,'offload':cpu_offload,'attention':attention})
         jid=job['id'];pbar=ProgressBar(steps*({512:1,1024:2,1536:3}[resolution]))

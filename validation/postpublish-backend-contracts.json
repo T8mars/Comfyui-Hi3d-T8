@@ -1,0 +1,28 @@
+{
+  "source": {
+    "node_ids": [
+      "Hi3DBackend",
+      "Hi3DLoadMesh",
+      "Hi3DRefine"
+    ],
+    "discovery_without_heavy_packages": true
+  },
+  "published_021_archive": {
+    "files": 14,
+    "discovery": {
+      "node_ids": [
+        "Hi3DBackend",
+        "Hi3DLoadMesh",
+        "Hi3DRefine"
+      ],
+      "discovery_without_heavy_packages": true
+    },
+    "api_workflow_delivered": false
+  },
+  "canvas_contract": {
+    "format": 0.4,
+    "nodes": 5,
+    "links": 6,
+    "typed_links_and_widgets_valid": true
+  }
+}

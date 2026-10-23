@@ -1,8 +1,10 @@
 # 验证记录
 
+当前 **v0.2.2** 的新一轮20轮审计见 [postpublish-audit20.md](validation/postpublish-audit20.md)，后端/节点与浏览器基线分开记录。新增修复未改变官方源码、模型权重或采样数学；整套 **102项pytest通过**（46.34秒，1条依赖弃用警告），回执见 validation/postpublish-pytest.txt。浏览器新增四轮及原九组回归通过，零JavaScript错误；新发行包真实推理单独记录。
+
 日期：2026-10-23；设备为 RTX 5090 Laptop 约 24GB，系统内存约 64GB。
 
-当前发行 **v0.2.1** 完成主 / 子 Agent 20轮交叉检查，过程见 [audit20-rounds.md](validation/audit20-rounds.md)。全套 **70项 pytest通过**；新增9组浏览器审计、原11组浏览器回归与实际蒙版绘制均通过，零JavaScript错误。浏览器测试还验证HTTP500、请求超时、残留进程阻塞、记录404/400恢复。worker测试仅使用临时假脚本，真实Hi3D推理另以 `v021-ui-inference.json` 和 `v021-inference-report.json` 记录，不混用两类证据。
+上轮发行 **v0.2.1** 完成主 / 子 Agent 20轮交叉检查，过程见 [audit20-rounds.md](validation/audit20-rounds.md)。全套 **70项 pytest通过**；新增9组浏览器审计、原11组浏览器回归与实际蒙版绘制均通过，零JavaScript错误。浏览器测试还验证HTTP500、请求超时、残留进程阻塞、记录404/400恢复。worker测试仅使用临时假脚本，真实Hi3D推理另以 `v021-ui-inference.json` 和 `v021-inference-report.json` 记录，不混用两类证据。
 
 第20轮发行审计已扩大到全部自有代码和节点包内容：CRC有效但jobs.py / ComfyUI节点陈旧也会拒绝。完整归档结果见发行目录 `RELEASE-VERIFIED-0.2.1.json`。固定revision的11个Git配置 / 通知文件只读核对见 `audit20-model-provenance.json`。此轮没有更改官方源码、权重与采样数学。
 

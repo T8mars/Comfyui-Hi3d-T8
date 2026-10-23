@@ -5,7 +5,7 @@ import hashlib
 import json
 import sys
 import zipfile
-from pathlib import Path
+from pathlib import Path,PurePosixPath
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
@@ -22,6 +22,16 @@ def _compare(z,name,source):
         with z.open(name) as stream:actual=stream_hash(stream)
     except KeyError:raise AssertionError(f'发行包缺少文件：{name}') from None
     assert actual==expected,f'发行包文件不是当前版本：{name}'
+
+def verify_paths(names):
+    assert len(names)==len(set(names)),'发行包包含重名条目'
+    for name in names:
+        parts=PurePosixPath(name).parts
+        assert parts and not name.startswith(('/', '\\')) and '..' not in parts and ':' not in parts[0],name
+        logical=parts[1:] if parts[0]=='ComfyUI-Hi3D' else parts
+        assert logical and logical[0] not in {'data','research'},name
+        assert not any(p in {'.git','.secrets','.cache','.downloads','__pycache__'} or p=='.env' or p.startswith('.env.') for p in parts),f'发行包包含本机私有或缓存文件：{name}'
+        assert parts[-1]!='hi3d_refine_api.json',name
 
 def verify_owned(z,prefix='',source_root=None):
     root=source_root or ROOT
@@ -62,6 +72,7 @@ def audit(release):
             names=z.namelist();prefix=release.name+'/' if name==release.name+'.zip' else ''
             if prefix:assert all(n.startswith(prefix) for n in names)
             stripped=[n.removeprefix(prefix) for n in names]
+            verify_paths(stripped)
             assert not any(n.startswith(('data/','.git/')) or '/__pycache__/' in n for n in stripped)
             assert not any('/assets/example' in n or n.startswith('research/') for n in stripped)
             result={'crc':'passed','files':len(names),'bytes':path.stat().st_size,'sha256':actual,'personal_data_excluded':True}

@@ -2,7 +2,7 @@
 
 [English](README.md) | **简体中文**
 
-**By T8star · v0.2.1** — 面向 ComfyUI 与独立本地工作台的 Hi3D V1.0 几何精修工具。
+**By T8star · v0.2.2** — 面向 ComfyUI 与独立本地工作台的 Hi3D V1.0 几何精修工具。
 
 输入为**同一物体的参考图＋粗网格**，输出精修后的几何模型。仅使用官方 Hi3D 第二阶段模型，不生成初始粗模、纹理或 UV，不接入其他 3D 生成模型。
 
@@ -53,7 +53,7 @@ Linux 执行 `bash scripts/setup-linux.sh`，再运行 `.venv/bin/python -m hi3d
 
 ## 验证与限制
 
-实测设备为 **Windows / RTX 5090 Laptop 24GB / 64GB RAM**：完成真实 ComfyUI 512 精修及独立工作台 512/1024/1536 推理；20 轮审计后 **70 项测试**与浏览器回归通过。证据见 [VALIDATION.md](VALIDATION.md)。尚未验证更小显存设备；张量分配峰值不能作为最低显存要求。
+实测设备为 **Windows / RTX 5090 Laptop 24GB / 64GB RAM**：完成真实 ComfyUI 512 精修及独立工作台 512/1024/1536 推理；20 轮审计后 **102 项测试**与浏览器回归通过。证据见 [VALIDATION.md](VALIDATION.md)。尚未验证更小显存设备；张量分配峰值不能作为最低显存要求。
 
 Windows 使用明确标识的 **SDPA 兼容适配**，与官方 Linux FlashAttention 环境有区别。Hi3D 会归一化尺寸并重建拓扑；不保证结果封闭、可打印或比粗模更准确，导出前应对比检查。
 

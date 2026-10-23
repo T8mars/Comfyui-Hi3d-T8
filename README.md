@@ -2,7 +2,7 @@
 
 **English** | [简体中文](README.zh-CN.md)
 
-**By T8star · v0.2.1** — Hi3D V1.0 geometry refinement for ComfyUI and a standalone local workbench.
+**By T8star · v0.2.2** — Hi3D V1.0 geometry refinement for ComfyUI and a standalone local workbench.
 
 Refine a **reference image + coarse mesh of the same object** into detailed geometry. This project uses the official Hi3D second-stage model. It does not generate the initial coarse mesh, textures or UVs, and includes no additional 3D generation models.
 
@@ -53,7 +53,7 @@ For Linux, run `bash scripts/setup-linux.sh`, then `.venv/bin/python -m hi3d_wor
 
 ## Validation and limits
 
-Tested on **Windows / RTX 5090 Laptop 24GB / 64GB RAM**: real ComfyUI 512 refinement and standalone 512/1024/1536 runs. The 20-round audit passed **70 tests** plus browser regressions; evidence is in [VALIDATION.md](VALIDATION.md). Lower-VRAM GPUs have not been validated. PyTorch tensor peaks are not total GPU memory requirements.
+Tested on **Windows / RTX 5090 Laptop 24GB / 64GB RAM**: real ComfyUI 512 refinement and standalone 512/1024/1536 runs. The post-release 20-round audit passed **102 tests** plus browser regressions; evidence is in [VALIDATION.md](VALIDATION.md). Lower-VRAM GPUs have not been validated. PyTorch tensor peaks are not total GPU memory requirements.
 
 Windows uses an explicitly identified **SDPA compatibility adapter**; it is not the official Linux FlashAttention environment. Hi3D normalizes scale and rebuilds topology. Outputs are geometry only and are not guaranteed watertight, printable or more accurate than the input; inspect both versions before export.
 

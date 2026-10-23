@@ -32,7 +32,15 @@ def isolated_server(tmp_path,monkeypatch):
     monkeypatch.setattr(server.models,'LOCK',threading.Lock())
     monkeypatch.setattr(server.models,'status',lambda:{'ready':True,'components':{'fixture':{'present':True}},'download':{'state':'idle'}})
     monkeypatch.setattr(server.models,'verify_all',lambda:{'ok':True,'errors':[]})
-    monkeypatch.setattr(server.subprocess,'run',lambda *args,**kwargs:pytest.fail('A regression must never launch GPU diagnostics'))
+    actual_popen=server.subprocess.Popen
+    def controlled_probe_only(command,*args,**kwargs):
+        from pathlib import Path
+        # Explicit temporary probe scripts may exercise process cleanup;
+        # the production -m worker must remain unreachable in service tests.
+        if len(command)>1 and command[0]==sys.executable and Path(command[1]).resolve().is_relative_to(data) and Path(command[1]).is_file():
+            return actual_popen(command,*args,**kwargs)
+        pytest.fail('A regression must never launch uncontrolled GPU diagnostics')
+    monkeypatch.setattr(server.subprocess,'Popen',controlled_probe_only)
     monkeypatch.setattr(manager,'create',lambda *args,**kwargs:pytest.fail('A regression must never launch inference'))
     assert server.DATA.is_relative_to(tmp_path) and manager.root.is_relative_to(tmp_path)
     with TestClient(server.app,base_url='http://127.0.0.1') as client:

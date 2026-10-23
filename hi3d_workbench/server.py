@@ -5,6 +5,7 @@ import secrets
 import shutil
 import subprocess
 import threading
+import time
 import sys
 import uuid
 import zipfile
@@ -30,6 +31,9 @@ GPU_OPERATION=threading.Lock()
 VERIFY_LOCK=threading.Lock()
 operation=None
 verification_error=None
+DIAGNOSTIC_TIMEOUT=180
+PROBE_WORKERS={}
+PROBE_WORKERS_LOCK=threading.Lock()
 JOB_FILES={"coarse.glb","input.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","report.json","request.json","worker.log","failure.json"}
 
 @contextmanager
@@ -38,7 +42,7 @@ def gpu_operation(kind):
     if not GPU_OPERATION.acquire(blocking=False):raise HTTPException(409,"正在提交任务或检查 GPU，请稍后再试")
     try:
         if manager.active:raise HTTPException(409,"已有精修任务运行，请先等待或停止该任务")
-        if manager.recovery_blocked:raise HTTPException(409,"重启前的工作进程仍在运行，请等待该进程退出")
+        if manager.recovery_blocked or probe_recovery_workers():raise HTTPException(409,"仍有残留工作或诊断进程运行，请等待该进程退出")
         operation=kind
         yield
     finally:
@@ -118,10 +122,13 @@ def sample(name:str):
 
 @app.get("/api/health")
 def health():
-    blocked=manager.recovery_blocked
+    probe_workers=probe_recovery_workers()
+    blocked=manager.recovery_blocked or bool(probe_workers)
+    errors=manager.recovery_errors.copy()
+    if probe_workers:errors.append('上次 GPU 诊断仍有进程未退出，暂时阻止新的 GPU 操作')
     try:diagnostics=read_json(DATA/'diagnostics.json')
     except (OSError,ValueError) as exc:diagnostics={'error':f'诊断记录无法读取，请重新运行 GPU 检查：{exc}','kernel_probe':'not_run'}
-    return {"models":models.status(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":manager.recovery_errors.copy(),"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers,"diagnostics":diagnostics,"port":config()["port"],"version":VERSION}
+    return {"models":models.status(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":errors,"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers+probe_workers,"diagnostics":diagnostics,"port":config()["port"],"version":VERSION}
 
 @app.post("/api/diagnostics")
 def diagnose():
@@ -129,17 +136,96 @@ def diagnose():
         cfg=config()
         cmd=cfg["worker_command"] or [str((ROOT/cfg["worker_python"]).resolve())]
         try:
-            p=subprocess.run([*cmd,"-m","hi3d_workbench.worker","--diagnose","--probe"],cwd=ROOT,capture_output=True,text=True,encoding="utf-8",errors="replace",timeout=180,creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
-            result=json.loads(p.stdout.strip().splitlines()[-1])
+            output,returncode=run_probe([*cmd,"-m","hi3d_workbench.worker","--diagnose","--probe"])
+            result=json.loads(output.strip().splitlines()[-1])
+            if returncode and result.get('kernel_probe')=='passed':
+                result.update(kernel_probe='failed',error=f'诊断进程异常退出：{returncode}')
         except Exception as e:result={"error":str(e),"kernel_probe":"failed"}
         atomic_json(DATA/"diagnostics.json",result)
         return result
 
+def probe_recovery_workers():
+    """Keep the GPU guard until previously identified diagnostic workers exit."""
+    import psutil
+    alive={}
+    with PROBE_WORKERS_LOCK:
+        for pid,created in PROBE_WORKERS.items():
+            try:
+                proc=psutil.Process(pid)
+                if abs(proc.create_time()-created)>.01 or not proc.is_running() or proc.status()==psutil.STATUS_ZOMBIE:continue
+            except psutil.NoSuchProcess:continue
+            except psutil.AccessDenied:pass  # Retain a known identity if it becomes unreadable.
+            alive[pid]=created
+        PROBE_WORKERS.clear();PROBE_WORKERS.update(alive)
+    return [{'pid':pid,'created':created} for pid,created in alive.items()]
+
+
+def _marked_probe_workers(marker,started):
+    """The inherited nonce also identifies children whose launcher has exited."""
+    import psutil
+    found={}
+    for candidate in psutil.process_iter(['create_time']):
+        try:
+            # Ignore older processes using the iterator's cached metadata;
+            # recreate only recent candidates before reading their environment.
+            if candidate.info['create_time'] is None or candidate.info['create_time']<started:continue
+            proc=psutil.Process(candidate.pid)
+            created=proc.create_time()
+            if created>=started and proc.environ().get('HI3D_DIAGNOSTIC_ID')==marker:
+                found[proc.pid]=(proc,created)
+        except (psutil.NoSuchProcess,psutil.AccessDenied):pass
+    return found
+
+
+def _kill_probe_process(process):
+    process.kill()
+
+
+def run_probe(command):
+    """Reap inherited diagnostic workers even after a Windows launcher exits."""
+    import psutil
+    marker=secrets.token_urlsafe(32);started=time.time()
+    process=subprocess.Popen(command,cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.PIPE,
+        text=True,encoding='utf-8',errors='replace',env={**os.environ,'HI3D_DIAGNOSTIC_ID':marker},
+        creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
+    known={}
+    try:
+        identity=psutil.Process(process.pid)
+        known[process.pid]=(identity,identity.create_time())
+    except psutil.NoSuchProcess:pass
+    try:
+        output,_=process.communicate(timeout=DIAGNOSTIC_TIMEOUT)
+        return output,process.returncode
+    except subprocess.TimeoutExpired:
+        # A parent can disappear before children(recursive=True) runs. Match
+        # only this invocation's inherited nonce and creation time, then make
+        # a second pass for descendants spawned during the first snapshot.
+        try:
+            for _ in range(2):
+                known.update(_marked_probe_workers(marker,started))
+                ordered=sorted(known.values(),key=lambda item:item[0].pid==process.pid)
+                for owned,created in ordered:
+                    try:
+                        if abs(owned.create_time()-created)<=.01:_kill_probe_process(owned)
+                    except (psutil.Error,OSError):pass
+            try:process.communicate(timeout=2)
+            except subprocess.TimeoutExpired:pass
+            psutil.wait_procs([owned for owned,_ in known.values()],timeout=2)
+        finally:
+            # Retain every confirmed identity even if pipe cleanup itself
+            # fails, so releasing the operation lock cannot permit overlap.
+            try:known.update(_marked_probe_workers(marker,started))
+            finally:
+                with PROBE_WORKERS_LOCK:PROBE_WORKERS.update({pid:created for pid,(_,created) in known.items()})
+        if probe_recovery_workers():raise RuntimeError('GPU 诊断超时且部分进程尚未退出，已阻止新的 GPU 操作') from None
+        raise RuntimeError('GPU 诊断超时，诊断进程及子进程已停止') from None
+
 @app.post("/api/models/download")
 def download():
     with gpu_operation('downloading'):
-        if VERIFY_LOCK.locked():raise HTTPException(409,"正在校验模型，请完成后再下载")
-        return {"started":models.download_all()}
+        if not VERIFY_LOCK.acquire(blocking=False):raise HTTPException(409,"正在校验模型，请完成后再下载")
+        try:return {"started":models.download_all()}
+        finally:VERIFY_LOCK.release()
 
 @app.post("/api/models/verify")
 def verify():return verify_models()

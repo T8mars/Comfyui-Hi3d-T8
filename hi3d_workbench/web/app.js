@@ -198,11 +198,22 @@ $('#load-sample').onclick = async () => {
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
 };
+function validMetric(value) { return typeof value === 'number' && Number.isFinite(value) && value >= 0; }
+function completeGeometry(value) {
+  return value && ['vertices','faces','components','boundary_edges','nonmanifold_edges','degenerate_faces'].every(key => validMetric(value[key]) && Number.isInteger(value[key])) && typeof value.winding_consistent === 'boolean' && typeof value.watertight === 'boolean';
+}
 function geometry(value) {
+  if (!completeGeometry(value)) {
+    $('#geometry-summary').className = 'warning';
+    $('#geometry-summary').textContent = '几何检查报告不完整，暂无法判断边界、流形与封闭性。';
+    $('#geometry-info').textContent = '部分几何指标未保存或无法读取。现有模型仍可预览和导出；打印前请在专门软件中检查几何、壁厚与自交。';
+    return false;
+  }
   const g = value, issues = g.boundary_edges || g.nonmanifold_edges || g.degenerate_faces;
   $('#geometry-summary').className = issues ? 'warning' : 'good';
   $('#geometry-summary').textContent = `${Number(g.faces).toLocaleString()} 个三角面 · ${g.components} 个连通件。${issues ? '检测到开放边界或异常几何，打印前请进一步检查。' : '当前几何检查未发现边界或非流形边；打印前仍需检查壁厚和自交。'}`;
-  $('#geometry-info').textContent = `${Number(g.vertices).toLocaleString()} 顶点 · ${g.boundary_edges} 条边界边 · ${g.nonmanifold_edges} 条非流形边 · ${g.degenerate_faces ?? '未统计'} 个退化面 · 法向方向${g.winding_consistent ? '一致' : '需检查'} · ${g.watertight ? '封闭网格' : '非封闭网格'}。未检测：${(g.unchecked || ['自交','壁厚']).join('、')}。`;
+  $('#geometry-info').textContent = `${Number(g.vertices).toLocaleString()} 顶点 · ${g.boundary_edges} 条边界边 · ${g.nonmanifold_edges} 条非流形边 · ${g.degenerate_faces} 个退化面 · 法向方向${g.winding_consistent ? '一致' : '需检查'} · ${g.watertight ? '封闭网格' : '非封闭网格'}。未检测：${(Array.isArray(g.unchecked) ? g.unchecked : ['自交','壁厚']).join('、')}。`;
+  return true;
 }
 for (const view of [$('#before'), $('#after')]) {
   view.addEventListener('load', () => {
@@ -272,11 +283,18 @@ function renderJob(job) {
     $('#stage-detail').textContent = `第 ${event.pass_index+1} / ${event.num_passes} 轮 · 本轮采样 ${event.step} / ${event.num_inference_steps}。这是当前轮进度，后续还需解码与保存。`;
   } else $('#progress').hidden = true;
   $('#view-status').textContent = '查看历史任务 · 复用后可修改输入与参数';
-  if (job.state === 'succeeded' && job.report) {
-    const report = job.report; setView('after', hasJobFile(job,'refined.glb') ? `/api/jobs/${job.id}/files/refined.glb` : null);
-    $('#face-stat').textContent = report.geometry.faces.toLocaleString(); $('#time-stat').textContent = duration(report.seconds);
-    $('#memory-stat').textContent = `${(report.peak_allocated_mb/1024).toFixed(2)} GiB`; $('#res-stat').textContent = report.actual_resolution;
-    $('#view-status').textContent = report.compatibility_port ? 'Windows SDPA 兼容路径 · 两侧视角同步' : 'Hi3D 模型与采样路径 · 两侧视角同步'; geometry(report.geometry);
+  if (job.state === 'succeeded') {
+    const report = job.report && typeof job.report === 'object' ? job.report : {};
+    setView('after', hasJobFile(job,'refined.glb') ? `/api/jobs/${job.id}/files/refined.glb` : null);
+    $('#face-stat').textContent = validMetric(report.geometry?.faces) ? report.geometry.faces.toLocaleString() : '—';
+    $('#time-stat').textContent = validMetric(report.seconds) ? duration(report.seconds) : '—';
+    $('#memory-stat').textContent = validMetric(report.peak_allocated_mb) ? `${(report.peak_allocated_mb/1024).toFixed(2)} GiB` : '—';
+    $('#res-stat').textContent = validMetric(report.actual_resolution) && report.actual_resolution > 0 ? report.actual_resolution : '—';
+    const complete = geometry(report.geometry) && [report.seconds,report.peak_allocated_mb,report.actual_resolution].every(validMetric) && report.actual_resolution > 0;
+    $('#view-status').textContent = report.compatibility_port ? 'Windows SDPA 兼容路径 · 两侧视角同步' : 'Hi3D 模型与采样路径 · 两侧视角同步';
+    $('#after-title').textContent = 'Hi3D 精修结果';
+    $('#after-hint').textContent = complete ? '左右拖动旋转，滚轮缩放；两侧视角同步' : '运行报告不完整；已保留的精修模型仍可预览和导出';
+    if (!complete) $('#stage-detail').textContent = '此任务的运行报告不完整，缺失指标显示为 —。现有模型文件仍可预览和导出，几何质量需另行检查。';
     if (!hasJobFile(job,'refined.glb')) {
       $('#after-title').textContent = '此任务的精修文件已缺失'; $('#after-hint').textContent = '仍可查看保留的报告；输入齐全时可复用后重试';
       $('#stage-detail').textContent = '任务曾完成，但当前目录找不到精修文件。下方指标来自保存的运行报告。';
@@ -290,13 +308,19 @@ function renderJob(job) {
   availability();
 }
 async function loadArtifacts(job, selectedEpoch) {
+  if (epoch !== selectedEpoch || currentJob?.id !== job.id) return;
   const files = job.available_files || [], key = `${job.id}:${job.updated}:${files.join(',')}`;
   if (files.includes('conditioning.png')) { $('#conditioning').src = `/api/jobs/${job.id}/files/conditioning.png`; $('#conditioning').hidden = false; }
   else { $('#conditioning').hidden = true; $('#conditioning').removeAttribute('src'); }
   if (!files.includes('worker.log')) { $('#log').textContent = '日志文件缺失或尚未生成。'; return; }
   if (logsKey === key) return;
-  const text = await api(`/api/jobs/${job.id}/files/worker.log`, {responseType:'text',timeoutMs:10000});
-  if (epoch === selectedEpoch && currentJob?.id === job.id) { $('#log').textContent = text.slice(-24000) || '任务日志暂时为空。'; logsKey = key; }
+  try {
+    const text = await api(`/api/jobs/${job.id}/files/worker.log`, {responseType:'text',timeoutMs:10000});
+    if (epoch === selectedEpoch && currentJob?.id === job.id) { $('#log').textContent = text.slice(-24000) || '任务日志暂时为空。'; logsKey = key; }
+  } catch (error) {
+    const detail = error.network ? '本次日志请求中断或超时' : error.message.replace(/[。.!！]+$/u,'');
+    if (epoch === selectedEpoch && currentJob?.id === job.id) $('#log').textContent = `日志暂时无法读取：${detail}。稍后会自动重试；现有预览与导出仍可使用。`;
+  }
 }
 async function openJob(id) {
   if (pending) return; pending = 'opening'; const selectedEpoch = ++epoch; availability();
@@ -339,8 +363,8 @@ async function history() {
       const state = document.createElement('span'); state.className = 'state-pill'; state.textContent = stateLabels[job.state] || job.state;
       const button = document.createElement('button'); button.textContent = '打开任务 →'; button.onclick = () => openJob(job.id); row.append(info, state, button); list.append(row);
     }
-  } catch (error) { showError(error); $('#history-list').textContent = '无法读取记录，请检查连接后点击刷新。'; }
-  finally { $('#refresh-history').disabled = false; }
+  } catch (error) { if (historyEpoch === selectedEpoch) { showError(error); $('#history-list').textContent = '无法读取记录，请检查连接后点击刷新。'; } }
+  finally { if (historyEpoch === selectedEpoch) $('#refresh-history').disabled = false; }
 }
 $('#refresh-history').onclick = history;
 function renderHealth() {
@@ -406,12 +430,26 @@ function point(event) { const r = canvas.getBoundingClientRect(); return [(event
 function paint(event) {
   if (!drawing) return; const p = point(event), size = +$('#brush-size').value*canvas.width/canvas.getBoundingClientRect().width;
   if ($('#brush-mode').value === 'erase') {
-    ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineWidth = size; ctx.beginPath(); ctx.moveTo(...(last || p)); ctx.lineTo(...p); ctx.stroke(); ctx.globalCompositeOperation = 'source-over';
-  } else { ctx.save(); ctx.beginPath(); ctx.arc(...p,size/2,0,Math.PI*2); ctx.clip(); ctx.clearRect(p[0]-size/2,p[1]-size/2,size,size); ctx.drawImage(original,0,0); ctx.restore(); }
+    ctx.globalCompositeOperation = 'destination-out'; ctx.lineCap = 'round'; ctx.lineWidth = size; ctx.beginPath();
+    if (!last || last[0] === p[0] && last[1] === p[1]) { ctx.arc(...p,size/2,0,Math.PI*2); ctx.fill(); }
+    else { ctx.moveTo(...last); ctx.lineTo(...p); ctx.stroke(); }
+    ctx.globalCompositeOperation = 'source-over';
+  } else {
+    const start = last || p, radius = size/2, angle = Math.atan2(p[1]-start[1], p[0]-start[0]);
+    ctx.save(); ctx.beginPath();
+    if (start[0] === p[0] && start[1] === p[1]) ctx.arc(...p,radius,0,Math.PI*2);
+    else {
+      const dx = Math.sin(angle)*radius, dy = Math.cos(angle)*radius;
+      ctx.moveTo(start[0]+dx,start[1]-dy); ctx.lineTo(p[0]+dx,p[1]-dy);
+      ctx.arc(...p,radius,angle-Math.PI/2,angle+Math.PI/2);
+      ctx.lineTo(start[0]-dx,start[1]+dy); ctx.arc(...start,radius,angle+Math.PI/2,angle+Math.PI*1.5); ctx.closePath();
+    }
+    ctx.clip(); ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(original,0,0); ctx.restore();
+  }
   last = p;
 }
 canvas.onpointerdown = event => { drawing = true; last = null; canvas.setPointerCapture(event.pointerId); paint(event); };
-canvas.onpointermove = paint; canvas.onpointerup = canvas.onpointercancel = () => { drawing = false; last = null; };
+canvas.onpointermove = paint; canvas.onpointerup = canvas.onpointercancel = canvas.onlostpointercapture = () => { drawing = false; last = null; };
 $('#mask-apply').onclick = async () => {
   if (inputBusy()) return;
   pending = 'mask-saving'; availability();

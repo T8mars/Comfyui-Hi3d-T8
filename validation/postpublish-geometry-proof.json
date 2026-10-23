@@ -1,0 +1,31 @@
+{
+  "baseline_commit": "10f1c4187f6f2ac09b3e81d1ae80c23ae9b7144d",
+  "cases": [
+    {
+      "case": "complex",
+      "old_accepted": true,
+      "old_warnings": [
+        "Casting complex values to real discards the imaginary part"
+      ],
+      "fixed_rejected": true,
+      "reason": "网格顶点必须为实数坐标"
+    },
+    {
+      "case": "overflow",
+      "old_accepted": true,
+      "old_warnings": [
+        "overflow encountered in cast"
+      ],
+      "fixed_rejected": true,
+      "reason": "模型坐标超出 GLB 精度范围，请先居中并调整模型尺寸"
+    },
+    {
+      "case": "collapse",
+      "old_accepted": true,
+      "old_warnings": [],
+      "fixed_rejected": true,
+      "reason": "模型坐标超出 GLB 精度范围，请先居中并调整模型尺寸"
+    }
+  ],
+  "data": "disposable NPZ files, no production artifacts"
+}

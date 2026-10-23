@@ -1,0 +1,141 @@
+{
+  "mode": "regression",
+  "rounds": [
+    {
+      "round": 14,
+      "check": "available_refined_mesh_survives_missing_report",
+      "passed": true,
+      "evidence": [
+        {
+          "variant": "absent",
+          "passed": true,
+          "src": "/api/jobs/postpublish-ui/files/refined.glb",
+          "faces": "—",
+          "statistics": [
+            "—",
+            "—",
+            "—",
+            "—"
+          ],
+          "summary": "几何检查报告不完整，暂无法判断边界、流形与封闭性。",
+          "state": "warning",
+          "toast": "",
+          "exportDisabled": false,
+          "preview_loaded": true,
+          "errors": []
+        },
+        {
+          "variant": "empty_geometry",
+          "passed": true,
+          "src": "/api/jobs/postpublish-ui/files/refined.glb",
+          "faces": "—",
+          "statistics": [
+            "—",
+            "1 秒",
+            "0.25 GiB",
+            "512"
+          ],
+          "summary": "几何检查报告不完整，暂无法判断边界、流形与封闭性。",
+          "state": "warning",
+          "toast": "",
+          "exportDisabled": false,
+          "preview_loaded": true,
+          "errors": []
+        },
+        {
+          "variant": "full",
+          "passed": true,
+          "src": "/api/jobs/postpublish-ui/files/refined.glb",
+          "faces": "1,280",
+          "statistics": [
+            "1,280",
+            "1 秒",
+            "0.25 GiB",
+            "512"
+          ],
+          "summary": "1,280 个三角面 · 1 个连通件。当前几何检查未发现边界或非流形边；打印前仍需检查壁厚和自交。",
+          "state": "good",
+          "toast": "",
+          "exportDisabled": false,
+          "preview_loaded": true,
+          "errors": []
+        }
+      ]
+    },
+    {
+      "round": 15,
+      "check": "log_errors_stay_local_and_do_not_overwrite_new_selection",
+      "passed": true,
+      "evidence": [
+        {
+          "failure": "abort",
+          "offline": false,
+          "log": "日志暂时无法读取：本次日志请求中断或超时。稍后会自动重试；现有预览与导出仍可使用。",
+          "export_disabled": false,
+          "passed": true
+        },
+        {
+          "failure": 404,
+          "offline": false,
+          "log": "日志暂时无法读取：fixture log unavailable。稍后会自动重试；现有预览与导出仍可使用。",
+          "export_disabled": false,
+          "passed": true
+        },
+        {
+          "failure": 503,
+          "offline": false,
+          "log": "日志暂时无法读取：fixture log unavailable。稍后会自动重试；现有预览与导出仍可使用。",
+          "export_disabled": false,
+          "passed": true
+        },
+        {
+          "failure": "stale-abort",
+          "log": "还没有任务。",
+          "offline": false,
+          "passed": true
+        }
+      ]
+    },
+    {
+      "round": 16,
+      "check": "history_stale_error_and_finally_respect_request_epoch",
+      "passed": true,
+      "evidence": {
+        "newer_success_retained": true,
+        "stale_error_toast": false,
+        "newer_pending_button_locked": true
+      }
+    },
+    {
+      "round": 17,
+      "check": "sparse_restore_stroke_is_continuous_and_preserves_original_alpha",
+      "passed": true,
+      "evidence": {
+        "original_alpha": [
+          255,
+          96,
+          0,
+          96
+        ],
+        "erased_alpha": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "restored_alpha": [
+          255,
+          96,
+          0,
+          96
+        ],
+        "erase_click_alpha": 0,
+        "restore_click_alpha": 96,
+        "hover_after_cancel_alpha": 96,
+        "screenshot": "data\\qa\\postpublish-mask-result.png"
+      }
+    }
+  ],
+  "javascript_errors": [],
+  "isolation": "HTTP fixtures + real canvas/upload in temporary server root; no production mutations"
+}

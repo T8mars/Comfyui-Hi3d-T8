@@ -11,6 +11,7 @@ import os
 from pathlib import Path
 import sys
 import time
+import psutil
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
@@ -37,16 +38,22 @@ def main():
     check(api.nvmlInit_v2())
     handle=ctypes.c_void_p()
     check(api.nvmlDeviceGetHandleByIndex_v2(0,ctypes.byref(handle)))
-    samples=[];started=time.monotonic();last_write=started
+    samples=[];ram=[];started=time.monotonic();last_write=started
     def save(done):
         atomic_json(args.output,{'metric':'NVML whole-device memory; includes driver, desktop and other processes',
                     'completed':done,'interval_seconds':args.interval,'elapsed_seconds':round(time.monotonic()-started,3),
                     'baseline_mb':samples[0][1] if samples else None,
-                    'peak_used_mb':max((point[1] for point in samples),default=None),'samples':samples})
+                    'peak_used_mb':max((point[1] for point in samples),default=None),'samples':samples,
+                    'system_ram_metric':'psutil whole-system physical memory; includes unrelated applications',
+                    'system_ram_baseline_mb':ram[0][0] if ram else None,
+                    'system_ram_peak_used_mb':max((point[0] for point in ram),default=None),
+                    'minimum_available_ram_mb':min((point[1] for point in ram),default=None)})
     try:
         while True:
             memory=Memory();check(api.nvmlDeviceGetMemoryInfo(handle,ctypes.byref(memory)))
             samples.append([round(time.monotonic()-started,3),round(memory.used/2**20,3)])
+            physical=psutil.virtual_memory()
+            ram.append((round(physical.used/2**20,3),round(physical.available/2**20,3)))
             if args.stop_file.exists() or time.monotonic()-started>=args.seconds:break
             if time.monotonic()-last_write>=5:
                 save(False);last_write=time.monotonic()

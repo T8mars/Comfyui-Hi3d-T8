@@ -1,0 +1,16 @@
+{
+  "studio_small_09": {
+    "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_09_1k.hdr",
+    "page": "https://polyhaven.com/a/studio_small_09",
+    "license": "CC0-1.0",
+    "bytes": 1615248,
+    "sha256": "e7cfda5f4e98e623db12b8bfd0184e048488e4855d9c83e2751fb44a32e80c45"
+  },
+  "studio_small_08": {
+    "url": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/studio_small_08_1k.hdr",
+    "page": "https://polyhaven.com/a/studio_small_08",
+    "license": "CC0-1.0",
+    "bytes": 1508872,
+    "sha256": "f6a989f89432eb4eee3191364a9c1ceed195c4ec3544173a3c04fd96cb91d0ba"
+  }
+}

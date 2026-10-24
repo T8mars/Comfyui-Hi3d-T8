@@ -34,13 +34,14 @@ def test_failed_export_removes_its_partial_copy_and_preserves_original(isolated_
     exports=server.DATA/'exports';retained=exports/'retained';retained.mkdir(parents=True)
     (retained/'model.glb').write_bytes(b'existing exported model')
     if failure=='mesh':
-        def fail(mesh,target,height_mm):
+        def fail(mesh,target,height_mm,height_axis='Z'):
             target.write_bytes(b'incomplete mesh')
             raise ValueError('export write failed')
-        if source_kind=='textured':
-            from hi3d_workbench import asset_pipeline
-            monkeypatch.setattr(asset_pipeline,'export_textured_glb',fail)
-        else:monkeypatch.setattr(server,'export_mesh',fail)
+        from hi3d_workbench import asset_pipeline
+        # Both GLB paths now retain the source scene, including artist UVs and
+        # materials. Inject the failure at the exporter used for that source.
+        monkeypatch.setattr(asset_pipeline,
+            'export_textured_glb' if source_kind=='textured' else 'export_asset_glb',fail)
     else:
         write=server.atomic_json
         def fail(path,value):

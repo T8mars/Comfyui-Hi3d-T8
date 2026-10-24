@@ -1,5 +1,11 @@
 # Hi3D 本地工作台 / ComfyUI-Hi3D
 
+## v0.4 多引擎工作台
+
+建模可选 Hunyuan3D-2mini Turbo、Hunyuan3D 2.1、TRELLIS.2；贴图独立选择 TRELLIS.2 PBR、Hunyuan3D-Paint 2.1 或 UltraTex。大型模型按需下载，各自许可和硬件开销不同。支持历史任务同视角对比、HDR 换灯与曝光检查；上传 GLB 保留原材质和可用 UV。TRELLIS 原始生成网格和整理后的网格可分别检查、导出。见[引擎与质量记录](ENGINES.zh-CN.md)。
+
+ComfyUI 节点、MESH 接口和画布工作流保持 Hi3D-only。下方 v0.3.3 与更早验收数据属于对应版本。
+
 ## v0.3.3 资产工作台
 
 v0.3.3 完成第三次 20 轮联合复查，修复任务建立失败残留、子阶段成功判定、失败诊断异常时的临时文件清理，以及 GLB 转换时部分轴向尺寸丢失。235 项测试与 15 组浏览器检查通过，详见[本轮复查](../validation/v033-audit20.md)和[上一轮记录](../validation/v032-audit20.md)；下方真实 GPU 推理数据来自 v0.3.0 验收，推理算法与权重未改动。
@@ -40,7 +46,7 @@ Hi3D 核心仍使用原 `.venv` / `runtime`。新增组件使用 **Python 3.12 /
 
 ```powershell
 C:/Python312/python.exe tools/setup_pipeline_runtime.py
-.appenv/Scripts/python.exe -m hi3d_workbench.pipeline_models download
+.venv/Scripts/python.exe -m hi3d_workbench.pipeline_models download
 ```
 
 第二条命令也可用装有工作台依赖的 Python 执行。模型位于 `models/extensions`；界面「模型与环境」可分别补齐建模/贴图组件并校验。DINOv3 使用经过官方文件哈希比对的 camenduru 公开分发版本，保留 Meta 原许可与来源，不加载模型仓库的远程 Python 代码。

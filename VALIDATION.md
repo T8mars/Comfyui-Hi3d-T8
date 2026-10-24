@@ -1,6 +1,25 @@
 # 验证记录
 
-当前 **v0.2.2** 的新一轮20轮审计见 [postpublish-audit20.md](validation/postpublish-audit20.md)，后端/节点与浏览器基线分开记录。新增修复未改变官方源码、模型权重或采样数学；整套 **102项pytest通过**（46.34秒，1条依赖弃用警告），回执见 validation/postpublish-pytest.txt。浏览器新增四轮及原九组回归通过，零JavaScript错误；新发行包真实推理单独记录。
+**v0.4.0**：独立工作台增加三种建模和三种贴图引擎选择，ComfyUI 节点及画布工作流保持 Hi3D-only。当前证据和待验收项见[质量进度](validation/quality-upgrade-progress.json)，20 项独立复核见[发行审查](validation/quality-release-audit20.json)。真实推理、自动化夹具、浏览器操作和整合包独立运行验证分别记录。“历史 v0.2.2”节起的数据属于历史版本，不表示新增引擎均通过相同验证。
+
+## v0.4.0 当前验收范围
+
+| 检查 | 结果与范围 | 证据 |
+|---|---|---|
+| 自动化回归 | 276 项通过；含 GLB 原始法线、非均匀缩放、镜像、UV 重排、下载和校验期间文件变化等回归。CPU 夹具不计作模型推理 | [回归回执](validation/v040/regression.json) |
+| 原生 UV 与法线对应 | 实际宝箱 961688 面经原生退化面清理为 961664 面，42.281 秒；恢复后位置和源着色法线精确对应。完全分离三角面另走 CPU Atlas | [HTTP 与 UV 记录](validation/v040/source-http.json) |
+| 多引擎推理 | 三种建模、三种贴图均有本机真实运行记录；法线导入修正后的狐狸 UltraTex 2048 与 Hunyuan Paint 512 已完成新的真实 HTTP 推理，另核对原始 GLB 法线、UV、面索引及 80mm 导出 | [引擎回执](validation/v040/runtime-validation.json)、[几何对照](validation/v040/geometry-benchmarks.json) |
+| Windows 包独立运行 | 包内解释器、清除宿主 Python/CUDA 路径、HF 离线与不可达外网代理条件下，完成 Mini 建模、TRELLIS 建模／PBR、已有自定义法线网格贴图及 Hi3D GPU 内核探针；本轮未重跑完整 Hi3D 推理 | [独立包回执](validation/v040/portable.json) |
+| ComfyUI 画布 | 节点、5 节点 6 连线的可视化 JSON 与 Hi3D worker 未改变；沿用下方历史真实画布保存、重载和执行证据，本轮未新增其他模型节点 | [回归与范围](validation/v040/regression.json)、[历史画布回执](validation/v022-comfy-canvas-result.json) |
+| 新增界面交互 | 本轮 CUA 未暴露可操作浏览器，尚未完成新版控件的浏览器交互验收；HTTP／静态检查和旧版浏览器通过记录不能替代此项 | [回归范围](validation/v040/regression.json) |
+
+本轮修复了两类可造成“贴图看起来差”的法线问题：原生 UV 展开后的顶点对应错误，以及 GLB 场景展开／TRELLIS 网格复制时丢失文件原始法线。导入后按节点逆转置变换法线，并处理镜像绕序。旧结果若曾以错误法线作为贴图条件，应重新推理；单纯修正导出法线不会重算材质。模型质量判断以新结果的正背面和多灯光检查为准，不能将全部问题归因于贴图模型。
+
+实测仅覆盖 Windows／RTX 5090 Laptop 24GB／64GB RAM。更小显存、其他设备和新版 UI 的未验收项保持明确记录，不从测试数量或显存张量峰值推导兼容性。
+
+## 历史 v0.2.2
+
+**v0.2.2** 的20轮审计见 [postpublish-audit20.md](validation/postpublish-audit20.md)，后端/节点与浏览器基线分开记录。该轮修复未改变官方源码、模型权重或采样数学；整套 **102项pytest通过**（46.34秒，1条依赖弃用警告），回执见 validation/postpublish-pytest.txt。浏览器新增四轮及原九组回归通过，零JavaScript错误；对应发行包真实推理单独记录。
 
 **v0.2.2 实际集成验收**：新发行目录内的独立解释器与模型，ComfyUI 画布加载→前端保存→重载→运行成功。5节点6连线，512 / 25步 / seed 0 / CPU卸载 / SDPA；画布全过程339.17秒，worker报告313.36秒，原生SaveGLB输出18,007,616字节，零JavaScript错误。当前prompt_id与后端job_id逐一绑定，见 [画布回执](validation/v022-comfy-canvas-result.json)、[截图](validation/v022-comfy-canvas.png) 和 [推理报告](validation/v022-inference-report.json)。本次张量allocated / reserved峰值1722 / 1798MiB，不代表整卡显存要求；输出1000000面、9连通件、12边界边、9非流形边，仍不封闭。
 

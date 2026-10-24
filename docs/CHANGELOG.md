@@ -1,3 +1,16 @@
+# v0.4.0 · 多引擎资产工作台
+
+2026-10-24。ComfyUI 节点和可视化画布仍只复现 Hi3D；新增功能只进入独立工作台。当前验收见[质量记录](../validation/quality-upgrade-progress.json)与[20 项审查](../validation/quality-release-audit20.json)。
+
+- 建模增加 Hunyuan3D 2.1 与 TRELLIS.2，贴图增加 Hunyuan3D-Paint 2.1 与 UltraTex，各自下载固定版本依赖并单独记录许可。
+- 保留上传 GLB 的材质、可用 UV 和文件自带法线；正确处理非均匀缩放与镜像实例，修复 TRELLIS 复制网格时丢失法线的问题。
+- 原生 UV 展开后，以精确坐标和有向邻面恢复重排前索引，保留重合硬边；无法证明对应关系或三角面完全分离时才使用 CPU Atlas。坏 UV 自动重展。
+- 同视角历史模型对比、两种 HDR 灯光、曝光检查，以及原始／整理几何的分别导出。
+- 导出可指定 X、Y、Z 尺寸轴；GLB 保留 PBR，STL／PLY 仅几何。
+- 模型和下载元数据采用落盘同步；Windows 校验读取期间阻止文件写入／替换。整合包按所选引擎打包，并核对依赖清单、实际模型和运行时。
+
+The standalone v0.4 workbench adds three geometry and three PBR engine choices, material-preserving GLB import/export, shared-light comparisons and three starting presets. ComfyUI nodes and the saved visual workflow remain Hi3D-only. The Windows package includes Hi3D, Mini Turbo and TRELLIS geometry/PBR; Hunyuan 2.1/Paint and UltraTex weights download separately. UltraTex's FLUX base is Non-Commercial. Validation distinguishes CPU regressions, real inference, portable-runtime checks and browser interaction; see [VALIDATION.md](../VALIDATION.md).
+
 # v0.3.3 · 第三轮 20 轮联合复查
 
 2026-10-24。逐轮证据见[复查记录](../validation/v033-audit20.md)，235 项测试与 15 组浏览器回归通过。模型权重、推理算法与 ComfyUI 节点和画布接口未变。

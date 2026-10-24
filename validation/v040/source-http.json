@@ -1,0 +1,918 @@
+{
+  "passed_cases": 5,
+  "fixtures_used": false,
+  "cases": [
+    {
+      "case": "owl-image-ultratex",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "image_to_asset",
+        "image": "0c770cfd58c14036b77d00e17bfbcf9d",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 4096,
+        "geometry_engine": "trellis2",
+        "geometry_resolution": 512,
+        "texture_engine": "ultratex",
+        "texture_resolution": 1024
+      },
+      "job_id": "cecffd6e118c4e809207f993f9b42a60",
+      "output_sha256": "b2d62ac8b291ae6f3f578468469329748791523ffe9fedd7773ddd6433ad1ae7",
+      "export_height_m": 0.07999999999999999,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "pipeline.json",
+              "README.md",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+            ],
+            "optional": true
+          },
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "engine": "trellis2",
+          "geometry_generated": true,
+          "texture_generated": false,
+          "postprocessing": {
+            "enabled": true,
+            "raw_faces": 2321980,
+            "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+            "target_faces": 1000000,
+            "seconds": 15.496
+          },
+          "raw_geometry_file": "raw-geometry.glb",
+          "pipeline_type": "512",
+          "requested_resolution": 512,
+          "actual_resolution": 512,
+          "vertices": 491973,
+          "faces": 991432,
+          "inference_steps": 12,
+          "transform": {
+            "coordinate_system": "glTF Y-up",
+            "axis_mapping": "[x,z,-y]",
+            "unit_scale": "generator canonical; no absolute scale"
+          },
+          "input_image_sha256": "9366dc883141a8d7809ea7d2f5aafe062f108f8a95eeb3814b7e926ac88b4f1d",
+          "output_sha256": "f471cd0ff435cdf83c1111f0f3a944710edc027e76aeca6cb7af8f917fa058de",
+          "request_path": "E:\\hi3d\\data\\jobs\\cecffd6e118c4e809207f993f9b42a60\\stages\\coarse\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\cecffd6e118c4e809207f993f9b42a60\\stages\\coarse\\coarse.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 111.949,
+          "peak_allocated_mb": 2708.93,
+          "peak_reserved_mb": 3054.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        },
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "rekuen/Ultratex-Flux2-Klein",
+            "revision": "b7ceb755af158d73a121c00a3fa680ca78812ef6",
+            "license": "UltraTex MIT; FLUX.2 Klein 9B base: FLUX Non-Commercial License",
+            "source_evidence": "LoRA/decoder SHA256 identical to Yibo-Zhang/UltraTex ModelScope release",
+            "files": [
+              "flux2/decoder.pt",
+              "flux2/lora/dit_lora.safetensors",
+              "flux2_mr/lora/dit_lora.safetensors",
+              "FLUX-NON-COMMERCIAL-LICENSE.md",
+              "LICENSE-UltraTex-MIT",
+              "README.md"
+            ],
+            "expected_file_hashes": {
+              "flux2/decoder.pt": "981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b",
+              "flux2/lora/dit_lora.safetensors": "3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c",
+              "flux2_mr/lora/dit_lora.safetensors": "13e94f5a30a789b1e3e76d8c96cbba5f52fb2f68411e56377f382e145da23fc1"
+            },
+            "optional": true
+          },
+          "engine": "ultratex",
+          "backbone": {
+            "repo": "Amberamberamber/flux-2-klein-base-9b-fp8",
+            "revision": "7618edb5bf220559e0605a22747051fee3600c3d",
+            "upstream_repo": "black-forest-labs/FLUX.2-klein-base-9b-fp8",
+            "upstream_revision": "9ecf2143d71542449960c5584340269c6d401449",
+            "upstream_identical": true,
+            "expected_weight_file": "flux-2-klein-base-9b-fp8.safetensors",
+            "expected_weight_sha256": "a9f5028c24a7a96f4f45beb883aad287d9bccc246227a6803edc898ddda42cf4",
+            "license": "FLUX Non-Commercial License; license file bundled with texture_ultratex",
+            "files": [
+              "flux-2-klein-base-9b-fp8.safetensors"
+            ],
+            "optional": true
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "inference_steps": 25,
+          "uv_policy": "generate_uv",
+          "uv_generation": "native_CuMesh_unwrap",
+          "attention": "ultratex_sparse",
+          "attention_fallback_reason": null,
+          "resolution": 1024,
+          "mr_resolution": 1024,
+          "texture_size": 4096,
+          "peak_allocated_mb": 11839.35,
+          "peak_reserved_mb": 13712.0,
+          "offload_policy": "standard CPU offload",
+          "vertices": 731499,
+          "faces": 991432,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness"
+          ],
+          "views_per_channel": 6,
+          "bake": {
+            "fusion": "two_band",
+            "hole_fill": "mesh",
+            "exposure_match": true
+          },
+          "transform": {
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true,
+            "remeshed": false
+          },
+          "licenses": {
+            "adapter": "MIT",
+            "inference_library": "GPL-3.0",
+            "base_model": "FLUX Non-Commercial License"
+          },
+          "input_image_sha256": "9366dc883141a8d7809ea7d2f5aafe062f108f8a95eeb3814b7e926ac88b4f1d",
+          "input_mesh_sha256": "f471cd0ff435cdf83c1111f0f3a944710edc027e76aeca6cb7af8f917fa058de",
+          "output_sha256": "b2d62ac8b291ae6f3f578468469329748791523ffe9fedd7773ddd6433ad1ae7",
+          "request_path": "E:\\hi3d\\data\\jobs\\cecffd6e118c4e809207f993f9b42a60\\stages\\texture\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\cecffd6e118c4e809207f993f9b42a60\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 435.324,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 560.42
+    },
+    {
+      "case": "fox-hero-ultratex-v2",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "texture",
+        "image": "a9d5fb545b514c9294074dd7179c82a9",
+        "mesh": "af407aee128e40d8aaeb47033bd5ce3b",
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 4096,
+        "texture_engine": "ultratex",
+        "texture_resolution": 2048
+      },
+      "job_id": "ecb68c0f88984446bb65b6a2d2ca4aef",
+      "output_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+      "export_height_m": 0.08000000000000002,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "rekuen/Ultratex-Flux2-Klein",
+            "revision": "b7ceb755af158d73a121c00a3fa680ca78812ef6",
+            "license": "UltraTex MIT; FLUX.2 Klein 9B base: FLUX Non-Commercial License",
+            "source_evidence": "LoRA/decoder SHA256 identical to Yibo-Zhang/UltraTex ModelScope release",
+            "files": [
+              "flux2/decoder.pt",
+              "flux2/lora/dit_lora.safetensors",
+              "flux2_mr/lora/dit_lora.safetensors",
+              "FLUX-NON-COMMERCIAL-LICENSE.md",
+              "LICENSE-UltraTex-MIT",
+              "README.md"
+            ],
+            "expected_file_hashes": {
+              "flux2/decoder.pt": "981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b",
+              "flux2/lora/dit_lora.safetensors": "3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c",
+              "flux2_mr/lora/dit_lora.safetensors": "13e94f5a30a789b1e3e76d8c96cbba5f52fb2f68411e56377f382e145da23fc1"
+            },
+            "optional": true
+          },
+          "engine": "ultratex",
+          "backbone": {
+            "repo": "Amberamberamber/flux-2-klein-base-9b-fp8",
+            "revision": "7618edb5bf220559e0605a22747051fee3600c3d",
+            "upstream_repo": "black-forest-labs/FLUX.2-klein-base-9b-fp8",
+            "upstream_revision": "9ecf2143d71542449960c5584340269c6d401449",
+            "upstream_identical": true,
+            "expected_weight_file": "flux-2-klein-base-9b-fp8.safetensors",
+            "expected_weight_sha256": "a9f5028c24a7a96f4f45beb883aad287d9bccc246227a6803edc898ddda42cf4",
+            "license": "FLUX Non-Commercial License; license file bundled with texture_ultratex",
+            "files": [
+              "flux-2-klein-base-9b-fp8.safetensors"
+            ],
+            "optional": true
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "inference_steps": 25,
+          "uv_policy": "input_single_material_uv",
+          "uv_generation": "preserved_existing",
+          "attention": "ultratex_sparse",
+          "attention_fallback_reason": null,
+          "resolution": 2048,
+          "mr_resolution": 1024,
+          "texture_size": 4096,
+          "peak_allocated_mb": 17732.93,
+          "peak_reserved_mb": 19972.0,
+          "offload_policy": "standard CPU offload",
+          "vertices": 1025778,
+          "faces": 979450,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness"
+          ],
+          "views_per_channel": 6,
+          "bake": {
+            "fusion": "two_band",
+            "hole_fill": "mesh",
+            "exposure_match": true
+          },
+          "transform": {
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true,
+            "remeshed": false
+          },
+          "licenses": {
+            "adapter": "MIT",
+            "inference_library": "GPL-3.0",
+            "base_model": "FLUX Non-Commercial License"
+          },
+          "input_image_sha256": "fa1938ba8f0ddbb96eafd7a52cb33675a468262c944793f7f676bbadcf85c0ca",
+          "input_mesh_sha256": "b00d631539bb38e50fd4f3a1ecbe3a2d080d0575d4a8c4248b6a6a3171de5d97",
+          "output_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+          "request_path": "E:\\hi3d\\data\\jobs\\ecb68c0f88984446bb65b6a2d2ca4aef\\stages\\texture\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\ecb68c0f88984446bb65b6a2d2ca4aef\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 550.28,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 560.69
+    },
+    {
+      "case": "chest-image-trellis-v2",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "image_to_asset",
+        "image": "a9076948585d4b298a7c953eb05176a0",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 4096,
+        "geometry_engine": "trellis2",
+        "geometry_resolution": 512,
+        "texture_engine": "trellis2",
+        "texture_resolution": 1024
+      },
+      "job_id": "8bbeae74edf04bb4a304dfa6f09badb0",
+      "output_sha256": "21b6b7d96ccd4001f6b5498c2549c7867310be6666b8668dd8c30c408f23103b",
+      "export_height_m": 0.07999999999999999,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "pipeline.json",
+              "README.md",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+            ],
+            "optional": true
+          },
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "engine": "trellis2",
+          "geometry_generated": true,
+          "texture_generated": false,
+          "postprocessing": {
+            "enabled": true,
+            "raw_faces": 3147648,
+            "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+            "target_faces": 1000000,
+            "seconds": 8.569
+          },
+          "raw_geometry_file": "raw-geometry.glb",
+          "pipeline_type": "512",
+          "requested_resolution": 512,
+          "actual_resolution": 512,
+          "vertices": 478884,
+          "faces": 961670,
+          "inference_steps": 12,
+          "transform": {
+            "coordinate_system": "glTF Y-up",
+            "axis_mapping": "[x,z,-y]",
+            "unit_scale": "generator canonical; no absolute scale"
+          },
+          "input_image_sha256": "f02a49dd58d6ee202f2dc3e72f1b9dbeac8a5b30b90835acc455901108319b64",
+          "output_sha256": "18fdfe75397aafcce97fe737566351930ce2a9f4e543e7ec9fa8e3e74ad4ce49",
+          "request_path": "E:\\hi3d\\data\\jobs\\8bbeae74edf04bb4a304dfa6f09badb0\\stages\\coarse\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\8bbeae74edf04bb4a304dfa6f09badb0\\stages\\coarse\\coarse.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 102.062,
+          "peak_allocated_mb": 2708.93,
+          "peak_reserved_mb": 3442.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        },
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "texturing_pipeline.json",
+              "README.md",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+            ]
+          },
+          "engine": "trellis2",
+          "inference_steps": 12,
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+          "uv_policy": "generate_uv",
+          "uv_generation": "native_CuMesh_topology_mapped",
+          "shading_normals": "input normals preserved through UV and frame conversion",
+          "vertices": 692278,
+          "faces": 961648,
+          "texture_size": 4096,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness",
+            "alpha"
+          ],
+          "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+          "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+          "transform": {
+            "normalization_center": [
+              3.644824028015137e-05,
+              2.6047229766845703e-05,
+              0.0031721144914627075
+            ],
+            "normalization_scale": 0.9964265603212883,
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true
+          },
+          "input_image_sha256": "f02a49dd58d6ee202f2dc3e72f1b9dbeac8a5b30b90835acc455901108319b64",
+          "input_mesh_sha256": "18fdfe75397aafcce97fe737566351930ce2a9f4e543e7ec9fa8e3e74ad4ce49",
+          "output_sha256": "21b6b7d96ccd4001f6b5498c2549c7867310be6666b8668dd8c30c408f23103b",
+          "request_path": "E:\\hi3d\\data\\jobs\\8bbeae74edf04bb4a304dfa6f09badb0\\stages\\texture\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\8bbeae74edf04bb4a304dfa6f09badb0\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 223.887,
+          "peak_allocated_mb": 11650.98,
+          "peak_reserved_mb": 19672.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 336.95
+    },
+    {
+      "case": "chest-pbr-normal-final",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "texture",
+        "image": "cffc455722714b10a7f9d6614720e698",
+        "mesh": "a17305478cf84dc9a02065ecf7721bc8",
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 4096,
+        "texture_engine": "trellis2",
+        "texture_resolution": 1024
+      },
+      "job_id": "3310acf80eb143b18134a521647e95d6",
+      "output_sha256": "d40439a2cff35db3ae4d7b9ccd3ac6df1f0365434044510a16f16e10c622ef5b",
+      "export_height_m": 0.07999999999999999,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "texturing_pipeline.json",
+              "README.md",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+            ]
+          },
+          "engine": "trellis2",
+          "inference_steps": 12,
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+          "uv_policy": "generate_uv",
+          "uv_generation": "native_CuMesh_topology_mapped",
+          "shading_normals": "input normals preserved through UV and frame conversion",
+          "vertices": 692272,
+          "faces": 961648,
+          "texture_size": 4096,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness",
+            "alpha"
+          ],
+          "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+          "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+          "transform": {
+            "normalization_center": [
+              3.644824028015137e-05,
+              2.6047229766845703e-05,
+              0.0031721144914627075
+            ],
+            "normalization_scale": 0.9964265603212883,
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true
+          },
+          "input_image_sha256": "f02a49dd58d6ee202f2dc3e72f1b9dbeac8a5b30b90835acc455901108319b64",
+          "input_mesh_sha256": "18fdfe75397aafcce97fe737566351930ce2a9f4e543e7ec9fa8e3e74ad4ce49",
+          "output_sha256": "d40439a2cff35db3ae4d7b9ccd3ac6df1f0365434044510a16f16e10c622ef5b",
+          "request_path": "E:\\hi3d\\data\\jobs\\3310acf80eb143b18134a521647e95d6\\stages\\texture\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\3310acf80eb143b18134a521647e95d6\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 242.619,
+          "peak_allocated_mb": 11650.98,
+          "peak_reserved_mb": 19672.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 249.21
+    },
+    {
+      "case": "fox-texture-hunyuan-v2",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "texture",
+        "image": "c24a1139311e48bc8348dafa47a0d58b",
+        "mesh": "10365a098db34a9583a9dc6b800dbc09",
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 4096,
+        "texture_engine": "hunyuan21",
+        "texture_resolution": 512
+      },
+      "job_id": "139b33b601dd458d9a55c89b8dc5232b",
+      "output_sha256": "8f91cf4f63b4c7a004a4edce3272ab2e2e93597eb19db4c3fa0102f6eabf0066",
+      "export_height_m": 0.08,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "tencent/Hunyuan3D-2.1",
+            "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+            "license": "Tencent Hunyuan 3D 2.1 Community License",
+            "files": [
+              "LICENSE",
+              "Notice.txt",
+              "README.md",
+              "hunyuan3d-paintpbr-v2-1/README.md",
+              "hunyuan3d-paintpbr-v2-1/feature_extractor/preprocessor_config.json",
+              "hunyuan3d-paintpbr-v2-1/model_index.json",
+              "hunyuan3d-paintpbr-v2-1/scheduler/scheduler_config.json",
+              "hunyuan3d-paintpbr-v2-1/text_encoder/config.json",
+              "hunyuan3d-paintpbr-v2-1/text_encoder/pytorch_model.bin",
+              "hunyuan3d-paintpbr-v2-1/tokenizer/merges.txt",
+              "hunyuan3d-paintpbr-v2-1/tokenizer/special_tokens_map.json",
+              "hunyuan3d-paintpbr-v2-1/tokenizer/tokenizer_config.json",
+              "hunyuan3d-paintpbr-v2-1/tokenizer/vocab.json",
+              "hunyuan3d-paintpbr-v2-1/unet/attn_processor.py",
+              "hunyuan3d-paintpbr-v2-1/unet/config.json",
+              "hunyuan3d-paintpbr-v2-1/unet/diffusion_pytorch_model.bin",
+              "hunyuan3d-paintpbr-v2-1/unet/model.py",
+              "hunyuan3d-paintpbr-v2-1/unet/modules.py",
+              "hunyuan3d-paintpbr-v2-1/vae/config.json",
+              "hunyuan3d-paintpbr-v2-1/vae/diffusion_pytorch_model.bin"
+            ],
+            "optional": true
+          },
+          "engine": "hunyuan21",
+          "geometry_generated": false,
+          "texture_generated": true,
+          "uv_policy": "input_single_material_uv",
+          "uv_generation": "preserved_existing",
+          "shading_normals": "input normals preserved; no UV-chart normal recomputation",
+          "inference_steps": 15,
+          "texture_size": 4096,
+          "vertices": 859273,
+          "faces": 969824,
+          "resolution": 512,
+          "conditioning_render_size": 1024,
+          "vae_memory_policy": "batch slicing and spatial tiling",
+          "seed_policy": "global VAE posterior RNG and explicit CUDA noise generator",
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness"
+          ],
+          "views_per_channel": 6,
+          "renderer": "official camera/conditioning/baking with nvdiffrast Windows raster adapter",
+          "inpainting": "OpenCV NS in UV space; optional upstream C++ vertex inpainting is not used",
+          "upscaler": {
+            "repo": "xinntao/Real-ESRGAN (official v0.1.0 release)",
+            "revision": "v0.1.0-4fa0d38905f75ac0",
+            "license": "BSD-3-Clause (Real-ESRGAN)",
+            "files": [
+              "RealESRGAN_x4plus.pth"
+            ],
+            "artifacts": {
+              "RealESRGAN_x4plus.pth": {
+                "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+                "bytes": 67040989,
+                "sha256": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1"
+              }
+            },
+            "optional": true
+          },
+          "transform": {
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true,
+            "remeshed": false
+          },
+          "input_image_sha256": "fa1938ba8f0ddbb96eafd7a52cb33675a468262c944793f7f676bbadcf85c0ca",
+          "input_mesh_sha256": "f562162609a9e421758f092f5e6b28488fa0a8929388049028e207e648a79d8e",
+          "output_sha256": "8f91cf4f63b4c7a004a4edce3272ab2e2e93597eb19db4c3fa0102f6eabf0066",
+          "request_path": "E:\\hi3d\\data\\jobs\\139b33b601dd458d9a55c89b8dc5232b\\stages\\texture\\request.json",
+          "output_path": "E:\\hi3d\\data\\jobs\\139b33b601dd458d9a55c89b8dc5232b\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 172.56,
+          "peak_allocated_mb": 7186.4,
+          "peak_reserved_mb": 8440.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 180.15
+    }
+  ],
+  "cancelled_case": {
+    "case": "chest-image-trellis",
+    "job_id": "afe6768ece834fe882f21a5f8b1e5e7e",
+    "state": "cancelled",
+    "reason": "Old whole-mesh hard-edge Atlas remained busy ~20 minutes; retained evidence. Complete retry passed on fast exact topology mapping."
+  },
+  "native_uv_proof": [
+    {
+      "name": "disconnected-hard-edge-box",
+      "passed": true,
+      "policy": "native_xatlas_disconnected_triangles",
+      "seconds": 0.015
+    },
+    {
+      "name": "actual-chest",
+      "passed": true,
+      "seconds": 42.281,
+      "policy": "native_CuMesh_topology_mapped",
+      "input_faces": 961688,
+      "output_faces": 961664,
+      "input_vertices": 478879,
+      "original_positions_normals_exact": true
+    }
+  ],
+  "authored_normal_proof": {
+    "passed": true,
+    "cases": [
+      {
+        "case": "fox-hero-ultratex-v2",
+        "passed": true,
+        "input_sha256": "b00d631539bb38e50fd4f3a1ecbe3a2d080d0575d4a8c4248b6a6a3171de5d97",
+        "output_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+        "faces_exact": true,
+        "uv_exact": true,
+        "maximum_position_error": 2.9802322387695312e-08,
+        "minimum_normal_cosine": 0.9999999999999987,
+        "normal_basis": "Raw Scene.geometry GLB NORMAL, not force=mesh reconstruction"
+      },
+      {
+        "case": "fox-texture-hunyuan-v2",
+        "passed": true,
+        "input_sha256": "f562162609a9e421758f092f5e6b28488fa0a8929388049028e207e648a79d8e",
+        "output_sha256": "8f91cf4f63b4c7a004a4edce3272ab2e2e93597eb19db4c3fa0102f6eabf0066",
+        "faces_exact": true,
+        "uv_exact": true,
+        "maximum_position_error": 5.960464477539063e-08,
+        "minimum_normal_cosine": 0.9999999999999989,
+        "normal_basis": "Raw Scene.geometry GLB NORMAL, not force=mesh reconstruction"
+      },
+      {
+        "case": "trellis-authored-normal-pbr-v2",
+        "passed": true,
+        "input_sha256": "f562162609a9e421758f092f5e6b28488fa0a8929388049028e207e648a79d8e",
+        "output_sha256": "7695c4163f7b8a69d83010622bed0773567f2ca517b61ea878118ca666613981",
+        "faces_exact": true,
+        "uv_exact": true,
+        "maximum_position_error": 0.0,
+        "minimum_normal_cosine": 0.9999999999999989,
+        "normal_basis": "Raw Scene.geometry GLB NORMAL, not force=mesh reconstruction"
+      }
+    ],
+    "unaffected_image_cases": [
+      {
+        "case": "owl-image-ultratex",
+        "coarse_sha256": "f471cd0ff435cdf83c1111f0f3a944710edc027e76aeca6cb7af8f917fa058de",
+        "used_vertex_normals_maximum_delta": 0.0,
+        "inference_rerun_required_for_importer_fix": false
+      },
+      {
+        "case": "chest-image-trellis-v2",
+        "coarse_sha256": "18fdfe75397aafcce97fe737566351930ce2a9f4e543e7ec9fa8e3e74ad4ce49",
+        "used_vertex_normals_maximum_delta": 0.0,
+        "inference_rerun_required_for_importer_fix": false
+      }
+    ]
+  },
+  "updated_utc": "2026-10-24T23:40:04.430284+00:00",
+  "superseded_cases": [
+    {
+      "case": "fox-hero-ultratex",
+      "reason": "Trimesh force=mesh discarded authored normals; replaced by a new actual inference through the corrected importer."
+    },
+    {
+      "case": "fox-texture-hunyuan",
+      "reason": "Trimesh force=mesh discarded authored normals; replaced by a new actual inference through the corrected importer."
+    }
+  ],
+  "superseded_shading_exports": [
+    {
+      "case": "chest-image-trellis-v2",
+      "replacement": "chest-pbr-normal-final",
+      "reason": "Full image pipeline remains recorded; final TRELLIS export now preserves the baker normals after coordinate restoration."
+    }
+  ]
+}

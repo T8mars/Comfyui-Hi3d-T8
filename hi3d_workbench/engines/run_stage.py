@@ -8,12 +8,23 @@ import sys
 import time
 import traceback
 
-from ..common import atomic_json, ROOT
+from ..common import atomic_json, ROOT, digest
 from ..pipeline_models import MODEL_ROOT, SPECS
+from ..engine_catalog import engine
 
 
 def emit(stage, **values):
     print("HI3D_EVENT " + json.dumps({"stage": stage, "time": time.time(), **values}, ensure_ascii=False), flush=True)
+
+
+def restore_texture_frame(mesh, center, scale):
+    """Undo uniform bbox normalization without losing authored normals."""
+    import numpy as np
+    # Assigning vertices invalidates Trimesh's normal cache, including the
+    # shading normals explicitly returned by the upstream PBR baker.
+    normals = np.array(mesh.vertex_normals, copy=True)
+    mesh.vertices = np.asarray(mesh.vertices) / scale + center
+    mesh.vertex_normals = normals
 
 
 def source_dir(name):
@@ -25,7 +36,10 @@ def source_dir(name):
     import hashlib
     from ..pipeline_models import _read
     manifest = _read(directory / "source-manifest.json")
-    expected = {"hunyuan": "f8db63096c8282cb27354314d896feba5ba6ff8a", "trellis2": "75fbf0183001ed9876c8dbb35de6b68552ee08bd"}[name]
+    expected = {"hunyuan": "f8db63096c8282cb27354314d896feba5ba6ff8a", "trellis2": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
+                "hunyuan21": "82920d643c0dc2f7bfd7255f45f62d386edfe60c",
+                "ultratex_bridge": "8cc29849dd076ddec0fe5a1ec6207945dedbbbf1",
+                "comfy_core": "7cebca52227c63b4180ceed448cbd7ad22903b6d"}[name]
     if manifest.get("revision") != expected or not isinstance(manifest.get("files"), dict) or not manifest["files"]:
         raise RuntimeError(f"推理源码清单无效: {name}")
     for relative, digest in manifest["files"].items():
@@ -79,12 +93,23 @@ def foreground(request, output_dir, stage):
 
 def coarse(request, image, output, emit_fn):
     import torch
-    source_dir("hunyuan")
-    from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
-    model_dir = Path(request.get("model_root") or MODEL_ROOT) / "coarse"
-    emit_fn("loading", message="加载 Hunyuan3D-2mini Turbo 基础几何模型")
+    choice = engine('coarse', request.get('engine'))
+    if choice['id'] == 'trellis2':
+        from .trellis_geometry import generate
+        return generate(request, image, output, emit_fn)
+    full = choice['id'] == 'hunyuan21'
+    if full:
+        directory = source_dir('hunyuan21')
+        sys.path.insert(0, str(directory / 'hy3dshape'))
+        from hy3dshape import Hunyuan3DDiTFlowMatchingPipeline
+    else:
+        source_dir("hunyuan")
+        from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
+    component = 'coarse_hunyuan21' if full else 'coarse'
+    model_dir = Path(request.get("model_root") or MODEL_ROOT) / component
+    emit_fn("loading", message=f"加载 {choice['name']} 基础几何模型")
     pipeline = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
-        str(model_dir), subfolder="hunyuan3d-dit-v2-mini-turbo", use_safetensors=True,
+        str(model_dir), subfolder="hunyuan3d-dit-v2-1" if full else "hunyuan3d-dit-v2-mini-turbo", use_safetensors=not full,
         device="cpu" if request.get("offload", True) else "cuda", dtype=torch.float16,
     )
     # Keep the checkpoint's VAE and official default dense volume decoder.
@@ -103,7 +128,7 @@ def coarse(request, image, output, emit_fn):
         pipeline.device = torch.device("cuda")
     # The fixed mini-Turbo checkpoint is step distilled. Use the upstream
     # mini-Turbo example's five steps rather than a base-model step count.
-    steps = 5
+    steps = int(request.get('geometry_steps', 50)) if full else 5
     original_condition = pipeline.encode_cond
     def conditioned(*args, **kwargs):
         value = original_condition(*args, **kwargs)
@@ -124,7 +149,7 @@ def coarse(request, image, output, emit_fn):
         raise RuntimeError("基础模型没有生成有效网格")
     emit_fn("exporting", faces=len(mesh.faces))
     mesh.export(output)
-    return {"model": SPECS["coarse"], "geometry_generated": True, "texture_generated": False,
+    return {"model": SPECS[component], "engine": choice['id'], "geometry_generated": True, "texture_generated": False,
             "vertices": len(mesh.vertices), "faces": len(mesh.faces), "inference_steps": steps,
             "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
             "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper" if request.get("offload", True) else "standard CUDA residency",
@@ -132,6 +157,13 @@ def coarse(request, image, output, emit_fn):
 
 
 def texture(request, image, output, emit_fn):
+    choice = engine('texture', request.get('engine'))
+    if choice['id'] != 'trellis2':
+        if choice['id'] == 'ultratex':
+            from .ultratex_texture import generate
+        else:
+            from .hunyuan_texture import generate
+        return generate(request, image, output, emit_fn)
     import torch
     import numpy as np
     import trimesh
@@ -179,12 +211,34 @@ def texture(request, image, output, emit_fn):
     os.replace(config_temp, local_config)
     pipeline = Trellis2TexturingPipeline.from_pretrained(str(load_root), config_file=config_name)
     pipeline.cuda()
-    loaded = trimesh.load(request["mesh_path"], force="mesh", process=False)
+    from ..asset_pipeline import load_texture_input
+    loaded, uv_policy = load_texture_input(Path(request['mesh_path']))
+    from .mesh_uv import ensure_uv
+    emit_fn('unwrapping',message='检查 UV 并展开网格，保留原始着色法线')
+    loaded,uv_generation=ensure_uv(loaded)
     if not isinstance(loaded, trimesh.Trimesh) or not len(loaded.faces):
         raise ValueError("贴图输入不是有效三角网格")
     if not np.isfinite(loaded.vertices).all():
         raise ValueError("贴图输入包含无效顶点坐标")
-    mesh = loaded.copy()
+    mesh = loaded.copy(include_cache=True)
+    original_preprocess_mesh = pipeline.preprocess_mesh
+    def preprocess_with_uv(value):
+        prepared = original_preprocess_mesh(value)
+        uv = getattr(value.visual, 'uv', None)
+        if uv is not None:
+            # The upstream normalizer constructs a new geometry-only mesh,
+            # although its baker explicitly supports existing UVs. Retain the
+            # validated single-material atlas through that coordinate change.
+            if len(prepared.vertices) != len(value.vertices) or not np.array_equal(prepared.faces, value.faces):
+                raise RuntimeError('TRELLIS 网格预处理改变索引，无法安全保留原 UV')
+            prepared.visual = trimesh.visual.TextureVisuals(uv=np.asarray(uv).copy())
+            # Carry the input shading normals through the same axis rotation;
+            # recomputing on UV seam vertices would create hard chart borders.
+            normal=np.asarray(value.vertex_normals)[:,[0,2,1]].copy()
+            normal[:,1]*=-1
+            prepared.vertex_normals=normal
+        return prepared
+    pipeline.preprocess_mesh = preprocess_with_uv
     minimum = np.asarray(mesh.vertices).min(axis=0)
     maximum = np.asarray(mesh.vertices).max(axis=0)
     center = (minimum + maximum) / 2
@@ -201,6 +255,12 @@ def texture(request, image, output, emit_fn):
             messages = {"conditioning": "分析参考图的颜色与材质", "encoding_mesh": "分析模型表面",
                         "sampling": "生成 PBR 材质", "decoding": "重建材质细节", "baking": "展开 UV 并烘焙贴图"}
             emit_fn(_stage, message=messages[_stage])
+            if _stage == 'baking' and args and getattr(args[0].visual,'uv',None) is not None:
+                # With pre-existing UVs the official baker rotates the cached
+                # normal array in place. Trimesh exposes that cache read-only;
+                # make this temporary normalized mesh's array writable, as in
+                # the upstream UV-unwrapping branch which indexes a fresh copy.
+                args[0].vertex_normals.setflags(write=True)
             value = _original(*args, **kwargs)
             if request.get("offload", True):
                 # Native CuMesh/nvdiffrast allocations cannot reuse memory
@@ -209,17 +269,20 @@ def texture(request, image, output, emit_fn):
             return value
         setattr(pipeline, method, wrapped)
     textured = pipeline.run(mesh, image, seed=int(request.get("seed", 0)), resolution=int(request.get("resolution", 512)),
-                            texture_size=int(request.get("texture_size", 2048)))
+                            texture_size=int(request.get("texture_size", 2048)),
+                            tex_slat_sampler_params={'steps': int(request.get('texture_steps',12))})
     # Official preprocess and postprocess apply inverse axis rotations. Restore
     # only the bbox normalization, so users retain their Hi3D geometry frame.
-    textured.vertices = np.asarray(textured.vertices) / scale + center
+    restore_texture_frame(textured, center, scale)
     emit_fn("exporting", message="导出嵌入式 BaseColor 与 Metallic/Roughness 贴图 GLB")
     material = textured.visual.material
     if getattr(material, "baseColorTexture", None) is None or getattr(material, "metallicRoughnessTexture", None) is None:
         raise RuntimeError("PBR贴图输出不完整")
     textured.export(output, file_type="glb")
-    return {"model": SPECS["texture"], "image_encoder": SPECS["texture_encoder"],
+    return {"model": SPECS["texture"], "engine": 'trellis2', "inference_steps": int(request.get('texture_steps',12)), "image_encoder": SPECS["texture_encoder"],
             "geometry_generated": False, "texture_generated": True, "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+            'uv_policy': uv_policy,
+            'uv_generation':uv_generation,'shading_normals':'input normals preserved through UV and frame conversion',
             "vertices": len(textured.vertices), "faces": len(textured.faces), "texture_size": int(request.get("texture_size", 2048)),
             "pbr_channels": ["baseColor", "metallic", "roughness", "alpha"],
             "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
@@ -263,9 +326,19 @@ def main():
             raise ValueError("参考图片不存在")
         if args.stage == "texture" and not Path(request["mesh_path"]).is_file():
             raise ValueError("贴图网格不存在")
-        resolution = request.get("resolution", 256 if args.stage == "coarse" else 512)
-        if resolution not in ({256} if args.stage == "coarse" else {512, 1024}):
-            raise ValueError("基础几何分辨率应为256；贴图分辨率应为512或1024")
+        choice = engine(args.stage, request.get('engine'))
+        resolution = request.get("resolution", choice['default_resolution'])
+        if resolution not in choice['resolutions']:
+            label = '基础几何分辨率' if args.stage == 'coarse' else '贴图采样分辨率'
+            raise ValueError(f"{label}不适用于 {choice['name']}")
+        request['resolution'] = resolution
+        if not isinstance(request.get('geometry_steps', 50), int) or not 1 <= request.get('geometry_steps', 50) <= 100:
+            raise ValueError('几何步数应为1至100的整数')
+        if isinstance(request.get('geometry_steps'), bool):
+            raise ValueError('几何步数不能为布尔值')
+        if ('texture_steps' in request and (not isinstance(request['texture_steps'], int)
+                or isinstance(request['texture_steps'], bool) or not 1 <= request['texture_steps'] <= 100)):
+            raise ValueError('贴图步数应为1至100的整数')
         if request.get("texture_size", 2048) not in {1024, 2048, 4096}:
             raise ValueError("贴图尺寸应为1024、2048或4096")
         os.environ["HF_HUB_OFFLINE"] = "1"
@@ -276,8 +349,8 @@ def main():
         import torch
         if not torch.cuda.is_available():
             raise RuntimeError("需要 NVIDIA CUDA GPU")
-        if os.name == 'nt' and args.stage == 'texture' and torch.cuda.get_device_capability() < (8, 6):
-            raise RuntimeError('当前 Windows 预编译贴图扩展需要 CUDA 计算能力 8.6 或以上；该扩展包不支持 RTX 20 系列或 A100（8.0）。这不是模型本身的理论硬件下限。')
+        if os.name == 'nt' and (args.stage == 'texture' or choice['id']=='trellis2') and torch.cuda.get_device_capability() < (8, 6):
+            raise RuntimeError('当前 Windows 资产运行时的预编译扩展需要 CUDA 计算能力 8.6 或以上；该扩展包不支持 RTX 20 系列或 A100（8.0）。这不是模型本身的理论硬件下限。')
         torch.cuda.reset_peak_memory_stats()
         image, background = foreground(request, output.parent, args.stage)
         callback = lambda stage, **kw: emit(args.stage + "_" + stage, **kw)
@@ -285,9 +358,13 @@ def main():
         if not temp.is_file() or temp.stat().st_size < 100:
             raise RuntimeError("推理没有生成有效GLB")
         torch.cuda.synchronize()
+        result['input_image_sha256'] = digest(Path(request['image_path']))
+        if args.stage == 'texture':
+            result['input_mesh_sha256'] = digest(Path(request['mesh_path']))
+        result['output_sha256'] = digest(temp)
         result.update(base, status="succeeded", background=background, seconds=round(time.perf_counter()-started, 3),
-                      peak_allocated_mb=round(torch.cuda.max_memory_allocated()/2**20, 2),
-                      peak_reserved_mb=round(torch.cuda.max_memory_reserved()/2**20, 2),
+                      peak_allocated_mb=max(result.get('peak_allocated_mb',0), round(torch.cuda.max_memory_allocated()/2**20, 2)),
+                      peak_reserved_mb=max(result.get('peak_reserved_mb',0), round(torch.cuda.max_memory_reserved()/2**20, 2)),
                       memory_metric="PyTorch CUDA allocator; external native allocations are not included",
                       runtime={"torch": str(torch.__version__), "cuda": torch.version.cuda,
                                "gpu": torch.cuda.get_device_name(), "capability": list(torch.cuda.get_device_capability())})
@@ -298,7 +375,9 @@ def main():
         os.replace(temp, output)
         emit(args.stage + "_complete", **{k:v for k,v in result.items() if k not in {"stage", "model", "image_encoder"}})
     except BaseException as exc:
-        failure = {**base, "status": "failed", "model": SPECS[args.stage],
+        failed_choice = locals().get('choice', {})
+        component = failed_choice.get('components', [args.stage])[0]
+        failure = {**base, "status": "failed", "model": SPECS.get(component, {}), "engine": failed_choice.get('id', request.get('engine')),
                    "geometry_generated": False, "texture_generated": False,
                    "error": str(exc), "seconds": round(time.perf_counter()-started, 3), "traceback": traceback.format_exc()}
         if "torch" in locals() and torch.cuda.is_initialized():

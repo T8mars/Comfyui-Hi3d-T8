@@ -17,9 +17,10 @@ ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.
 def files(root):
     return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and not p.name.endswith('.pyc')]
 
-def build_source():
-    DIST.mkdir(exist_ok=True)
-    out=DIST/f'Hi3D-Workbench-source-{VERSION}.zip'
+def build_source(dist=None):
+    dist=Path(dist or DIST)
+    dist.mkdir(parents=True,exist_ok=True)
+    out=dist/f'Hi3D-Workbench-source-{VERSION}.zip'
     with zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as z:
         for name in ALLOWED:
             p=ROOT/name
@@ -30,7 +31,7 @@ def build_source():
             p=source/name
             for f in files(p) if p.is_dir() else [p]:
                 if f.is_file():z.write(f,f.relative_to(ROOT))
-    with zipfile.ZipFile(DIST/f'ComfyUI-Hi3D-nodes-{VERSION}.zip','w',zipfile.ZIP_DEFLATED) as z:
+    with zipfile.ZipFile(dist/f'ComfyUI-Hi3D-nodes-{VERSION}.zip','w',zipfile.ZIP_DEFLATED) as z:
         for name in ['__init__.py','comfy_nodes.py','requirements.txt','pyproject.toml','README.md','README.zh-CN.md','docs/COMFYUI.md','docs/images/comfyui-canvas.png','NOTICE.md','LICENSE']:
             z.write(ROOT/name,Path('ComfyUI-Hi3D')/name)
         for f in files(ROOT/'examples'):z.write(f,Path('ComfyUI-Hi3D')/f.relative_to(ROOT))
@@ -61,18 +62,28 @@ def pipeline_runtime(out):
     (out/'runtime-pipeline-packages.txt').write_text(packages,encoding='utf-8')
     return target
 
-def portable(base,include_models,name,include_pipeline=False):
+def portable(base,include_models,name,include_pipeline=False,pipeline_engines=(),dist=None):
     if Path(name).name!=name:raise ValueError('发行目录名称不能包含路径')
+    selected=[]
+    if include_pipeline:
+        from hi3d_workbench.pipeline_models import selection_components
+        selected=list(dict.fromkeys(selection_components('all') +
+            [key for choice in pipeline_engines for key in selection_components(choice)]))
+    elif pipeline_engines:raise ValueError('Engine selections require --include-pipeline')
     if include_models:
         from hi3d_workbench.models import verify_all
         if not verify_all()['ok']:raise SystemExit('模型尚未完成完整校验，不能生成完整离线包')
         if include_pipeline:
             from hi3d_workbench.pipeline_models import verify
-            if not verify()['ready']:raise SystemExit('扩展模型或环境尚未完整校验，不能生成完整资产工作台包')
-    out=DIST/name
+            state=verify()
+            if not state['ready'] or any(not state['components'][key]['ready'] for key in selected):
+                raise SystemExit('所选扩展模型或环境尚未完整校验，不能生成完整资产工作台包')
+    parent=Path(dist or DIST).resolve()
+    parent.mkdir(parents=True,exist_ok=True)
+    out=parent/name
     if out.exists():raise SystemExit('发行目录已存在，不覆盖现有发行版')
     out.mkdir()
-    with zipfile.ZipFile(build_source()) as z:z.extractall(out)
+    with zipfile.ZipFile(build_source(parent)) as z:z.extractall(out)
     runtime=out/'runtime';runtime.mkdir()
     for f in base.iterdir():
         if f.is_file() and (f.name in ['python.exe','python3.dll','python310.dll','LICENSE.txt'] or f.suffix.lower()=='.dll'):
@@ -92,22 +103,34 @@ def portable(base,include_models,name,include_pipeline=False):
     (out/'config.local.json').write_text(json.dumps({'worker_python':'runtime/python.exe','worker_command':[],'minimum_free_vram_mb':1500,'port':8378}),encoding='utf-8')
     if include_pipeline:pipeline_runtime(out)
     if include_models:
-        omitted=['.cache','.downloads','*.tmp','*.incomplete','*.parts*','*.assembled','download-state.json','.download.lock']
-        if not include_pipeline:omitted.append('extensions')
+        omitted=['.cache','.downloads','*.tmp','*.incomplete','*.parts*','*.assembled','*.bak','extensions','download-state.json','.download.lock']
         shutil.copytree(ROOT/'models',out/'models',ignore=shutil.ignore_patterns(*omitted))
+        if include_pipeline:
+            extension=out/'models/extensions';extension.mkdir()
+            installed=json.loads((ROOT/'models/extensions/manifest.json').read_text(encoding='utf-8'))
+            for key in selected:
+                shutil.copytree(ROOT/'models/extensions'/key,extension/key,ignore=shutil.ignore_patterns(*omitted))
+            from hi3d_workbench.common import atomic_json
+            atomic_json(extension/'manifest.json',{'components':{key:installed['components'][key] for key in selected}})
+    from hi3d_workbench.common import atomic_json
+    atomic_json(out/'bundle-manifest.json',{'version':VERSION,'pipeline_runtime':include_pipeline,
+        'models_included':include_models,'extension_components':selected if include_models else [],
+        'extra_engine_selections':list(pipeline_engines),
+        'optional_engines':'Other supported engines can be downloaded separately in the workbench.'})
     # No input images, jobs or personal paths included.
     return out
 
-def manifest():
+def manifest(dist=None):
+    dist=Path(dist or DIST)
     values={}
-    for f in DIST.glob('*.zip'):
+    for f in dist.glob('*.zip'):
         h=hashlib.sha256()
         with f.open('rb') as stream:
             for block in iter(lambda:stream.read(8*1024*1024),b''):h.update(block)
         values[f.name]={'bytes':f.stat().st_size,'sha256':h.hexdigest()}
-    (DIST/'SHA256.json').write_text(json.dumps(values,indent=2),encoding='utf-8')
+    (dist/'SHA256.json').write_text(json.dumps(values,indent=2),encoding='utf-8')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
-    print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline) if args.portable_base else build_source())
-    manifest()
+    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
+    print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root) if args.portable_base else build_source(args.dist_root))
+    manifest(args.dist_root)

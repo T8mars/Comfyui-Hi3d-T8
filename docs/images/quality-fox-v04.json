@@ -1,0 +1,43 @@
+{
+  "asset": "fox_knight",
+  "shot": "wide",
+  "model_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+  "hdr_sha256": "e7cfda5f4e98e623db12b8bfd0184e048488e4855d9c83e2751fb44a32e80c45",
+  "script_sha256": "c16cd74bc6c12cf6077ae7d95d4b8d43bd28fe5acf724bbf5bd9f9fbc566f98a",
+  "width": 2560,
+  "height": 1440,
+  "frames": 96,
+  "samples": 64,
+  "preview": true,
+  "actor_materials": "original embedded maps and factors preserved; no material replacements",
+  "completed": true,
+  "seconds": 9.032,
+  "rendered_frames": 3,
+  "images": [
+    {
+      "name": "Image_0",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "Image_1",
+      "size": [
+        4096,
+        4096
+      ]
+    },
+    {
+      "name": "studio_small_09.hdr",
+      "size": [
+        1024,
+        512
+      ]
+    }
+  ],
+  "preview_frame": 48,
+  "image_sha256": "9ece32bd7c4b069464afe2a37898ea24f1976d3875c3737afd1f8e8f9ea3a2f6",
+  "pipeline": "TRELLIS.2 geometry 1024 cascade + UltraTex 2048 albedo / 1024 MR, embedded 4K PBR",
+  "hi3d_refinement": false
+}

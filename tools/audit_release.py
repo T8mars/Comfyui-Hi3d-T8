@@ -39,7 +39,7 @@ def verify_owned(z,prefix='',source_root=None):
     for name in ['hi3d_workbench/jobs.py','hi3d_workbench/server.py','hi3d_workbench/common.py','hi3d_workbench/web/app.js']:
         assert (root/name).is_file(),f'校验源码不完整：{name}'
     paths=[]
-    for directory in ['hi3d_workbench','scripts','examples','tools','tests','docs']:
+    for directory in ['hi3d_workbench','scripts','examples','tools','tests','docs','licenses']:
         paths.extend(p for p in (root/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc')
     for name in ['__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','LICENSE','config.example.json','upstream-source-manifest.json','VALIDATION.md']:
         if (root/name).is_file():paths.append(root/name)
@@ -58,8 +58,28 @@ def verify_nodes(z,source_root=None):
             _compare(z,'ComfyUI-Hi3D/'+path.relative_to(root).as_posix(),path);count+=1
     return count
 
-def audit(release):
-    dist=release.parent
+
+def verify_bundle(bundle,components,runtime):
+    """A declaration must describe the exact installed model dependency closure."""
+    from hi3d_workbench.pipeline_models import selection_components
+    from hi3d_workbench.engine_catalog import engine
+    assert bundle.get('version')==VERSION,'发行清单版本错误'
+    assert bundle.get('models_included') is True,'完整包未声明模型'
+    assert bundle.get('pipeline_runtime') is True and runtime.get('ready') is True,'发行清单扩展运行时不匹配'
+    expected=set(selection_components('all'))
+    for selection in bundle.get('extra_engine_selections',[]):
+        expected.update(selection_components(selection))
+        if selection.startswith('engine:'):
+            _,stage,name=selection.split(':')
+            feature=engine(stage,name)['runtime_feature']
+            assert feature=='baseline' or feature in runtime.get('features',[]),'发行清单缺少运行时特性'
+    declared=bundle.get('extension_components',[])
+    assert len(declared)==len(set(declared)),'发行清单包含重复组件'
+    assert set(declared)==set(components)==expected,'发行清单组件与引擎依赖或实际文件不匹配'
+    return {'declared_components':sorted(expected),'engine_dependency_closure':'passed'}
+
+def audit(release,archive_dir=None):
+    dist=Path(archive_dir).resolve() if archive_dir else release.parent
     catalog=json.loads((dist/'SHA256.json').read_text(encoding='utf-8'))
     source_manifest=json.loads((ROOT/'upstream-source-manifest.json').read_text(encoding='utf-8'))
     results={}
@@ -96,8 +116,13 @@ def audit(release):
                 extension_name=prefix+'models/extensions/manifest.json'
                 if extension_name in names:
                     extension=json.loads(z.read(extension_name));verified=0
+                    bundle=json.loads(z.read(prefix+'bundle-manifest.json'))
+                    runtime=json.loads(z.read(prefix+'runtime-pipeline/pipeline-runtime.json'))
+                    result['bundle_manifest']=verify_bundle(bundle,extension.get('components',{}),runtime)
                     from hi3d_workbench.pipeline_models import SPECS
+                    assert not set(extension.get('components',{}))-set(SPECS),'发行包含未知扩展组件'
                     for key,spec in SPECS.items():
+                        if spec.get('optional') and key not in extension.get('components',{}):continue
                         component=extension.get('components',{}).get(key,{})
                         assert component.get('repo')==spec['repo'] and component.get('revision')==spec['revision'],f'扩展组件版本不匹配：{key}'
                         assert all(rel in component.get('files',{}) for rel in spec['files']),f'扩展组件文件不完整：{key}'
@@ -125,5 +150,5 @@ def audit(release):
     print(json.dumps(report,indent=2),flush=True)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('release',type=Path);args=parser.parse_args()
-    audit(args.release.resolve())
+    parser=argparse.ArgumentParser();parser.add_argument('release',type=Path);parser.add_argument('--archive-dir',type=Path);args=parser.parse_args()
+    audit(args.release.resolve(),args.archive_dir)

@@ -1,0 +1,447 @@
+{
+  "validated_utc": "2026-10-24T23:40:04.430284+00:00",
+  "version": "0.4.0",
+  "development_drive": "E:",
+  "portable_drive": "C:",
+  "host_python_cuda_paths_removed": true,
+  "unreachable_outbound_proxy": true,
+  "hf_offline": true,
+  "bundled_runtime": true,
+  "cases": [
+    {
+      "case": "trellis-image-pbr",
+      "passed": true,
+      "request": {
+        "mode": "image_to_asset",
+        "image": "7a0d4c0adfbd42dcbac48675edda365a",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 43,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 2048,
+        "geometry_engine": "trellis2",
+        "geometry_resolution": 512,
+        "texture_engine": "trellis2",
+        "texture_resolution": 512
+      },
+      "output_sha256": "e9c508672066328197453873dd1d8bd3c5ce6a99d651f31b5e1fe721052739c1",
+      "export_height_m": 0.07999999999999999,
+      "export_height_axis": "Y",
+      "stages": [
+        {
+          "stage": "coarse",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "pipeline.json",
+              "README.md",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+              "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+              "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+            ],
+            "optional": true
+          },
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "engine": "trellis2",
+          "geometry_generated": true,
+          "texture_generated": false,
+          "postprocessing": {
+            "enabled": true,
+            "raw_faces": 3027402,
+            "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+            "target_faces": 1000000,
+            "seconds": 9.1
+          },
+          "raw_geometry_file": "raw-geometry.glb",
+          "pipeline_type": "512",
+          "requested_resolution": 512,
+          "actual_resolution": 512,
+          "vertices": 473869,
+          "faces": 962022,
+          "inference_steps": 12,
+          "transform": {
+            "coordinate_system": "glTF Y-up",
+            "axis_mapping": "[x,z,-y]",
+            "unit_scale": "generator canonical; no absolute scale"
+          },
+          "input_image_sha256": "9366dc883141a8d7809ea7d2f5aafe062f108f8a95eeb3814b7e926ac88b4f1d",
+          "output_sha256": "7d5c719c4b4e58d1d3f990f82d65a80045044fa29d9bf2c8c29e3877f8fe4302",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 136.103,
+          "peak_allocated_mb": 2723.97,
+          "peak_reserved_mb": 3616.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        },
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "texturing_pipeline.json",
+              "README.md",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+            ]
+          },
+          "engine": "trellis2",
+          "inference_steps": 12,
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+          "uv_policy": "generate_uv",
+          "uv_generation": "native_CuMesh_topology_mapped",
+          "shading_normals": "input normals preserved through UV and frame conversion",
+          "vertices": 742665,
+          "faces": 962020,
+          "texture_size": 2048,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness",
+            "alpha"
+          ],
+          "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+          "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+          "transform": {
+            "normalization_center": [
+              0.004009544849395752,
+              6.80387020111084e-05,
+              6.0051679611206055e-05
+            ],
+            "normalization_scale": 0.9963434785144791,
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true
+          },
+          "input_image_sha256": "9366dc883141a8d7809ea7d2f5aafe062f108f8a95eeb3814b7e926ac88b4f1d",
+          "input_mesh_sha256": "7d5c719c4b4e58d1d3f990f82d65a80045044fa29d9bf2c8c29e3877f8fe4302",
+          "output_sha256": "e9c508672066328197453873dd1d8bd3c5ce6a99d651f31b5e1fe721052739c1",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 115.042,
+          "peak_allocated_mb": 4142.08,
+          "peak_reserved_mb": 5674.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "mini-image-geometry",
+      "passed": true,
+      "request": {
+        "mode": "image_to_asset",
+        "image": "181359dffee248c983f903ea515fee69",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": false,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 43,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 2048,
+        "geometry_engine": "hunyuan_mini",
+        "geometry_resolution": 256
+      },
+      "output_sha256": "7cc00a21794b058ba8adc097bc0af135691e0e4e23e99dc2473f74e3bab0b927",
+      "export_height_m": null,
+      "export_height_axis": null,
+      "stages": [
+        {
+          "stage": "coarse",
+          "model": {
+            "repo": "tencent/Hunyuan3D-2mini",
+            "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+            "license": "Tencent Hunyuan 3D 2.0 Community License",
+            "files": [
+              "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+              "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+              "LICENSE",
+              "NOTICE",
+              "README.md"
+            ]
+          },
+          "engine": "hunyuan_mini",
+          "geometry_generated": true,
+          "texture_generated": false,
+          "vertices": 291785,
+          "faces": 583686,
+          "inference_steps": 5,
+          "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+          "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+          "transform": {
+            "coordinate_system": "Hunyuan canonical",
+            "unit_scale": "generator canonical; no absolute scale"
+          },
+          "input_image_sha256": "9366dc883141a8d7809ea7d2f5aafe062f108f8a95eeb3814b7e926ac88b4f1d",
+          "output_sha256": "7cc00a21794b058ba8adc097bc0af135691e0e4e23e99dc2473f74e3bab0b927",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 65.211,
+          "peak_allocated_mb": 2468.37,
+          "peak_reserved_mb": 2610.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "case": "trellis-authored-normal-pbr-v2",
+      "passed": true,
+      "real_inference": true,
+      "request": {
+        "mode": "texture",
+        "image": "161d7f1f572d4e539ce05bdc51118b66",
+        "mesh": "240888ec07994419b8bc557c1c42036c",
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 42,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_size": 2048,
+        "texture_engine": "trellis2",
+        "texture_resolution": 512
+      },
+      "job_id": "e7cd65cc0e154cc69d45c1c72a52b585",
+      "output_sha256": "7695c4163f7b8a69d83010622bed0773567f2ca517b61ea878118ca666613981",
+      "export_height_m": 0.08000000000000002,
+      "export_height_axis": "Y",
+      "materials": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "stages": [
+        {
+          "stage": "texture",
+          "model": {
+            "repo": "microsoft/TRELLIS.2-4B",
+            "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+            "license": "MIT; external image encoder has its own license",
+            "files": [
+              "texturing_pipeline.json",
+              "README.md",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+              "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+              "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+              "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+            ]
+          },
+          "engine": "trellis2",
+          "inference_steps": 12,
+          "image_encoder": {
+            "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+            "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+            "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+            "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+            "upstream_identical": true,
+            "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+            "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+            "files": [
+              "config.json",
+              "model.safetensors",
+              "preprocessor_config.json",
+              "LICENSE.md",
+              "README.md"
+            ]
+          },
+          "geometry_generated": false,
+          "texture_generated": true,
+          "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+          "uv_policy": "input_single_material_uv",
+          "uv_generation": "preserved_existing",
+          "shading_normals": "input normals preserved through UV and frame conversion",
+          "vertices": 859273,
+          "faces": 969824,
+          "texture_size": 2048,
+          "pbr_channels": [
+            "baseColor",
+            "metallic",
+            "roughness",
+            "alpha"
+          ],
+          "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+          "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+          "transform": {
+            "normalization_center": [
+              -0.003967642784118652,
+              -0.0005761086940765381,
+              -0.0044533610343933105
+            ],
+            "normalization_scale": 0.9972832759540934,
+            "normalization_restored": true,
+            "mesh_input_frame_preserved": true,
+            "uv_seam_vertex_splits_possible": true
+          },
+          "input_image_sha256": "fa1938ba8f0ddbb96eafd7a52cb33675a468262c944793f7f676bbadcf85c0ca",
+          "input_mesh_sha256": "f562162609a9e421758f092f5e6b28488fa0a8929388049028e207e648a79d8e",
+          "output_sha256": "7695c4163f7b8a69d83010622bed0773567f2ca517b61ea878118ca666613981",
+          "request_path": "C:\\Users\\27611\\AppData\\Local\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Hi3D-T8\\releases\\v0.4.0\\Hi3D-Workbench-Windows-0.4.0\\data\\jobs\\e7cd65cc0e154cc69d45c1c72a52b585\\stages\\texture\\request.json",
+          "output_path": "C:\\Users\\27611\\AppData\\Local\\Packages\\OpenAI.Codex_2p2nqsd0c76g0\\LocalCache\\Local\\Hi3D-T8\\releases\\v0.4.0\\Hi3D-Workbench-Windows-0.4.0\\data\\jobs\\e7cd65cc0e154cc69d45c1c72a52b585\\stages\\texture\\textured.glb",
+          "status": "succeeded",
+          "background": "input_alpha",
+          "seconds": 89.311,
+          "peak_allocated_mb": 3255.26,
+          "peak_reserved_mb": 4128.0,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "runtime": {
+            "torch": "2.8.0+cu128",
+            "cuda": "12.8",
+            "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          }
+        }
+      ],
+      "seconds": 96.03
+    }
+  ],
+  "hi3d_kernel_probe": {
+    "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+    "platform": "Windows-10-10.0.26300-SP0",
+    "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+    "packages": {
+      "torch": "2.11.0+cu128",
+      "torchvision": "0.26.0+cu128",
+      "triton-windows": "3.6.0.post26",
+      "spconv-cu126": "2.3.8",
+      "transformers": "4.46.3",
+      "accelerate": "1.6.0",
+      "numpy": "1.26.4"
+    },
+    "cuda": true,
+    "kernel_probe": "passed",
+    "official_validated_environment": false,
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "capability": [
+      12,
+      0
+    ],
+    "free_vram_mb": 23151,
+    "total_vram_mb": 24435,
+    "torch_cuda": "12.8",
+    "probe_voxels": 14672,
+    "official_sparse_conv_dtypes": [
+      "float32",
+      "float16"
+    ],
+    "isolated_from_host_paths": true,
+    "fresh_kernel_cache": true
+  },
+  "full_new_hi3d_inference": false,
+  "scope": "New bundled geometry/PBR stages ran offline using C-drive runtimes. Original Hi3D worker and core weights are unchanged; a fresh kernel probe passed. Previous complete Hi3D/Comfy inference receipts remain historical.",
+  "authored_normal_roundtrip": {
+    "case": "trellis-authored-normal-pbr-v2",
+    "passed": true,
+    "input_sha256": "f562162609a9e421758f092f5e6b28488fa0a8929388049028e207e648a79d8e",
+    "output_sha256": "7695c4163f7b8a69d83010622bed0773567f2ca517b61ea878118ca666613981",
+    "faces_exact": true,
+    "uv_exact": true,
+    "maximum_position_error": 0.0,
+    "minimum_normal_cosine": 0.9999999999999989,
+    "normal_basis": "Raw Scene.geometry GLB NORMAL, not force=mesh reconstruction"
+  },
+  "superseded_normal_failure": {
+    "case": "trellis-authored-normal-pbr",
+    "api_passed": true,
+    "raw_normals_passed": false,
+    "fraction_cosine_below_0_9": 0.3941915008,
+    "replacement": "trellis-authored-normal-pbr-v2"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "pytest": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "276",
+    "time": "38.201",
+    "timestamp": "2026-10-24T19:33:13.397020-04:00",
+    "hostname": "T8"
+  },
+  "warning_count": 1,
+  "comfy_canvas": {
+    "comfy_nodes.py": {
+      "unchanged_after_git_newline_normalization": true,
+      "worktree_sha256": "a12cfeb6a4bee0e65d53e1ae89706c17a81797d0149f170613e5c717f4563141"
+    },
+    "__init__.py": {
+      "unchanged_after_git_newline_normalization": true,
+      "worktree_sha256": "3743fb9633681efb8ca2f45cb00dd64cf204422c91cff34987a587f8e6cf2c7f"
+    },
+    "examples/Hi3D-Refine.json": {
+      "unchanged_after_git_newline_normalization": true,
+      "worktree_sha256": "26320130a982c43875ddf3a27964dc37ceea5ef4a55a259a25b49cef5dcd320f"
+    },
+    "canvas": {
+      "format": "visual canvas",
+      "nodes": 5,
+      "links": 6
+    }
+  },
+  "core_worker_unchanged_after_git_newline_normalization": true,
+  "core_worker_sha256": "6167335530439c45ed259bbec1c1e2c18bba4d7137e98e272587deda444b08bf",
+  "new_browser_ui_validation": {
+    "performed": false,
+    "reason": "CUA exposes only MCP Apps and no browser. HTTP/static and old UI results are kept distinct."
+  }
+}

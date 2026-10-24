@@ -1,0 +1,69 @@
+{
+  "version": "0.4.0",
+  "recorded_utc": "2026-10-24T23:40:04.430284+00:00",
+  "installation_ready_is_not_gpu_validation": true,
+  "source_environment_engine_coverage": {
+    "coarse:hunyuan_mini": {
+      "status": "real_inference_passed",
+      "evidence": "validation/v040/portable.json#mini-image-geometry"
+    },
+    "coarse:hunyuan21": {
+      "status": "real_inference_passed",
+      "evidence": "validation/v040/geometry-benchmarks.json",
+      "artistic_limit": "Fox had a connected floor plane; owl did not."
+    },
+    "coarse:trellis2": {
+      "status": "real_inference_passed",
+      "evidence": [
+        "validation/v040/source-http.json",
+        "validation/v040/portable.json",
+        "validation/v040/geometry-benchmarks.json"
+      ]
+    },
+    "texture:trellis2": {
+      "status": "real_inference_passed",
+      "evidence": [
+        "validation/v040/source-http.json#chest-image-trellis-v2",
+        "validation/v040/portable.json#trellis-image-pbr"
+      ]
+    },
+    "texture:hunyuan21": {
+      "status": "real_inference_passed",
+      "evidence": "validation/v040/source-http.json#fox-texture-hunyuan-v2",
+      "artistic_limit": "Some fur/garment boundary color spill remains."
+    },
+    "texture:ultratex": {
+      "status": "real_inference_passed",
+      "evidence": [
+        "validation/v040/source-http.json#owl-image-ultratex",
+        "validation/v040/source-http.json#fox-hero-ultratex-v2"
+      ],
+      "license": "FLUX.2 Klein 9B base: FLUX Non-Commercial License"
+    }
+  },
+  "portable_coverage": {
+    "engines": [
+      "coarse:hunyuan_mini",
+      "coarse:trellis2",
+      "texture:trellis2"
+    ],
+    "hi3d_kernel_probe": "passed",
+    "full_new_hi3d_inference": false,
+    "evidence": "validation/v040/portable.json",
+    "authored_normal_texture_revalidation": true
+  },
+  "implementation_fingerprints_at_packaging": {
+    "hi3d_workbench/common.py": "3b211252f0ff07567134eb9f277e2586e552d4391d314d324eb062263f71023e",
+    "hi3d_workbench/models.py": "82fc2375c24c7fd2ceaf9cf34932c93b5d63232d8960fac5160e7b0f441dcdcf",
+    "hi3d_workbench/pipeline_models.py": "eb0a71ec6b8eff831e04af405854aa8b29edb6c3a22bd932b852b4747fbeaba7",
+    "hi3d_workbench/pipeline_worker.py": "f85db0e5f8bae591f419a4f992be3976af48740559de8c6e0d05c731cfcbd6b4",
+    "hi3d_workbench/asset_pipeline.py": "d2f38fb21ddfdc82973ee68eec41929fc51492412b8fe64145d8521daa8c5bd4",
+    "hi3d_workbench/engines/run_stage.py": "c258d20dc001f86ff44e691304be35f8d96beee0de1aac99cbcf276f425830cd",
+    "hi3d_workbench/engines/mesh_uv.py": "580014ea6deea261869a8b187e809558b3c7aaca07f38a278a2e6d5df5f9c669",
+    "hi3d_workbench/engines/trellis_geometry.py": "fc32cc90d78abfe719dbe7c412ff4c0b96bc2f9c020a64b98a83c188b6a1ef2c",
+    "hi3d_workbench/engines/ultratex_texture.py": "457f2879f1f14e21df550c77de9ef6b97ae588937c23dd48cec719de62e5e6c2",
+    "hi3d_workbench/engines/hunyuan_texture.py": "7ba42ef53d75321806221bc847e301dca0da1b3121388aed62273ff97b69a993",
+    "hi3d_workbench/engines/hunyuan_renderer.py": "d7aa55ba6e16c9c61a235e107abdbdd9e7d33e343393856968766f2370728ee3"
+  },
+  "capacity_claim": "Measured on Windows RTX5090 Laptop 24GB/64GB RAM only; not minimum GPU requirements."
+}

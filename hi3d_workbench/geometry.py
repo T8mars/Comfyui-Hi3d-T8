@@ -48,15 +48,17 @@ def inspect_mesh(mesh):
             "unchecked": ["自交", "壁厚", "最小零件强度", "切片可打印性"],
             "units": "unknown", "warnings": ["Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"]}
 
-def export_mesh(mesh, target: Path, height_mm: float | None = None):
+def export_mesh(mesh, target: Path, height_mm: float | None = None, height_axis: str = 'Z'):
     mesh = validate(mesh)
+    if height_axis not in {'X','Y','Z'}:raise ValueError('尺寸轴应为 X、Y 或 Z')
+    axis='XYZ'.index(height_axis)
     if height_mm is not None:
-        if not 0 < height_mm <= 100000 or mesh.extents[2] <= 1e-12:
-            raise ValueError("目标高度或 Z 轴尺寸无效")
+        if not 0 < height_mm <= 100000 or mesh.extents[axis] <= 1e-12:
+            raise ValueError("目标尺寸或所选轴无效")
         # glTF/GLB encodes linear distances in meters; STL/PLY use our mm convention.
         coordinate_height=height_mm/1000 if target.suffix.lower()=='.glb' else height_mm
-        mesh.apply_scale(coordinate_height / mesh.extents[2])
+        mesh.apply_scale(coordinate_height / mesh.extents[axis])
         mesh=validate(mesh)
     mesh.export(target)
-    return {"format": target.suffix, "height_axis": "Z", "height_mm": height_mm,
+    return {"format": target.suffix, "height_axis": height_axis, "height_mm": height_mm,
             "units": ("m" if target.suffix.lower()=='.glb' else "mm") if height_mm else "normalized/unknown", "bounds": mesh.bounds.tolist()}

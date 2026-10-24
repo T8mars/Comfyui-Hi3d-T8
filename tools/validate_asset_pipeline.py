@@ -22,6 +22,7 @@ from hi3d_workbench.geometry import load_mesh, inspect_mesh
 
 
 def main():
+    if hasattr(sys.stdout,'reconfigure'):sys.stdout.reconfigure(encoding='utf-8')
     parser=argparse.ArgumentParser()
     parser.add_argument('--url',default='http://127.0.0.1:8380')
     parser.add_argument('--image',type=Path,required=True)
@@ -31,6 +32,12 @@ def main():
     parser.add_argument('--no-texture',action='store_true')
     parser.add_argument('--background',choices=['auto','keep'],default='auto')
     parser.add_argument('--texture-size',type=int,default=2048)
+    parser.add_argument('--geometry-engine',choices=['hunyuan_mini','hunyuan21','trellis2'])
+    parser.add_argument('--geometry-resolution',type=int)
+    parser.add_argument('--texture-engine',choices=['trellis2','hunyuan21','ultratex'])
+    parser.add_argument('--texture-resolution',type=int)
+    parser.add_argument('--seed',type=int,default=0)
+    parser.add_argument('--height-axis',choices=['X','Y','Z'],default='Y')
     parser.add_argument('--output',type=Path,required=True)
     parser.add_argument('--timeout',type=float,default=10800)
     args=parser.parse_args()
@@ -58,7 +65,9 @@ def main():
         mesh=upload(args.mesh) if args.mesh else None
         body={'mode':args.mode,'image':image,'mesh':mesh,'refine_geometry':not args.no_refine,
               'generate_texture':not args.no_texture,'background':args.background,'resolution':512,
-              'steps':25,'seed':0,'offload':True,'attention':'sdpa','texture_resolution':512,'texture_size':args.texture_size}
+              'steps':25,'seed':args.seed,'offload':True,'attention':'sdpa','texture_size':args.texture_size}
+        for key in ('geometry_engine','geometry_resolution','texture_engine','texture_resolution'):
+            if getattr(args,key) is not None:body[key]=getattr(args,key)
         evidence['request']=body
         job=api('/api/jobs',body);jid=job['id'];evidence['job_id']=jid
         deadline=time.monotonic()+args.timeout
@@ -76,7 +85,7 @@ def main():
             time.sleep(2)
         evidence['job']=job
         if job['state']!='succeeded':raise RuntimeError(job.get('message','real inference failed'))
-        for name in ['coarse.glb','refined.glb','textured.glb','report.json','pipeline-progress.json','foreground.png','conditioning.png','worker.log']:
+        for name in ['coarse.glb','generated.glb','refined.glb','textured.glb','report.json','pipeline-progress.json','foreground.png','conditioning.png','worker.log']:
             if name not in job.get('available_files',[]):continue
             response=session.get(url+f'/api/jobs/{jid}/files/{name}',timeout=300);response.raise_for_status()
             (output/name).write_bytes(response.content)
@@ -87,13 +96,14 @@ def main():
         if not args.no_texture or args.mode=='texture':
             evidence['material_check']=inspect_textured_glb(final)
             if not report.get('texture_generated'):raise ValueError('report did not confirm generated textures')
-            exported=api(f'/api/jobs/{jid}/export',{'source':'textured','format':'glb','height_mm':80})
+            exported=api(f'/api/jobs/{jid}/export',{'source':'textured','format':'glb','height_mm':80,'height_axis':args.height_axis})
             response=session.get(url+exported['url'],timeout=300);response.raise_for_status()
             target=output/'export-80mm.glb';target.write_bytes(response.content)
             evidence['export_material_check']=inspect_textured_glb(target)
-            height=load_mesh(target).extents[2]
+            height=load_mesh(target).extents['XYZ'.index(args.height_axis)]
             if abs(height-.08)>1e-6:raise ValueError(f'wrong exported height: {height}')
             evidence['export_height_m']=float(height)
+            evidence['export_height_axis']=args.height_axis
         evidence.update(passed=True,finished=time.time())
     except BaseException as exc:
         evidence.update(passed=False,error=str(exc),finished=time.time())

@@ -36,7 +36,7 @@ DIAGNOSTIC_TIMEOUT=180
 PROBE_WORKERS={}
 PROBE_WORKERS_LOCK=threading.Lock()
 PIPELINE_MODELS_LOCK=threading.Lock()
-JOB_FILES={"coarse.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
+JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
 
 @contextmanager
 def gpu_operation(kind):
@@ -89,7 +89,7 @@ async def lifespan(app):
         if not state['ready'] and all(c['present'] for c in state['components'].values()) and state['download']['state']!='downloading':
             threading.Thread(target=initial_verification,daemon=True).start()
         extension=pipeline_models.status()
-        if extension['runtime']['ready'] and not extension['ready'] and all((pipeline_models.MODEL_ROOT/key/name).is_file() for key,spec in pipeline_models.SPECS.items() for name in spec['files']):
+        if extension['runtime']['ready'] and not extension['ready'] and all((pipeline_models.MODEL_ROOT/key/name).is_file() for key,spec in pipeline_models.SPECS.items() if not spec.get('optional') for name in spec['files']):
             threading.Thread(target=initial_pipeline_verification,daemon=True).start()
         yield
     finally:
@@ -249,7 +249,8 @@ class PipelineDownloadInput(BaseModel):
 
 @app.post('/api/pipeline/models/download')
 def download_pipeline(body:PipelineDownloadInput):
-    if body.selection not in {'all','coarse','texture'}:raise HTTPException(400,'无效模型选择')
+    try:pipeline_models.selection_components(body.selection)
+    except ValueError as exc:raise HTTPException(400,str(exc)) from exc
     with gpu_operation('downloading'):
         if not PIPELINE_MODELS_LOCK.acquire(blocking=False):raise HTTPException(409,'扩展模型正在下载或校验')
         def run():
@@ -284,8 +285,14 @@ def prepare_upload(temp, suffix, folder, filename):
                 if sum(i.file_size for i in z.infolist())>512*1024*1024:raise ValueError("解压后网格过大")
         mesh=load_mesh(temp)
         if len(mesh.faces)>5_000_000:raise ValueError("输入超过 500 万面，请先精简")
-        mesh.export(folder/"mesh.glb")
-        meta={"id":folder.name,"kind":"mesh","name":filename,"url":f"/api/assets/{folder.name}/mesh.glb","geometry":inspect_asset_geometry(folder/"mesh.glb")}
+        has_materials=False
+        if suffix=='.glb':
+            from .asset_pipeline import read_glb_container
+            tree=read_glb_container(temp)
+            has_materials=bool(tree.get('materials'))
+            shutil.copy2(temp,folder/'mesh.glb')
+        else:mesh.export(folder/"mesh.glb")
+        meta={"id":folder.name,"kind":"mesh","name":filename,"has_materials":has_materials,"url":f"/api/assets/{folder.name}/mesh.glb","geometry":inspect_asset_geometry(folder/"mesh.glb")}
     atomic_json(folder/"meta.json",meta)
     return meta
 
@@ -327,7 +334,13 @@ class JobInput(BaseModel):
     mode:str='refine'
     refine_geometry:bool=False
     generate_texture:bool | None=None
-    texture_resolution:int=512
+    geometry_engine:str='hunyuan_mini'
+    geometry_resolution:int | None=None
+    geometry_steps:int | None=Field(None,ge=1,le=100)
+    geometry_cleanup:bool=True
+    texture_engine:str='trellis2'
+    texture_steps:int | None=Field(None,ge=1,le=100)
+    texture_resolution:int | None=None
     texture_size:int=2048
     background:str='auto'
     resolution:int=512
@@ -338,8 +351,19 @@ class JobInput(BaseModel):
 
 @app.post("/api/jobs")
 def create_job(body:JobInput):
+    from .engine_catalog import engine, is_ready
     if body.resolution not in {512,1024,1536} or body.attention not in {"flash","sdpa"}:raise HTTPException(400,"无效推理配置")
-    if body.mode not in {'refine','image_to_asset','texture'} or body.background not in {'auto','keep'} or body.texture_resolution not in {512,1024} or body.texture_size not in {1024,2048,4096}:raise HTTPException(400,'无效任务模式或贴图配置')
+    try:
+        geometry_choice=engine('coarse',body.geometry_engine)
+        texture_choice=engine('texture',body.texture_engine)
+    except ValueError as exc:raise HTTPException(400,str(exc)) from exc
+    geometry_resolution=geometry_choice['default_resolution'] if body.geometry_resolution is None else body.geometry_resolution
+    texture_resolution=texture_choice['default_resolution'] if body.texture_resolution is None else body.texture_resolution
+    if body.mode=='image_to_asset' and body.geometry_engine=='hunyuan_mini' and body.geometry_steps not in {None,5}:
+        raise HTTPException(400,'mini-Turbo 是蒸馏模型，固定使用5步；请选择其他引擎调整几何步数')
+    if (body.mode not in {'refine','image_to_asset','texture'} or body.background not in {'auto','keep'}
+            or texture_resolution not in texture_choice['resolutions'] or body.texture_size not in {1024,2048,4096}
+            or geometry_resolution not in geometry_choice['resolutions']):raise HTTPException(400,'无效任务模式或所选引擎的采样配置')
     wants_refine=body.mode=='refine' or body.mode=='image_to_asset' and body.refine_geometry
     wants_texture=body.mode=='texture' or (body.generate_texture if body.generate_texture is not None else body.mode=='image_to_asset')
     image=child_path(ASSETS,body.image)/"image.png"
@@ -352,18 +376,36 @@ def create_job(body:JobInput):
             if not models.status()["ready"]:raise HTTPException(409,"Hi3D 模型未就绪，请先下载完整组件并校验")
             if not verify_models()["ok"]:raise HTTPException(409,"Hi3D 权重校验失败，请重新下载损坏文件")
         extension=pipeline_models.status()
-        if body.mode=='image_to_asset' and not extension['coarse_ready']:raise HTTPException(409,'基础建模模型或扩展环境未就绪，请查看「模型与环境」')
-        if wants_texture and not extension['texture_ready']:raise HTTPException(409,'贴图模型或扩展环境未就绪，请查看「模型与环境」')
+        if body.mode=='image_to_asset' and not is_ready(extension,'coarse',body.geometry_engine):raise HTTPException(409,f'{geometry_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
+        if wants_texture and not is_ready(extension,'texture',body.texture_engine):raise HTTPException(409,f'{texture_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
         if (body.mode=='image_to_asset' or wants_texture) and body.background=='auto':
             with Image.open(image) as reference:
                 opaque=reference.convert('RGBA').getchannel('A').getextrema()[0]>=250
             if opaque and not extension.get('background_ready',False):raise HTTPException(409,'自动前景处理模型未就绪，请补齐扩展组件，或提供透明图片/选择保留背景')
         options={**body.model_dump(exclude={"image","mesh"}),"generate_texture":wants_texture,"image_asset":body.image,"mesh_asset":body.mesh if mesh is not None else None}
+        options['input_has_materials']=bool(mesh is not None and read_json(mesh.parent/'meta.json',{}).get('has_materials'))
+        options.update(geometry_resolution=geometry_resolution, texture_resolution=texture_resolution, geometry_steps=body.geometry_steps or geometry_choice['default_steps'],
+                       texture_steps=body.texture_steps or texture_choice['default_steps'])
         try:return manager.create(image,mesh,options)
         except RuntimeError as e:raise HTTPException(409,str(e)) from e
 
 @app.get("/api/jobs")
 def jobs():return manager.list()
+
+@app.get('/api/jobs/{jid}/comparisons')
+def comparisons(jid:str):
+    if manager.get(jid) is None:raise HTTPException(404)
+    values=[]
+    for value in manager.list():
+        folder=child_path(manager.root,value['id'])
+        files=[name for name in ('coarse.glb','refined.glb','textured.glb','generated.glb') if (folder/name).is_file()]
+        if not files:continue
+        report=value.get('report') if isinstance(value.get('report'),dict) else {}
+        values.append({'id':value['id'],'created':value['created'],'state':value['state'],
+                       'options':value.get('options',{}),'available_files':files,
+                       'input_sha256':report.get('input_sha256'),
+                       'texture_mesh_sha256':report.get('texture_mesh_sha256')})
+    return values
 
 @app.get("/api/jobs/{jid}")
 def job(jid:str):
@@ -389,7 +431,9 @@ def reuse_job(jid:str):
                 meta={"id":aid,"kind":kind,"name":"复用参考图.png","has_transparency":transparent,"url":f"/api/assets/{aid}/preview.png"}
             else:
                 shutil.copy2(folder/filename,dest/'mesh.glb')
-                meta={"id":aid,"kind":kind,"name":"复用粗模型.glb","url":f"/api/assets/{aid}/mesh.glb","geometry":inspect_asset_geometry(dest/'mesh.glb')}
+                from .asset_pipeline import read_glb_container
+                tree=read_glb_container(dest/'mesh.glb')
+                meta={"id":aid,"kind":kind,"name":"复用粗模型.glb","has_materials":bool(tree.get('materials')),"url":f"/api/assets/{aid}/mesh.glb","geometry":inspect_asset_geometry(dest/'mesh.glb')}
             atomic_json(dest/'meta.json',meta)
         return {"image":read_json(created[0]/'meta.json'),"mesh":read_json(created[1]/'meta.json') if len(created)>1 else None,"options":value['options']}
     except Exception:
@@ -413,10 +457,11 @@ class ExportInput(BaseModel):
     source:str="refined"
     format:str="glb"
     height_mm:float | None=Field(None,gt=0,le=100000)
+    height_axis:str=Field('Z',pattern='^[XYZ]$')
 
 @app.post("/api/jobs/{jid}/export")
 def export(jid:str,body:ExportInput):
-    if body.source not in {"coarse","refined","textured"} or body.format not in {"glb","ply","stl"}:raise HTTPException(400)
+    if body.source not in {"coarse","refined","textured","generated"} or body.format not in {"glb","ply","stl"}:raise HTTPException(400)
     if body.source=='textured' and body.format!='glb':raise HTTPException(400,'带材质结果请导出 GLB；STL/PLY 请另选几何版本')
     folder=child_path(manager.root,jid)
     src=folder/(body.source+".glb")
@@ -426,8 +471,11 @@ def export(jid:str,body:ExportInput):
     try:
         if body.source=='textured':
             from .asset_pipeline import export_textured_glb
-            meta=export_textured_glb(src,out/'model.glb',body.height_mm)
-        else:meta=export_mesh(load_mesh(src),out/("model."+body.format),body.height_mm)
+            meta=export_textured_glb(src,out/'model.glb',body.height_mm,body.height_axis)
+        elif body.format=='glb':
+            from .asset_pipeline import export_asset_glb
+            meta=export_asset_glb(src,out/'model.glb',body.height_mm,body.height_axis)
+        else:meta=export_mesh(load_mesh(src),out/("model."+body.format),body.height_mm,body.height_axis)
         atomic_json(out/"dimensions.json",meta)
     except Exception:
         # A failed export must not leave a partial model or a large orphaned

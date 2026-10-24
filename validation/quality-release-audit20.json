@@ -1,0 +1,1072 @@
+{
+  "audit": "v0.4 quality and release independent 20-check review",
+  "created_utc": "2026-10-24T22:08:21.988015+00:00",
+  "reviewer": "quality_release_audit20 sub-agent",
+  "scope": "Read-only CPU/static review; no GPU inference, browser interaction, server restart, download or publication. Only this JSON was intentionally created.",
+  "source_snapshot_sha256": {
+    "tools/build_release.py": "beb9bf701c23fc34de6eef56376894278aa6cab5247c71a1348f2ede98ae4c61",
+    "tools/audit_release.py": "015cff2bdb632eb4a8757c4b81e05cc795b072a2c3efcbfd9cc05b0ed9eaf8a4",
+    "hi3d_workbench/engine_catalog.py": "2734403a85509daf35586f55ecdb8eb0e6e095ddc39482156a048825e34143e2",
+    "hi3d_workbench/pipeline_models.py": "21d9186f4244c9896a68d7bfb51dd176d9e0abbf48ec0f90d00853d4441ac64d",
+    "hi3d_workbench/server.py": "7719b90bd650f717b36df401c132fcbee0ace3034fdd28d6dcd6bd64ae23e29b",
+    "hi3d_workbench/pipeline_worker.py": "f85db0e5f8bae591f419a4f992be3976af48740559de8c6e0d05c731cfcbd6b4",
+    "hi3d_workbench/engines/mesh_uv.py": "3ae9f4b986c39adb0b2f941b3d02f4b3d9a9b489edf63e7a60d37e85c8013c86",
+    "hi3d_workbench/asset_pipeline.py": "b164d42209e2a2cfabe50f4342ab1a4db9b406316395cbb190d3e46425499d17",
+    "tests/test_multi_engine.py": "8cedfc945dd2870cc0d6de4e10d7fa63585e0305bd4d0b53f15f1738abf05b03",
+    "README.md": "246a50afbb5277d9cae3c7313f3858dbf3f053bd1a970c7a85a4d8aaa70a96dc",
+    "README.zh-CN.md": "02ef4b6803a1cce0a2844afa279d25e3606bdba74c46f73e545a99f3fccf8caa"
+  },
+  "summary": {
+    "checks": 20,
+    "current_review_utc": "2026-10-24T23:36:15.599396+00:00",
+    "original_findings_preserved": true,
+    "current_code_fixes_verified": [
+      7,
+      9,
+      10,
+      11,
+      17
+    ],
+    "full_regression": {
+      "passed": 276,
+      "warnings": 1,
+      "seconds": 38.21,
+      "evidence": "data/quality-upgrade-20261024/tests-final-frame-restore.log"
+    },
+    "portable_baseline_gpu_and_kernel": "Functional baseline/kernel passed. Old authored-normal case failed raw NORMAL despite API success; v2 API succeeded by this review, final combined raw proof remains pending.",
+    "source_http": "Original four functional cases retained as history. UltraTex/Hunyuan fox-v2 inference and raw NORMAL/face/UV proof passed. Owl remains unaffected by the importer issue; older TRELLIS texture outputs require final-frame normal acceptance.",
+    "current_open_acceptance_rounds": [
+      7,
+      16,
+      18,
+      19,
+      20
+    ],
+    "remaining_required": [
+      "Verify final raw NORMAL proof for corrected portable TRELLIS result and final chest repaint.",
+      "Refresh affected source/runtime/package receipts and implementation hashes.",
+      "Finish final video, final archives and authorized publication.",
+      "New CUA browser interaction remains unavailable; do not label HTTP/static checks as new UI tests."
+    ],
+    "claim": "20 evidenced review items with appended current resolution states; not 20 invented bugs or a claim that final video/archive/publication is complete."
+  },
+  "checks": [
+    {
+      "round": 1,
+      "topic": "发行版本身份",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/common.py:16",
+        "pyproject.toml:7"
+      ],
+      "finding": "工作台 VERSION 与项目版本均为 0.4.0；新源码/节点归档命名从同一 VERSION 生成。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "当前源码 common.VERSION 与 pyproject 仍为0.4.0。归档尚未完成，不将源码版本一致冒充最终归档验收。",
+          "evidence": [
+            "hi3d_workbench/common.py",
+            "pyproject.toml"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "当前源码 common.VERSION 与 pyproject 仍为0.4.0。归档尚未完成，不将源码版本一致冒充最终归档验收。",
+        "evidence": [
+          "hi3d_workbench/common.py",
+          "pyproject.toml"
+        ]
+      }
+    },
+    {
+      "round": 2,
+      "topic": "ComfyUI 范围与画布工作流",
+      "status": "passed",
+      "evidence": [
+        "examples/Hi3D-Refine.json",
+        "README.md:7",
+        "comfy_nodes.py"
+      ],
+      "finding": "CPU 解析示例得到 5 个节点、6 条连线，类型为 Hi3DBackend / LoadImage / Hi3DLoadMesh / Hi3DRefine / SaveGLB，无 API prompt 顶层字段；多引擎只位于独立工作台。此项是静态结构检查，不冒充本轮真实 ComfyUI 界面运行。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed_static_contract",
+          "conclusion": "Comfy节点和画布保持原范围；regression收据记录5节点/6连线及Git换行归一化后未变。本轮新增真实UI操作仍未完成。",
+          "evidence": [
+            "validation/v040/regression.json",
+            "examples/Hi3D-Refine.json"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed_static_contract",
+        "conclusion": "Comfy节点和画布保持原范围；regression收据记录5节点/6连线及Git换行归一化后未变。本轮新增真实UI操作仍未完成。",
+        "evidence": [
+          "validation/v040/regression.json",
+          "examples/Hi3D-Refine.json"
+        ]
+      }
+    },
+    {
+      "round": 3,
+      "topic": "六个引擎参数目录",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/engine_catalog.py:5",
+        "hi3d_workbench/server.py:353"
+      ],
+      "finding": "三种几何与三种贴图分别声明合法分辨率、默认步数；server 按所选引擎校验采样档位，mini Turbo 非 5 步明确拒绝。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "引擎采样档位与默认参数目录保持独立；275项完整回归通过，含40项多引擎/输入法线测试。",
+          "evidence": [
+            "hi3d_workbench/engine_catalog.py",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "引擎采样档位与默认参数目录保持独立；275项完整回归通过，含40项多引擎/输入法线测试。",
+        "evidence": [
+          "hi3d_workbench/engine_catalog.py",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 4,
+      "topic": "按引擎模型依赖闭包",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/pipeline_models.py:362"
+      ],
+      "finding": "实际 CPU 调用 selection_components：mini=background+coarse；Hunyuan 几何=background+coarse_hunyuan21；TRELLIS 几何=background+coarse_trellis2+trellis_structure+texture_encoder；TRELLIS 贴图=background+texture+texture_encoder；Hunyuan Paint=background+texture_hunyuan21+paint_dino+paint_upscaler；UltraTex=background+texture_ultratex+ultratex_backbone+ultratex_text_encoder。未发现漏依赖。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "六引擎依赖闭包保留；发行审计现已重算随包额外引擎闭包并检查实际组件及运行时特性。",
+          "evidence": [
+            "hi3d_workbench/pipeline_models.py",
+            "tools/audit_release.py:62",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "六引擎依赖闭包保留；发行审计现已重算随包额外引擎闭包并检查实际组件及运行时特性。",
+        "evidence": [
+          "hi3d_workbench/pipeline_models.py",
+          "tools/audit_release.py:62",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 5,
+      "topic": "可选模型缺失与静默替换",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/engine_catalog.py:66",
+        "hi3d_workbench/pipeline_models.py:350",
+        "hi3d_workbench/server.py:379",
+        "tests/test_multi_engine.py:29"
+      ],
+      "finding": "全局 baseline ready 排除 optional；每个引擎有独立 ready/runtime feature；已选引擎不就绪返回 409，不替换为 baseline。已有回归覆盖，但本审查未重复运行整套测试。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "所选引擎独立就绪、可选缺失不禁用baseline及不静默换模型的回归均包含在275项完整通过中。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-normal-import.log",
+            "tests/test_multi_engine.py"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "所选引擎独立就绪、可选缺失不禁用baseline及不静默换模型的回归均包含在275项完整通过中。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-normal-import.log",
+          "tests/test_multi_engine.py"
+        ]
+      }
+    },
+    {
+      "round": 6,
+      "topic": "API 模式与就绪检查范围",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/server.py:353",
+        "hi3d_workbench/server.py:372"
+      ],
+      "finding": "图片模式无需 mesh；已有模型和精修模式要求 mesh。Hi3D 仅在实际 refine 时检查，texture 仅在实际需要贴图时检查。所选引擎参数持久化到 options。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed_routing_quality_acceptance_separate",
+          "conclusion": "原源码HTTP四个案例均成功，证明路由/模型推理/导出链曾执行。fox两个旧案例因输入文件法线未被保留而标为superseded；不再用于证明修正法线后的最终质量。owl和chest保留有效，详见本JSON的source_http_review。",
+          "evidence": [
+            "validation/v040/source-http.json",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed_routing_quality_acceptance_separate",
+        "conclusion": "原源码HTTP四个案例均成功，证明路由/模型推理/导出链曾执行。fox两个旧案例因输入文件法线未被保留而标为superseded；不再用于证明修正法线后的最终质量。owl和chest保留有效，详见本JSON的source_http_review。",
+        "evidence": [
+          "validation/v040/source-http.json",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 7,
+      "topic": "串行阶段与最终贴图输入",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/pipeline_worker.py:83",
+        "hi3d_workbench/pipeline_worker.py:141",
+        "hi3d_workbench/pipeline_worker.py:157"
+      ],
+      "finding": "监督进程按 coarse→可选 refine→texture 串行启动独立子进程，贴图输入是最终被选几何，保留阶段报告和实际输入网格哈希；TRELLIS 原始几何单独留作 generated.glb。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "fixed_gpu_revalidation_pending",
+          "conclusion": "已修复GLB Scene.to_mesh丢失文件NORMAL的问题：按节点保留缓存、逆转置变换、镜像绕序和concat法线；TRELLIS随后loaded.copy也已改include_cache=True。40项CPU与275全测通过；受影响fox的-v2真实GPU重跑正在队列，尚不宣布该部分完成。",
+          "evidence": [
+            "hi3d_workbench/asset_pipeline.py:75",
+            "hi3d_workbench/engines/run_stage.py:213",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "frame_restore_fixed_final_pbr_proof_pending",
+          "conclusion": "GLB输入法线与loaded.copy修复后，又确认TRELLIS末尾vertices还原会清normal缓存；restore_texture_frame现先复制normal、还原坐标后赋回。官方两次轴旋转互逆，无需再旋转normal。Ultra/Huny fox-v2已真实成功且raw NORMAL/face/UV proof通过；最终TRELLIS/chest raw proof仍收集中。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "frame_restore_fixed_final_pbr_proof_pending",
+        "conclusion": "GLB输入法线与loaded.copy修复后，又确认TRELLIS末尾vertices还原会清normal缓存；restore_texture_frame现先复制normal、还原坐标后赋回。官方两次轴旋转互逆，无需再旋转normal。Ultra/Huny fox-v2已真实成功且raw NORMAL/face/UV proof通过；最终TRELLIS/chest raw proof仍收集中。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    },
+    {
+      "round": 8,
+      "topic": "可重复比较收据",
+      "status": "passed",
+      "evidence": [
+        "tools/benchmark_engines.py:22"
+      ],
+      "finding": "benchmark 将图片/同一网格哈希、引擎、采样参数、适配器代码哈希和模型版本绑定到目录；变更后拒绝复用，只有输出哈希匹配才跳过成功运行。质量评审保持 pending，而非以进程成功判断美术质量。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed_with_supersession_recorded",
+          "conclusion": "输入/实现哈希与输出收据保持追溯；旧fox成功收据保留为历史并显式superseded，不把重新导出法线当重新贴图，也不拿旧成功跳过必要新推理。",
+          "evidence": [
+            "tools/benchmark_engines.py",
+            "data/quality-upgrade-20261024/revalidate_authored_normals.py",
+            "validation/v040/source-http.json"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed_with_supersession_recorded",
+        "conclusion": "输入/实现哈希与输出收据保持追溯；旧fox成功收据保留为历史并显式superseded，不把重新导出法线当重新贴图，也不拿旧成功跳过必要新推理。",
+        "evidence": [
+          "tools/benchmark_engines.py",
+          "data/quality-upgrade-20261024/revalidate_authored_normals.py",
+          "validation/v040/source-http.json"
+        ]
+      }
+    },
+    {
+      "round": 9,
+      "topic": "上传 GLB 与原材质",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/server.py:273",
+        "hi3d_workbench/asset_pipeline.py:132",
+        "tests/test_multi_engine.py:97"
+      ],
+      "finding": "自包含上传 GLB 保留原文件字节，原 GLB 导出保留材质且标记 texture_generated=False；生成 PBR 验证另要求嵌入颜色与 MR 图及 UV。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "fixed_and_cpu_verified",
+          "conclusion": "新增实际GLB NORMAL accessor回归覆盖单位/平移/非均匀缩放/镜像/共享geometry多实例；旧与修正的百万顶点fox经新loader分别与各自原文件法线逐值一致，位置/面/UV未改。源3.10及pipeline3.12的Trimesh均CPU复核通过，40项选择测试及275全测通过。",
+          "evidence": [
+            "hi3d_workbench/asset_pipeline.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "fixed_real_fox_v2_raw_NORMAL_verified",
+          "conclusion": "UltraTex/Hunyuan fox-v2输出文件原始NORMAL、面和UV与源对应验证通过，最小余弦约1。UltraTex新输出8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620，旧fox成功产物不再作为最终选择依据。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "fixed_real_fox_v2_raw_NORMAL_verified",
+        "conclusion": "UltraTex/Hunyuan fox-v2输出文件原始NORMAL、面和UV与源对应验证通过，最小余弦约1。UltraTex新输出8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620，旧fox成功产物不再作为最终选择依据。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    },
+    {
+      "round": 10,
+      "topic": "同坐标硬边顶点的法线恢复",
+      "status": "fixed_and_independently_rechecked",
+      "evidence": [
+        "hi3d_workbench/engines/mesh_uv.py:5",
+        "tests/test_multi_engine.py:151"
+      ],
+      "finding": "主 Agent 增加 has_split_normals 和硬边专用 cumesh.Atlas 原始 xref 路径；位置 matcher 对多法线歧义明确拒绝。独立 CPU 原生 Atlas 复核：硬边 box 输入/输出均 12 面，全部(position, normal)对来自原输入，usable_texture_uv=True，UV 范围约0.000454..0.999546，torch.cuda.is_initialized()=False。未运行 GPU。",
+      "recommended_action": "把该硬边路径纳入最终回归，保留原始索引/法线验收，不再存在本次已复现错配。",
+      "priority": "P1",
+      "initial_bug_evidence": "CPU 实际复现：box.unmerge_vertices 后 36 顶点对应 8 个唯一坐标，分别设置各面法线；把原顶点顺序直接传给 match_source_vertices，22/36 法线不匹配，最小余弦 0。cKDTree 只按位置取一个候选，无法区分同坐标的硬边法线。这会影响无 UV 的硬表面输入。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "fixed_native_gpu_verified",
+          "conclusion": "硬边不再让约百万面整网格无条件走慢Atlas。精确float32坐标+有向邻面签名唯一恢复compacted源索引，无法证明才fallback。实际chest原478879顶点/961688面，native展开42.281秒，删除24个退化面后961664面，原坐标/法线精确对应；断开硬边box原始索引CPU Atlas0.015秒。",
+          "evidence": [
+            "hi3d_workbench/engines/mesh_uv.py",
+            "data/quality-upgrade-20261024/native-uv-topology-v4/report.json",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "fixed_native_gpu_verified",
+        "conclusion": "硬边不再让约百万面整网格无条件走慢Atlas。精确float32坐标+有向邻面签名唯一恢复compacted源索引，无法证明才fallback。实际chest原478879顶点/961688面，native展开42.281秒，删除24个退化面后961664面，原坐标/法线精确对应；断开硬边box原始索引CPU Atlas0.015秒。",
+        "evidence": [
+          "hi3d_workbench/engines/mesh_uv.py",
+          "data/quality-upgrade-20261024/native-uv-topology-v4/report.json",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 11,
+      "topic": "退化 UV 被误判为可用",
+      "status": "partially_fixed_remaining_overlap",
+      "evidence": [
+        "hi3d_workbench/asset_pipeline.py:52",
+        "hi3d_workbench/asset_pipeline.py:61",
+        "hi3d_workbench/engines/mesh_uv.py:17"
+      ],
+      "finding": "新增 usable_texture_uv 已拒绝不在单位图集内、非有限和按几何面积覆盖不足99.9%的退化UV。独立 CPU 复核全零UV改走 generate_uv，旧UV移除。但不检测非退化重叠：unmerge box 的12个面均共用[(0,0),(1,0),(0,1)]时仍返回True，累计UV面积=6，烘焙不同表面仍互相覆盖。",
+      "recommended_action": "至少拒绝累计UV面积>1+容差的明显重叠；更完整可做轻量覆盖计数，或明确重展镜像/重叠图集，并添加重复三角UV回归。",
+      "priority": "P2",
+      "initial_bug_evidence": "CPU 实际复现：80 面 icosphere 的全部 UV 为 (0,0)，load_texture_input 仍返回 input_single_material_uv，UV 唯一值数为 1。校验仅看长度与 finite，因此三个贴图引擎都会保留不可烘焙的图集，可能完成但显示涂抹/单点材质。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "fixed_with_documented_limit",
+          "conclusion": "退化/部分退化/平铺/明显重叠与重复UV三角面均重展。源码已加入UV累计面积>1.001及重复三角检测，完整回归覆盖。任意局部重叠未穷尽检测，已在中英引擎文档明确，不声称通用重叠求解。",
+          "evidence": [
+            "hi3d_workbench/asset_pipeline.py:52",
+            "tests/test_multi_engine.py",
+            "docs/ENGINES.md",
+            "docs/ENGINES.zh-CN.md",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "fixed_with_documented_limit",
+        "conclusion": "退化/部分退化/平铺/明显重叠与重复UV三角面均重展。源码已加入UV累计面积>1.001及重复三角检测，完整回归覆盖。任意局部重叠未穷尽检测，已在中英引擎文档明确，不声称通用重叠求解。",
+        "evidence": [
+          "hi3d_workbench/asset_pipeline.py:52",
+          "tests/test_multi_engine.py",
+          "docs/ENGINES.md",
+          "docs/ENGINES.zh-CN.md",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 12,
+      "topic": "尺寸轴与材质导出约定",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/server.py:457",
+        "hi3d_workbench/asset_pipeline.py:111",
+        "hi3d_workbench/geometry.py:57",
+        "tests/test_multi_engine.py:130"
+      ],
+      "finding": "X/Y/Z 轴参数贯通；GLB 指定毫米后转换米，STL/PLY 保持毫米坐标；仅修改导出副本。已有 Y=80mm 和源文件不变回归。此处静态审查，不计为新的真实 GPU/API 导出验收。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed_real_export_and_cpu_normal_check",
+          "conclusion": "源码HTTP及C盘portable完成Y=80mm真实GLB导出。两种GLB导出CPU复核：scene.apply_scale仅改图变换；自定义法线、非均匀/镜像节点的文件NORMAL/UV/材质像素与原件保持，源文件不变。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-normal-import.log",
+            "validation/v040/portable.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-image-pbr/validation.json",
+            "hi3d_workbench/asset_pipeline.py"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "export_scaling_verified_upstream_frame_restore_fixed",
+          "conclusion": "两种GLB导出scene.apply_scale本身保留文件法线；新发现位于TRELLIS导出前的bbox还原而非这两种导出器。已增加真实GLB frame-restore回归并通过276完整测试。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "export_scaling_verified_upstream_frame_restore_fixed",
+        "conclusion": "两种GLB导出scene.apply_scale本身保留文件法线；新发现位于TRELLIS导出前的bbox还原而非这两种导出器。已增加真实GLB frame-restore回归并通过276完整测试。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    },
+    {
+      "round": 13,
+      "topic": "HDR 内容和离线资源路径",
+      "status": "passed",
+      "evidence": [
+        "hi3d_workbench/web/environments/sources.json",
+        "hi3d_workbench/web/app.js:281",
+        "pyproject.toml:35"
+      ],
+      "finding": "实际 SHA256 校验 studio_small_09.hdr（1615248 字节）和 studio_small_08.hdr（1508872 字节）均匹配 sources.json；UI 使用本地 /static/environments 路径，package-data 覆盖 environments/*。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "本地HDR及package-data路径保持；前次两份HDR真实SHA校验通过，资源未宣称为新GPU质量证据。",
+          "evidence": [
+            "hi3d_workbench/web/environments/sources.json",
+            "pyproject.toml"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "本地HDR及package-data路径保持；前次两份HDR真实SHA校验通过，资源未宣称为新GPU质量证据。",
+        "evidence": [
+          "hi3d_workbench/web/environments/sources.json",
+          "pyproject.toml"
+        ]
+      }
+    },
+    {
+      "round": 14,
+      "topic": "上游源码固定与离线推理",
+      "status": "passed",
+      "evidence": [
+        "tools/setup_pipeline_runtime.py:15",
+        "hi3d_workbench/engines/run_stage.py:20",
+        "hi3d_workbench/engines/run_stage.py:333"
+      ],
+      "finding": "实际逐文件复核 5 个源码清单：comfy_core 829、hunyuan 101、hunyuan21 477、trellis2 155、ultratex_bridge 24，共 1586 个文件，哈希全匹配。推理入口设置 HF/Transformers 离线，source_dir 校验版本、目录边界和源文件哈希。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "固定上游源码/模型版本与离线执行策略保留。前次1586源码文件哈希复核有效；portable真实离线案例额外证实未借用宿主环境。",
+          "evidence": [
+            "tools/setup_pipeline_runtime.py",
+            "hi3d_workbench/engines/run_stage.py",
+            "validation/v040/portable.json"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "固定上游源码/模型版本与离线执行策略保留。前次1586源码文件哈希复核有效；portable真实离线案例额外证实未借用宿主环境。",
+        "evidence": [
+          "tools/setup_pipeline_runtime.py",
+          "hi3d_workbench/engines/run_stage.py",
+          "validation/v040/portable.json"
+        ]
+      }
+    },
+    {
+      "round": 15,
+      "topic": "许可与两个仓库模型范围",
+      "status": "passed",
+      "evidence": [
+        "NOTICE.md",
+        "licenses/extension-license-sources.json",
+        "docs/HUGGINGFACE.md:32",
+        "README.md:70"
+      ],
+      "finding": "HF 说明清楚只分发共享 Hi3D 核心，额外引擎不混入核心仓库；UltraTex FLUX 非商业底座、Comfy GPL 推理库、Hunyuan 社区许可分别列明。Qwen3/FLUX2-VAE/Real-ESRGAN 三份新增许可证实际哈希均匹配来源记录；运行时保留 Comfy GPL LICENSE。这里只证明文件/声明一致，不替代法律解释。",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "passed",
+          "conclusion": "核心HF权重与工作台可选模型范围、UltraTex非商业底座、GPL库和其他组件声明保持分别列明；本轮未发布或额外上传模型。",
+          "evidence": [
+            "NOTICE.md",
+            "docs/HUGGINGFACE.md",
+            "docs/HUGGINGFACE.zh-CN.md",
+            "licenses/extension-license-sources.json"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "passed",
+        "conclusion": "核心HF权重与工作台可选模型范围、UltraTex非商业底座、GPL库和其他组件声明保持分别列明；本轮未发布或额外上传模型。",
+        "evidence": [
+          "NOTICE.md",
+          "docs/HUGGINGFACE.md",
+          "docs/HUGGINGFACE.zh-CN.md",
+          "licenses/extension-license-sources.json"
+        ]
+      }
+    },
+    {
+      "round": 16,
+      "topic": "v0.4 portable 迁移后独立运行",
+      "status": "acceptance_pending",
+      "evidence": [
+        "tools/build_release.py:40",
+        "tools/build_release.py:65",
+        "Start-Workbench.cmd:4",
+        "dist/RELEASE-VERIFIED-0.3.3.json"
+      ],
+      "finding": "构建器用包内解释器、相对 _pth、sources 和清理后的环境，静态设计合理；当前 dist 没有 v0.4 新包/对应验收收据。旧 0.3.3 的独立运行不能证明新增三类适配器可迁移。",
+      "recommended_action": "新目录构建后移到不同盘/非原目录，清宿主 Python/CUDA，使用全新缓存，实际调用包内 3.12 运行时验证所带引擎、HDR、GLB 导出，再生成 v0.4 发行收据。",
+      "priority": "P1",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "portable_baseline_verified_final_archives_pending",
+          "conclusion": "新包已在C盘用包内解释器、清宿主Python/CUDA、不可达代理/HF离线，完成TRELLIS图片→PBR+80mm导出、mini图片→几何，以及独立Hi3D kernel probe。完整新Hi3D推理未重复，沿用历史证据并明确分开。最终包需包含最新法线修复，最终ZIP/CRC/SHA审计与发布仍待完成。",
+          "evidence": [
+            "validation/v040/portable.json",
+            "data/quality-upgrade-20261024/portable-acceptance-queue.log",
+            "data/quality-upgrade-20261024/portable-http/trellis-image-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/mini-image-geometry/validation.json"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "portable_baseline_api_verified_authored_NORMAL_v2_acceptance_pending",
+          "conclusion": "portable基础离线推理/kernel历史功能证据保留。旧trellis-authored-normal-pbr虽API与80mm导出成功，但raw NORMAL约39.4%余弦<0.9，明确保留为失败并superseded。v2替代收据本次已观察API passed；仍待最终raw NORMAL独立证明，不以API成功宣布法线验收。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "portable_baseline_api_verified_authored_NORMAL_v2_acceptance_pending",
+        "conclusion": "portable基础离线推理/kernel历史功能证据保留。旧trellis-authored-normal-pbr虽API与80mm导出成功，但raw NORMAL约39.4%余弦<0.9，明确保留为失败并superseded。v2替代收据本次已观察API passed；仍待最终raw NORMAL独立证明，不以API成功宣布法线验收。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    },
+    {
+      "round": 17,
+      "topic": "bundle-manifest 与实际模型包审计一致性",
+      "status": "confirmed_validation_gap",
+      "evidence": [
+        "tools/build_release.py:116",
+        "tools/audit_release.py:96",
+        "tools/audit_release.py:117"
+      ],
+      "finding": "builder 已写 bundle-manifest 以声明随包引擎，但 audit_release 不读取这个文件，也不核对 extension_components / extra_engine_selections / pipeline_runtime 与实际归档内容一致；它只按扩展 manifest 中出现的 optional 项逐个验哈希。声明 TRELLIS 几何已随包但遗漏其权重可在该层漏检。",
+      "recommended_action": "发行审计读取 bundle-manifest，重算选择依赖闭包，核对所声明组件与扩展 manifest/实际文件集合一致，并检查 runtime feature；增加缺依赖/多声明/版本错误的负例测试。",
+      "priority": "P2",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "fixed_regression_verified_final_archive_audit_pending",
+          "conclusion": "verify_bundle已读取bundle-manifest并验证版本、models/runtime声明、额外引擎依赖闭包、实际组件集合和runtime features；缺依赖、错版本/特性负例包含在275全测。最终归档审计仍须对成品运行。",
+          "evidence": [
+            "tools/audit_release.py:62",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/tests-final-normal-import.log"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "fixed_regression_verified_final_archive_audit_pending",
+        "conclusion": "verify_bundle已读取bundle-manifest并验证版本、models/runtime声明、额外引擎依赖闭包、实际组件集合和runtime features；缺依赖、错版本/特性负例包含在275全测。最终归档审计仍须对成品运行。",
+        "evidence": [
+          "tools/audit_release.py:62",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        ]
+      }
+    },
+    {
+      "round": 18,
+      "topic": "随包运行时 GPU 证据绑定",
+      "status": "metadata_needs_refresh",
+      "evidence": [
+        ".pipelineenv/pipeline-runtime.json",
+        "tools/build_release.py:59",
+        "tools/setup_pipeline_runtime.py:141"
+      ],
+      "finding": "运行时 features 已包含 hunyuan21 / hunyuan_paint21 / trellis_geometry / ultratex，但 gpu_validation 及 coarse/texture validation 仍只记录旧 mini/TRELLIS baseline。builder 会原样复制此状态。setup 的 CPU import ready 也与真实 GPU 成功属于不同层。",
+      "recommended_action": "按引擎记录真实最新收据/输出及实现哈希，保留 baseline 历史；把 CPU 安装 ready 与每引擎 GPU validation 清楚区分，不用一个旧字符串代表新全集。",
+      "priority": "P2",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "metadata_updated_fox_evidence_refresh_pending",
+          "conclusion": "运行时现有逐引擎engine_validation与portable coverage，保留baseline历史且区分CPU安装ready/真实GPU验证。但其中fox旧收据和打包实现指纹早于最新authored-normal修复，须在-v2完成后刷新；不把旧fox链接当新条件已验证。",
+          "evidence": [
+            ".pipelineenv/pipeline-runtime.json",
+            "validation/v040/runtime-validation.json",
+            "validation/v040/portable.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "runtime_receipts_need_latest_frame_restore_fingerprints",
+          "conclusion": "逐引擎与portable metadata还需绑定最终frame-restore实现及新raw NORMAL收据；不能继续用旧portable authored-normal API成功或旧fox链接证明修复后结果。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "runtime_receipts_need_latest_frame_restore_fingerprints",
+        "conclusion": "逐引擎与portable metadata还需绑定最终frame-restore实现及新raw NORMAL收据；不能继续用旧portable authored-normal API成功或旧fox链接证明修复后结果。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    },
+    {
+      "round": 19,
+      "topic": "双语文档入口与历史验收区分",
+      "status": "documentation_needs_refresh",
+      "evidence": [
+        "README.md:48",
+        "README.zh-CN.md:48",
+        "VALIDATION.md:3",
+        "docs/CHANGELOG.md:1",
+        "docs/WORKBENCH.zh-CN.md"
+      ],
+      "finding": "双语切换和全部社媒链接保留，两个模型仓库范围描述一致。但 README v0.4 段紧接着笼统称三个入口都通过真实 HTTP，而主 VALIDATION 首页仍称当前 v0.2.2，CHANGELOG 首项仍为 0.3.3；源码示例只显示旧 Python3.10 Setup，新增 Python3.12 步骤藏在长指南中。现阶段容易让读者将旧验证理解为新版本全覆盖。",
+      "recommended_action": "添加简洁 v0.4 变更及本轮验收入口；旧验证明确标历史；最终 HTTP/GPU/portable 完成后给准确链接，源码安装段直接列出第二运行时准备命令或明确链接其小节。",
+      "priority": "P2",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "documentation_updated_final_receipts_pending",
+          "conclusion": "中英README已直接补Python3.12扩展安装步骤；VALIDATION首页改为v0.4并明确历史数据，CHANGELOG新增0.4。中英引擎说明注明图集和法线局限。新的fox-v2、最终包和成片链接仍待完成后更新并发布。",
+          "evidence": [
+            "README.md",
+            "README.zh-CN.md",
+            "VALIDATION.md",
+            "docs/CHANGELOG.md",
+            "docs/ENGINES.md",
+            "docs/ENGINES.zh-CN.md"
+          ]
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+        "status": "documentation_updated_final_receipts_pending",
+        "conclusion": "中英README已直接补Python3.12扩展安装步骤；VALIDATION首页改为v0.4并明确历史数据，CHANGELOG新增0.4。中英引擎说明注明图集和法线局限。新的fox-v2、最终包和成片链接仍待完成后更新并发布。",
+        "evidence": [
+          "README.md",
+          "README.zh-CN.md",
+          "VALIDATION.md",
+          "docs/CHANGELOG.md",
+          "docs/ENGINES.md",
+          "docs/ENGINES.zh-CN.md"
+        ]
+      }
+    },
+    {
+      "round": 20,
+      "topic": "最终回归、界面和成片交付闭环",
+      "status": "acceptance_pending",
+      "evidence": [
+        "validation/quality-upgrade-progress.json",
+        "data/quality-upgrade-20261024/tests-v040.log",
+        "data/showreel-quality-60s-20261024-v4/project/assets.json"
+      ],
+      "finding": "进度记录明确旧 full suite 254 passed 后又有变更，新硬边/UV 问题未纳入；新 UI 真实交互仍无 CUA 可用证据。v4 成片仍在新素材与法线修复阶段，本审查没有运行浏览器/GPU、也没有把旧成片当完成。",
+      "recommended_action": "修复已复现问题后跑适当回归，完成新的 HTTP 真实路由与最终包验收；可用时进行真实 UI 检查。更新素材哈希、渲染和最终 60 秒音画验证后再对外声明全部完成。",
+      "priority": "P1",
+      "review_history": [
+        {
+          "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+          "status": "regression_passed_final_delivery_pending",
+          "conclusion": "实际观察tests-final-normal-import.log：275 passed、1 warning、36.72秒；run_stage include_cache修复已落且文件写入时间早于该日志完成。新UI仍无CUA交互入口；最终fox-v2推理/美术复核、60秒成片、最终归档及发布未完成，不宣告全项目完成。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-normal-import.log",
+            "data/quality-upgrade-20261024/tests-final-normal-import.xml",
+            "validation/v040/regression.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log",
+            "data/showreel-quality-60s-20261024-v4/project/assets.json"
+          ]
+        },
+        {
+          "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+          "status": "276_regression_passed_video_archive_publish_pending",
+          "conclusion": "观察tests-final-frame-restore.log为276 passed、1 warning、38.21秒，含新增真实GLB frame还原回归。Ultra/Huny fox-v2已完成raw NORMAL验证；最终TRELLIS/chest证明、成片、最终包/归档和发布仍待完成，新CUA界面交互仍不可用。",
+          "evidence": [
+            "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+            "hi3d_workbench/engines/run_stage.py",
+            "tests/test_multi_engine.py",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+            "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+            "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+          ],
+          "followup_reference": "normal_frame_restore_followups[-1]"
+        }
+      ],
+      "current_review": {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "status": "276_regression_passed_video_archive_publish_pending",
+        "conclusion": "观察tests-final-frame-restore.log为276 passed、1 warning、38.21秒，含新增真实GLB frame还原回归。Ultra/Huny fox-v2已完成raw NORMAL验证；最终TRELLIS/chest证明、成片、最终包/归档和发布仍待完成，新CUA界面交互仍不可用。",
+        "evidence": [
+          "data/quality-upgrade-20261024/tests-final-frame-restore.log",
+          "hi3d_workbench/engines/run_stage.py",
+          "tests/test_multi_engine.py",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+          "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+          "data/quality-upgrade-20261024/authored-normal-revalidation.log"
+        ],
+        "followup_reference": "normal_frame_restore_followups[-1]"
+      }
+    }
+  ],
+  "initial_source_snapshot_sha256": {
+    "tools/build_release.py": "beb9bf701c23fc34de6eef56376894278aa6cab5247c71a1348f2ede98ae4c61",
+    "tools/audit_release.py": "015cff2bdb632eb4a8757c4b81e05cc795b072a2c3efcbfd9cc05b0ed9eaf8a4",
+    "hi3d_workbench/engine_catalog.py": "2734403a85509daf35586f55ecdb8eb0e6e095ddc39482156a048825e34143e2",
+    "hi3d_workbench/pipeline_models.py": "21d9186f4244c9896a68d7bfb51dd176d9e0abbf48ec0f90d00853d4441ac64d",
+    "hi3d_workbench/server.py": "7719b90bd650f717b36df401c132fcbee0ace3034fdd28d6dcd6bd64ae23e29b",
+    "hi3d_workbench/pipeline_worker.py": "f85db0e5f8bae591f419a4f992be3976af48740559de8c6e0d05c731cfcbd6b4",
+    "hi3d_workbench/engines/mesh_uv.py": "3ae9f4b986c39adb0b2f941b3d02f4b3d9a9b489edf63e7a60d37e85c8013c86",
+    "hi3d_workbench/asset_pipeline.py": "b164d42209e2a2cfabe50f4342ab1a4db9b406316395cbb190d3e46425499d17",
+    "tests/test_multi_engine.py": "8cedfc945dd2870cc0d6de4e10d7fa63585e0305bd4d0b53f15f1738abf05b03",
+    "README.md": "246a50afbb5277d9cae3c7313f3858dbf3f053bd1a970c7a85a4d8aaa70a96dc",
+    "README.zh-CN.md": "02ef4b6803a1cce0a2844afa279d25e3606bdba74c46f73e545a99f3fccf8caa"
+  },
+  "updated_utc": "2026-10-24T23:36:15.599396+00:00",
+  "historical_summaries": [
+    {
+      "recorded_before": "2026-10-24T23:16:32.243357+00:00",
+      "summary": {
+        "checks": 20,
+        "confirmed_runtime_quality_bugs": [
+          11
+        ],
+        "confirmed_validation_gaps": [
+          17
+        ],
+        "metadata_or_documentation_updates": [
+          18,
+          19
+        ],
+        "remaining_acceptance_gates": [
+          16,
+          20
+        ],
+        "claim": "20 independently evidenced checks, not 20 invented bugs and not a new full end-to-end pass.",
+        "fixed_during_review": [
+          10
+        ],
+        "partially_fixed": [
+          11
+        ],
+        "recheck": "主 Agent 修复后由此子 Agent 进行独立 CPU 原生 Atlas 和 UV 分支复核；未运行 GPU、浏览器或发布。"
+      }
+    },
+    {
+      "recorded_before": "2026-10-24T23:36:15.599396+00:00",
+      "summary": {
+        "checks": 20,
+        "current_review_utc": "2026-10-24T23:16:32.243357+00:00",
+        "original_findings_preserved": true,
+        "current_code_fixes_verified": [
+          9,
+          10,
+          11,
+          17
+        ],
+        "full_regression": {
+          "passed": 275,
+          "warnings": 1,
+          "seconds": 36.72,
+          "evidence": "data/quality-upgrade-20261024/tests-final-normal-import.log"
+        },
+        "portable_baseline_gpu_and_kernel": "passed; final refreshed archives remain pending",
+        "source_http": "Original four cases passed routing/inference; owl and chest retained, old fox cases superseded pending authored-normal -v2 reruns.",
+        "current_open_acceptance_rounds": [
+          7,
+          16,
+          18,
+          19,
+          20
+        ],
+        "remaining_required": [
+          "Finish fox-hero-ultratex-v2 and fox-texture-hunyuan-v2 actual inference and quality review, then update superseded evidence references.",
+          "Refresh final runtime/package fingerprints and run final archive model/hash/CRC audit.",
+          "New UI interaction QA remains unavailable because CUA has no browser; do not substitute HTTP/static checks.",
+          "Finish final 60-second textured showcase, exports and authorized publication."
+        ],
+        "claim": "20 evidenced review items with appended current resolution states; not 20 invented bugs or a claim that final video/archive/publication is complete."
+      }
+    }
+  ],
+  "source_http_review": {
+    "reviewed_utc": "2026-10-24T23:16:32.243357+00:00",
+    "original_passed_cases": 4,
+    "evidence": "validation/v040/source-http.json",
+    "cases": [
+      {
+        "case": "owl-image-ultratex",
+        "original_passed": true,
+        "current_evidence_status": "retained",
+        "replacement": null,
+        "reason": "Generated owl/chest coarse mesh raw Scene and forced mesh coordinates/normals had measured max delta 0; parent agent CPU observation retained.",
+        "normal_equivalence_observation_source": "parent_agent_direct_CPU_observation"
+      },
+      {
+        "case": "fox-hero-ultratex",
+        "original_passed": true,
+        "current_evidence_status": "superseded_pending_authored_normal_rerun",
+        "replacement": "fox-hero-ultratex-v2",
+        "reason": "Previous force=mesh loading discarded authored vertex normals; successful old run cannot validate corrected normal conditioning/export.",
+        "normal_equivalence_observation_source": null,
+        "current_replacement_status": "v2_real_HTTP_and_raw_NORMAL_face_UV_proof_passed; artistic_final_preview_pending"
+      },
+      {
+        "case": "chest-image-trellis-v2",
+        "original_passed": true,
+        "current_evidence_status": "retained_coarse_importer_equivalence; old_final_texture_superseded_pending_frame_restore_repaint",
+        "replacement": null,
+        "reason": "Generated owl/chest coarse mesh raw Scene and forced mesh coordinates/normals had measured max delta 0; parent agent CPU observation retained.",
+        "normal_equivalence_observation_source": "parent_agent_direct_CPU_observation"
+      },
+      {
+        "case": "fox-texture-hunyuan",
+        "original_passed": true,
+        "current_evidence_status": "superseded_pending_authored_normal_rerun",
+        "replacement": "fox-texture-hunyuan-v2",
+        "reason": "Previous force=mesh loading discarded authored vertex normals; successful old run cannot validate corrected normal conditioning/export.",
+        "normal_equivalence_observation_source": null,
+        "current_replacement_status": "v2_real_HTTP_and_raw_NORMAL_face_UV_proof_passed; artistic_final_preview_pending"
+      }
+    ],
+    "replacement_queue_evidence": "data/quality-upgrade-20261024/authored-normal-revalidation.log",
+    "replacement_completion_claimed": false,
+    "followup_reviews": [
+      {
+        "reviewed_utc": "2026-10-24T23:36:15.599396+00:00",
+        "fox_v2_inference_and_raw_NORMAL_proof": "passed; see normal_frame_restore_followups[-1]",
+        "chest_image_trellis_v2": "Coarse/importer raw-normal equivalence stays valid, but old final textured output is superseded for final-frame-normal acceptance pending chest-pbr-normal-final.",
+        "owl_image_ultratex": "retained; not affected by TRELLIS texture final-frame restoration",
+        "artistic_approval_complete": false
+      }
+    ],
+    "replacement_completion_scope": "Fox-v2 inference/raw-normal proofs completed; final TRELLIS/chest and artistic acceptance are separate and pending."
+  },
+  "review_scope_note": "This update only appends/reconciles audit JSON using existing source and receipts. No new GPU job, browser interaction, test run, download, archive build or publication was performed by the reviewer.",
+  "current_source_and_receipt_sha256": {
+    "tools/build_release.py": "beb9bf701c23fc34de6eef56376894278aa6cab5247c71a1348f2ede98ae4c61",
+    "tools/audit_release.py": "b5d06c367a014b9458dcf84b713a2583d29b7afa94f43c0a392ea674a115dd43",
+    "hi3d_workbench/engine_catalog.py": "2734403a85509daf35586f55ecdb8eb0e6e095ddc39482156a048825e34143e2",
+    "hi3d_workbench/pipeline_models.py": "eb0a71ec6b8eff831e04af405854aa8b29edb6c3a22bd932b852b4747fbeaba7",
+    "hi3d_workbench/server.py": "7719b90bd650f717b36df401c132fcbee0ace3034fdd28d6dcd6bd64ae23e29b",
+    "hi3d_workbench/pipeline_worker.py": "f85db0e5f8bae591f419a4f992be3976af48740559de8c6e0d05c731cfcbd6b4",
+    "hi3d_workbench/engines/mesh_uv.py": "580014ea6deea261869a8b187e809558b3c7aaca07f38a278a2e6d5df5f9c669",
+    "hi3d_workbench/asset_pipeline.py": "d2f38fb21ddfdc82973ee68eec41929fc51492412b8fe64145d8521daa8c5bd4",
+    "tests/test_multi_engine.py": "49466b3c9f7b4fe360d4d6b6df889eb5aaad8f55db3b9f3dc6d3b0d31d078966",
+    "README.md": "dd476fea4b08166559c562dc6a1abdab09d930382b1fdcf71201a7f34645b1a7",
+    "README.zh-CN.md": "89c5ebf4c798fcbc08e1ac40e2543354f2e32fb17d5e0080b005733f3a23ca8e",
+    "hi3d_workbench/engines/run_stage.py": "c258d20dc001f86ff44e691304be35f8d96beee0de1aac99cbcf276f425830cd",
+    "data/quality-upgrade-20261024/tests-final-normal-import.log": "616e34830d2ff8d50a5bdae7fe7d42cb5aca0700a7ec8e0c678e73ee4bb2d688",
+    "validation/v040/portable.json": "6e29144fa643a063ee0c64eb230a7ef1c194308d4edb8466b8550fbe44cc670d",
+    "validation/v040/source-http.json": "38333ecbb2f773b961c075f9b1051015f58c7ebf8301ed6c52ad38835a4dbcdb",
+    "validation/v040/runtime-validation.json": "3b2f50f73b7127d5d7147a6d7fecd4894afb996cd1cf4e0a309f93a6066b733b",
+    "data/quality-upgrade-20261024/tests-final-frame-restore.log": "74d0ef6af8828bd266a0fd2bb3e55114bf5dc120eb8fcadea508e53483618c4f",
+    "data/quality-upgrade-20261024/http-v040/fox-hero-ultratex-v2/report.json": "1666ce522c088a3b01b83b45318e9f609f7d3293db540c309e24ad1b03b4b854",
+    "data/quality-upgrade-20261024/http-v040/fox-texture-hunyuan-v2/report.json": "ca3681355cb4f3880a7e7ac9d3314a945a3db0a722556705cd74c440395f0b1f",
+    "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/report.json": "49bb28ecabbed006b6447d909eddac7cc20836e68af0b5c330b462f855f863e2"
+  },
+  "normal_frame_restore_followups": [
+    {
+      "recorded_utc": "2026-10-24T23:36:15.599396+00:00",
+      "scope": "TRELLIS final bbox frame restoration only; reviewer made no code edits or new GPU/test runs.",
+      "confirmed_bug": "Assigning textured.vertices after official postprocess invalidated Trimesh vertex-normal cache, causing recomputation across UV-separated vertices.",
+      "fix": "restore_texture_frame copies postprocess vertex_normals before undoing uniform bbox normalization and assigns the saved normals back after vertices are replaced.",
+      "upstream_axis_review": "Official preprocess [x,-z,y] and postprocess [x,z,-y] are inverse rotations and both transform vertex normals consistently. Final frame restoration changes scale/translation only; no additional normal rotation is required. No further loss point was found along the same existing-UV path.",
+      "source": [
+        "hi3d_workbench/engines/run_stage.py:20",
+        "hi3d_workbench/engines/run_stage.py:223",
+        "tests/test_multi_engine.py:177"
+      ],
+      "real_GLB_CPU_regression": "Authored normals retained after frame restore and GLB export/reload; also verifies transformed coordinates, faces, UV and base-color pixels.",
+      "full_regression": {
+        "passed": 276,
+        "warnings": 1,
+        "seconds": 38.21,
+        "evidence": "data/quality-upgrade-20261024/tests-final-frame-restore.log"
+      },
+      "fox_v2_raw_normal_proofs": [
+        {
+          "case": "fox-hero-ultratex-v2",
+          "real_http_passed": true,
+          "output_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+          "raw_NORMAL_face_UV_proof": "passed; minimum normal cosine approximately 1",
+          "proof_observation_source": "parent_agent_actual_raw_Scene_geometry_comparison",
+          "receipt": "data/quality-upgrade-20261024/http-v040/fox-hero-ultratex-v2/validation.json"
+        },
+        {
+          "case": "fox-texture-hunyuan-v2",
+          "real_http_passed": true,
+          "output_sha256": "8f91cf4f63b4c7a004a4edce3272ab2e2e93597eb19db4c3fa0102f6eabf0066",
+          "raw_NORMAL_face_UV_proof": "passed; minimum normal cosine approximately 1",
+          "proof_observation_source": "parent_agent_actual_raw_Scene_geometry_comparison",
+          "receipt": "data/quality-upgrade-20261024/http-v040/fox-texture-hunyuan-v2/validation.json"
+        }
+      ],
+      "portable_old_authored_case": {
+        "case": "trellis-authored-normal-pbr",
+        "real_http_passed": true,
+        "raw_normal_quality_passed": false,
+        "fraction_normal_cosine_below_0p9_approx": 0.394,
+        "output_sha256": "dd5fbb68eaedba3ef67c58b12c6c3392c1aa860c0ab5b9a9db6a77d555bee33d",
+        "status": "superseded_failed_raw_NORMAL_evidence_retained",
+        "receipt": "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr/validation.json",
+        "failure_observation_source": "parent_agent_actual_raw_Scene_geometry_normal_comparison"
+      },
+      "portable_replacement": {
+        "case": "trellis-authored-normal-pbr-v2",
+        "receipt": "data/quality-upgrade-20261024/portable-http/trellis-authored-normal-pbr-v2/validation.json",
+        "real_http_passed_observed": true,
+        "current_raw_NORMAL_acceptance": "pending final combined proof; API success alone is insufficient",
+        "combined_proof_target": "data/quality-upgrade-20261024/authored-normal-final-proof.json",
+        "combined_proof_exists_at_review": false
+      },
+      "remaining": [
+        "Verify final raw NORMAL proof for corrected portable TRELLIS result and final chest repaint.",
+        "Refresh affected source/runtime/package receipts and implementation hashes.",
+        "Finish final video, final archives and authorized publication.",
+        "New CUA browser interaction remains unavailable; do not label HTTP/static checks as new UI tests."
+      ]
+    }
+  ],
+  "final_software_acceptance": {
+    "verified_utc": "2026-10-24T23:44:15.791790+00:00",
+    "tests": 276,
+    "raw_authored_normals_three_painters": "passed",
+    "portable_authored_normal_pbr_v2": "passed",
+    "production_8378": "ready; all 13 extension components",
+    "video": "final render in progress",
+    "archives_publication": "pending packaging step",
+    "new_ui_interaction": "unavailable; not claimed passed"
+  }
+}

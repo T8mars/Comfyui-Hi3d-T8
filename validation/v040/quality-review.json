@@ -1,0 +1,55 @@
+{
+  "reviewed_utc": "2026-10-24T23:44:15.791790+00:00",
+  "basis": "Actual exported GLBs, original embedded PBR. Corrected fox front/back reviewed under studio08 CPU Cycles; selected native 2K studio09 wide/detail/rear previews reviewed. Final video render in progress.",
+  "reviewer": "primary agent visual inspection",
+  "assets": {
+    "fox_knight": {
+      "texture_engine": "ultratex",
+      "generation": "2048 albedo / 1024 MR, 4K atlas",
+      "views_reviewed": [
+        "front",
+        "quarter",
+        "back"
+      ],
+      "assessment": "Actual normal-preserving UltraTex repaint: readable face, quilted seams, leather and metal. Back head/tail geometry remains layered and fur too glossy; no texture engine can correct this geometry.",
+      "final_model_sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620"
+    },
+    "clockwork_owl": {
+      "texture_engine": "ultratex",
+      "generation": "1024, 4K atlas",
+      "views_reviewed": [
+        "front",
+        "back"
+      ],
+      "assessment": "Readable layered metal plates, leather bag, teal enamel and gold detailing on front and back. Some reflections are strong and the painter shifts the reference toward aged metal.",
+      "final_model_sha256": "b2d62ac8b291ae6f3f578468469329748791523ffe9fedd7773ddd6433ad1ae7"
+    },
+    "observatory": {
+      "texture_engine": "trellis2",
+      "generation": "1024, 4K atlas; export normals corrected without changing material pixels",
+      "views_reviewed": [
+        "front",
+        "quarter",
+        "back"
+      ],
+      "assessment": "Stone, copper and blue-green roof surfaces remain separated. Window/arch geometry is softened; not an architectural reconstruction guarantee.",
+      "final_model_sha256": "1ee4cf8c32e1e251c1af6ebc9783dfdf3d7bb78bfa0d444b74882372339acbd8"
+    },
+    "explorer_chest": {
+      "texture_engine": "trellis2",
+      "generation": "1024, 4K atlas; new full image pipeline on corrected native UV mapping",
+      "views_reviewed": [
+        "front",
+        "back"
+      ],
+      "assessment": "Wood, leather straps, metal trim and front gem remain separated; rear layout is coherent. Small holes and nonmanifold geometry remain. Decorative glyphs are invented, not reliable text.",
+      "final_model_sha256": "d40439a2cff35db3ae4d7b9ccd3ac6df1f0365434044510a16f16e10c622ef5b"
+    }
+  },
+  "scope": "Subjective review of these examples, not a universal model leaderboard.",
+  "fixed_painter_review": {
+    "scope": "Earlier fox comparisons are historical and were not used as a universal ranking. Final showcase selection is example-specific; all three painters have new raw-NORMAL-preserving real inference evidence."
+  },
+  "superseded_fox_review": "Earlier fox reviews and ranking used an output whose authored normals were stripped. Retained as historical observation, superseded for final selection until new repaint is inspected.",
+  "cinema_backdrop_fix": "Fixed camera-relative cyclorama; previously occluded rear previews rejected and regenerated."
+}

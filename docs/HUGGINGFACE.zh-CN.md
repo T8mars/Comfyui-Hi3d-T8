@@ -16,7 +16,7 @@ Hi3D 以**同一物体的参考图＋粗网格**为输入进行几何精修，�
 
 `manifest.json` 记录每个模型工件的 SHA256 和字节数，这些 **Hi3D 共用核心**在 ComfyUI 与离线工作台中完全一致。DINOv2 和 CLIP 是 Hi3D 必需图像编码器。`transformer_512` 用于 512 精修，`transformer_1024` 同时用于 1024 和 1536，没有独立的 1536 权重。
 
-v0.3 独立工作台另用 **Hunyuan3D-2mini-Turbo** 图生基础网格、**TRELLIS.2＋DINOv3** 对实际网格生成 PBR，以及 CPU **U2Netp** 可选前景处理。这些组件单独放在 `models/extensions`，记录固定来源和各自许可；不托管在本核心权重仓库，也不加入 ComfyUI 节点。详见 [版本区别](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md#模型与两个版本的区别)。
+v0.4 独立工作台另提供 **Hunyuan3D-2mini-Turbo、Hunyuan3D 2.1、TRELLIS.2** 建模引擎，以及 **TRELLIS.2 PBR、Hunyuan3D-Paint 2.1、UltraTex** 贴图引擎，按选择下载依赖；UltraTex 的 FLUX.2 Klein 9B 底座适用 FLUX 非商业许可。CPU **U2Netp** 提供可选前景处理。这些组件单独放在 `models/extensions`，记录固定来源和各自许可；不托管在本核心权重仓库，也不加入 ComfyUI 节点。详见 [版本区别](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md#模型与两个版本的区别)。
 
 ## 下载与使用
 

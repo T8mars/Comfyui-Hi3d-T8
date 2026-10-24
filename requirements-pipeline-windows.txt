@@ -27,3 +27,12 @@ requests==2.32.5
 onnxruntime==1.22.1
 psutil==7.1.0
 zstandard==0.24.0
+omegaconf==2.3.0
+xatlas==0.0.11
+comfy-aimdo==0.6.0
+comfy-kitchen==0.2.40
+torchsde==0.2.6
+sentencepiece==0.2.1
+moderngl==5.12.0
+glcontext==3.1.0
+spandrel==0.4.2

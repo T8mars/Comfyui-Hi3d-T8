@@ -15,10 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 SOURCES = {
     "hunyuan": ("Tencent-Hunyuan/Hunyuan3D-2", "f8db63096c8282cb27354314d896feba5ba6ff8a"),
     "trellis2": ("microsoft/TRELLIS.2", "75fbf0183001ed9876c8dbb35de6b68552ee08bd"),
+    "hunyuan21": ("Tencent-Hunyuan/Hunyuan3D-2.1", "82920d643c0dc2f7bfd7255f45f62d386edfe60c"),
+    "ultratex_bridge": ("visualbruno/ComfyUI-UltraTex", "8cc29849dd076ddec0fe5a1ec6207945dedbbbf1"),
+    "comfy_core": ("Comfy-Org/ComfyUI", "7cebca52227c63b4180ceed448cbd7ad22903b6d"),
 }
 SOURCE_ARCHIVE_HASHES = {
     "Tencent-Hunyuan/Hunyuan3D-2": "1be140879646034a98941e494072ce0ab26918fdc2fb59210443d56d41bc5622",
     "microsoft/TRELLIS.2": "d7abd456f75585c5b4ce112a4abdb9bd3cc3e72b6074470a65e0bf3a89b3e06f",
+    "Tencent-Hunyuan/Hunyuan3D-2.1": "1c560ba93e2471305276f36170a7e3c3857f39b14313790533dbc06ab01ed2a3",
+    "visualbruno/ComfyUI-UltraTex": "2316ed9da49ab435d98fac305d68f155095dc8084315211386e34fa2f42d7235",
+    "Comfy-Org/ComfyUI": "d6928c3c1d71577d99e5ce9df1eb2cd9335aa0aa321deac08c9d73fe9ff9b6cc",
 }
 WHEEL_REVISION = "b0e84c0f29857a444e8bcb5b9be2ea218e96efd0"
 WHEELS = ["cumesh-1.0", "flex_gemm-0.0.1", "nvdiffrast-0.4.0", "nvdiffrec_render-0.0.0", "o_voxel-0.0.1"]
@@ -122,9 +128,17 @@ def main():
              "assert torch.__version__ == '2.8.0+cu128'; "
              "sys.path[:0]=[str(Path(sys.prefix)/'sources'/'hunyuan'),str(Path(sys.prefix)/'sources'/'trellis2')]; "
              "from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline; "
-             "from trellis2.pipelines import Trellis2TexturingPipeline")
+             "from trellis2.pipelines import Trellis2TexturingPipeline; "
+             "sys.path.insert(0,str(Path(sys.prefix)/'sources'/'hunyuan21'/'hy3dshape')); "
+             "from hy3dshape import Hunyuan3DDiTFlowMatchingPipeline; "
+             "sys.path.insert(0,str(Path(sys.prefix)/'sources'/'hunyuan21'/'hy3dpaint')); "
+             "from hi3d_workbench.engines.hunyuan_texture import pipeline_classes; "
+             "pipeline_classes(Path(sys.prefix)/'sources'/'hunyuan21'); import spandrel; "
+             "sys.path[:0]=[str(Path(sys.prefix)/'sources'/'comfy_core'),str(Path(sys.prefix)/'sources'/'ultratex_bridge')]; "
+             "import comfy.cli_args; comfy.cli_args.args.cpu=True; import comfy.sd; "
+             "from ultratex_core import prep,sampling,bake")
     run([python, "-c", probe])
-    (runtime / "pipeline-runtime.json").write_text(json.dumps({"ready": True, "python": "3.12", "torch": "2.8.0+cu128", "sources": SOURCES, "cuda_wheels": CUDA_WHEELS, "windows_wheels_revision": WHEEL_REVISION, "gpu_validation": "not_run"}, indent=2), encoding="utf-8")
+    (runtime / "pipeline-runtime.json").write_text(json.dumps({"ready": True, "features": ["hunyuan21", "trellis_geometry", "hunyuan_paint21", "ultratex"], "python": "3.12", "torch": "2.8.0+cu128", "sources": SOURCES, "cuda_wheels": CUDA_WHEELS, "windows_wheels_revision": WHEEL_REVISION, "gpu_validation": "not_run"}, indent=2), encoding="utf-8")
     print("PIPELINE_SETUP ready", flush=True)
 
 

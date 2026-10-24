@@ -6,6 +6,7 @@ import os
 import math
 import hashlib
 import stat
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from .common import MODELS, DATA, MODEL_REVISION, atomic_json, read_json, digest, config
@@ -20,6 +21,26 @@ SPECS = {
 LOCK = threading.Lock()
 STATE = {"state": "idle", "message": "模型仅包含 Hi3D 及其必需的图像编码器"}
 FILE_LOCK = None
+
+
+@contextmanager
+def verification_read_guard(path):
+    """Prevent writes/deletion while hashing on Windows, where timestamps can coalesce."""
+    if os.name!='nt':
+        yield
+        return
+    import ctypes
+    from ctypes import wintypes
+    kernel=ctypes.WinDLL('kernel32',use_last_error=True)
+    kernel.CreateFileW.argtypes=[wintypes.LPCWSTR,wintypes.DWORD,wintypes.DWORD,
+        ctypes.c_void_p,wintypes.DWORD,wintypes.DWORD,wintypes.HANDLE]
+    kernel.CreateFileW.restype=wintypes.HANDLE
+    kernel.CloseHandle.argtypes=[wintypes.HANDLE]
+    kernel.CloseHandle.restype=wintypes.BOOL
+    handle=kernel.CreateFileW(str(path),0x80000000,1,None,3,0x80,None)
+    if handle==ctypes.c_void_p(-1).value:raise ctypes.WinError(ctypes.get_last_error())
+    try:yield
+    finally:kernel.CloseHandle(handle)
 
 def _read_model_state(path,kind,errors=None):
     """Only disposable model metadata gets recovery; application JSON stays strict."""
@@ -326,8 +347,9 @@ def verify_all():
             expected = entry.get("files", {}).get(name, {}).get("sha256")
             signature=before['files'][name]
             try:
-                if not signature or 'error' in signature or not expected or digest(path)!=expected:
-                    failures.append(name)
+                with verification_read_guard(path):
+                    if not signature or 'error' in signature or not expected or digest(path)!=expected:
+                        failures.append(name)
             except OSError:
                 failures.append(name)
         after=_snapshot(key,spec,_read_model_state(MODELS/'manifest.json','manifest'))

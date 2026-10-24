@@ -1,0 +1,21 @@
+[
+  {
+    "file": "Qwen3-LICENSE.txt",
+    "repo": "Qwen/Qwen3-8B",
+    "revision": "b968826d9c46dd6066d109eabc6255188de91218",
+    "path": "LICENSE",
+    "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e"
+  },
+  {
+    "file": "FLUX2-VAE-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/black-forest-labs/flux2/50fe5162777813d869182b139e83b10743caef15/LICENSE.md",
+    "revision": "50fe5162777813d869182b139e83b10743caef15",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "license_scope_evidence": "https://github.com/black-forest-labs/flux2#flux2-autoencoder"
+  },
+  {
+    "file": "Real-ESRGAN-LICENSE.txt",
+    "url": "https://raw.githubusercontent.com/xinntao/Real-ESRGAN/v0.3.0/LICENSE",
+    "sha256": "4a699ec4863d96a91fc265948a0c90033f7e8735d515524dcf3444736406e0c2"
+  }
+]

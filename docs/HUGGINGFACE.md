@@ -31,7 +31,7 @@ Hi3D refines **a reference image and a coarse mesh of the same object**. It does
 
 `manifest.json` records the SHA256 and byte size of every distributed model artifact. These **shared Hi3D core** files are identical in ComfyUI and the offline workbench. DINOv2 and CLIP are required image encoders, not additional 3D models. `transformer_512` serves 512 refinement; `transformer_1024` serves both 1024 and 1536. There is no separate 1536 checkpoint.
 
-The v0.3 workbench additionally uses **Hunyuan3D-2mini-Turbo** for image-to-mesh, **TRELLIS.2 + DINOv3** for mesh-conditioned PBR, and CPU **U2Netp** for optional foreground extraction. These workbench-only components are managed separately under `models/extensions`, with pinned sources and their own licenses. They are not hosted in this core-weight repository or added to the ComfyUI nodes. See the [edition comparison](https://github.com/T8mars/Comfyui-Hi3d-T8#models-and-edition-differences).
+The v0.4 workbench additionally offers **Hunyuan3D-2mini-Turbo, Hunyuan3D 2.1 and TRELLIS.2** geometry engines, and **TRELLIS.2 PBR, Hunyuan3D-Paint 2.1 and UltraTex** texturing engines. Each choice downloads its own dependencies; UltraTex uses a FLUX.2 Klein 9B base under the FLUX Non-Commercial License. CPU **U2Netp** provides optional foreground extraction. These workbench-only components are managed separately under `models/extensions`, with pinned sources and their own licenses. They are not hosted in this core-weight repository or added to the ComfyUI nodes. See the [edition comparison](https://github.com/T8mars/Comfyui-Hi3d-T8#models-and-edition-differences).
 
 ## Download and use
 

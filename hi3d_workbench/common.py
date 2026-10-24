@@ -11,7 +11,7 @@ ROOT = Path(os.environ.get("HI3D_WORKBENCH_ROOT", _project_root)).resolve()
 DATA = ROOT / "data"
 MODELS = ROOT / "models"
 SOURCE_REVISION = "23dcc684bc6e1fab86ecafb99ec5270edad122f9"
-VERSION = "0.3.3"
+VERSION = "0.4.0"
 MODEL_REVISION = "705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a"
 
 def atomic_json(path: Path, value):
@@ -20,6 +20,10 @@ def atomic_json(path: Path, value):
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(value, f, ensure_ascii=False, indent=2, allow_nan=False)
+            # Commit bytes before publishing the replacement. Without this a
+            # hard reset can leave a valid-looking filename full of zeroes.
+            f.flush()
+            os.fsync(f.fileno())
         os.replace(name, path)
     finally:
         Path(name).unlink(missing_ok=True)

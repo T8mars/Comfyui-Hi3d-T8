@@ -4,12 +4,18 @@ let inputImage = null, inputMesh = null, currentJob = null, health = null;
 let online = false, pending = null, exportPending = false, pollBusy = false;
 let epoch = 0, shownJob = null, sessionReady = false, sessionDefaultsApplied = false, toastTimer, logsKey = '';
 let selectedMode = 'image_to_asset', previewManual = false, exportSourceManual = false;
+let comparisonJob = null, comparisonCandidates = [], comparisonsFor = '';
 const activeStates = new Set(['running', 'queued', 'cancelling']);
 const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
 const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
-const modelVersions = ['textured','refined','coarse'];
-const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型'};
+const modelVersions = ['textured','refined','coarse','generated'];
+const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
+const qualityPresets = {
+  light: {geometry:'hunyuan_mini',geometryResolution:256,geometrySteps:5,texture:'trellis2',textureResolution:512,textureSteps:12,textureSize:2048},
+  balanced: {geometry:'trellis2',geometryResolution:512,geometrySteps:12,texture:'trellis2',textureResolution:1024,textureSteps:12,textureSize:4096},
+  detail: {geometry:'trellis2',geometryResolution:1024,geometrySteps:12,texture:'ultratex',textureResolution:1024,textureSteps:25,textureSize:4096}
+};
 function needsMesh(mode = selectedMode) { return mode !== 'image_to_asset'; }
 function wantsRefine(options = null) { return options ? (options.mode || 'refine') === 'refine' || options.mode === 'image_to_asset' && options.refine_geometry === true : selectedMode === 'refine' || selectedMode === 'image_to_asset' && $('#refine-geometry').checked; }
 function wantsTexture(options = null) { return options ? options.mode === 'texture' || Boolean(options.generate_texture ?? options.mode === 'image_to_asset') : selectedMode === 'texture' || $('#generate-texture').checked; }
@@ -23,11 +29,31 @@ function renderHealthBadge() {
 function missingModels() {
   const missing = [], pipeline = health?.pipeline_models;
   if (wantsRefine() && !health?.models?.ready) missing.push('Hi3D 核心');
-  if (selectedMode === 'image_to_asset' && !pipeline?.coarse_ready) missing.push('图片建模组件');
-  if (wantsTexture() && !pipeline?.texture_ready) missing.push('PBR 贴图组件');
+  const geometry = pipeline?.engines?.coarse?.[$('#geometry-engine').value];
+  const texture = pipeline?.engines?.texture?.[$('#texture-engine').value];
+  if (selectedMode === 'image_to_asset' && !(geometry?.ready ?? ($('#geometry-engine').value === 'hunyuan_mini' && pipeline?.coarse_ready))) missing.push(geometry?.name || '图片建模组件');
+  if (wantsTexture() && !(texture?.ready ?? ($('#texture-engine').value === 'trellis2' && pipeline?.texture_ready))) missing.push(texture?.name || 'PBR 贴图组件');
   if ((selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && inputImage?.has_transparency !== true) missing.push('自动前景组件');
   if ((selectedMode === 'image_to_asset' || wantsTexture()) && !pipeline?.runtime?.ready) missing.push('扩展运行环境');
   return missing;
+}
+function syncEngines(resetStage = null) {
+  for (const [stage, prefix] of [['coarse','geometry'],['texture','texture']]) {
+    const choice = health?.pipeline_models?.engines?.[stage]?.[$('#'+prefix+'-engine').value];
+    if (!choice) continue;
+    const resolutions = $('#'+prefix+'-resolution'), current = +resolutions.value;
+    if (resolutions.dataset.values !== JSON.stringify(choice.resolutions)) {
+      resolutions.replaceChildren(...choice.resolutions.map(value => new Option(String(value),String(value))));
+      resolutions.dataset.values = JSON.stringify(choice.resolutions);
+      resolutions.value = String(choice.resolutions.includes(current) ? current : choice.default_resolution);
+    }
+    if (resetStage === stage) {
+      resolutions.value = String(choice.default_resolution);
+      $('#'+prefix+'-steps').value = String(choice.default_steps);
+    }
+    $('#'+prefix+'-engine-hint').textContent = `${choice.description} ${choice.ready ? '✓ 已就绪' : choice.runtime_ready ? '需下载所选模型。' : '需更新扩展运行环境并准备模型。'}`;
+    if (stage === 'coarse') $('#geometry-steps').readOnly = choice.id === 'hunyuan_mini';
+  }
 }
 function syncModeUI() {
   const imageMode = selectedMode === 'image_to_asset', texture = wantsTexture(), refine = wantsRefine();
@@ -35,6 +61,8 @@ function syncModeUI() {
   $('#mesh-input-group').hidden = imageMode; $('#ready-mesh').hidden = imageMode;
   $('#refine-geometry-field').hidden = !imageMode; $('#generate-texture-field').hidden = selectedMode === 'texture';
   $('#refine-settings').hidden = !refine; $('#texture-settings').hidden = !texture;
+  $('#geometry-settings').hidden = !imageMode;
+  $('#trellis-cleanup-field').hidden = !imageMode || $('#geometry-engine').value !== 'trellis2';
   $('#hi3d-steps-field').hidden = !refine; $('#hi3d-attention-field').hidden = !refine;
   $('#advanced-fields').classList.toggle('seed-only',!refine);
   $('#advanced-summary').textContent = refine ? '高级设置 · 种子 / Hi3D 步数与兼容模式' : '高级设置 · 随机种子';
@@ -110,7 +138,13 @@ function availability() {
   $('#load-sample').textContent = pending === 'sample' ? '正在载入样例输入…' : '载入样例，熟悉流程 →';
   $('#mask-open').disabled = busy || !inputImage;
   $('#mask-apply').disabled = busy;
-  for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','texture-resolution','texture-size']) $('#'+id).disabled = busy || isHistory;
+  for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','geometry-engine','geometry-resolution','geometry-steps','trellis-cleanup','texture-engine','texture-resolution','texture-steps','texture-size']) $('#'+id).disabled = busy || isHistory;
+  document.querySelectorAll('[data-quality-preset]').forEach(button => {
+    button.disabled=busy || isHistory;
+    const p=qualityPresets[button.dataset.qualityPreset];
+    const selected=$('#generate-texture').checked && $('#geometry-engine').value===p.geometry && +$('#geometry-resolution').value===p.geometryResolution && +$('#geometry-steps').value===p.geometrySteps && $('#texture-engine').value===p.texture && +$('#texture-resolution').value===p.textureResolution && +$('#texture-steps').value===p.textureSteps && +$('#texture-size').value===p.textureSize;
+    button.setAttribute('aria-pressed',String(selected));button.classList.toggle('active',selected);
+  });
   for (const id of ['steps','attention']) $('#'+id).disabled = busy || isHistory || !wantsRefine();
   document.querySelectorAll('[data-mode]').forEach(button => { button.disabled = busy || isHistory; });
   $('#reuse').hidden = !isHistory || activeStates.has(currentJob.state);
@@ -129,6 +163,9 @@ function availability() {
   }
   const modelBusy = !online || Boolean(pending) || gpuBusy() || checking || downloading;
   for (const id of ['download-models','verify-models','diagnose','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
+  document.querySelectorAll('[data-engine-download]').forEach(button => { button.disabled = modelBusy; });
+  $('#refresh-comparisons').disabled = !online || Boolean(pending) || !currentJob;
+  $('#comparison-job').disabled = !online || Boolean(pending) || !currentJob;
   $('#verify-models').textContent = checking || pending === 'verify' ? '正在完整校验…' : '重新完整校验';
   $('#verify-pipeline-models').textContent = pending === 'pipeline-verify' || health?.pipeline_model_checking || health?.pipeline_models?.checking ? '正在校验扩展组件…' : '校验扩展组件';
   $('#diagnose').textContent = health?.operation === 'diagnosing' || pending === 'diagnose' ? '正在检查 GPU…' : '检查 GPU 是否可用';
@@ -166,7 +203,7 @@ function exportAvailability() {
   if (textured) format.value = 'glb';
   $('#export').disabled = !online || exportPending || Boolean(pending) || !versions.includes(source.value);
   $('#export').textContent = exportPending ? '正在导出…' : '导出模型 ↓';
-  for (const id of ['export-source','export-format','height']) $('#'+id).disabled = exportPending || !versions.length;
+  for (const id of ['export-source','export-format','height-axis','height']) $('#'+id).disabled = exportPending || !versions.length;
   $('#report').disabled = !online || !files.includes('report.json');
   $('#export-status').textContent = versions.length ? `可导出：${versions.map(version => versionLabels[version]).join(' / ')}` : activeStates.has(currentJob?.state) ? '任务结束后可导出已保留的模型' : '有阶段模型后即可导出';
   $('#export-material-hint').textContent = !versions.length ? '阶段文件生成且任务结束后可选择导出。PBR 材质使用 GLB；STL / PLY 仅包含几何。' : textured ? '当前版本包含 PBR 材质，仅支持 GLB。若需 STL / PLY，请选择粗模或精修几何；这些格式不包含贴图。' : '当前导出几何版本。若已有 PBR 结果，选择「PBR 材质结果 + GLB」可保留材质。STL / PLY 不含贴图。';
@@ -184,6 +221,10 @@ function setView(id, url) {
   }
 }
 function resetResult() {
+  comparisonJob = null; comparisonCandidates = []; comparisonsFor = '';
+  $('#comparison-job').replaceChildren(new Option('当前任务的阶段模型',''));
+  $('#comparison-version').replaceChildren(new Option('粗模型','coarse'));
+  $('#comparison-hint').textContent = '可从历史任务选择其他引擎的结果，使用同步视角对比。';
   setView('after', null); $('#conditioning').hidden = true; $('#conditioning').removeAttribute('src');
   $('#dimension-link').hidden = true; $('#dimension-link').removeAttribute('href'); logsKey = '';
   for (const id of ['face-stat','time-stat','memory-stat','res-stat']) $('#'+id).textContent = '—';
@@ -194,7 +235,7 @@ function resetResult() {
   $('#result-preview').value = ''; $('#result-preview').disabled = true;
   $('#result-view-label').textContent = '生成结果'; $('#preview-hint').textContent = '阶段完成后即可查看已保留的模型。';
   $('#stage-summary').replaceChildren(); $('#stage-summary').hidden = true;
-  $('#export-source').value = ''; $('#height').value = '';
+  $('#export-source').value = ''; $('#height').value = ''; $('#height-axis').value = 'Y';
   $('#geometry-summary').className = ''; $('#geometry-summary').textContent = '上传粗模型后显示几何检查。';
   $('#geometry-info').textContent = '包括连通件、边界边与法向方向。自交、壁厚和实际打印强度需在专门软件中检查。';
 }
@@ -204,14 +245,86 @@ function applyOptions(options = {}) {
   if (options.offload !== undefined) $('#offload').checked = options.offload;
   $('#refine-geometry').checked = options.refine_geometry === true;
   $('#generate-texture').checked = Boolean(options.generate_texture ?? selectedMode === 'image_to_asset');
+  $('#geometry-engine').value = options.geometry_engine || 'hunyuan_mini';
+  $('#trellis-cleanup').checked = options.geometry_cleanup !== false;
+  $('#texture-engine').value = options.texture_engine || 'trellis2';
+  syncEngines('coarse'); syncEngines('texture');
+  $('#geometry-resolution').value = String(options.geometry_resolution || 256);
+  $('#geometry-steps').value = String(options.geometry_steps || ($('#geometry-engine').value === 'hunyuan_mini' ? 5 : 50));
+  $('#texture-steps').value = String(options.texture_steps || 12);
   $('#texture-resolution').value = String(options.texture_resolution || 512); $('#texture-size').value = String(options.texture_size || 2048);
   $('#background').value = options.background || 'auto'; syncModeUI();
 }
+function renderComparison(job) {
+  const source = comparisonJob || job, selector = $('#comparison-version');
+  const available = modelVersions.filter(version => hasJobFile(source,version+'.glb'));
+  const previous = selector.value;
+  selector.replaceChildren(...available.map(version => new Option(versionLabels[version],version)));
+  selector.value = available.includes(previous) ? previous : available.includes('coarse') && !comparisonJob ? 'coarse' : available[0] || '';
+  selector.disabled = !available.length;
+  const version = selector.value;
+  $('#before').dataset.surface = version === 'textured' || version === 'coarse' && source.options?.input_has_materials ? 'pbr' : 'geometry';
+  setView('before',version ? `/api/jobs/${encodeURIComponent(source.id)}/files/${version}.glb` : null);
+  $('#before-view-label').textContent = comparisonJob ? `对照 · ${versionLabels[version] || '无模型'}` : versionLabels[version] || '粗模型';
+  const target = $('#comparison-hint');
+  if (!comparisonJob) { target.textContent = '当前任务的阶段对比；可从历史任务选择其他引擎的结果。'; return; }
+  const imageA = source.input_sha256, imageB = job.report?.input_sha256;
+  const meshA = source.texture_mesh_sha256, meshB = job.report?.texture_mesh_sha256;
+  target.textContent = typeof imageA === 'string' && imageA === imageB
+    ? version === 'textured' && $('#result-preview').value === 'textured' && typeof meshA === 'string' && meshA === meshB
+      ? '同一参考图、同一贴图输入网格，可以直接比较材质效果。'
+      : '参考图一致；几何或阶段不同，请按整条流程的结果比较。'
+    : '参考图不同或尚无一致性记录，仅供目视对照。';
+}
+$('#refresh-comparisons').onclick = () => { if (currentJob) { comparisonsFor=''; void loadComparisons(currentJob,epoch); } };
+function updatePreviewLighting() {
+  const environments = {neutral:'neutral',soft:'/static/environments/studio_small_09.hdr',contrast:'/static/environments/studio_small_08.hdr'};
+  const environment = environments[$('#preview-light').value] || 'neutral';
+  const exposure = Math.max(.4,Math.min(1.6,+$('#preview-exposure').value || 1));
+  for (const view of [$('#before'),$('#after')]) {
+    view.setAttribute('environment-image',environment); view.setAttribute('exposure',String(exposure));
+  }
+}
+$('#preview-light').onchange = updatePreviewLighting;
+$('#preview-exposure').oninput = updatePreviewLighting;
+async function loadComparisons(job, selectedEpoch) {
+  if (comparisonsFor === job.id) return;
+  comparisonsFor = job.id;
+  try {
+    const candidates = await api(`/api/jobs/${encodeURIComponent(job.id)}/comparisons`);
+    if (epoch !== selectedEpoch || currentJob?.id !== job.id) return;
+    comparisonCandidates = candidates.filter(candidate => candidate.id !== job.id);
+    const selector = $('#comparison-job'), previous = selector.value;
+    selector.replaceChildren(new Option('当前任务的阶段模型',''));
+    const image = job.report?.input_sha256;
+    comparisonCandidates.sort((a,b) => Number(b.input_sha256 === image && typeof image === 'string') - Number(a.input_sha256 === image && typeof image === 'string'));
+    for (const candidate of comparisonCandidates) {
+      const options = candidate.options || {};
+      const geometry = health?.pipeline_models?.engines?.coarse?.[options.geometry_engine || 'hunyuan_mini']?.name || options.geometry_engine || 'Hi3D';
+      const texture = health?.pipeline_models?.engines?.texture?.[options.texture_engine || 'trellis2']?.name || options.texture_engine || 'TRELLIS.2';
+      const same = typeof image === 'string' && image === candidate.input_sha256 ? '同图 · ' : '';
+      const label = `${same}${options.mode === 'image_to_asset' ? geometry+' / ' : ''}${candidate.available_files.includes('textured.glb') ? texture : '几何'} · ${new Date(candidate.created*1000).toLocaleString()}`;
+      selector.append(new Option(label,candidate.id));
+    }
+    selector.value = comparisonCandidates.some(candidate => candidate.id === previous) ? previous : '';
+    comparisonJob = comparisonCandidates.find(candidate => candidate.id === selector.value) || null;
+    renderComparison(job);
+  } catch(error) {
+    if (epoch === selectedEpoch && currentJob?.id === job.id) { comparisonsFor = ''; $('#comparison-hint').textContent = '对照记录暂时无法读取，可稍后刷新。'; }
+  }
+}
+$('#comparison-job').onchange = () => {
+  comparisonJob = comparisonCandidates.find(candidate => candidate.id === $('#comparison-job').value) || null;
+  $('#comparison-version').value = comparisonJob?.available_files.includes('textured.glb') ? 'textured' : 'coarse';
+  if (currentJob) renderComparison(currentJob);
+};
+$('#comparison-version').onchange = () => { if (currentJob) renderComparison(currentJob); };
 function renderDraft() {
   if (inputImage) { $('#image-thumb').src = inputImage.url; $('#image-thumb').hidden = false; }
   else { $('#image-thumb').hidden = true; $('#image-thumb').removeAttribute('src'); }
   $('#image-name').textContent = inputImage?.name || '未选择图片';
   $('#mesh-name').textContent = inputMesh?.name || '未选择粗模型';
+  $('#before').dataset.surface = inputMesh?.has_materials ? 'pbr' : 'geometry';
   setView('before', needsMesh() ? inputMesh?.url : null); if (needsMesh() && inputMesh?.geometry) geometry(inputMesh.geometry);
   $('#view-status').textContent = needsMesh() && inputMesh ? '几何预览 · 拖动旋转，滚轮缩放' : '图片建模会先生成粗模型，再完成所选后续阶段';
   $('#progress-label').textContent = inputsReady() ? `输入已准备好，可以开始${modeLabels[selectedMode]}` : needsMesh() ? '先准备图片和模型' : '先准备一张参考图片';
@@ -227,6 +340,18 @@ document.querySelectorAll('[data-mode]').forEach(button => { button.onclick = ()
   resetResult(); renderDraft();
 }; });
 for (const id of ['refine-geometry','generate-texture']) $('#'+id).onchange = availability;
+$('#geometry-engine').onchange = () => { syncEngines('coarse'); availability(); };
+$('#texture-engine').onchange = () => { syncEngines('texture'); availability(); };
+document.querySelectorAll('[data-quality-preset]').forEach(button => { button.onclick=() => {
+  if (button.disabled) return;
+  const p=qualityPresets[button.dataset.qualityPreset];
+  $('#geometry-engine').value=p.geometry;$('#texture-engine').value=p.texture;
+  syncEngines('coarse');syncEngines('texture');
+  $('#geometry-resolution').value=String(p.geometryResolution);$('#geometry-steps').value=String(p.geometrySteps);
+  $('#texture-resolution').value=String(p.textureResolution);$('#texture-steps').value=String(p.textureSteps);$('#texture-size').value=String(p.textureSize);
+  $('#generate-texture').checked=true;$('#trellis-cleanup').checked=true;$('#offload').checked=true;
+  availability();
+}; });
 async function upload(file, kind) {
   if (kind === 'image' && !/\.(png|jpe?g|webp)$/i.test(file.name)) throw new Error('参考图片请选择 PNG、JPG 或 WebP 文件。');
   if (kind === 'mesh' && !/\.(glb|ply|stl)$/i.test(file.name)) throw new Error('粗模型请选择 GLB、PLY 或 STL 文件。');
@@ -315,10 +440,11 @@ $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
-  for (const id of wantsRefine() ? ['steps','seed'] : ['seed']) if (!$('#'+id).checkValidity()) { $('#advanced').open = true; $('#'+id).reportValidity(); $('#'+id).focus(); return; }
+  const numericFields = ['seed', ...(wantsRefine() ? ['steps'] : []), ...(selectedMode === 'image_to_asset' ? ['geometry-steps'] : []), ...(wantsTexture() ? ['texture-steps'] : [])];
+  for (const id of numericFields) if (!$('#'+id).checkValidity() || !$('#'+id).value) { $('#advanced').open = true; $('#'+id).reportValidity(); $('#'+id).focus(); return; }
   pending = 'submitting'; availability();
   try {
-    const job = await post('/api/jobs', {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value});
+    const job = await post('/api/jobs', {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value});
     epoch++; inputImage = null; inputMesh = null; renderJob(job); await loadArtifacts(job, epoch); await refresh();
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
@@ -346,7 +472,7 @@ function renderPreview(job) {
   $('#preview-hint').textContent = version === 'textured' ? '显示模型原始 PBR 材质；GLB 导出保留贴图。' : version ? '显示中性材质以检查几何；可以切换查看其他已完成阶段。' : '阶段完成后即可查看已保留的模型。';
   return version;
 }
-$('#result-preview').onchange = () => { previewManual = true; if (currentJob) renderPreview(currentJob); };
+$('#result-preview').onchange = () => { previewManual = true; if (currentJob) { renderPreview(currentJob); renderComparison(currentJob); } };
 function renderStages(stages) {
   const container = $('#stage-summary'); container.replaceChildren();
   const values = Array.isArray(stages) ? stages.map((value,index) => [value?.name || value?.stage || String(index+1),value]) : stages && typeof stages === 'object' ? Object.entries(stages) : [];
@@ -365,8 +491,10 @@ function renderJob(job) {
   const changed = shownJob !== job.id; currentJob = job;
   if (changed) {
     resetResult(); shownJob = job.id; inputImage = null; inputMesh = null; applyOptions(job.options);
+    comparisonJob = null; comparisonCandidates = []; comparisonsFor = '';
+    $('#comparison-job').replaceChildren(new Option('当前任务的阶段模型',''));
+    $('#comparison-version').value = 'coarse';
   }
-  setView('before', hasJobFile(job,'coarse.glb') ? `/api/jobs/${job.id}/files/coarse.glb` : null);
   $('#image-thumb').hidden = !hasJobFile(job,'input.png');
   const imageUrl = `/api/jobs/${job.id}/files/input.png`;
   if (hasJobFile(job,'input.png') && $('#image-thumb').getAttribute('src') !== imageUrl) $('#image-thumb').src = imageUrl;
@@ -384,6 +512,7 @@ function renderJob(job) {
     $('#stage-detail').textContent = `${job.message ? job.message+' · ' : ''}${pass}本轮采样 ${event.step} / ${event.num_inference_steps}。这是当前阶段进度，后续还需处理与保存。`;
   } else $('#progress').hidden = true;
   const report = job.report && typeof job.report === 'object' ? job.report : {}, version = renderPreview(job);
+  renderComparison(job);
   $('#face-stat').textContent = validMetric(report.geometry?.faces) ? report.geometry.faces.toLocaleString() : '—';
   $('#time-stat').textContent = validMetric(report.seconds) ? duration(report.seconds) : '—';
   $('#memory-stat').textContent = validMetric(report.peak_allocated_mb) ? `${(report.peak_allocated_mb/1024).toFixed(2)} GiB` : '—';
@@ -407,6 +536,7 @@ function renderJob(job) {
 }
 async function loadArtifacts(job, selectedEpoch) {
   if (epoch !== selectedEpoch || currentJob?.id !== job.id) return;
+  if (comparisonsFor !== job.id) void loadComparisons(job,selectedEpoch);
   const files = job.available_files || [], key = `${job.id}:${job.updated}:${files.join(',')}`;
   const condition = files.includes('foreground.png') ? 'foreground.png' : files.includes('conditioning.png') ? 'conditioning.png' : null;
   if (condition) { $('#conditioning').src = `/api/jobs/${job.id}/files/${condition}`; $('#conditioning').hidden = false; }
@@ -435,12 +565,12 @@ $('#reuse').onclick = async () => {
 };
 $('#report').onclick = () => { if (currentJob && !$('#report').disabled) window.open(`/api/jobs/${currentJob.id}/files/report.json`, '_blank', 'noopener'); };
 $('#export-source').onchange = () => { exportSourceManual = true; exportAvailability(); };
-for (const id of ['export-source','export-format','height']) $('#'+id).addEventListener('change', () => { $('#dimension-link').hidden = true; });
+for (const id of ['export-source','export-format','height-axis','height']) $('#'+id).addEventListener('change', () => { $('#dimension-link').hidden = true; });
 $('#export').onclick = async () => {
   if ($('#export').disabled || !$('#height').reportValidity()) return;
   exportPending = true; const jobId = currentJob.id, selectedEpoch = epoch, format = $('#export-format').value; availability();
   try {
-    const result = await post(`/api/jobs/${jobId}/export`, {source:$('#export-source').value, format, height_mm:$('#height').value ? +$('#height').value : null});
+    const result = await post(`/api/jobs/${jobId}/export`, {source:$('#export-source').value, format, height_axis:$('#height-axis').value, height_mm:$('#height').value ? +$('#height').value : null});
     const link = document.createElement('a'); link.href = result.url; link.download = `Hi3D-${format === 'glb' ? 'model' : 'geometry'}.${format}`; link.click();
     if (epoch === selectedEpoch) { $('#dimension-link').href = result.dimensions; $('#dimension-link').hidden = false; }
     toast('模型已导出。尺寸说明可一并下载；打印前请在切片器中核对单位。');
@@ -457,7 +587,9 @@ async function history() {
     for (const job of jobs) {
       const row = document.createElement('div'); row.className = 'history-item'; row.dataset.jobId = job.id; const info = document.createElement('div'); info.className = 'grow';
       const title = document.createElement('b'), mode = job.options?.mode || 'refine';
-      title.textContent = `${modeLabels[mode] || mode}${wantsRefine(job.options || {}) ? ' · Hi3D '+(job.options?.resolution || '—') : ''}${wantsTexture(job.options || {}) ? ' · PBR' : ''} · 种子 ${job.options?.seed ?? '—'}`;
+      const geometryName = health?.pipeline_models?.engines?.coarse?.[job.options?.geometry_engine || 'hunyuan_mini']?.name || job.options?.geometry_engine || 'Hunyuan mini';
+      const textureName = health?.pipeline_models?.engines?.texture?.[job.options?.texture_engine || 'trellis2']?.name || job.options?.texture_engine || 'TRELLIS.2 PBR';
+      title.textContent = `${modeLabels[mode] || mode}${mode === 'image_to_asset' ? ' · '+geometryName : ''}${wantsRefine(job.options || {}) ? ' · Hi3D '+(job.options?.resolution || '—') : ''}${wantsTexture(job.options || {}) ? ' · '+textureName : ''} · 种子 ${job.options?.seed ?? '—'}`;
       const time = document.createElement('time'); time.textContent = new Date(job.created*1000).toLocaleString();
       const description = document.createElement('p'); description.textContent = job.state === 'succeeded' ? '打开查看阶段结果、导出或复用输入' : '打开查看日志、已保留阶段与输入'; info.append(title, document.createElement('br'), time, description);
       const state = document.createElement('span'); state.className = 'state-pill'; state.textContent = stateLabels[job.state] || job.state;
@@ -481,20 +613,42 @@ function renderHealth() {
   }
   $('#download-state').textContent = health.verification_error ? '校验出错：'+health.verification_error : health.model_checking ? '正在完整校验文件，请稍候…' : health.models?.download?.message || 'Hi3D 核心尚无下载任务。';
   const pipeline = health.pipeline_models, pipelineCards = $('#pipeline-model-cards'); pipelineCards.replaceChildren();
+  for (const [stage, choices] of Object.entries(pipeline?.engines || {})) for (const [id, choice] of Object.entries(choices)) {
+    const card = document.createElement('div'); card.className = 'model-card';
+    const title = document.createElement('h3'); title.textContent = choice.name;
+    const description = document.createElement('p'); description.className = 'hint'; description.textContent = choice.description;
+    const state = document.createElement('div'); state.className = 'model-state';
+    state.textContent = `${stage === 'coarse' ? '图片建模' : 'PBR 贴图'} · ${choice.ready ? '✓ 已就绪' : choice.runtime_ready ? '待准备模型' : '需要更新扩展环境与模型'}`;
+    const button = document.createElement('button'); button.dataset.engineDownload = `${stage}:${id}`;
+    button.textContent = choice.ready ? '检查 / 补齐此引擎' : '下载此引擎模型';
+    button.onclick = () => downloadEngine(stage,id);
+    card.append(title,description,state,button); pipelineCards.append(card);
+  }
+  const componentCards = $('#pipeline-component-cards'); componentCards.replaceChildren();
   for (const [key,component] of Object.entries(pipeline?.components || {})) {
     const card = document.createElement('div'); card.className = 'model-card';
-    const title = document.createElement('h3'); title.textContent = {coarse:'图片建模',texture:'PBR 贴图',texture_encoder:'贴图图像编码器'}[key] || key;
+    const title = document.createElement('h3'); title.textContent = {background:'自动前景处理',coarse:'Hunyuan mini 权重',texture:'TRELLIS.2 贴图权重',texture_encoder:'DINOv3 图像编码器',coarse_hunyuan21:'Hunyuan3D 2.1 几何权重',coarse_trellis2:'TRELLIS.2 几何权重',trellis_structure:'TRELLIS 空间结构解码器',texture_ultratex:'UltraTex 颜色 / 材质适配器',ultratex_backbone:'UltraTex 9B 非商用底座',ultratex_text_encoder:'UltraTex 图像解码器与文本编码器'}[key] || key;
     const repo = document.createElement('small'); repo.textContent = component.repo || '';
     const license = document.createElement('p'); license.className = 'hint'; license.textContent = component.license || '许可见组件目录';
     const state = document.createElement('div'); state.className = 'model-state';
     state.textContent = component.ready ? '✓ 组件就绪' : component.message || `待准备${Array.isArray(component.missing) && component.missing.length ? ' · 缺少 '+component.missing.length+' 个文件' : ''}`;
-    card.append(title,repo,license,state); pipelineCards.append(card);
+    card.append(title,repo,license,state); componentCards.append(card);
   }
   if (!pipeline) pipelineCards.textContent = '当前服务未提供扩展组件状态，请更新并重启完整工作台。Hi3D 几何精修仍可单独使用。';
   $('#pipeline-download-state').textContent = pipeline?.download?.message || '扩展组件尚无下载任务。';
   $('#pipeline-runtime-state').textContent = pipeline?.runtime?.ready ? '✓ 扩展运行环境就绪。各阶段依次运行，所需组件按任务选择。' : `扩展运行环境尚未就绪。${pipeline?.runtime?.message || pipeline?.runtime?.error || '请完成扩展组件安装后重新检查。'}`;
+  syncEngines();
   if (health.diagnostics && pending !== 'diagnose') $('#diagnostics').textContent = JSON.stringify(health.diagnostics, null, 2);
   availability();
+}
+async function downloadEngine(stage,id) {
+  if (!online || pending || gpuBusy() || downloadingModels() || checkingModels()) return;
+  pending = 'pipeline-download'; availability();
+  try {
+    await post('/api/pipeline/models/download',{selection:`engine:${stage}:${id}`});
+    toast('所选引擎的下载请求已提交。'); await refresh();
+  } catch(error) { showError(error); }
+  finally { pending = null; availability(); }
 }
 async function refresh() {
   const session = sessionReady ? null : await api('/api/session');

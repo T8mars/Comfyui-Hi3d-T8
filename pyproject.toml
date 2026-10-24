@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hi3d-t8"
-version = "0.3.3"
+version = "0.4.0"
 description = "Local Hi3D v1.0 workbench and ComfyUI integration"
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -33,7 +33,7 @@ hi3d-workbench = "hi3d_workbench.__main__:main"
 include = ["hi3d_workbench*"]
 
 [tool.setuptools.package-data]
-hi3d_workbench = ["web/*", "web/vendor/*"]
+hi3d_workbench = ["web/*", "web/vendor/*", "web/environments/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

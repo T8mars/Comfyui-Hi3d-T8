@@ -85,7 +85,10 @@ def run(request_path):
         stage_dir.mkdir(parents=True, exist_ok=True)
         out = stage_dir / ('coarse.glb' if stage == 'coarse' else 'textured.glb')
         payload = {'image_path': str(image), 'output_path': str(out),
-                   'seed': req['seed'], 'resolution': 256 if stage == 'coarse' else req.get('texture_resolution', 512),
+                   'seed': req['seed'], 'resolution': req.get('geometry_resolution',256) if stage == 'coarse' else req.get('texture_resolution', 512),
+                   'engine': req.get('geometry_engine','hunyuan_mini') if stage == 'coarse' else req.get('texture_engine','trellis2'),
+                   'geometry_steps': req.get('geometry_steps',50), 'texture_steps': req.get('texture_steps',12),
+                   'geometry_cleanup': req.get('geometry_cleanup',True),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}
         if source_mesh:
@@ -100,6 +103,8 @@ def run(request_path):
         if not isinstance(stage_report, dict) or stage_report.get('status') != 'succeeded':
             raise ValueError('模型阶段没有提供有效的成功报告')
         stages.append({'stage': stage, **stage_report})
+        if stage == 'coarse' and (stage_dir/'raw-geometry.glb').is_file():
+            shutil.copy2(stage_dir/'raw-geometry.glb',folder/'generated.glb')
         for candidate in (stage_dir / 'foreground.png', out.with_name('foreground.png')):
             if candidate.is_file():
                 shutil.copy2(candidate, folder / 'foreground.png')
@@ -141,11 +146,15 @@ def run(request_path):
         final = folder / 'textured.glb'
     report = {'status': 'succeeded', 'mode': mode, 'stages': stages, 'seconds': round(time.time() - started, 2),
               'peak_allocated_mb': max((s.get('peak_allocated_mb', s.get('peak_vram_mb', 0)) for s in stages), default=0),
-              'actual_resolution': req['resolution'] if want_refine else 256 if mode=='image_to_asset' else 0,
+              'actual_resolution': req['resolution'] if want_refine else stages[0].get('actual_resolution',req.get('geometry_resolution',256)) if mode=='image_to_asset' else 0,
+              'geometry_engine': req.get('geometry_engine','hunyuan_mini') if mode=='image_to_asset' else None,
+              'texture_engine': req.get('texture_engine','trellis2') if want_texture else None,
               'texturing_resolution': req.get('texture_resolution',512) if want_texture else None,
               'texture_size': req.get('texture_size',2048) if want_texture else None,
               'geometry': inspect_asset_geometry(final) if want_texture else inspect_mesh(load_mesh(final)), 'final_file': final.name,
               'input_sha256': digest(image), 'final_sha256': digest(final),
+              'mesh_input_sha256': digest(mesh),
+              'texture_mesh_sha256': next((stage.get('input_mesh_sha256') for stage in stages if stage.get('stage')=='texture'),None),
               'normalized': bool(want_refine or mode == 'image_to_asset'), **material}
     atomic_json(folder / 'report.json', report)
     emit('complete', message='模型与贴图已保存' if want_texture else '模型已保存')

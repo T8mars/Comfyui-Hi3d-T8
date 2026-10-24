@@ -1,0 +1,270 @@
+{
+  "real_inference": true,
+  "cases": [
+    {
+      "subject": "fox",
+      "engine": "hunyuan_mini",
+      "stage": {
+        "model": {
+          "repo": "tencent/Hunyuan3D-2mini",
+          "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+          "license": "Tencent Hunyuan 3D 2.0 Community License",
+          "files": [
+            "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+            "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+            "LICENSE",
+            "NOTICE",
+            "README.md"
+          ]
+        },
+        "engine": "hunyuan_mini",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "vertices": 363900,
+        "faces": 727816,
+        "inference_steps": 5,
+        "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+        "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+        "transform": {
+          "coordinate_system": "Hunyuan canonical",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "stage": "coarse",
+        "status": "succeeded",
+        "background": "input_alpha",
+        "seconds": 66.04,
+        "peak_allocated_mb": 2468.37,
+        "peak_reserved_mb": 2610.0,
+        "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+        "runtime": {
+          "torch": "2.8.0+cu128",
+          "cuda": "12.8",
+          "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "capability": [
+            12,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "subject": "fox",
+      "engine": "hunyuan21",
+      "stage": {
+        "model": {
+          "repo": "tencent/Hunyuan3D-2.1",
+          "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+          "license": "Tencent Hunyuan 3D 2.1 Community License",
+          "files": [
+            "hunyuan3d-dit-v2-1/config.yaml",
+            "hunyuan3d-dit-v2-1/model.fp16.ckpt",
+            "LICENSE",
+            "Notice.txt",
+            "README.md"
+          ],
+          "optional": true
+        },
+        "engine": "hunyuan21",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "vertices": 398200,
+        "faces": 796436,
+        "inference_steps": 50,
+        "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+        "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+        "transform": {
+          "coordinate_system": "Hunyuan canonical",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "stage": "coarse",
+        "status": "succeeded",
+        "background": "input_alpha",
+        "seconds": 114.891,
+        "peak_allocated_mb": 6636.06,
+        "peak_reserved_mb": 6948.0,
+        "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+        "runtime": {
+          "torch": "2.8.0+cu128",
+          "cuda": "12.8",
+          "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "capability": [
+            12,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "subject": "owl",
+      "engine": "hunyuan_mini",
+      "stage": {
+        "model": {
+          "repo": "tencent/Hunyuan3D-2mini",
+          "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+          "license": "Tencent Hunyuan 3D 2.0 Community License",
+          "files": [
+            "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+            "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+            "LICENSE",
+            "NOTICE",
+            "README.md"
+          ]
+        },
+        "engine": "hunyuan_mini",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "vertices": 677551,
+        "faces": 1355316,
+        "inference_steps": 5,
+        "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+        "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+        "transform": {
+          "coordinate_system": "Hunyuan canonical",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "stage": "coarse",
+        "status": "succeeded",
+        "background": "input_alpha",
+        "seconds": 64.831,
+        "peak_allocated_mb": 2468.37,
+        "peak_reserved_mb": 2610.0,
+        "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+        "runtime": {
+          "torch": "2.8.0+cu128",
+          "cuda": "12.8",
+          "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "capability": [
+            12,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "subject": "owl",
+      "engine": "hunyuan21",
+      "stage": {
+        "model": {
+          "repo": "tencent/Hunyuan3D-2.1",
+          "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+          "license": "Tencent Hunyuan 3D 2.1 Community License",
+          "files": [
+            "hunyuan3d-dit-v2-1/config.yaml",
+            "hunyuan3d-dit-v2-1/model.fp16.ckpt",
+            "LICENSE",
+            "Notice.txt",
+            "README.md"
+          ],
+          "optional": true
+        },
+        "engine": "hunyuan21",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "vertices": 614292,
+        "faces": 1228676,
+        "inference_steps": 50,
+        "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+        "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+        "transform": {
+          "coordinate_system": "Hunyuan canonical",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "stage": "coarse",
+        "status": "succeeded",
+        "background": "input_alpha",
+        "seconds": 116.481,
+        "peak_allocated_mb": 6636.06,
+        "peak_reserved_mb": 6948.0,
+        "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+        "runtime": {
+          "torch": "2.8.0+cu128",
+          "cuda": "12.8",
+          "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "capability": [
+            12,
+            0
+          ]
+        }
+      }
+    },
+    {
+      "subject": "fox",
+      "engine": "trellis2",
+      "stage": {
+        "model": {
+          "repo": "microsoft/TRELLIS.2-4B",
+          "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+          "license": "MIT; external image encoder has its own license",
+          "files": [
+            "pipeline.json",
+            "README.md",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+          ],
+          "optional": true
+        },
+        "image_encoder": {
+          "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+          "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+          "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+          "upstream_identical": true,
+          "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+          "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+          "files": [
+            "config.json",
+            "model.safetensors",
+            "preprocessor_config.json",
+            "LICENSE.md",
+            "README.md"
+          ]
+        },
+        "engine": "trellis2",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "postprocessing": {
+          "enabled": true,
+          "raw_faces": 12306080,
+          "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+          "target_faces": 1000000,
+          "seconds": 47.164
+        },
+        "raw_geometry_file": "raw-geometry.glb",
+        "pipeline_type": "1024_cascade",
+        "vertices": 457869,
+        "faces": 979468,
+        "inference_steps": 12,
+        "transform": {
+          "coordinate_system": "glTF Y-up",
+          "axis_mapping": "[x,z,-y]",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "input_image_sha256": "19fa1b5ae9b0682377adc6f65c50bbf5175b654686b193c58217fbf9c77e95b3",
+        "output_sha256": "0fdb8ee96e1a7fe2c0c34eac21f917c8743c02796e9a4fa4c03eef7be6533da3",
+        "stage": "coarse",
+        "status": "succeeded",
+        "background": "input_alpha",
+        "seconds": 378.718,
+        "peak_allocated_mb": 6581.69,
+        "peak_reserved_mb": 12048.0,
+        "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+        "runtime": {
+          "torch": "2.8.0+cu128",
+          "cuda": "12.8",
+          "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+          "capability": [
+            12,
+            0
+          ]
+        }
+      }
+    }
+  ],
+  "scope": "Historical source-environment geometry runs, separate from the final C-drive package checks."
+}

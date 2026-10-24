@@ -309,7 +309,7 @@ def _fake_stages(monkeypatch,material_output=True):
             output=Path(value['output_path'])
             if stage=='texture' and material_output:_textured_fixture(output)
             else:trimesh.creation.box(extents=[1,2,4]).export(output)
-            common.atomic_json(output.with_suffix('.stage.json'),{'fixture':'orchestration only','peak_vram_mb':5})
+            common.atomic_json(output.with_suffix('.stage.json'),{'status':'succeeded','fixture':'orchestration only','peak_vram_mb':5})
     monkeypatch.setattr(pipeline_worker,'run_child',run_child)
     monkeypatch.setattr(pipeline_worker,'config',lambda:{'worker_python':sys.executable,'worker_command':[]})
     return calls

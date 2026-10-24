@@ -1,0 +1,26 @@
+{
+  "version": "0.3.3",
+  "baseline": "b732730",
+  "product_bug_classes_fixed": 4,
+  "new_test_instances": 28,
+  "pytest": {
+    "name": "pytest",
+    "errors": "0",
+    "failures": "0",
+    "skipped": "0",
+    "tests": "235",
+    "time": "61.751",
+    "timestamp": "2026-10-24T09:03:13.195887-04:00",
+    "hostname": "T8"
+  },
+  "browser_fixture_groups": 15,
+  "javascript_errors": 0,
+  "comfy_source_and_canvas_unchanged_normalized_sha256": {
+    "comfy_nodes.py": "dd09c293daeffa48416d43b8bce9bc7b6a4c9d0093b52d3f8e0db3db4912f971",
+    "__init__.py": "3743fb9633681efb8ca2f45cb00dd64cf204422c91cff34987a587f8e6cf2c7f",
+    "examples/Hi3D-Refine.json": "9659b282793370c41ea3355d163c45ad470b790aa7399cacb56d8c28d22ca69f",
+    "examples/README.md": "4a73e24f45519e543b7bf2b5529606af7f3e72b9dba83acc19541a31b1437869"
+  },
+  "new_gpu_inference": false,
+  "archive_receipt": "dist/RELEASE-VERIFIED-0.3.3.json"
+}

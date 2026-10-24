@@ -13,13 +13,14 @@ def validate(mesh):
         raise ValueError("顶点为空或包含无效数值")
     if f.ndim != 2 or f.shape[1:] != (3,) or not len(f) or f.min() < 0 or f.max() >= len(v):
         raise ValueError("三角面索引无效")
-    if np.ptp(v, axis=0).max() <= 0:
+    span = np.ptp(v, axis=0)
+    if span.max() <= 0:
         raise ValueError("模型尺寸为零")
     # The upload/interchange format is GLB, whose positions are float32.
     # Reject a lossy overflow/collapse before exporting an apparently valid mesh.
     with np.errstate(over='ignore',invalid='ignore'):
         encoded=np.asarray(v,dtype=np.float32)
-    if not np.isfinite(encoded).all() or np.ptp(encoded.astype(np.float64),axis=0).max()<=0:
+    if not np.isfinite(encoded).all() or np.any((span > 0) & (np.ptp(encoded.astype(np.float64),axis=0) == 0)):
         raise ValueError("模型坐标超出 GLB 精度范围，请先居中并调整模型尺寸")
     return trimesh.Trimesh(v.copy(), f.copy(), process=False)
 

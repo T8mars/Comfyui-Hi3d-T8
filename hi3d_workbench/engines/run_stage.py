@@ -307,11 +307,15 @@ def main():
                 failure["peak_reserved_mb"] = round(torch.cuda.max_memory_reserved()/2**20, 2)
             except Exception:
                 pass  # Preserve the inference error if the CUDA context failed.
-        atomic_json(report_path, failure)
-        atomic_json(output.parent / "failure.json", failure)
-        emit(args.stage + "_failed", error=str(exc))
-        temp.unlink(missing_ok=True)
-        traceback.print_exc()
+        try:
+            atomic_json(report_path, failure)
+            atomic_json(output.parent / "failure.json", failure)
+            emit(args.stage + "_failed", error=str(exc))
+            traceback.print_exc()
+        finally:
+            # A full disk may also prevent saving the failure report. Cleanup
+            # must not depend on that second write succeeding.
+            temp.unlink(missing_ok=True)
         return 1
     return 0
 

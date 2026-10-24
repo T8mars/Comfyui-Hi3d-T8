@@ -10,6 +10,8 @@ import time
 import pytest
 import requests
 import trimesh
+import numpy as np
+from PIL import Image
 from test_server_operations import isolated_server
 
 
@@ -20,8 +22,13 @@ def test_failed_export_removes_its_partial_copy_and_preserves_original(isolated_
     folder=server.manager.root/'export-failure';folder.mkdir()
     source=folder/(source_kind+'.glb')
     if source_kind=='textured':
-        from test_asset_pipeline import _textured_fixture
-        _textured_fixture(source)
+        mesh=trimesh.creation.box(extents=[1,2,4])
+        uv=(np.asarray(mesh.vertices)[:,:2]+[.5,1])/[1,2]
+        material=trimesh.visual.material.PBRMaterial(
+            baseColorTexture=Image.new('RGBA',(2,2),(180,70,120,255)),
+            metallicRoughnessTexture=Image.new('RGB',(2,2),(0,100,190)))
+        mesh.visual=trimesh.visual.TextureVisuals(uv=uv,material=material)
+        mesh.export(source)
     else:source.write_bytes(trimesh.creation.box().export(file_type='glb'))
     original=source.read_bytes()
     exports=server.DATA/'exports';retained=exports/'retained';retained.mkdir(parents=True)

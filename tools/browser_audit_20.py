@@ -14,8 +14,14 @@ async def main():
         context=await browser.new_context(viewport={'width':1600,'height':1100})
         page=await context.new_page();page.on('pageerror',lambda e:errors.append(str(e)))
         session=await (await context.request.get(args.url+'/api/session')).json()
-        live=await (await context.request.get('http://127.0.0.1:8378/api/health')).json()
-        healthy={**live,'active':None,'operation':None,'model_checking':False,'version':session['version']}
+        live=await (await context.request.get(args.url+'/api/health')).json()
+        healthy={**live,'active':None,'operation':None,'model_checking':False,'pipeline_model_checking':False,'recovery_blocked':False,'recovery_errors':[],'recovery_workers':[],'version':session['version']}
+        # These are explicit UI fixtures. The disposable service has no model
+        # files; it must not depend on a user's separate service on port 8378.
+        healthy['models']={**live['models'],'ready':True,'download':{'state':'idle'}}
+        healthy['models']['components']={key:{**value,'present':True,'verified':True,'message':'UI fixture: no inference'} for key,value in live['models']['components'].items()}
+        healthy['pipeline_models']={**live['pipeline_models'],'ready':True,'coarse_ready':True,'texture_ready':True,'background_ready':True,'runtime':{'ready':True},'download':{'state':'idle'}}
+        healthy['pipeline_models']['components']={key:{**value,'ready':True,'missing':[]} for key,value in live['pipeline_models']['components'].items()}
         state={'health':'ok','missing':False,'jobs':[]}
         async def health_route(route):
             if state['health']=='http500':await route.fulfill(status=500,json={'detail':'fixture health unavailable'});return

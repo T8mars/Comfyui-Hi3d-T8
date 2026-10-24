@@ -97,8 +97,8 @@ def run(request_path):
         if not out.is_file():
             raise RuntimeError(f'{stage} 阶段退出但没有输出模型')
         stage_report = read_json(out.with_suffix('.stage.json'), {})
-        if not isinstance(stage_report, dict):
-            raise ValueError('模型阶段报告无效')
+        if not isinstance(stage_report, dict) or stage_report.get('status') != 'succeeded':
+            raise ValueError('模型阶段没有提供有效的成功报告')
         stages.append({'stage': stage, **stage_report})
         for candidate in (stage_dir / 'foreground.png', out.with_name('foreground.png')):
             if candidate.is_file():
@@ -125,7 +125,7 @@ def run(request_path):
         command = cfg['worker_command'] or [str((ROOT / cfg['worker_python']).resolve())]
         run_child([*command, '-u', '-m', 'hi3d_workbench.worker'], stage_request, stage_dir, 'refine')
         stage_report = read_json(stage_dir / 'report.json')
-        if not isinstance(stage_report, dict) or not (stage_dir / 'refined.glb').is_file():
+        if not isinstance(stage_report, dict) or stage_report.get('status') != 'succeeded' or not (stage_dir / 'refined.glb').is_file():
             raise RuntimeError('Hi3D 阶段缺少有效的输出或报告')
         stages.append({'stage': 'refine', **stage_report})
         for name in ('refined.glb', 'refined.ply', 'refined.stl', 'refined.npz', 'conditioning.png'):

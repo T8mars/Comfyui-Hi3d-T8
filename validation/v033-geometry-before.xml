@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="2" skipped="0" tests="3" time="1.246" timestamp="2026-10-24T08:59:37.536219-04:00" hostname="T8"><testcase classname="tests.test_geometry_third_audit" name="test_glb_precision_rejects_partial_axis_collapse" time="0.031"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">def test_glb_precision_rejects_partial_axis_collapse():
+        from hi3d_workbench.geometry import validate
+&gt;       with pytest.raises(ValueError,match='精度|居中'):
+E       Failed: DID NOT RAISE &lt;class 'ValueError'&gt;
+
+tests\test_geometry_third_audit.py:19: Failed</failure></testcase><testcase classname="tests.test_geometry_third_audit" name="test_npz_upload_does_not_silently_flatten_a_valid_box" time="0.294"><failure message="AssertionError: {&quot;id&quot;:&quot;5e314d025eea46ee82b5c27d47aa9cfa&quot;,&quot;kind&quot;:&quot;mesh&quot;,&quot;name&quot;:&quot;offset-box.npz&quot;,&quot;url&quot;:&quot;/api/assets/5e314d025eea46ee82b5c27d47aa9cfa/mesh.glb&quot;,&quot;geometry&quot;:{&quot;vertices&quot;:8,&quot;faces&quot;:12,&quot;bounds&quot;:[[100000000.0,-0.5,-0.5],[100000000.0,0.5,0.5]],&quot;extents&quot;:[0.0,1.0,1.0],&quot;watertight&quot;:false,&quot;winding_consistent&quot;:true,&quot;boundary_edges&quot;:0,&quot;nonmanifold_edges&quot;:4,&quot;degenerate_faces&quot;:8,&quot;components&quot;:6,&quot;unchecked&quot;:[&quot;自交&quot;,&quot;壁厚&quot;,&quot;最小零件强度&quot;,&quot;切片可打印性&quot;],&quot;units&quot;:&quot;unknown&quot;,&quot;warnings&quot;:[&quot;拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。&quot;],&quot;topology_vertices&quot;:4,&quot;topology_basis&quot;:&quot;exact duplicate positions combined for diagnosis only; no tolerance or repair&quot;}}&#10;assert 200 == 400&#10; +  where 200 = &lt;Response [200 OK]&gt;.status_code">isolated_server = (&lt;module 'hi3d_workbench.server' from 'E:\\hi3d\\hi3d_workbench\\server.py'&gt;, &lt;starlette.testclient.TestClient object at 0x0000019FE036D5B0&gt;)
+
+    def test_npz_upload_does_not_silently_flatten_a_valid_box(isolated_server):
+        server,client=isolated_server
+        mesh=offset_box();buffer=io.BytesIO()
+        np.savez(buffer,vertices=mesh.vertices,faces=mesh.faces)
+        before=set(server.ASSETS.iterdir())
+        response=client.post('/api/assets',files={'file':('offset-box.npz',buffer.getvalue(),'application/octet-stream')})
+&gt;       assert response.status_code==400,response.text
+E       AssertionError: {"id":"5e314d025eea46ee82b5c27d47aa9cfa","kind":"mesh","name":"offset-box.npz","url":"/api/assets/5e314d025eea46ee82b5c27d47aa9cfa/mesh.glb","geometry":{"vertices":8,"faces":12,"bounds":[[100000000.0,-0.5,-0.5],[100000000.0,0.5,0.5]],"extents":[0.0,1.0,1.0],"watertight":false,"winding_consistent":true,"boundary_edges":0,"nonmanifold_edges":4,"degenerate_faces":8,"components":6,"unchecked":["自交","壁厚","最小零件强度","切片可打印性"],"units":"unknown","warnings":["拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"],"topology_vertices":4,"topology_basis":"exact duplicate positions combined for diagnosis only; no tolerance or repair"}}
+E       assert 200 == 400
+E        +  where 200 = &lt;Response [200 OK]&gt;.status_code
+
+tests\test_geometry_third_audit.py:29: AssertionError</failure></testcase><testcase classname="tests.test_geometry_third_audit" name="test_exact_planar_and_representable_offset_meshes_are_allowed" time="0.001" /></testsuite></testsuites>

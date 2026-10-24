@@ -187,11 +187,19 @@ class JobManager:
             jid=uuid.uuid4().hex
             folder=self.root/jid
             folder.mkdir()
-            shutil.copy2(image,folder/"input.png")
-            if mesh is not None:shutil.copy2(mesh,folder/"coarse.glb")
-            atomic_json(folder/"request.json",options)
-            state={"id":jid,"created":time.time(),"state":"queued","stage":"queued","options":options,"message":"任务已保存"}
-            atomic_json(folder/"state.json",state)
+            try:
+                shutil.copy2(image,folder/"input.png")
+                if mesh is not None:shutil.copy2(mesh,folder/"coarse.glb")
+                atomic_json(folder/"request.json",options)
+                state={"id":jid,"created":time.time(),"state":"queued","stage":"queued","options":options,"message":"任务已保存"}
+                atomic_json(folder/"state.json",state)
+            except Exception:
+                # No thread or worker owns this unpublished directory yet.
+                # Resolve the fresh UUID child before recursive cleanup; never
+                # remove a preexisting job or a redirected path.
+                if not folder.is_symlink() and folder.resolve().parent==self.root.resolve():
+                    shutil.rmtree(folder,ignore_errors=True)
+                raise
             self.active=jid
             self._memory_states[jid]=state.copy()
             try:threading.Thread(target=self._run,args=(jid,),daemon=True).start()

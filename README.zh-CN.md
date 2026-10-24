@@ -44,7 +44,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 Windows 版双击 **Start-Workbench.cmd**，打开 `http://127.0.0.1:8378`，可脱离 ComfyUI 使用。工作台提供三个入口：图片→基础模型→可选 Hi3D 精修→PBR；参考图＋已有模型→PBR；参考图＋粗模→Hi3D，可选继续贴图。图片模式默认**基础模型＋PBR**，Hi3D 按需勾选：同图卡通对照中，跳过精修的嘴部更干净。各阶段保留模型、日志和报告。带材质结果使用自包含 **GLB**；**STL/PLY 只包含几何**。
 
-`Hi3D-Workbench-Windows-0.3.2.zip` 为完整 Windows 版，包含两套隔离运行时与已校验模型，解压约 **34GiB**。节点包和源码包只包含代码，源码部署需另行准备环境与权重。三个工作台入口均已通过真实 HTTP 推理和保材质导出验证。操作和安装见[工作台说明](docs/WORKBENCH.zh-CN.md)。
+`Hi3D-Workbench-Windows-0.3.3.zip` 为完整 Windows 版，包含两套隔离运行时与已校验模型，解压约 **34GiB**。节点包和源码包只包含代码，源码部署需另行准备环境与权重。三个工作台入口均已通过真实 HTTP 推理和保材质导出验证。操作和安装见[工作台说明](docs/WORKBENCH.zh-CN.md)。
 
 Windows 源码安装使用 Python 3.10 和独立环境：
 

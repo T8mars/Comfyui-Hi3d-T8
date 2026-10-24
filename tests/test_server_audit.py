@@ -2,6 +2,7 @@
 import threading
 from concurrent.futures import ThreadPoolExecutor
 import trimesh
+import pytest
 from test_server_operations import isolated_server
 
 def test_upload_inspection_does_not_block_health(isolated_server,monkeypatch):
@@ -40,3 +41,21 @@ def test_corrupt_optional_diagnostics_does_not_disable_health(isolated_server):
     assert response.json()['diagnostics']['kernel_probe']=='not_run'
     assert '诊断记录无法读取' in response.json()['diagnostics']['error']
     assert path.read_text(encoding='utf-8')=='{incomplete'
+
+
+@pytest.mark.parametrize('fail_after_parse',[False,True])
+def test_failed_upload_removes_only_its_partial_assets(isolated_server,monkeypatch,fail_after_parse):
+    server,client=isolated_server
+    retained=server.ASSETS/'existing';retained.mkdir()
+    (retained/'meta.json').write_text('{"original":true}',encoding='utf-8')
+    payload=b'not an image';filename='broken.png'
+    if fail_after_parse:
+        filename='box.glb';payload=trimesh.creation.box().export(file_type='glb')
+        def fail_inspection(path):
+            assert path.is_file(), 'Exercise cleanup after the converted mesh was written'
+            raise ValueError('geometry inspection failed')
+        monkeypatch.setattr(server,'inspect_asset_geometry',fail_inspection)
+    response=client.post('/api/assets',files={'file':(filename,payload)})
+    assert response.status_code==400
+    assert list(server.ASSETS.iterdir())==[retained]
+    assert (retained/'meta.json').read_text(encoding='utf-8')=='{"original":true}'

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from playwright.async_api import async_playwright,expect
 
-parser=argparse.ArgumentParser();parser.add_argument('--url',default='http://127.0.0.1:8379');parser.add_argument('--baseline',action='store_true');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--url',default='http://127.0.0.1:8379');parser.add_argument('--baseline',action='store_true');parser.add_argument('--output',type=Path);args=parser.parse_args()
 
 async def main():
     records=[];errors=[]
@@ -38,13 +38,14 @@ async def main():
         await page.route('**/api/jobs/audit-completed/files/*',files_route)
         async def record(number,name,passed,detail):
             records.append({'round':number,'check':name,'passed':bool(passed),'evidence':detail})
-            checkpoint=Path('data/qa')/('audit20-browser-baseline.json' if args.baseline else 'audit20-browser-result.json')
+            checkpoint=args.output or Path('data/qa')/('audit20-browser-baseline.json' if args.baseline else 'audit20-browser-result.json')
             checkpoint.parent.mkdir(parents=True,exist_ok=True)
             checkpoint.write_text(json.dumps({'mode':'baseline' if args.baseline else 'regression','rounds':records},ensure_ascii=False,indent=2),encoding='utf-8')
             if not args.baseline:assert passed,records[-1]
         async def draft():
             await page.locator('[data-page=workspace]').click()
             await page.locator('#new-task').click()
+            await page.locator('[data-mode=refine]').click()
             await page.locator('#load-sample').click()
             await expect(page.locator('#run')).to_be_enabled(timeout=60000)
             await page.wait_for_function("document.querySelector('#before').loaded")
@@ -139,7 +140,7 @@ async def main():
         await record(19,'updated_assets_have_versioned_cache_keys',versioned,urls)
         assert not errors,errors
         report={'mode':'baseline' if args.baseline else 'regression','rounds':records,'javascript_errors':errors,'data':'temporary sandbox; HTTP fixtures do not execute model inference'}
-        target=Path('data/qa')/('audit20-browser-baseline.json' if args.baseline else 'audit20-browser-result.json');target.parent.mkdir(parents=True,exist_ok=True)
+        target=args.output or Path('data/qa')/('audit20-browser-baseline.json' if args.baseline else 'audit20-browser-result.json');target.parent.mkdir(parents=True,exist_ok=True)
         target.write_text(json.dumps(report,ensure_ascii=False,indent=2),encoding='utf-8')
         print(json.dumps(report,ensure_ascii=False,indent=2))
         await browser.close()

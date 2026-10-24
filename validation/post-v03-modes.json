@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "check": "image_only_needs_no_mesh_or_Hi3D",
+      "passed": true
+    },
+    {
+      "check": "coarse_only_runs_without_texture_models",
+      "passed": true
+    },
+    {
+      "check": "optional_stages_require_only_their_models",
+      "passed": true
+    },
+    {
+      "check": "texture_mode_uses_image_and_mesh_without_Hi3D",
+      "passed": true
+    },
+    {
+      "check": "legacy_refine_needs_no_pipeline_texture_models",
+      "passed": true
+    },
+    {
+      "check": "extension_verification_blocks_submission_until_complete",
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "mode": "HTTP model-status fixtures; no GPU inference"
+}

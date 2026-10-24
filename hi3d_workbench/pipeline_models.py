@@ -102,6 +102,23 @@ def _signature(path: Path):
         return None
 
 
+def _verified_signature(path: Path, expected, git_blob=False, size=None):
+    """Bind a successful hash only to the file that was actually read.
+
+    A replacement between hashing and saving metadata must never inherit the
+    previous file's successful verification, even if its byte count is equal.
+    """
+    before = _signature(path)
+    if before is None or not expected or (size is not None and before[0] != size):
+        return None
+    try:
+        valid = _hash(path, git_blob=git_blob) == expected
+    except OSError:
+        return None
+    after = _signature(path)
+    return before if valid and before == after else None
+
+
 def _manifest(root):
     value = _read(root / "manifest.json")
     components = value.get("components", {})
@@ -229,7 +246,10 @@ def status(model_root: str | Path | None = None) -> dict:
             probe.release()
             if download_state.get("state") == "downloading":
                 download_state.update(state="interrupted", message="扩展下载已中断，可恢复已校验分片")
-    return {"ready": runtime_ready and all(x["ready"] for x in components.values()),
+    ready = runtime_ready and all(x["ready"] for x in components.values())
+    if ready and download_state.get("state") == "idle" and download_state.get("message") == "扩展模型尚未下载":
+        download_state["message"] = "扩展模型已就绪"
+    return {"ready": ready,
             "background_ready": components["background"]["ready"],
             "coarse_ready": runtime_ready and components["coarse"]["ready"],
             "texture_ready": runtime_ready and components["texture"]["ready"] and components["texture_encoder"]["ready"],
@@ -303,11 +323,17 @@ def download(selection: str = "all", model_root: str | Path | None = None, progr
                         meta = remote[name]
                         path = _ranged_download(spec, name, root / key / name, meta.size, meta.lfs.sha256) if meta.lfs and meta.size > 32*1024*1024 else Path(hf_hub_download(spec["repo"], name, revision=spec["revision"], local_dir=root / key))
                     expected = meta.lfs.sha256 if meta.lfs else meta.blob_id
-                    actual = _hash(path, git_blob=not bool(meta.lfs))
-                    if actual != expected or path.stat().st_size != meta.size:
+                    signature = _verified_signature(path, expected, git_blob=not bool(meta.lfs), size=meta.size)
+                    if signature is None and "artifacts" not in spec and (not meta.lfs or meta.size <= 32*1024*1024):
+                        # Hub's local-dir cache may reuse a damaged config or
+                        # small weight whose ETag metadata is still current.
+                        path = Path(hf_hub_download(spec["repo"], name, revision=spec["revision"],
+                                                   local_dir=root / key, force_download=True))
+                        signature = _verified_signature(path, expected, git_blob=not bool(meta.lfs), size=meta.size)
+                    if signature is None:
                         raise RuntimeError(f"扩展模型内容校验失败: {key}/{name}")
                     _STATE.update(file_bytes=meta.size)
-                    entry["files"][name] = {"hash": expected, "algorithm": "sha256" if meta.lfs else "git-sha1", "bytes": meta.size, "verified": True, "signature": _signature(path)}
+                    entry["files"][name] = {"hash": expected, "algorithm": "sha256" if meta.lfs else "git-sha1", "bytes": meta.size, "verified": True, "signature": signature}
                     manifest["components"][key] = entry
                     atomic_json(root / "manifest.json", manifest)
             _STATE.update(state="complete", message="扩展模型下载及内容校验完成")
@@ -333,16 +359,16 @@ def verify(model_root: str | Path | None = None) -> dict:
         manifest, errors = _manifest(root)
         for key, spec in SPECS.items():
             entry = manifest.get("components", {}).get(key, {})
+            for field in ("repo", "revision"):
+                if entry.get(field) != spec[field]:
+                    errors.append(f"{key}/manifest:{field}")
             for name in spec["files"]:
                 item = entry.get("files", {}).get(name, {})
                 path = root / key / name
-                try:
-                    valid = path.is_file() and bool(item.get("hash")) and _hash(path, item.get("algorithm") == "git-sha1") == item["hash"]
-                except OSError:
-                    valid = False
-                item["verified"] = valid
-                if valid:
-                    item["signature"] = _signature(path)
+                signature = _verified_signature(path, item.get("hash"), item.get("algorithm") == "git-sha1", item.get("bytes"))
+                item["verified"] = signature is not None
+                if signature is not None:
+                    item["signature"] = signature
                 else:
                     errors.append(f"{key}/{name}")
         if manifest:

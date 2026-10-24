@@ -305,6 +305,10 @@ async def upload(file: UploadFile=File(...)):
                 f.write(chunk)
         return await run_in_threadpool(prepare_upload,temp,suffix,folder,file.filename)
     except Exception as e:
+        # This UUID directory belongs only to the failed upload. A conversion
+        # may already have written a large mesh or image before inspection fails.
+        for partial in folder.iterdir():partial.unlink(missing_ok=True)
+        folder.rmdir()
         raise HTTPException(400,str(e)) from e
     finally:
         temp.unlink(missing_ok=True)

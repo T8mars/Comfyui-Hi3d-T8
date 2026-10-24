@@ -44,7 +44,7 @@ Expected layout: `models/manifest.json`, `models/hi3d/`, `models/dino/`, `models
 
 The Windows edition starts with **Start-Workbench.cmd** and opens `http://127.0.0.1:8378`, independently of ComfyUI. The workbench has three entry points: image → initial mesh → optional Hi3D → PBR; reference + existing mesh → PBR; and reference + coarse mesh → Hi3D, optionally followed by PBR. Image mode defaults to **initial mesh + PBR**, with Hi3D optional: a paired cartoon test retained a cleaner mouth without refinement. It retains intermediate models, logs and reports. Material results export as self-contained **GLB**; **STL/PLY contain geometry only**.
 
-`Hi3D-Workbench-Windows-0.3.0.zip` is the complete Windows edition, with two isolated runtimes and verified models (about **34GiB unpacked**). The node and source archives contain code; source installations must prepare their runtimes and models separately. All three workbench entry modes have passed real HTTP inference and material-preserving export checks. See the [workbench guide](docs/WORKBENCH.zh-CN.md).
+`Hi3D-Workbench-Windows-0.3.1.zip` is the complete Windows edition, with two isolated runtimes and verified models (about **34GiB unpacked**). The node and source archives contain code; source installations must prepare their runtimes and models separately. All three workbench entry modes have passed real HTTP inference and material-preserving export checks. See the [workbench guide](docs/WORKBENCH.zh-CN.md).
 
 For a Windows source installation, use Python 3.10 in a separate environment:
 

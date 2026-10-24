@@ -14,6 +14,10 @@ The local viewer bundles @google/model-viewer 4.0.0, copyright Google LLC, under
 
 Required image encoders: facebook/dinov2-large (Apache-2.0), openai/clip-vit-large-patch14 (MIT). Their licenses are retained in licenses/ and pinned file hashes in models/manifest.json. These encoders are required by Hi3D and are not additional 3D generation models.
 
+The standalone workbench asset pipeline adds Hunyuan3D-2mini-Turbo (Tencent Hunyuan 3D 2.0 Community License), TRELLIS.2 mesh texturing (MIT), DINOv3 (DINOv3 License), and CPU U2Netp foreground extraction (rembg MIT / U-2-Net Apache-2.0). These are not added to the ComfyUI nodes or canvas workflow. Each downloaded component retains its license and fixed source revision in models/extensions/manifest.json. DINOv3's public redistribution source is recorded separately from its original Meta model; redistribution does not change its license.
+
+The additional Windows runtime uses an integration SDPA compatibility adapter for packed sparse attention. It does not replace model weights and is not the official Linux FlashAttention environment. Runtime/source/package versions and component licenses must accompany a full-chain distribution. Real inference and memory validation for the new pipeline are tracked separately in roadmap.md.
+
 Windows runtime distributions include CPython, PyTorch, Triton Windows, spconv/cumm, Transformers, Accelerate, NumPy, SciPy, trimesh and other Python dependencies. Their package license files remain in the runtime. Exact installed versions are recorded in runtime-packages.txt. Python's LICENSE is retained in the runtime directory.
 
 Powered by Hi3D 1.0 — http://hi3d.ai/

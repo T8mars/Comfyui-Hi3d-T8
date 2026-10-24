@@ -29,7 +29,9 @@ Hi3D refines **a reference image and a coarse mesh of the same object**. It does
 | `dino/` | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c` | Apache-2.0 |
 | `clip/` | [openai/clip-vit-large-patch14](https://huggingface.co/openai/clip-vit-large-patch14) | `32bd64288804d66eefd0ccbe215aa642df71cc41` | MIT |
 
-`manifest.json` records the SHA256 and byte size of every distributed model artifact. The model/configuration files are **identical to the offline workbench**. DINOv2 and CLIP are required image encoders, not additional 3D models. `transformer_512` serves 512 refinement; `transformer_1024` serves both 1024 and 1536. There is no separate 1536 checkpoint.
+`manifest.json` records the SHA256 and byte size of every distributed model artifact. These **shared Hi3D core** files are identical in ComfyUI and the offline workbench. DINOv2 and CLIP are required image encoders, not additional 3D models. `transformer_512` serves 512 refinement; `transformer_1024` serves both 1024 and 1536. There is no separate 1536 checkpoint.
+
+The v0.3 workbench additionally uses **Hunyuan3D-2mini-Turbo** for image-to-mesh, **TRELLIS.2 + DINOv3** for mesh-conditioned PBR, and CPU **U2Netp** for optional foreground extraction. These workbench-only components are managed separately under `models/extensions`, with pinned sources and their own licenses. They are not hosted in this core-weight repository or added to the ComfyUI nodes. See the [edition comparison](https://github.com/T8mars/Comfyui-Hi3d-T8#models-and-edition-differences).
 
 ## Download and use
 
@@ -41,13 +43,13 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 This produces `models/hi3d/`, `models/dino/`, `models/clip/` and `models/manifest.json`. Start the configured workbench backend and wait for SHA256 verification. In ComfyUI, load the [canvas workflow](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/examples/Hi3D-Refine.json). Weights do not belong in `ComfyUI/models` for this integration.
 
-**ComfyUI and the standalone workbench use the same weights and inference backend.** The Registry package contains node code and the canvas workflow; the complete offline workbench also contains Python, dependencies and models. This repository contains models and licenses only, not a standalone application. Setup: [English](https://github.com/T8mars/Comfyui-Hi3d-T8#local-workbench) / [中文](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md).
+**ComfyUI and the standalone workbench share the same Hi3D weights and refinement backend.** The Registry package contains node code and the canvas workflow; the complete offline workbench also contains Python, dependencies and models. This repository contains models and licenses only, not a standalone application. Setup: [English](https://github.com/T8mars/Comfyui-Hi3d-T8#local-workbench) / [中文](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md).
 
 ## Validation and limits
 
 Real 512 ComfyUI and 512/1024/1536 workbench runs were validated on Windows / RTX 5090 Laptop 24GB / 64GB RAM. Smaller GPUs have not been validated. Start with 512, 25 steps and CPU offload. Windows uses an explicit SDPA compatibility adapter; the official Linux path uses FlashAttention. See [test evidence and limitations](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/VALIDATION.md).
 
-Outputs are geometry only. Hi3D normalizes scale and rebuilds topology; watertightness, printability and quality improvements are not guaranteed.
+Hi3D refinement outputs geometry only. The workbench's separate texturing stage produces a GLB with embedded UV/PBR maps. Hi3D normalizes scale and rebuilds topology; watertightness, printability and quality improvements are not guaranteed.
 
 ## License
 

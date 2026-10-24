@@ -1,0 +1,27 @@
+{
+  "real_gpu_cancel": true,
+  "passed": true,
+  "cancelled_during": "texture_sampling",
+  "job_id": "0bf289a7e92e426ab92609d5426b65f5",
+  "final_state": "cancelled",
+  "seconds_to_release": 2.281,
+  "live_owned_workers": [],
+  "health_blocked": false,
+  "partial_mesh_preserved": true,
+  "request": {
+    "mode": "texture",
+    "image": "2db5a8a7a4e447bc808487a6ba8d3f23",
+    "mesh": "220571372b3a4620988266c82516577b",
+    "refine_geometry": false,
+    "generate_texture": true,
+    "texture_resolution": 512,
+    "texture_size": 2048,
+    "background": "auto",
+    "resolution": 512,
+    "steps": 25,
+    "seed": 0,
+    "offload": true,
+    "attention": "sdpa"
+  },
+  "successful_job_preserved": "f3ed169bcc6a4951a01db651107c953a"
+}

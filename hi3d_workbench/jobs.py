@@ -9,6 +9,16 @@ import time
 import uuid
 from .common import ROOT, DATA, atomic_json, read_json, config, child_path
 
+WORKER_MODULES={'hi3d_workbench.worker','hi3d_workbench.pipeline_worker','hi3d_workbench.engines.run_stage'}
+
+def _worker_request(command):
+    if not any(module in command for module in WORKER_MODULES):return None
+    try:return command[command.index('--request')+1]
+    except (ValueError,IndexError):return None
+
+def _job_requests(request_path):
+    return {str(request_path),*(str(request_path.parent/'stages'/stage/'request.json') for stage in ('coarse','refine','texture'))}
+
 def _kill_worker_tree(pid, created, request_path):
     """Kill only the recorded worker identity, never an unrelated reused PID."""
     import psutil
@@ -16,7 +26,7 @@ def _kill_worker_tree(pid, created, request_path):
     try:
         proc=psutil.Process(pid)
         command=proc.cmdline()
-        if not created or abs(proc.create_time()-created)>.01 or 'hi3d_workbench.worker' not in command or str(request_path) not in command:
+        if not created or abs(proc.create_time()-created)>.01 or _worker_request(command)!=str(request_path):
             return False
         children=proc.children(recursive=True)
         for child in children:
@@ -62,7 +72,7 @@ class JobManager:
         for proc in snapshot if snapshot is not None else psutil.process_iter(['pid','cmdline','create_time']):
             try:
                 command=proc.info['cmdline'] or []
-                if 'hi3d_workbench.worker' in command and str(request_path) in command and isinstance(proc.info['create_time'],(int,float)):
+                if _worker_request(command) in _job_requests(request_path) and isinstance(proc.info['create_time'],(int,float)):
                     identity=(proc.pid,proc.info['create_time'])
                     # A startup snapshot can still contain a worker that we
                     # have just safely killed. Recheck its live identity before
@@ -76,6 +86,24 @@ class JobManager:
                     found=True
             except (psutil.NoSuchProcess,psutil.AccessDenied):pass
         return found
+
+    def _cleanup_stage_workers(self,request_path,snapshot=None):
+        """Reap recorded stages even when their supervisor has already exited."""
+        import psutil
+        for stage in ('coarse','refine','texture'):
+            stage_dir=request_path.parent/'stages'/stage
+            try:
+                identity=read_json(stage_dir/'process.json',{})
+                if not isinstance(identity,dict):continue
+                _kill_worker_tree(identity.get('pid'),identity.get('created'),stage_dir/'request.json')
+            except psutil.AccessDenied:
+                # A known identity which becomes unreadable cannot safely free
+                # the GPU slot. Do not guess permission to kill another PID.
+                pid,created=identity.get('pid'),identity.get('created')
+                if isinstance(pid,int) and not isinstance(pid,bool) and pid>0 and isinstance(created,(int,float)) and not isinstance(created,bool) and math.isfinite(created):
+                    if (pid,created) not in self._recovery_workers:self._recovery_workers.append((pid,created))
+            except (OSError,ValueError,psutil.Error):pass
+        return self._remember_unowned_worker(request_path,snapshot)
 
     @property
     def recovery_blocked(self):
@@ -111,6 +139,9 @@ class JobManager:
                     try:
                         _kill_worker_tree(pid,value.get('worker_created'),p.parent/'request.json')
                     except (psutil.NoSuchProcess,psutil.AccessDenied):pass
+                # Pipeline children have independent pinned runtimes. A parent
+                # may exit before restart, so also reap recorded stage identities.
+                self._cleanup_stage_workers(p.parent/'request.json',snapshot)
             # Popen may succeed before worker_pid can be persisted. An earlier
             # restart can already have marked that record interrupted, and a
             # terminal write can precede final process cleanup. In every such
@@ -157,7 +188,7 @@ class JobManager:
             folder=self.root/jid
             folder.mkdir()
             shutil.copy2(image,folder/"input.png")
-            shutil.copy2(mesh,folder/"coarse.glb")
+            if mesh is not None:shutil.copy2(mesh,folder/"coarse.glb")
             atomic_json(folder/"request.json",options)
             state={"id":jid,"created":time.time(),"state":"queued","stage":"queued","options":options,"message":"任务已保存"}
             atomic_json(folder/"state.json",state)
@@ -188,13 +219,17 @@ class JobManager:
         folder=self.root/jid
         process=None
         created=None
+        pipeline=False
         try:
             cfg=config()
             cmd=cfg["worker_command"] or [str((ROOT/cfg["worker_python"]).resolve())]
+            options=self.get(jid)['options']
+            pipeline=options.get('mode','refine')!='refine' or options.get('generate_texture',False)
+            module='hi3d_workbench.pipeline_worker' if pipeline else 'hi3d_workbench.worker'
             # A custom command is a trusted local configuration, never HTTP input.
             with self.lock:
                 if jid in self.cancelled:return
-                process=subprocess.Popen([*cmd,"-u","-m","hi3d_workbench.worker","--request",str(folder/"request.json")],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",env={**os.environ,"PYTHONIOENCODING":"utf-8"},creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
+                process=subprocess.Popen([*cmd,"-u","-m",module,"--request",str(folder/"request.json")],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",env={**os.environ,"PYTHONIOENCODING":"utf-8"},creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
                 self.process=process
                 import psutil
                 try:created=psutil.Process(process.pid).create_time()
@@ -214,8 +249,15 @@ class JobManager:
             code=process.wait()
             if jid in self.cancelled:
                 self._update(jid,state="cancelled",stage="cancelled",message="已停止；输入和日志已保留")
-            elif code==0 and (folder/"report.json").is_file() and (folder/"refined.glb").is_file():
-                self._update(jid,state="succeeded",stage="complete",report=read_json(folder/"report.json"),message="精修完成")
+            elif code==0 and (folder/"report.json").is_file():
+                report=read_json(folder/'report.json')
+                expected='textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
+                if not (folder/expected).is_file():raise RuntimeError('进程退出但缺少预期结果文件')
+                if expected=='textured.glb':
+                    from .asset_pipeline import inspect_textured_glb
+                    inspect_textured_glb(folder/expected)
+                    if not report.get('texture_generated'):raise ValueError('贴图报告未确认生成成功')
+                self._update(jid,state="succeeded",stage="complete",report=report,message="模型与贴图已完成" if expected=='textured.glb' else "模型已完成")
             else:
                 fail=read_json(folder/"failure.json",{"error":f"进程退出 {code}，请查看日志"})
                 self._update(jid,state="failed",stage="failed",failure=fail,message=fail["error"])
@@ -234,6 +276,17 @@ class JobManager:
                         except Exception:pass
                 process.wait()
                 if process.stdout:process.stdout.close()
+            # Supervisor crashes and cancellation between stage transitions
+            # can leave a child outside the earlier tree snapshot. Never free
+            # the GPU gate until this final exact-request scan is recorded.
+            if pipeline:
+                try:
+                    if self._cleanup_stage_workers(folder/'request.json'):
+                        message=f'任务 {jid} 的阶段进程尚未退出，已阻止新的 GPU 操作'
+                        if message not in self.recovery_errors:self.recovery_errors.append(message)
+                except Exception as exc:
+                    self.recovery_errors.append(f'任务 {jid} 的阶段清理未完成：{exc}')
+                    self._remember_unowned_worker(folder/'request.json')
             with self.lock:
                 try:
                     if jid in self.cancelled and self.get(jid)["state"] not in {"cancelled","succeeded"}:

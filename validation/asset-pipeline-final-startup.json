@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "launcher": "Start-Workbench.cmd",
+  "version": "0.3.0",
+  "core_models_ready": true,
+  "pipeline_models_ready": true,
+  "gpu_idle": true,
+  "recovery_errors": [],
+  "old_history_jobs_preserved": 15,
+  "real_upload_geometry": {
+    "vertices": 24,
+    "faces": 12,
+    "bounds": [
+      [
+        -0.5,
+        -0.5,
+        -0.5
+      ],
+      [
+        0.5,
+        0.5,
+        0.5
+      ]
+    ],
+    "extents": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "watertight": true,
+    "winding_consistent": true,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 0,
+    "components": 1,
+    "unchecked": [
+      "自交",
+      "壁厚",
+      "最小零件强度",
+      "切片可打印性"
+    ],
+    "units": "unknown",
+    "warnings": [
+      "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+    ],
+    "topology_vertices": 8,
+    "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+  },
+  "source_sha256_unchanged": "297df32dad3b45750d71446b54a959ba66bc518ea32629627cbfcc45a2f1f23d",
+  "gpu_inference": false,
+  "bundled_compiler": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\runtime\\Lib\\site-packages\\triton\\runtime\\tcc\\tcc.exe",
+  "kernel_cache": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\kernel-cache",
+  "host_python_cuda_env_cleared": true
+}

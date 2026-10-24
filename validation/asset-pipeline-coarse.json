@@ -1,0 +1,54 @@
+{
+  "model": {
+    "repo": "tencent/Hunyuan3D-2mini",
+    "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+    "license": "Tencent Hunyuan 3D 2.0 Community License",
+    "files": [
+      "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+      "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+      "LICENSE",
+      "NOTICE",
+      "README.md"
+    ]
+  },
+  "geometry_generated": true,
+  "texture_generated": false,
+  "vertices": 142116,
+  "faces": 284248,
+  "inference_steps": 5,
+  "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+  "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+  "transform": {
+    "coordinate_system": "Hunyuan canonical",
+    "unit_scale": "generator canonical; no absolute scale"
+  },
+  "stage": "coarse",
+  "request_path": "E:\\hi3d\\data\\pipeline-development\\real-coarse\\request.json",
+  "output_path": "E:\\hi3d\\data\\pipeline-development\\real-coarse\\coarse.glb",
+  "status": "succeeded",
+  "background": "input_alpha",
+  "seconds": 51.817,
+  "peak_allocated_mb": 2468.37,
+  "peak_reserved_mb": 2610.0,
+  "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+  "runtime": {
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "capability": [
+      12,
+      0
+    ]
+  },
+  "independently_checked_glb_sha256": "76c6f7640c988229e018931aa06b67241e847dfbcc25b63489f5b4091338d0c7",
+  "visual_views_checked": [
+    "front",
+    "quarter",
+    "back",
+    "right",
+    "left",
+    "top"
+  ],
+  "real_image_only_generation": true,
+  "image_is_not_an_existing_mesh_input": true
+}

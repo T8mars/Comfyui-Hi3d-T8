@@ -1,0 +1,168 @@
+{
+  "input_kind": "existing Hi3D refined mechanical mesh; not image-only reconstruction",
+  "stage": {
+    "model": {
+      "repo": "microsoft/TRELLIS.2-4B",
+      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "license": "MIT; external image encoder has its own license",
+      "files": [
+        "texturing_pipeline.json",
+        "README.md",
+        "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+        "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+        "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+        "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+      ]
+    },
+    "image_encoder": {
+      "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+      "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+      "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+      "upstream_identical": true,
+      "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+      "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "preprocessor_config.json",
+        "LICENSE.md",
+        "README.md"
+      ]
+    },
+    "geometry_generated": false,
+    "texture_generated": true,
+    "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+    "vertices": 624275,
+    "faces": 999999,
+    "texture_size": 4096,
+    "pbr_channels": [
+      "baseColor",
+      "metallic",
+      "roughness",
+      "alpha"
+    ],
+    "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+    "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+    "transform": {
+      "normalization_center": [
+        -0.0068118274211883545,
+        0.018392175436019897,
+        -0.003776371479034424
+      ],
+      "normalization_scale": 0.5691139432528848,
+      "normalization_restored": true,
+      "mesh_input_frame_preserved": true,
+      "uv_seam_vertex_splits_possible": true
+    },
+    "stage": "texture",
+    "request_path": "E:\\hi3d\\data\\pipeline-development\\hard-surface-texture\\request.json",
+    "output_path": "E:\\hi3d\\data\\pipeline-development\\hard-surface-texture\\textured.glb",
+    "status": "succeeded",
+    "background": "input_alpha",
+    "seconds": 258.948,
+    "peak_allocated_mb": 6763.41,
+    "peak_reserved_mb": 10514.0,
+    "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+    "runtime": {
+      "torch": "2.8.0+cu128",
+      "cuda": "12.8",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ]
+    }
+  },
+  "material_validation": {
+    "texture_generated": true,
+    "uv": true,
+    "embedded": true,
+    "images": 2,
+    "materials": 1,
+    "primitives": 1,
+    "channels": [
+      "base_color",
+      "metallic",
+      "roughness"
+    ],
+    "coordinate_validation": {
+      "input_faces": 999999,
+      "output_faces": 999999,
+      "maximum_vertex_distance": 4.470348358154297e-08,
+      "mean_vertex_distance": 3.6895998142094534e-09,
+      "bounds_maximum_error": 0.0,
+      "input_frame_preserved": true
+    },
+    "baseColorTexture": {
+      "size": [
+        4096,
+        4096
+      ],
+      "mode": "RGBA",
+      "minimum": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "maximum": [
+        253,
+        252,
+        251,
+        255
+      ],
+      "mean": [
+        146.2388704419136,
+        146.8354268670082,
+        151.44494020938873,
+        254.78357350826263
+      ],
+      "std": [
+        94.69522528218654,
+        82.79750702256449,
+        67.24130436631506,
+        0.6299441309884931
+      ]
+    },
+    "metallicRoughnessTexture": {
+      "size": [
+        4096,
+        4096
+      ],
+      "mode": "RGB",
+      "minimum": [
+        0,
+        0,
+        0
+      ],
+      "maximum": [
+        0,
+        198,
+        111
+      ],
+      "mean": [
+        0.0,
+        127.923652946949,
+        61.80483824014664
+      ],
+      "std": [
+        0.0,
+        9.116767025947707,
+        16.80549046617928
+      ]
+    }
+  },
+  "whole_device_memory": {
+    "metric": "NVML whole-device memory; includes driver, desktop and other processes",
+    "completed": true,
+    "interval_seconds": 0.1,
+    "elapsed_seconds": 285.578,
+    "baseline_mb": 747.609,
+    "peak_used_mb": 11560.707
+  }
+}

@@ -31,6 +31,7 @@ def verify_paths(names):
         logical=parts[1:] if parts[0]=='ComfyUI-Hi3D' else parts
         assert logical and logical[0] not in {'data','research'},name
         assert not any(p in {'.git','.secrets','.cache','.downloads','__pycache__'} or p=='.env' or p.startswith('.env.') for p in parts),f'发行包包含本机私有或缓存文件：{name}'
+        assert not any('.parts' in p or p.endswith('.assembled') for p in parts),f'发行包包含未完成或损坏的下载分片：{name}'
         assert parts[-1]!='hi3d_refine_api.json',name
 
 def verify_owned(z,prefix='',source_root=None):
@@ -40,7 +41,7 @@ def verify_owned(z,prefix='',source_root=None):
     paths=[]
     for directory in ['hi3d_workbench','scripts','examples','tools','tests','docs']:
         paths.extend(p for p in (root/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc')
-    for name in ['__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','LICENSE','config.example.json','upstream-source-manifest.json','VALIDATION.md']:
+    for name in ['__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','LICENSE','config.example.json','upstream-source-manifest.json','VALIDATION.md']:
         if (root/name).is_file():paths.append(root/name)
     for path in paths:_compare(z,prefix+path.relative_to(root).as_posix(),path)
     return len(paths)
@@ -92,6 +93,27 @@ def audit(release):
                         with z.open(prefix+f'models/{key}/{rel}') as stream:assert stream_hash(stream)==entry['sha256'],(key,rel)
                         count+=1
                 result['model_artifacts_sha256_verified']=count
+                extension_name=prefix+'models/extensions/manifest.json'
+                if extension_name in names:
+                    extension=json.loads(z.read(extension_name));verified=0
+                    from hi3d_workbench.pipeline_models import SPECS
+                    for key,spec in SPECS.items():
+                        component=extension.get('components',{}).get(key,{})
+                        assert component.get('repo')==spec['repo'] and component.get('revision')==spec['revision'],f'扩展组件版本不匹配：{key}'
+                        assert all(rel in component.get('files',{}) for rel in spec['files']),f'扩展组件文件不完整：{key}'
+                    for key,component in extension['components'].items():
+                        for rel,entry in component['files'].items():
+                            artifact_name=prefix+f'models/extensions/{key}/{rel}'
+                            assert z.getinfo(artifact_name).file_size==entry['bytes'],artifact_name
+                            h=hashlib.sha256() if entry['algorithm']=='sha256' else hashlib.sha1()
+                            if entry['algorithm']=='git-sha1':h.update(f"blob {entry['bytes']}\0".encode('ascii'))
+                            with z.open(artifact_name) as stream:
+                                for block in iter(lambda:stream.read(8*1024*1024),b''):h.update(block)
+                            assert h.hexdigest()==entry['hash'],artifact_name
+                            verified+=1
+                    assert prefix+'runtime-pipeline/python.exe' in names,'完整资产包缺少隔离扩展运行时'
+                    assert json.loads(z.read(prefix+'runtime-pipeline/pipeline-runtime.json')).get('ready') is True,'扩展运行时未完成安装校验'
+                    result['extension_artifacts_verified']=verified
                 config=json.loads(z.read(prefix+'config.local.json'))
                 assert config['worker_python']=='runtime/python.exe' and config['worker_command']==[]
                 assert prefix+'runtime/python.exe' in names and prefix+'Start-Workbench.cmd' in names

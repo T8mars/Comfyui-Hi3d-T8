@@ -1,0 +1,138 @@
+{
+  "url": "http://127.0.0.1:8378",
+  "job_id": "f3ed169bcc6a4951a01db651107c953a",
+  "checks": [
+    {
+      "check": "recomputed-building-history-labels",
+      "passed": true,
+      "resolution_display": "—",
+      "geometry_info": "590,694 顶点 · 0 条边界边 · 0 条非流形边 · 1 个退化面 · 法向方向一致 · 封闭网格。未检测：自交、壁厚、最小零件强度、切片可打印性。拓扑按相同坐标合并 UV 接缝顶点统计，仅用于检查，交付网格未修改。"
+    },
+    {
+      "check": "actual-building-textured-preview",
+      "passed": true,
+      "material": {
+        "baseColorTexture": true,
+        "metallicRoughnessTexture": true,
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "check": "actual-coarse-textured-switch-retains-pbr",
+      "passed": true,
+      "material_after_switch": {
+        "baseColorTexture": true,
+        "metallicRoughnessTexture": true,
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "check": "actual-mouse-camera-sync",
+      "passed": true,
+      "orbits": {
+        "before": [
+          -0.6151221388126357,
+          0.8735160061200884,
+          4.6782889139480535
+        ],
+        "after": [
+          -0.6151221388126357,
+          0.8735160061200884,
+          4.6782889139480535
+        ]
+      }
+    },
+    {
+      "check": "actual-ui-80mm-pbr-glb-download",
+      "passed": true,
+      "file": "E:\\hi3d\\data\\qa\\portable-ui-building-80mm.glb",
+      "sha256": "d1bf5d7d871cb9efbefb3d6209d430a3c9260ae1eaa432fdbd0406675d4ce810",
+      "images": 2,
+      "image_sizes": [
+        [
+          2048,
+          2048
+        ],
+        [
+          2048,
+          2048
+        ]
+      ],
+      "materials": 1,
+      "height_m": 0.08,
+      "dimensions": {
+        "format": ".glb",
+        "height_axis": "Z",
+        "height_mm": 80.0,
+        "units": "m",
+        "bounds": [
+          [
+            -0.03658671111323892,
+            -0.04035317558745716,
+            -0.03999236635895531
+          ],
+          [
+            0.03643746416843955,
+            0.04010099838786547,
+            0.04000763364104469
+          ]
+        ],
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      }
+    },
+    {
+      "check": "actual-full-chain-history-and-three-previews",
+      "passed": true,
+      "resolution_display": "512",
+      "basis_notice": true,
+      "pbr_after_three_switches": {
+        "baseColorTexture": true,
+        "metallicRoughnessTexture": true,
+        "factor": [
+          1,
+          1,
+          1,
+          1
+        ]
+      }
+    },
+    {
+      "check": "legacy-stateful-history-preserved-and-openable",
+      "passed": true,
+      "old_stateful_jobs": 15,
+      "all_visible": true,
+      "missing": [],
+      "opened_legacy_id": "15ee1fca706f441b80d26d6221a01f92",
+      "legacy_basis_notice": false
+    }
+  ],
+  "javascript_errors": [],
+  "mutating_requests": [
+    {
+      "method": "POST",
+      "url": "http://127.0.0.1:8378/api/jobs/f3ed169bcc6a4951a01db651107c953a/export"
+    }
+  ],
+  "mock_routes": false,
+  "gpu_jobs_created_or_cancelled": 0
+}

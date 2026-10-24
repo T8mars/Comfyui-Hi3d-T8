@@ -14,7 +14,9 @@ Hi3D 以**同一物体的参考图＋粗网格**为输入进行几何精修，�
 | `dino/` | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c` | Apache-2.0 |
 | `clip/` | [openai/clip-vit-large-patch14](https://huggingface.co/openai/clip-vit-large-patch14) | `32bd64288804d66eefd0ccbe215aa642df71cc41` | MIT |
 
-`manifest.json` 记录每个模型工件的 SHA256 和字节数，权重与配置与离线工作台**完全一致**。DINOv2 和 CLIP 是 Hi3D 必需图像编码器。`transformer_512` 用于 512 精修，`transformer_1024` 同时用于 1024 和 1536，没有独立的 1536 权重。
+`manifest.json` 记录每个模型工件的 SHA256 和字节数，这些 **Hi3D 共用核心**在 ComfyUI 与离线工作台中完全一致。DINOv2 和 CLIP 是 Hi3D 必需图像编码器。`transformer_512` 用于 512 精修，`transformer_1024` 同时用于 1024 和 1536，没有独立的 1536 权重。
+
+v0.3 独立工作台另用 **Hunyuan3D-2mini-Turbo** 图生基础网格、**TRELLIS.2＋DINOv3** 对实际网格生成 PBR，以及 CPU **U2Netp** 可选前景处理。这些组件单独放在 `models/extensions`，记录固定来源和各自许可；不托管在本核心权重仓库，也不加入 ComfyUI 节点。详见 [版本区别](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md#模型与两个版本的区别)。
 
 ## 下载与使用
 
@@ -26,13 +28,13 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 下载后应为 `models/hi3d/`、`models/dino/`、`models/clip/` 和 `models/manifest.json`。启动配置完成的工作台后端并等待 SHA256 校验；在 ComfyUI 中导入[画布工作流](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/examples/Hi3D-Refine.json)。此集成不要求把权重放入 `ComfyUI/models`。
 
-**ComfyUI 与独立工作台共用模型和推理后端。** Registry 节点包包含代码与画布工作流，完整离线工作台另含独立 Python、依赖与权重。本仓库仅提供模型和许可，不是可直接启动的软件。安装见 [GitHub 中文说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md)。
+**ComfyUI 与独立工作台共用 Hi3D 权重及精修后端。** Registry 节点包包含代码与画布工作流，完整离线工作台另含独立 Python、依赖与权重。本仓库仅提供模型和许可，不是可直接启动的软件。安装见 [GitHub 中文说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md)。
 
 ## 验证与限制
 
 在 Windows / RTX 5090 Laptop 24GB / 64GB RAM 上完成真实 ComfyUI 512 和工作台 512/1024/1536 推理，尚未验证更小显存设备。建议从 512、25 步、CPU 卸载开始。Windows 使用明确标识的 SDPA 兼容适配，官方 Linux 路径使用 FlashAttention。详见[验证记录](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/VALIDATION.md)。
 
-输出只有几何。Hi3D 会归一化尺寸并重建拓扑，不保证封闭、可打印或必然优于粗模。
+Hi3D 精修输出只有几何；工作台独立贴图阶段另输出内嵌 UV/PBR 的 GLB。Hi3D 会归一化尺寸并重建拓扑，不保证封闭、可打印或必然优于粗模。
 
 ## 许可
 

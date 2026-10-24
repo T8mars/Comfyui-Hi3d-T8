@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "options": {
+        "mode": "image_to_asset",
+        "refine_geometry": false
+      },
+      "report_actual_resolution": 256,
+      "display": "—",
+      "topology_basis_notice": true,
+      "passed": true
+    },
+    {
+      "options": {
+        "mode": "texture"
+      },
+      "report_actual_resolution": 1024,
+      "display": "—",
+      "topology_basis_notice": false,
+      "passed": true
+    },
+    {
+      "options": {
+        "mode": "refine",
+        "refine_geometry": false
+      },
+      "report_actual_resolution": 512,
+      "display": "512",
+      "topology_basis_notice": false,
+      "passed": true
+    },
+    {
+      "options": {
+        "mode": "image_to_asset",
+        "refine_geometry": true
+      },
+      "report_actual_resolution": 512,
+      "display": "512",
+      "topology_basis_notice": false,
+      "passed": true
+    },
+    {
+      "options": {},
+      "report_actual_resolution": 1024,
+      "display": "1024",
+      "topology_basis_notice": false,
+      "passed": true
+    }
+  ],
+  "javascript_errors": [],
+  "isolation": "Explicit history fixtures on disposable local server; no inference"
+}

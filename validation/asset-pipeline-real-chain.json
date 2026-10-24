@@ -1,0 +1,359 @@
+{
+  "real_image_only_chain": true,
+  "coarse": {
+    "model": {
+      "repo": "tencent/Hunyuan3D-2mini",
+      "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+      "license": "Tencent Hunyuan 3D 2.0 Community License",
+      "files": [
+        "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+        "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+        "LICENSE",
+        "NOTICE",
+        "README.md"
+      ]
+    },
+    "geometry_generated": true,
+    "texture_generated": false,
+    "vertices": 142116,
+    "faces": 284248,
+    "inference_steps": 5,
+    "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+    "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+    "transform": {
+      "coordinate_system": "Hunyuan canonical",
+      "unit_scale": "generator canonical; no absolute scale"
+    },
+    "stage": "coarse",
+    "request_path": "E:\\hi3d\\data\\pipeline-development\\real-coarse\\request.json",
+    "output_path": "E:\\hi3d\\data\\pipeline-development\\real-coarse\\coarse.glb",
+    "status": "succeeded",
+    "background": "input_alpha",
+    "seconds": 51.817,
+    "peak_allocated_mb": 2468.37,
+    "peak_reserved_mb": 2610.0,
+    "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+    "runtime": {
+      "torch": "2.8.0+cu128",
+      "cuda": "12.8",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ]
+    }
+  },
+  "refine": {
+    "status": "succeeded",
+    "requested_resolution": 512,
+    "actual_resolution": 512,
+    "steps": 25,
+    "seed": 12345,
+    "offload": true,
+    "attention": "sdpa",
+    "compatibility_port": true,
+    "seconds": 173.12,
+    "peak_allocated_mb": 950,
+    "peak_reserved_mb": 1032,
+    "stage_metrics": [
+      {
+        "stage": "voxelizing",
+        "seconds": 9.2,
+        "peak_vram_mb": 64,
+        "rss_mb": 15830
+      },
+      {
+        "stage": "sampling",
+        "seconds": 98.298,
+        "peak_vram_mb": 393,
+        "rss_mb": 16546
+      },
+      {
+        "stage": "decoding",
+        "seconds": 5.378,
+        "peak_vram_mb": 950,
+        "rss_mb": 16733
+      },
+      {
+        "stage": "extracting",
+        "seconds": 1.981,
+        "peak_vram_mb": 739,
+        "rss_mb": 16873
+      },
+      {
+        "stage": "postprocessing",
+        "seconds": 2.512,
+        "peak_vram_mb": 243,
+        "rss_mb": 17393
+      }
+    ],
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "environment": {
+      "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+      "platform": "Windows-10-10.0.26300-SP0",
+      "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+      "packages": {
+        "torch": "2.11.0+cu128",
+        "torchvision": "0.26.0+cu128",
+        "triton-windows": "3.6.0.post26",
+        "spconv-cu126": "2.3.8",
+        "transformers": "4.46.3",
+        "accelerate": "1.6.0",
+        "numpy": "1.26.4"
+      },
+      "cuda": true,
+      "kernel_probe": "not_run",
+      "official_validated_environment": false,
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ],
+      "free_vram_mb": 22249,
+      "total_vram_mb": 24435,
+      "torch_cuda": "12.8"
+    },
+    "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+    "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+    "input_sha256": "5a3ba3d4deb8885e4b8bed1dbedc8d4e775430b454d4f44ed3a4a6926fe565a2",
+    "coarse_sha256": "76c6f7640c988229e018931aa06b67241e847dfbcc25b63489f5b4091338d0c7",
+    "geometry": {
+      "vertices": 477446,
+      "faces": 954901,
+      "bounds": [
+        [
+          -0.48320595689953516,
+          -0.6798139976788664,
+          -0.4295879212685325
+        ],
+        [
+          0.4844403470089947,
+          0.9743559121337436,
+          0.3955255511744235
+        ]
+      ],
+      "extents": [
+        0.9676463039085299,
+        1.6541699098126101,
+        0.8251134724429561
+      ],
+      "watertight": false,
+      "winding_consistent": true,
+      "boundary_edges": 9,
+      "nonmanifold_edges": 1,
+      "degenerate_faces": 0,
+      "components": 1,
+      "unchecked": [
+        "自交",
+        "壁厚",
+        "最小零件强度",
+        "切片可打印性"
+      ],
+      "units": "unknown",
+      "warnings": [
+        "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+      ]
+    },
+    "normalized": true,
+    "texture_generated": false
+  },
+  "texture": {
+    "model": {
+      "repo": "microsoft/TRELLIS.2-4B",
+      "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+      "license": "MIT; external image encoder has its own license",
+      "files": [
+        "texturing_pipeline.json",
+        "README.md",
+        "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+        "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+        "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+        "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+        "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+      ]
+    },
+    "image_encoder": {
+      "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+      "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+      "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+      "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+      "upstream_identical": true,
+      "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+      "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+      "files": [
+        "config.json",
+        "model.safetensors",
+        "preprocessor_config.json",
+        "LICENSE.md",
+        "README.md"
+      ]
+    },
+    "geometry_generated": false,
+    "texture_generated": true,
+    "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+    "vertices": 549075,
+    "faces": 954901,
+    "texture_size": 2048,
+    "pbr_channels": [
+      "baseColor",
+      "metallic",
+      "roughness",
+      "alpha"
+    ],
+    "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+    "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+    "transform": {
+      "normalization_center": [
+        0.0006172060966491699,
+        0.14727097749710083,
+        -0.017031192779541016
+      ],
+      "normalization_scale": 0.6045267718017268,
+      "normalization_restored": true,
+      "mesh_input_frame_preserved": true,
+      "uv_seam_vertex_splits_possible": true
+    },
+    "stage": "texture",
+    "request_path": "E:\\hi3d\\data\\pipeline-development\\real-chain\\texture\\request.json",
+    "output_path": "E:\\hi3d\\data\\pipeline-development\\real-chain\\texture\\textured.glb",
+    "status": "succeeded",
+    "background": "input_alpha",
+    "seconds": 92.084,
+    "peak_allocated_mb": 2842.29,
+    "peak_reserved_mb": 2960.0,
+    "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+    "runtime": {
+      "torch": "2.8.0+cu128",
+      "cuda": "12.8",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ]
+    }
+  },
+  "glb_validation": {
+    "texture_generated": true,
+    "uv": true,
+    "embedded": true,
+    "images": 2,
+    "materials": 1,
+    "primitives": 1,
+    "channels": [
+      "base_color",
+      "metallic",
+      "roughness"
+    ],
+    "coordinate_validation": {
+      "input_faces": 954901,
+      "output_faces": 954901,
+      "maximum_vertex_distance": 4.280032699210963e-08,
+      "mean_vertex_distance": 5.915863664250796e-09,
+      "bounds_maximum_error": 0.0
+    },
+    "baseColorTexture": {
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGBA",
+      "minimum": [
+        0,
+        0,
+        0,
+        253
+      ],
+      "maximum": [
+        255,
+        255,
+        255,
+        255
+      ],
+      "mean": [
+        226.40607953071594,
+        194.3241114616394,
+        214.66705131530762,
+        254.9145703315735
+      ]
+    },
+    "metallicRoughnessTexture": {
+      "size": [
+        2048,
+        2048
+      ],
+      "mode": "RGB",
+      "minimum": [
+        0,
+        120,
+        0
+      ],
+      "maximum": [
+        0,
+        134,
+        1
+      ],
+      "mean": [
+        0.0,
+        122.76543521881104,
+        2.384185791015625e-07
+      ]
+    }
+  },
+  "export_validation": {
+    "texture_generated": true,
+    "uv": true,
+    "embedded": true,
+    "images": 2,
+    "materials": 1,
+    "primitives": 1,
+    "channels": [
+      "base_color",
+      "metallic",
+      "roughness"
+    ],
+    "export": {
+      "format": ".glb",
+      "height_axis": "Z",
+      "height_mm": 80,
+      "units": "m",
+      "bounds": [
+        [
+          -0.04684988998495786,
+          -0.06591228977714324,
+          -0.041651282475819916
+        ],
+        [
+          0.04696957409922498,
+          0.09447000590257665,
+          0.038348717524180086
+        ]
+      ],
+      "texture_generated": true,
+      "uv": true,
+      "embedded": true,
+      "images": 2,
+      "materials": 1,
+      "primitives": 1,
+      "channels": [
+        "base_color",
+        "metallic",
+        "roughness"
+      ]
+    },
+    "export_height_m": 0.08
+  },
+  "nvml_whole_device": {
+    "metric": "NVML whole-device memory; includes driver, desktop and other processes",
+    "completed": true,
+    "interval_seconds": 0.1,
+    "elapsed_seconds": 481.86,
+    "baseline_mb": 719.102,
+    "peak_used_mb": 3976.199
+  },
+  "product_http_pipeline_validated": true,
+  "portable_full_model_chain_validated": true,
+  "portable_validation_evidence": "asset-pipeline-portable-http.json"
+}

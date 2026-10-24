@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "node_interfaces_unchanged": true,
+  "canvas_workflow_unchanged": true,
+  "canvas_not_api": true,
+  "source_sha256": {
+    "comfy_nodes.py": "a12cfeb6a4bee0e65d53e1ae89706c17a81797d0149f170613e5c717f4563141",
+    "__init__.py": "3743fb9633681efb8ca2f45cb00dd64cf204422c91cff34987a587f8e6cf2c7f",
+    "examples/Hi3D-Refine.json": "26320130a982c43875ddf3a27964dc37ceea5ef4a55a259a25b49cef5dcd320f",
+    "examples/README.md": "4a73e24f45519e543b7bf2b5529606af7f3e72b9dba83acc19541a31b1437869"
+  }
+}

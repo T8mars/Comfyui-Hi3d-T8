@@ -3,9 +3,51 @@ let token = $('meta[name="hi3d-token"]').content;
 let inputImage = null, inputMesh = null, currentJob = null, health = null;
 let online = false, pending = null, exportPending = false, pollBusy = false;
 let epoch = 0, shownJob = null, sessionReady = false, sessionDefaultsApplied = false, toastTimer, logsKey = '';
+let selectedMode = 'image_to_asset', previewManual = false, exportSourceManual = false;
 const activeStates = new Set(['running', 'queued', 'cancelling']);
-const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'精修完成，可以对比导出', failed:'精修失败，输入与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
+const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
+const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
+const modelVersions = ['textured','refined','coarse'];
+const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型'};
+function needsMesh(mode = selectedMode) { return mode !== 'image_to_asset'; }
+function wantsRefine(options = null) { return options ? (options.mode || 'refine') === 'refine' || options.mode === 'image_to_asset' && options.refine_geometry === true : selectedMode === 'refine' || selectedMode === 'image_to_asset' && $('#refine-geometry').checked; }
+function wantsTexture(options = null) { return options ? options.mode === 'texture' || Boolean(options.generate_texture ?? options.mode === 'image_to_asset') : selectedMode === 'texture' || $('#generate-texture').checked; }
+function inputsReady() { return Boolean(inputImage && (!needsMesh() || inputMesh)); }
+function downloadingModels() { return health?.models?.download?.state === 'downloading' || health?.pipeline_models?.download?.state === 'downloading'; }
+function checkingModels() { return Boolean(health?.model_checking || health?.pipeline_model_checking || health?.pipeline_models?.checking); }
+function renderHealthBadge() {
+  if (!health || !online) return;
+  $('#health-badge').textContent = downloadingModels() ? '◌ 正在下载组件…' : checkingModels() ? '◌ 正在校验模型…' : health.operation === 'diagnosing' ? '◌ 正在检查 GPU…' : health.active ? '● 本地任务运行中' : !missingModels().length ? '● 所选流程已就绪' : '○ 所选流程待准备';
+}
+function missingModels() {
+  const missing = [], pipeline = health?.pipeline_models;
+  if (wantsRefine() && !health?.models?.ready) missing.push('Hi3D 核心');
+  if (selectedMode === 'image_to_asset' && !pipeline?.coarse_ready) missing.push('图片建模组件');
+  if (wantsTexture() && !pipeline?.texture_ready) missing.push('PBR 贴图组件');
+  if ((selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && inputImage?.has_transparency !== true) missing.push('自动前景组件');
+  if ((selectedMode === 'image_to_asset' || wantsTexture()) && !pipeline?.runtime?.ready) missing.push('扩展运行环境');
+  return missing;
+}
+function syncModeUI() {
+  const imageMode = selectedMode === 'image_to_asset', texture = wantsTexture(), refine = wantsRefine();
+  document.querySelectorAll('[data-mode]').forEach(button => { const active = button.dataset.mode === selectedMode; button.classList.toggle('active',active); button.setAttribute('aria-pressed',String(active)); });
+  $('#mesh-input-group').hidden = imageMode; $('#ready-mesh').hidden = imageMode;
+  $('#refine-geometry-field').hidden = !imageMode; $('#generate-texture-field').hidden = selectedMode === 'texture';
+  $('#refine-settings').hidden = !refine; $('#texture-settings').hidden = !texture;
+  $('#hi3d-steps-field').hidden = !refine; $('#hi3d-attention-field').hidden = !refine;
+  $('#advanced-fields').classList.toggle('seed-only',!refine);
+  $('#advanced-summary').textContent = refine ? '高级设置 · 种子 / Hi3D 步数与兼容模式' : '高级设置 · 随机种子';
+  $('#hi3d-advanced-hint').textContent = refine ? '步数与 Attention 只作用于 Hi3D 几何精修，不改变图片建模或贴图阶段的采样设置。Hi3D 默认 25 步；相同种子便于对比，Windows 兼容路径的数值与效果需单独评价。' : '当前流程不运行 Hi3D，已隐藏精修专用的步数与 Attention。随机种子仍用于当前生成流程；图片建模与贴图使用各自的采样设置。';
+  $('#input-step-hint').textContent = imageMode ? '一张主体完整的参考图片' : '参考图片 + 同物体模型';
+  $('#run-step-title').textContent = modeLabels[selectedMode];
+  $('#mode-description').textContent = imageMode ? '默认先生成粗模型并添加 PBR 贴图。Hi3D 精修可选，会重建几何；卡通可先保形，再按需尝试。' : selectedMode === 'texture' ? '上传参考图片与已有模型，保留几何并生成 PBR 材质；使用 GLB 导出贴图结果。' : '用 Hi3D 重建已有粗模型并补充几何细节，可选择在精修后继续生成 PBR 贴图。';
+  $('#input-help').textContent = imageMode ? '图片建模不需要粗模型。图片尽量背景简单、主体完整；自动处理背景或手动清理透明区域后再开始。' : '从建模软件导出 GLB、PLY 或 STL。图片与模型应为同一物体，主体与朝向匹配；贴图过程不会替代几何精修。';
+}
+function stageName(stage = '') {
+  for (const [prefix,label] of [['coarse_','图片建模'],['texture_','PBR 贴图']]) if (stage.startsWith(prefix)) return `${label} · ${stageLabels[stage.slice(prefix.length)] || '正在处理'}`;
+  return stageLabels[stage] || stage || '正在处理';
+}
 function toast(message) {
   clearTimeout(toastTimer); $('#toast').textContent = message; $('#toast').hidden = false;
   toastTimer = setTimeout(() => { $('#toast').hidden = true; }, 7000);
@@ -48,7 +90,7 @@ function page(name) {
     el.classList.toggle('active', el.dataset.page === name);
     el.setAttribute('aria-current', el.dataset.page === name ? 'page' : 'false');
   });
-  const text = {workspace:['让粗模型，多一点细节。','上传同一物体的参考图和粗模型，用 Hi3D 精修几何，再对比导出。'],history:['每一次尝试，都保留下来。','打开旧任务对比结果，或复用输入继续调整。'],models:['准备好环境，再安心创作。','模型文件保存在本机，推理使用本地 GPU。']};
+  const text = {workspace:['从一张图片，开始 3D 创作。','图片建模、Hi3D 几何精修与 PBR 贴图，在本地逐阶段完成，保留中间结果。'],history:['每一次尝试，都保留下来。','打开旧任务查看阶段结果，或复用输入继续调整。'],models:['准备好环境，再安心创作。','按流程分别准备 Hi3D 核心、图片建模与 PBR 贴图组件。']};
   $('#page-title').textContent = text[name][0]; $('#page-subtitle').textContent = text[name][1];
   updateDock();
   if (name === 'history') void history();
@@ -59,39 +101,44 @@ function gpuBusy() { return Boolean(health?.active || health?.operation || healt
 function hasJobFile(job, name) { return Array.isArray(job?.available_files) ? job.available_files.includes(name) : ['coarse.glb','input.png'].includes(name); }
 function inputBusy() { return !online || Boolean(pending) || gpuBusy(); }
 function availability() {
-  const busy = inputBusy(), checking = health?.model_checking, downloading = health?.models.download.state === 'downloading';
-  const isHistory = Boolean(currentJob), ready = Boolean(health?.models.ready);
-  $('#run').disabled = busy || checking || downloading || !ready || !inputImage || !inputMesh || isHistory;
-  $('#run').textContent = pending === 'submitting' ? '正在校验文件并提交…' : '开始 Hi3D 精修 →';
+  const busy = inputBusy(), checking = checkingModels(), downloading = downloadingModels();
+  const isHistory = Boolean(currentJob), missing = missingModels(), ready = !missing.length;
+  syncModeUI();
+  $('#run').disabled = busy || checking || downloading || !ready || !inputsReady() || isHistory;
+  $('#run').textContent = pending === 'submitting' ? '正在校验文件并提交…' : `开始${modeLabels[selectedMode]} →`;
   for (const id of ['image-file','mesh-file','load-sample','new-task']) $('#'+id).disabled = busy;
-  $('#load-sample').textContent = pending === 'sample' ? '正在载入图片与粗模型…' : '载入样例，熟悉流程 →';
+  $('#load-sample').textContent = pending === 'sample' ? '正在载入样例输入…' : '载入样例，熟悉流程 →';
   $('#mask-open').disabled = busy || !inputImage;
   $('#mask-apply').disabled = busy;
-  for (const id of ['resolution','steps','seed','offload','attention']) $('#'+id).disabled = busy || isHistory;
+  for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','texture-resolution','texture-size']) $('#'+id).disabled = busy || isHistory;
+  for (const id of ['steps','attention']) $('#'+id).disabled = busy || isHistory || !wantsRefine();
+  document.querySelectorAll('[data-mode]').forEach(button => { button.disabled = busy || isHistory; });
   $('#reuse').hidden = !isHistory || activeStates.has(currentJob.state);
-  $('#reuse').disabled = busy || !hasJobFile(currentJob,'input.png') || !hasJobFile(currentJob,'coarse.glb');
+  $('#reuse').disabled = busy || !hasJobFile(currentJob,'input.png') || needsMesh(currentJob?.options?.mode || 'refine') && !hasJobFile(currentJob,'coarse.glb');
   $('#reuse').textContent = pending === 'reuse' ? '正在准备可编辑输入…' : '复用这次输入和参数';
   $('#cancel').hidden = !currentJob || !activeStates.has(currentJob.state);
   $('#cancel').disabled = !online || Boolean(pending) || currentJob?.state === 'cancelling';
   $('#active-job').hidden = !health?.active;
-  $('#active-label').textContent = currentJob && currentJob.id === health?.active ? `当前任务：${stateLabels[currentJob.state] || '运行中'}` : '有一个精修任务正在运行';
+  $('#active-label').textContent = currentJob && currentJob.id === health?.active ? `当前任务：${modeLabels[selectedMode]} · ${stateLabels[currentJob.state] || '运行中'}` : '有一个任务正在运行';
   $('#show-active').disabled = !online || Boolean(pending);
   $('#cancel-active').disabled = !online || Boolean(pending) || Boolean(currentJob && currentJob.id === health?.active && currentJob.state === 'cancelling');
-  let help = !online ? '工作台连接已断开，恢复连接后可以继续。' : pending === 'submitting' ? '正在完整校验模型文件，请等待。提交期间不会重复创建任务。' : pending ? '正在处理，请稍候…' : health?.active ? '精修运行中，可在上方查看或停止任务。' : health?.operation ? '正在检查 GPU 或准备任务，请稍候。' : checking ? '正在完整校验本地模型文件。首次启动或文件变化后会自动检查，请稍候。' : downloading ? '正在下载必需组件，可在「模型与环境」查看进度。' : !ready ? '本地模型尚未就绪，请前往「模型与环境」查看原因并补齐或校验。' : isHistory ? '当前正在查看记录。点击「复用这次输入和参数」即可调整后再次精修。' : !inputImage || !inputMesh ? '准备一张参考图片和同物体粗模型，或点击「载入样例」。' : '输入已齐全。建议先用 512 档、默认 25 步试一次。';
+  let help = !online ? '工作台连接已断开，恢复连接后可以继续。' : pending === 'submitting' ? '正在校验所需模型与输入，请等待。提交期间不会重复创建任务。' : pending ? '正在处理，请稍候…' : health?.active ? '任务运行中，可在上方查看或停止。' : health?.recovery_blocked ? '重启前的工作进程仍在退出，请稍候。' : health?.operation ? '正在检查 GPU 或准备任务，请稍候。' : downloading ? '正在下载组件，期间暂停新任务；可在「模型与环境」查看进度。' : checking ? '正在校验本地模型文件，请稍候。' : isHistory ? '当前正在查看记录。复用输入后可更改流程与参数，中间模型也可预览和导出。' : !ready ? `尚需准备：${missing.join('、')}。请前往「模型与环境」补齐并校验。` : !inputsReady() ? needsMesh() ? '准备一张参考图片和同物体模型，或点击「载入样例」。' : '准备一张参考图片即可开始，或点击「载入样例」。' : '输入与所需组件已就绪。先使用默认设置；可随时停止并保留已完成的阶段。';
   $('#run-help').textContent = help;
-  for (const [id, ok, name] of [['ready-image', Boolean(inputImage || currentJob && hasJobFile(currentJob,'input.png')), '参考图片'], ['ready-mesh', Boolean(inputMesh || currentJob && hasJobFile(currentJob,'coarse.glb')), '粗模型'], ['ready-models', online && ready, '本地模型']]) {
+  for (const [id, ok, name] of [['ready-image', Boolean(inputImage || currentJob && hasJobFile(currentJob,'input.png')), '参考图片'], ['ready-mesh', Boolean(inputMesh || currentJob && hasJobFile(currentJob,'coarse.glb')), '模型'], ['ready-models', online && ready && !downloading && !checking, '所需模型与运行环境']]) {
     $('#'+id).textContent = `${ok ? '✓' : '○'} ${name}`; $('#'+id).classList.toggle('ready', ok);
   }
   const modelBusy = !online || Boolean(pending) || gpuBusy() || checking || downloading;
-  for (const id of ['download-models','verify-models','diagnose']) $('#'+id).disabled = modelBusy;
+  for (const id of ['download-models','verify-models','diagnose','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
   $('#verify-models').textContent = checking || pending === 'verify' ? '正在完整校验…' : '重新完整校验';
+  $('#verify-pipeline-models').textContent = pending === 'pipeline-verify' || health?.pipeline_model_checking || health?.pipeline_models?.checking ? '正在校验扩展组件…' : '校验扩展组件';
   $('#diagnose').textContent = health?.operation === 'diagnosing' || pending === 'diagnose' ? '正在检查 GPU…' : '检查 GPU 是否可用';
-  const phase = currentJob?.state === 'succeeded' ? 3 : inputImage && inputMesh || currentJob ? 2 : 1;
+  const phase = currentJob && !activeStates.has(currentJob.state) && modelVersions.some(version => hasJobFile(currentJob,version+'.glb')) ? 3 : inputsReady() || currentJob ? 2 : 1;
   for (const [index, id] of ['step-input','step-run','step-export'].entries()) {
     $('#'+id).classList.toggle('current', phase === index+1); $('#'+id).classList.toggle('done', phase > index+1);
   }
   exportAvailability();
   $('#mask-apply').textContent = pending === 'mask-saving' ? '正在保存蒙版…' : '应用透明蒙版';
+  renderHealthBadge();
   updateDock();
 }
 function dockTarget() { return currentJob ? (activeStates.has(currentJob.state) ? $('#cancel') : $('#reuse')) : $('#run'); }
@@ -100,8 +147,8 @@ function updateDock() {
   $('#action-dock').hidden = !$('#workspace').classList.contains('active') || $('#mask-dialog').open || (!target.hidden && rect.top >= 0 && rect.bottom <= innerHeight-12);
   $('#quick-action').textContent = target.textContent; $('#quick-action').disabled = target.disabled;
   $('#quick-action').className = target.id === 'cancel' ? 'danger' : 'primary';
-  $('#dock-title').textContent = currentJob ? (activeStates.has(currentJob.state) ? 'Hi3D 正在精修' : '继续调整？复用这次输入') : inputImage && inputMesh ? '输入已齐全，可以开始' : '下一步：准备图片和粗模型';
-  $('#dock-help').textContent = !online ? '连接断开，请检查启动窗口' : pending ? '正在处理，请稍候…' : currentJob ? '原任务记录与文件会保留' : health?.model_checking ? '正在自动校验模型文件…' : '第一次建议使用 512 档和省显存模式';
+  $('#dock-title').textContent = currentJob ? (activeStates.has(currentJob.state) ? `${modeLabels[selectedMode]}正在运行` : '继续调整？复用这次输入') : inputsReady() ? '输入已齐全，可以开始' : needsMesh() ? '下一步：准备图片和模型' : '下一步：准备参考图片';
+  $('#dock-help').textContent = !online ? '连接断开，请检查启动窗口' : pending ? '正在处理，请稍候…' : currentJob ? '原任务记录与阶段文件会保留' : downloadingModels() ? '模型下载中，暂停新任务' : checkingModels() ? '正在校验模型文件…' : `当前流程：${modeLabels[selectedMode]}`;
 }
 $('#quick-action').onclick = () => dockTarget().click();
 const dockObserver = new IntersectionObserver(updateDock);
@@ -110,24 +157,29 @@ window.addEventListener('resize', updateDock); window.addEventListener('scroll',
 $('#mask-dialog').addEventListener('close', updateDock);
 function exportAvailability() {
   const files = currentJob?.available_files || [], completed = currentJob && !activeStates.has(currentJob.state);
-  const refined = completed && files.includes('refined.glb'), coarse = completed && files.includes('coarse.glb');
-  const source = $('#export-source'); source.options[0].disabled = !refined; source.options[1].disabled = !coarse;
-  if (source.value === 'refined' && !refined && coarse) source.value = 'coarse';
-  $('#export').disabled = !online || exportPending || Boolean(pending) || !(source.value === 'refined' ? refined : coarse);
+  const versions = modelVersions.filter(version => completed && files.includes(version+'.glb'));
+  const source = $('#export-source'); for (const option of source.options) option.disabled = !versions.includes(option.value);
+  if ((!exportSourceManual || !versions.includes(source.value)) && versions.length) source.value = versions[0];
+  if (!versions.length) source.value = '';
+  const textured = source.value === 'textured', format = $('#export-format');
+  for (const option of format.options) option.disabled = textured && option.value !== 'glb';
+  if (textured) format.value = 'glb';
+  $('#export').disabled = !online || exportPending || Boolean(pending) || !versions.includes(source.value);
   $('#export').textContent = exportPending ? '正在导出…' : '导出模型 ↓';
-  for (const id of ['export-source','export-format','height']) $('#'+id).disabled = exportPending;
+  for (const id of ['export-source','export-format','height']) $('#'+id).disabled = exportPending || !versions.length;
   $('#report').disabled = !online || !files.includes('report.json');
-  $('#export-status').textContent = refined ? '精修结果与输入粗模均可导出' : coarse ? '此任务没有精修结果，可导出输入粗模型' : '完成后可导出精修版本';
+  $('#export-status').textContent = versions.length ? `可导出：${versions.map(version => versionLabels[version]).join(' / ')}` : activeStates.has(currentJob?.state) ? '任务结束后可导出已保留的模型' : '有阶段模型后即可导出';
+  $('#export-material-hint').textContent = !versions.length ? '阶段文件生成且任务结束后可选择导出。PBR 材质使用 GLB；STL / PLY 仅包含几何。' : textured ? '当前版本包含 PBR 材质，仅支持 GLB。若需 STL / PLY，请选择粗模或精修几何；这些格式不包含贴图。' : '当前导出几何版本。若已有 PBR 结果，选择「PBR 材质结果 + GLB」可保留材质。STL / PLY 不含贴图。';
 }
 function setView(id, url) {
   const view = $('#'+id);
   const empty = $('#'+id+'-empty');
   if (!url) {
     view.removeAttribute('src'); delete view.dataset.loading; delete view.dataset.loadError; empty.hidden = false;
-    if (id === 'before') { empty.querySelector('b').textContent = '从一个粗模型开始'; empty.querySelector('p').textContent = '拖入模型，或点击上方「载入样例」'; }
+    if (id === 'before') { empty.querySelector('b').textContent = '粗模型会出现在这里'; empty.querySelector('p').textContent = '图片建模会自动生成；其他模式请上传模型'; }
   } else if (view.getAttribute('src') !== url) {
     view.dataset.loading = 'true'; delete view.dataset.loadError; empty.hidden = false;
-    empty.querySelector('b').textContent = id === 'before' ? '正在加载粗模型预览…' : '正在加载精修结果预览…';
+    empty.querySelector('b').textContent = id === 'before' ? '正在加载粗模型预览…' : '正在加载阶段结果预览…';
     view.setAttribute('src', url);
   }
 }
@@ -136,30 +188,45 @@ function resetResult() {
   $('#dimension-link').hidden = true; $('#dimension-link').removeAttribute('href'); logsKey = '';
   for (const id of ['face-stat','time-stat','memory-stat','res-stat']) $('#'+id).textContent = '—';
   $('#progress').hidden = true; $('#elapsed').textContent = ''; $('#log').textContent = '还没有任务。';
-  $('#after-title').textContent = '精修完成后，结果会出现在这里';
+  $('#after-title').textContent = '阶段结果会出现在这里';
   $('#after-hint').textContent = '左右拖动旋转，滚轮缩放；两侧视角同步';
-  $('#export-source').value = 'refined'; $('#height').value = '';
+  previewManual = false; exportSourceManual = false;
+  $('#result-preview').value = ''; $('#result-preview').disabled = true;
+  $('#result-view-label').textContent = '生成结果'; $('#preview-hint').textContent = '阶段完成后即可查看已保留的模型。';
+  $('#stage-summary').replaceChildren(); $('#stage-summary').hidden = true;
+  $('#export-source').value = ''; $('#height').value = '';
   $('#geometry-summary').className = ''; $('#geometry-summary').textContent = '上传粗模型后显示几何检查。';
   $('#geometry-info').textContent = '包括连通件、边界边与法向方向。自交、壁厚和实际打印强度需在专门软件中检查。';
 }
-function applyOptions(options) {
+function applyOptions(options = {}) {
+  selectedMode = Object.hasOwn(modeLabels,options.mode) ? options.mode : 'refine';
   for (const key of ['resolution','steps','seed','attention']) if (options[key] !== undefined) $('#'+key).value = options[key];
   if (options.offload !== undefined) $('#offload').checked = options.offload;
+  $('#refine-geometry').checked = options.refine_geometry === true;
+  $('#generate-texture').checked = Boolean(options.generate_texture ?? selectedMode === 'image_to_asset');
+  $('#texture-resolution').value = String(options.texture_resolution || 512); $('#texture-size').value = String(options.texture_size || 2048);
+  $('#background').value = options.background || 'auto'; syncModeUI();
 }
 function renderDraft() {
   if (inputImage) { $('#image-thumb').src = inputImage.url; $('#image-thumb').hidden = false; }
   else { $('#image-thumb').hidden = true; $('#image-thumb').removeAttribute('src'); }
   $('#image-name').textContent = inputImage?.name || '未选择图片';
   $('#mesh-name').textContent = inputMesh?.name || '未选择粗模型';
-  setView('before', inputMesh?.url); if (inputMesh?.geometry) geometry(inputMesh.geometry);
-  $('#view-status').textContent = inputMesh ? '中性材质预览 · 拖动旋转，滚轮缩放' : '上传粗模型后可旋转查看';
-  $('#progress-label').textContent = inputImage && inputMesh ? '输入已准备好，可以开始精修' : '先准备图片和粗模型';
-  $('#stage-detail').textContent = '请确认图片和模型为同一物体，主体与朝向匹配。'; availability();
+  setView('before', needsMesh() ? inputMesh?.url : null); if (needsMesh() && inputMesh?.geometry) geometry(inputMesh.geometry);
+  $('#view-status').textContent = needsMesh() && inputMesh ? '几何预览 · 拖动旋转，滚轮缩放' : '图片建模会先生成粗模型，再完成所选后续阶段';
+  $('#progress-label').textContent = inputsReady() ? `输入已准备好，可以开始${modeLabels[selectedMode]}` : needsMesh() ? '先准备图片和模型' : '先准备一张参考图片';
+  $('#stage-detail').textContent = needsMesh() ? '请确认图片和模型为同一物体，主体与朝向匹配。' : '一张参考图片即可开始。按选择依次生成粗模、精修几何与 PBR 贴图；各阶段结果保存在任务目录。'; availability();
 }
 function draftWith(image, mesh) {
   epoch++; currentJob = null; shownJob = null; inputImage = image; inputMesh = mesh; resetResult(); renderDraft();
 }
 $('#new-task').onclick = () => { if (!inputBusy()) draftWith(null, null); };
+document.querySelectorAll('[data-mode]').forEach(button => { button.onclick = () => {
+  if (inputBusy() || currentJob) return;
+  selectedMode = button.dataset.mode; $('#refine-geometry').checked = false; $('#generate-texture').checked = selectedMode === 'image_to_asset';
+  resetResult(); renderDraft();
+}; });
+for (const id of ['refine-geometry','generate-texture']) $('#'+id).onchange = availability;
 async function upload(file, kind) {
   if (kind === 'image' && !/\.(png|jpe?g|webp)$/i.test(file.name)) throw new Error('参考图片请选择 PNG、JPG 或 WebP 文件。');
   if (kind === 'mesh' && !/\.(glb|ply|stl)$/i.test(file.name)) throw new Error('粗模型请选择 GLB、PLY 或 STL 文件。');
@@ -190,11 +257,13 @@ $('#load-sample').onclick = async () => {
   if (inputBusy()) return; pending = 'sample'; availability();
   try {
     const items = [];
-    for (const [name, kind, type] of [['sculpted-vase.png','image','image/png'],['sculpted-vase.glb','mesh','model/gltf-binary']]) {
+    const samples = [['sculpted-vase.png','image','image/png']];
+    if (needsMesh()) samples.push(['sculpted-vase.glb','mesh','model/gltf-binary']);
+    for (const [name, kind, type] of samples) {
       const blob = await api('/api/sample/'+name, {responseType:'blob'});
       items.push(await upload(new File([blob], name, {type}), kind));
     }
-    draftWith(...items); toast('样例已载入。它用于熟悉流程，不是美术效果基准。');
+    draftWith(items[0],items[1] || null); toast('样例已载入。它用于熟悉流程，不是美术效果基准。');
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
 };
@@ -213,12 +282,14 @@ function geometry(value) {
   $('#geometry-summary').className = issues ? 'warning' : 'good';
   $('#geometry-summary').textContent = `${Number(g.faces).toLocaleString()} 个三角面 · ${g.components} 个连通件。${issues ? '检测到开放边界或异常几何，打印前请进一步检查。' : '当前几何检查未发现边界或非流形边；打印前仍需检查壁厚和自交。'}`;
   $('#geometry-info').textContent = `${Number(g.vertices).toLocaleString()} 顶点 · ${g.boundary_edges} 条边界边 · ${g.nonmanifold_edges} 条非流形边 · ${g.degenerate_faces} 个退化面 · 法向方向${g.winding_consistent ? '一致' : '需检查'} · ${g.watertight ? '封闭网格' : '非封闭网格'}。未检测：${(Array.isArray(g.unchecked) ? g.unchecked : ['自交','壁厚']).join('、')}。`;
+  if (g.topology_basis) $('#geometry-info').textContent += '拓扑按相同坐标合并 UV 接缝顶点统计，仅用于检查，交付网格未修改。';
   return true;
 }
 for (const view of [$('#before'), $('#after')]) {
   view.addEventListener('load', () => {
     if (!view.loaded || !view.hasAttribute('src')) return;
     delete view.dataset.loading; delete view.dataset.loadError; $('#'+view.id+'-empty').hidden = true;
+    if (view.dataset.surface === 'pbr') return;
     for (const material of view.model.materials) {
       const pbr = material.pbrMetallicRoughness; pbr.setBaseColorFactor([.38,.37,.43,1]); pbr.setMetallicFactor(0); pbr.setRoughnessFactor(.8);
     }
@@ -244,10 +315,10 @@ $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
-  for (const id of ['steps','seed']) if (!$('#'+id).checkValidity()) { $('#advanced').open = true; $('#'+id).reportValidity(); $('#'+id).focus(); return; }
+  for (const id of wantsRefine() ? ['steps','seed'] : ['seed']) if (!$('#'+id).checkValidity()) { $('#advanced').open = true; $('#'+id).reportValidity(); $('#'+id).focus(); return; }
   pending = 'submitting'; availability();
   try {
-    const job = await post('/api/jobs', {image:inputImage.id, mesh:inputMesh.id, resolution:+$('#resolution').value, steps:+$('#steps').value, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value});
+    const job = await post('/api/jobs', {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value});
     epoch++; inputImage = null; inputMesh = null; renderJob(job); await loadArtifacts(job, epoch); await refresh();
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
@@ -261,6 +332,35 @@ $('#cancel').onclick = () => cancelJob(currentJob?.id);
 $('#cancel-active').onclick = () => cancelJob(health?.active);
 $('#show-active').onclick = () => { if (health?.active) void openJob(health.active); };
 function duration(seconds) { const s = Math.max(0, Math.round(seconds)); return s >= 60 ? `${Math.floor(s/60)} 分 ${s%60} 秒` : `${s} 秒`; }
+function renderPreview(job) {
+  const available = modelVersions.filter(version => hasJobFile(job,version+'.glb')), selector = $('#result-preview');
+  for (const option of selector.options) option.disabled = !available.includes(option.value);
+  selector.disabled = !available.length;
+  if ((!previewManual || !available.includes(selector.value)) && available.length) selector.value = available[0];
+  if (!available.length) selector.value = '';
+  const version = available.includes(selector.value) ? selector.value : null;
+  $('#after').dataset.surface = version === 'textured' ? 'pbr' : 'geometry';
+  setView('after',version ? `/api/jobs/${job.id}/files/${version}.glb` : null);
+  $('#result-view-label').textContent = version ? versionLabels[version] : '生成结果';
+  $('#after').alt = version ? `${versionLabels[version]}三维预览` : '生成结果三维预览';
+  $('#preview-hint').textContent = version === 'textured' ? '显示模型原始 PBR 材质；GLB 导出保留贴图。' : version ? '显示中性材质以检查几何；可以切换查看其他已完成阶段。' : '阶段完成后即可查看已保留的模型。';
+  return version;
+}
+$('#result-preview').onchange = () => { previewManual = true; if (currentJob) renderPreview(currentJob); };
+function renderStages(stages) {
+  const container = $('#stage-summary'); container.replaceChildren();
+  const values = Array.isArray(stages) ? stages.map((value,index) => [value?.name || value?.stage || String(index+1),value]) : stages && typeof stages === 'object' ? Object.entries(stages) : [];
+  for (const [name,value] of values) {
+    const card = document.createElement('div'), title = document.createElement('b'), detail = document.createElement('small');
+    title.textContent = {coarse:'图片建模',refine:'Hi3D 精修',hi3d:'Hi3D 精修',texture:'PBR 贴图',background:'背景处理'}[name] || name;
+    const state = value && typeof value === 'object' ? value : {}, pieces = [];
+    if (state.state || state.status) pieces.push(stateLabels[state.state || state.status] || state.state || state.status);
+    if (validMetric(state.seconds)) pieces.push(duration(state.seconds));
+    else if (validMetric(state.duration)) pieces.push(duration(state.duration));
+    detail.textContent = pieces.join(' · ') || '阶段信息已记录'; card.append(title,detail); container.append(card);
+  }
+  container.hidden = !values.length;
+}
 function renderJob(job) {
   const changed = shownJob !== job.id; currentJob = job;
   if (changed) {
@@ -272,45 +372,44 @@ function renderJob(job) {
   if (hasJobFile(job,'input.png') && $('#image-thumb').getAttribute('src') !== imageUrl) $('#image-thumb').src = imageUrl;
   if (!hasJobFile(job,'input.png')) $('#image-thumb').removeAttribute('src');
   $('#image-name').textContent = hasJobFile(job,'input.png') ? '此任务的参考图片' : '参考图片文件已缺失';
-  $('#mesh-name').textContent = hasJobFile(job,'coarse.glb') ? '此任务的输入粗模型' : '输入粗模型文件已缺失';
+  $('#mesh-name').textContent = hasJobFile(job,'coarse.glb') ? selectedMode === 'image_to_asset' ? '此任务生成的粗模型' : '此任务的输入粗模型' : selectedMode === 'image_to_asset' ? '此任务尚无粗模型' : '输入粗模型文件已缺失';
   const displayStage = {succeeded:'complete',failed:'failed',cancelled:'cancelled',interrupted:'interrupted'}[job.state] || job.stage;
-  $('#progress-label').textContent = job.state === 'cancelling' ? '正在停止任务并释放显存…' : stageLabels[displayStage] || stateLabels[job.state] || job.state;
+  $('#progress-label').textContent = job.state === 'cancelling' ? '正在停止任务并释放显存…' : stageName(displayStage) || stateLabels[job.state] || job.state;
   $('#stage-detail').textContent = job.message || '';
   $('#elapsed').textContent = duration((activeStates.has(job.state) ? Date.now()/1000 : job.updated || job.created) - job.created);
   const event = job.event || {};
-  if (job.stage === 'sampling' && job.state === 'running' && event.step && event.num_inference_steps) {
+  if (job.state === 'running' && validMetric(event.step) && event.step > 0 && validMetric(event.num_inference_steps) && event.num_inference_steps > 0) {
     $('#progress').hidden = false; $('#progress').max = event.num_inference_steps; $('#progress').value = event.step;
-    $('#stage-detail').textContent = `第 ${event.pass_index+1} / ${event.num_passes} 轮 · 本轮采样 ${event.step} / ${event.num_inference_steps}。这是当前轮进度，后续还需解码与保存。`;
+    const pass = validMetric(event.pass_index) && validMetric(event.num_passes) ? `第 ${event.pass_index+1} / ${event.num_passes} 轮 · ` : '';
+    $('#stage-detail').textContent = `${job.message ? job.message+' · ' : ''}${pass}本轮采样 ${event.step} / ${event.num_inference_steps}。这是当前阶段进度，后续还需处理与保存。`;
   } else $('#progress').hidden = true;
-  $('#view-status').textContent = '查看历史任务 · 复用后可修改输入与参数';
-  if (job.state === 'succeeded') {
-    const report = job.report && typeof job.report === 'object' ? job.report : {};
-    setView('after', hasJobFile(job,'refined.glb') ? `/api/jobs/${job.id}/files/refined.glb` : null);
-    $('#face-stat').textContent = validMetric(report.geometry?.faces) ? report.geometry.faces.toLocaleString() : '—';
-    $('#time-stat').textContent = validMetric(report.seconds) ? duration(report.seconds) : '—';
-    $('#memory-stat').textContent = validMetric(report.peak_allocated_mb) ? `${(report.peak_allocated_mb/1024).toFixed(2)} GiB` : '—';
-    $('#res-stat').textContent = validMetric(report.actual_resolution) && report.actual_resolution > 0 ? report.actual_resolution : '—';
-    const complete = geometry(report.geometry) && [report.seconds,report.peak_allocated_mb,report.actual_resolution].every(validMetric) && report.actual_resolution > 0;
-    $('#view-status').textContent = report.compatibility_port ? 'Windows SDPA 兼容路径 · 两侧视角同步' : 'Hi3D 模型与采样路径 · 两侧视角同步';
-    $('#after-title').textContent = 'Hi3D 精修结果';
-    $('#after-hint').textContent = complete ? '左右拖动旋转，滚轮缩放；两侧视角同步' : '运行报告不完整；已保留的精修模型仍可预览和导出';
-    if (!complete) $('#stage-detail').textContent = '此任务的运行报告不完整，缺失指标显示为 —。现有模型文件仍可预览和导出，几何质量需另行检查。';
-    if (!hasJobFile(job,'refined.glb')) {
-      $('#after-title').textContent = '此任务的精修文件已缺失'; $('#after-hint').textContent = '仍可查看保留的报告；输入齐全时可复用后重试';
-      $('#stage-detail').textContent = '任务曾完成，但当前目录找不到精修文件。下方指标来自保存的运行报告。';
-    }
-  } else {
-    setView('after', null);
-    $('#after-title').textContent = activeStates.has(job.state) ? 'Hi3D 正在精修，请稍候' : '这次任务没有生成精修结果';
-    $('#after-hint').textContent = activeStates.has(job.state) ? '可在下方查看当前阶段与日志' : '展开日志查看原因；复用输入后可以重试';
-    if (!activeStates.has(job.state)) $('#stage-detail').textContent = (job.message || stateLabels[job.state]) + '。输入与日志已保留，可复用后重试。';
+  const report = job.report && typeof job.report === 'object' ? job.report : {}, version = renderPreview(job);
+  $('#face-stat').textContent = validMetric(report.geometry?.faces) ? report.geometry.faces.toLocaleString() : '—';
+  $('#time-stat').textContent = validMetric(report.seconds) ? duration(report.seconds) : '—';
+  $('#memory-stat').textContent = validMetric(report.peak_allocated_mb) ? `${(report.peak_allocated_mb/1024).toFixed(2)} GiB` : '—';
+  $('#res-stat').textContent = wantsRefine(job.options || {}) && validMetric(report.actual_resolution) && report.actual_resolution > 0 ? report.actual_resolution : '—';
+  renderStages(report.stages || job.stages);
+  $('#view-status').textContent = `${modeLabels[selectedMode]} · ${report.compatibility_port ? 'Windows SDPA 兼容路径 · ' : ''}两侧视角同步`;
+  $('#after-title').textContent = version ? versionLabels[version] : activeStates.has(job.state) ? '正在生成阶段结果，请稍候' : '此任务没有可用的阶段模型';
+  $('#after-hint').textContent = version ? '可切换已完成的阶段；任务停止或失败后仍保留可用文件' : '可在下方查看任务阶段与日志';
+  const complete = report.geometry ? geometry(report.geometry) : false;
+  if (!activeStates.has(job.state)) {
+    if (!report.geometry) geometry(null);
+    if (job.state === 'succeeded') {
+      const absent = [];
+      if (wantsRefine(job.options || {}) && !hasJobFile(job,'refined.glb')) absent.push('Hi3D 精修文件');
+      if (wantsTexture(job.options || {}) && !hasJobFile(job,'textured.glb')) absent.push('PBR 材质文件');
+      if (absent.length) $('#stage-detail').textContent = `任务记录已完成，但当前目录缺少${absent.join('、')}。现有阶段模型仍可预览和导出。`;
+      else if (!complete || !validMetric(report.seconds) || !validMetric(report.peak_allocated_mb)) $('#stage-detail').textContent = '运行报告不完整，缺失指标显示为 —。现有阶段模型仍可预览和导出，几何质量需另行检查。';
+    } else $('#stage-detail').textContent = `${job.message || stateLabels[job.state] || '任务未完成'}。已生成的阶段文件与日志保留，可查看、导出或复用输入。`;
   }
   availability();
 }
 async function loadArtifacts(job, selectedEpoch) {
   if (epoch !== selectedEpoch || currentJob?.id !== job.id) return;
   const files = job.available_files || [], key = `${job.id}:${job.updated}:${files.join(',')}`;
-  if (files.includes('conditioning.png')) { $('#conditioning').src = `/api/jobs/${job.id}/files/conditioning.png`; $('#conditioning').hidden = false; }
+  const condition = files.includes('foreground.png') ? 'foreground.png' : files.includes('conditioning.png') ? 'conditioning.png' : null;
+  if (condition) { $('#conditioning').src = `/api/jobs/${job.id}/files/${condition}`; $('#conditioning').hidden = false; }
   else { $('#conditioning').hidden = true; $('#conditioning').removeAttribute('src'); }
   if (!files.includes('worker.log')) { $('#log').textContent = '日志文件缺失或尚未生成。'; return; }
   if (logsKey === key) return;
@@ -331,11 +430,11 @@ async function openJob(id) {
 }
 $('#reuse').onclick = async () => {
   if (!currentJob || inputBusy()) return; pending = 'reuse'; availability();
-  try { const result = await post(`/api/jobs/${currentJob.id}/reuse`); draftWith(result.image, result.mesh); applyOptions(result.options); toast('输入和参数已复制到新任务。调整后即可再次精修，原记录保留。'); }
+  try { const result = await post(`/api/jobs/${currentJob.id}/reuse`); applyOptions(result.options); draftWith(result.image, result.mesh || null); toast('输入和参数已复制到新任务。调整流程后即可再次运行，原记录与阶段文件保留。'); }
   catch (error) { showError(error); } finally { pending = null; availability(); }
 };
 $('#report').onclick = () => { if (currentJob && !$('#report').disabled) window.open(`/api/jobs/${currentJob.id}/files/report.json`, '_blank', 'noopener'); };
-$('#export-source').onchange = exportAvailability;
+$('#export-source').onchange = () => { exportSourceManual = true; exportAvailability(); };
 for (const id of ['export-source','export-format','height']) $('#'+id).addEventListener('change', () => { $('#dimension-link').hidden = true; });
 $('#export').onclick = async () => {
   if ($('#export').disabled || !$('#height').reportValidity()) return;
@@ -357,9 +456,10 @@ async function history() {
     if (!jobs.length) { list.textContent = '还没有任务。回到几何工作台，载入样例开始第一次精修。'; return; }
     for (const job of jobs) {
       const row = document.createElement('div'); row.className = 'history-item'; row.dataset.jobId = job.id; const info = document.createElement('div'); info.className = 'grow';
-      const title = document.createElement('b'); title.textContent = `Hi3D ${job.options?.resolution || '—'} · ${job.options?.steps || '—'} 步 · 种子 ${job.options?.seed ?? '—'}`;
+      const title = document.createElement('b'), mode = job.options?.mode || 'refine';
+      title.textContent = `${modeLabels[mode] || mode}${wantsRefine(job.options || {}) ? ' · Hi3D '+(job.options?.resolution || '—') : ''}${wantsTexture(job.options || {}) ? ' · PBR' : ''} · 种子 ${job.options?.seed ?? '—'}`;
       const time = document.createElement('time'); time.textContent = new Date(job.created*1000).toLocaleString();
-      const description = document.createElement('p'); description.textContent = job.state === 'succeeded' ? '打开查看结果、导出或复用输入' : '打开查看日志与保留的输入'; info.append(title, document.createElement('br'), time, description);
+      const description = document.createElement('p'); description.textContent = job.state === 'succeeded' ? '打开查看阶段结果、导出或复用输入' : '打开查看日志、已保留阶段与输入'; info.append(title, document.createElement('br'), time, description);
       const state = document.createElement('span'); state.className = 'state-pill'; state.textContent = stateLabels[job.state] || job.state;
       const button = document.createElement('button'); button.textContent = '打开任务 →'; button.onclick = () => openJob(job.id); row.append(info, state, button); list.append(row);
     }
@@ -372,14 +472,27 @@ function renderHealth() {
   $('#recovery-alert').hidden = !recoveryBlocked && !recoveryErrors.length;
   $('#recovery-alert').textContent = recoveryBlocked ? `检测到重启前仍在运行的工作进程，已暂停新任务。请等待进程退出；涉及进程：${(health.recovery_workers || []).map(item => item.pid).join('、')}。` : `有 ${recoveryErrors.length} 条历史记录无法读取，已跳过；其他记录仍可使用。详情：${recoveryErrors.map(item => typeof item === 'string' ? item : JSON.stringify(item)).join('；')}`;
   $('#connection-alert').hidden = online; $('#health-badge').classList.toggle('offline', !online);
-  $('#health-badge').textContent = !online ? '● 连接已断开' : health.model_checking ? '◌ 正在校验模型…' : health.operation === 'diagnosing' ? '◌ 正在检查 GPU…' : health.active ? '● 本地精修运行中' : health.models.ready ? '● 本地模型已就绪' : '○ 模型文件待准备';
+  renderHealthBadge();
   const cards = $('#model-cards'); cards.replaceChildren();
-  for (const [key, component] of Object.entries(health.models.components)) {
+  for (const [key, component] of Object.entries(health.models?.components || {})) {
     const card = document.createElement('div'); card.className = 'model-card'; const title = document.createElement('h3'); title.textContent = {hi3d:'Hi3D V1.0',dino:'DINOv2 Large',clip:'CLIP ViT-L/14'}[key] || key;
     const repo = document.createElement('small'); repo.textContent = component.repo; const license = document.createElement('p'); license.className = 'hint'; license.textContent = component.license;
     const state = document.createElement('div'); state.className = 'model-state'; state.textContent = component.message || (component.verified ? '✓ 完整校验通过' : '需要准备或校验'); card.append(title, repo, license, state); cards.append(card);
   }
-  $('#download-state').textContent = health.verification_error ? '校验出错：'+health.verification_error : health.model_checking ? '正在完整校验文件，请稍候…' : health.models.download.message;
+  $('#download-state').textContent = health.verification_error ? '校验出错：'+health.verification_error : health.model_checking ? '正在完整校验文件，请稍候…' : health.models?.download?.message || 'Hi3D 核心尚无下载任务。';
+  const pipeline = health.pipeline_models, pipelineCards = $('#pipeline-model-cards'); pipelineCards.replaceChildren();
+  for (const [key,component] of Object.entries(pipeline?.components || {})) {
+    const card = document.createElement('div'); card.className = 'model-card';
+    const title = document.createElement('h3'); title.textContent = {coarse:'图片建模',texture:'PBR 贴图',texture_encoder:'贴图图像编码器'}[key] || key;
+    const repo = document.createElement('small'); repo.textContent = component.repo || '';
+    const license = document.createElement('p'); license.className = 'hint'; license.textContent = component.license || '许可见组件目录';
+    const state = document.createElement('div'); state.className = 'model-state';
+    state.textContent = component.ready ? '✓ 组件就绪' : component.message || `待准备${Array.isArray(component.missing) && component.missing.length ? ' · 缺少 '+component.missing.length+' 个文件' : ''}`;
+    card.append(title,repo,license,state); pipelineCards.append(card);
+  }
+  if (!pipeline) pipelineCards.textContent = '当前服务未提供扩展组件状态，请更新并重启完整工作台。Hi3D 几何精修仍可单独使用。';
+  $('#pipeline-download-state').textContent = pipeline?.download?.message || '扩展组件尚无下载任务。';
+  $('#pipeline-runtime-state').textContent = pipeline?.runtime?.ready ? '✓ 扩展运行环境就绪。各阶段依次运行，所需组件按任务选择。' : `扩展运行环境尚未就绪。${pipeline?.runtime?.message || pipeline?.runtime?.error || '请完成扩展组件安装后重新检查。'}`;
   if (health.diagnostics && pending !== 'diagnose') $('#diagnostics').textContent = JSON.stringify(health.diagnostics, null, 2);
   availability();
 }
@@ -414,6 +527,21 @@ $('#reconnect').onclick = () => { sessionReady = false; void tick(); };
 for (const [id, kind, action] of [['download-models','download',async () => { const result = await post('/api/models/download'); toast(result.started ? '开始下载 Hi3D 与必需编码器，请在此查看进度。' : '已有下载进程，请等待完成。'); }],['verify-models','verify',async () => { const result = await post('/api/models/verify'); toast(result.ok ? '全部模型文件 SHA256 校验通过。' : '校验未通过：'+result.errors.join('，')); }],['diagnose','diagnose',async () => { $('#diagnostics').textContent = '正在检查 GPU 基础内核，首次编译可能需要几分钟…'; const result = await post('/api/diagnostics'); $('#diagnostics').textContent = JSON.stringify(result,null,2); toast(result.kernel_probe === 'passed' ? 'GPU 基础内核检查通过，可以尝试精修。' : 'GPU 检查发现问题，请查看诊断详情。'); }]]) {
   $('#'+id).onclick = async () => { if ($('#'+id).disabled) return; pending = kind; availability(); try { await action(); await refresh(); } catch (error) { showError(error); } finally { pending = null; availability(); } };
 }
+for (const [id,selection] of [['download-pipeline-all','all'],['download-pipeline-coarse','coarse'],['download-pipeline-texture','texture']]) {
+  $('#'+id).onclick = async () => {
+    if ($('#'+id).disabled) return; pending = 'pipeline-download'; availability();
+    try { const result = await post('/api/pipeline/models/download',{selection}); toast(result.started === false ? '已有下载任务，请查看组件状态。' : '扩展组件下载请求已提交，请在此查看进度。'); await refresh(); }
+    catch (error) { showError(error); } finally { pending = null; availability(); }
+  };
+}
+$('#verify-pipeline-models').onclick = async () => {
+  if ($('#verify-pipeline-models').disabled) return; pending = 'pipeline-verify'; availability();
+  try {
+    const result = await post('/api/pipeline/models/verify');
+    toast(result.ok === false ? '扩展组件校验未通过：'+(result.errors || []).join('，') : result.ok || result.ready ? '扩展组件校验通过。' : '检查已完成，请查看各组件与运行环境状态。');
+    await refresh();
+  } catch (error) { showError(error); } finally { pending = null; availability(); }
+};
 // The background tool edits alpha locally without another model.
 let original = null, drawing = false, last = null;
 const canvas = $('#mask-canvas'), ctx = canvas.getContext('2d', {willReadFrequently:true});

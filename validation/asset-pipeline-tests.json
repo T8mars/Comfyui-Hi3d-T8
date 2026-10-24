@@ -1,0 +1,10 @@
+{
+  "command": ".appenv/Scripts/python.exe -m pytest tests -q",
+  "passed": 154,
+  "exit_code": 0,
+  "seconds": 61.06,
+  "warnings": [
+    "Starlette TestClient dependency deprecated anyio BlockingPortal alias"
+  ],
+  "gpu_inference": false
+}

@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "real_cpu_u2netp": true,
+  "uniform_alpha_254_treated_as_opaque": true,
+  "same_foreground_as_rgb": true,
+  "cases": [
+    {
+      "input": "opaque",
+      "used": "u2netp_cpu",
+      "output_sha256": "4eec2beb9fd5af9c59cd18b5ce8f7fdc132978acf4d9331b10e50d72b205803c"
+    },
+    {
+      "input": "near-opaque",
+      "used": "u2netp_cpu",
+      "output_sha256": "4eec2beb9fd5af9c59cd18b5ce8f7fdc132978acf4d9331b10e50d72b205803c"
+    }
+  ]
+}

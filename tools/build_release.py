@@ -12,7 +12,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from hi3d_workbench.common import VERSION
 DIST=ROOT/'dist'
-ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
+ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
 
 def files(root):
     return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and not p.name.endswith('.pyc')]
@@ -36,11 +36,39 @@ def build_source():
         for f in files(ROOT/'examples'):z.write(f,Path('ComfyUI-Hi3D')/f.relative_to(ROOT))
     return out
 
-def portable(base,include_models,name):
+def pipeline_runtime(out):
+    """Make the private cp312 runtime relocatable without copying venv launchers."""
+    source=ROOT/'.pipelineenv'
+    state=json.loads((source/'pipeline-runtime.json').read_text(encoding='utf-8'))
+    if not state.get('ready'):raise RuntimeError('扩展运行环境尚未就绪')
+    data=dict(line.split(' = ',1) for line in (source/'pyvenv.cfg').read_text().splitlines() if ' = ' in line)
+    base=Path(data['home'])
+    target=out/'runtime-pipeline';target.mkdir()
+    for path in base.iterdir():
+        if path.is_file() and (path.name in {'python.exe','python3.dll','python312.dll','LICENSE.txt'} or path.suffix.lower()=='.dll'):
+            shutil.copy2(path,target/path.name)
+    for name in ('DLLs','include','libs'):
+        if (base/name).is_dir():shutil.copytree(base/name,target/name)
+    with zipfile.ZipFile(target/'python312.zip','w',zipfile.ZIP_DEFLATED) as z:
+        for path in files(base/'Lib'):
+            rel=path.relative_to(base/'Lib')
+            if rel.parts[0] not in {'site-packages','test','tests','idlelib','tkinter','ensurepip'}:z.write(path,rel)
+    shutil.copytree(source/'Lib/site-packages',target/'Lib/site-packages',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+    shutil.copytree(source/'sources',target/'sources',ignore=shutil.ignore_patterns('__pycache__','*.pyc','.git'))
+    shutil.copy2(source/'pipeline-runtime.json',target/'pipeline-runtime.json')
+    (target/'python312._pth').write_text('python312.zip\nDLLs\nLib/site-packages\n..\nimport site\n')
+    packages=subprocess.check_output([str(target/'python.exe'),'-m','pip','freeze'],cwd=out,text=True,encoding='utf-8')
+    (out/'runtime-pipeline-packages.txt').write_text(packages,encoding='utf-8')
+    return target
+
+def portable(base,include_models,name,include_pipeline=False):
     if Path(name).name!=name:raise ValueError('发行目录名称不能包含路径')
     if include_models:
         from hi3d_workbench.models import verify_all
         if not verify_all()['ok']:raise SystemExit('模型尚未完成完整校验，不能生成完整离线包')
+        if include_pipeline:
+            from hi3d_workbench.pipeline_models import verify
+            if not verify()['ready']:raise SystemExit('扩展模型或环境尚未完整校验，不能生成完整资产工作台包')
     out=DIST/name
     if out.exists():raise SystemExit('发行目录已存在，不覆盖现有发行版')
     out.mkdir()
@@ -62,8 +90,11 @@ def portable(base,include_models,name):
     packages=subprocess.check_output([str(runtime/'python.exe'),'-m','pip','freeze'],cwd=out,text=True,encoding='utf-8')
     (out/'runtime-packages.txt').write_text(packages,encoding='utf-8')
     (out/'config.local.json').write_text(json.dumps({'worker_python':'runtime/python.exe','worker_command':[],'minimum_free_vram_mb':1500,'port':8378}),encoding='utf-8')
+    if include_pipeline:pipeline_runtime(out)
     if include_models:
-        shutil.copytree(ROOT/'models',out/'models',ignore=shutil.ignore_patterns('.cache','.downloads','*.tmp','*.incomplete'))
+        omitted=['.cache','.downloads','*.tmp','*.incomplete','*.parts*','*.assembled','download-state.json','.download.lock']
+        if not include_pipeline:omitted.append('extensions')
+        shutil.copytree(ROOT/'models',out/'models',ignore=shutil.ignore_patterns(*omitted))
     # No input images, jobs or personal paths included.
     return out
 
@@ -77,6 +108,6 @@ def manifest():
     (DIST/'SHA256.json').write_text(json.dumps(values,indent=2),encoding='utf-8')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
-    print(portable(args.portable_base,args.include_models,args.name) if args.portable_base else build_source())
+    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
+    print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline) if args.portable_base else build_source())
     manifest()

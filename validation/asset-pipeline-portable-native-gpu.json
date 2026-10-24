@@ -1,0 +1,79 @@
+{
+  "runtime": {
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU"
+  },
+  "packed_sdpa_cuda": {
+    "ok": true,
+    "seconds": 0.185,
+    "result": {
+      "maximum_absolute_error": 0.0008895397186279297,
+      "shape": [
+        17,
+        2,
+        32
+      ]
+    }
+  },
+  "cumesh_uv_unwrap": {
+    "ok": true,
+    "seconds": 0.305,
+    "result": {
+      "vertices": 73,
+      "faces": 80,
+      "uv_min": 0.0004436557355802506,
+      "uv_max": 0.9995563626289368
+    }
+  },
+  "o_voxel_mesh_encoder_input": {
+    "ok": true,
+    "seconds": 0.181,
+    "result": {
+      "voxels": 2864,
+      "dual_shape": [
+        2864,
+        3
+      ]
+    }
+  },
+  "nvdiffrast_cuda": {
+    "ok": true,
+    "seconds": 0.022,
+    "result": {
+      "covered_pixels": 338
+    }
+  },
+  "flex_gemm_grid_sample": {
+    "ok": true,
+    "seconds": 0.581,
+    "result": {
+      "shape": [
+        1,
+        1,
+        3
+      ],
+      "values": [
+        [
+          [
+            1.0,
+            1.0,
+            1.0
+          ]
+        ]
+      ]
+    }
+  },
+  "flex_gemm_triton_sparse_convolution": {
+    "ok": true,
+    "seconds": 0.515,
+    "result": {
+      "shape": [
+        27,
+        32
+      ],
+      "center_value": 864.0
+    }
+  },
+  "seconds": 4.177
+}

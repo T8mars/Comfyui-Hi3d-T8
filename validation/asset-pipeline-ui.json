@@ -1,0 +1,182 @@
+{
+  "checks": [
+    {
+      "check": "mode-specific-model-gating-and-hidden-hi3d-controls",
+      "passed": true,
+      "evidence": {
+        "core_ready": false,
+        "texture_ready": false,
+        "coarse_ready": true,
+        "coarse_only_run_enabled": true,
+        "default_refine": false,
+        "default_pbr": true,
+        "inactive_old_steps": 0,
+        "seed_and_offload_visible": true
+      }
+    },
+    {
+      "check": "image-only-payload-and-coarse-result",
+      "passed": true,
+      "evidence": {
+        "mode": "image_to_asset",
+        "image": "eeb3b462f6f746339fb1536b6750bde9",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": false,
+        "texture_resolution": 512,
+        "texture_size": 2048,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa"
+      }
+    },
+    {
+      "check": "reuse-image-job-without-coarse",
+      "passed": true,
+      "evidence": {
+        "mesh": null,
+        "run_enabled": true
+      }
+    },
+    {
+      "check": "texture-payload-original-pbr-and-glb-only",
+      "passed": true,
+      "evidence": {
+        "payload": {
+          "mode": "texture",
+          "image": "bbe73b9a805c4a6e9240cd7de1e5c7bb",
+          "mesh": "740774b52bbb4b52b535e93678255b1f",
+          "refine_geometry": false,
+          "generate_texture": true,
+          "texture_resolution": 512,
+          "texture_size": 2048,
+          "background": "keep",
+          "resolution": 512,
+          "steps": 25,
+          "seed": 0,
+          "offload": true,
+          "attention": "sdpa"
+        },
+        "material_factor": [
+          0.12,
+          0.7,
+          0.3,
+          1
+        ]
+      }
+    },
+    {
+      "check": "failed-job-intermediate-preview-and-geometry-export",
+      "passed": true,
+      "evidence": {
+        "source": "refined",
+        "format": "stl",
+        "height_mm": null
+      }
+    },
+    {
+      "check": "actual-stage-progress-and-active-export-lock",
+      "passed": true,
+      "evidence": {
+        "value": 3,
+        "max": 10,
+        "stage": "texture_sampling"
+      }
+    },
+    {
+      "check": "pure-refine-independent-and-global-download-lock",
+      "passed": true,
+      "evidence": {
+        "core_ready": true,
+        "coarse_ready": false,
+        "texture_ready": false
+      }
+    },
+    {
+      "check": "refine-entry-always-runs-hi3d",
+      "passed": true,
+      "evidence": {
+        "mode": "refine",
+        "image": "777e4d29baf54a2c9eee6c39eb940c2d",
+        "mesh": "e2a2ee09735941f69c71c188d45779fc",
+        "refine_geometry": true,
+        "generate_texture": false,
+        "texture_resolution": 512,
+        "texture_size": 2048,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa"
+      }
+    },
+    {
+      "check": "default-image-coarse-pbr-two-stage-payload",
+      "passed": true,
+      "evidence": {
+        "mode": "image_to_asset",
+        "image": "ac098ec78d47454489c8e3b6e4e323b2",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": true,
+        "texture_resolution": 512,
+        "texture_size": 2048,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa"
+      }
+    },
+    {
+      "check": "opt-in-image-refine-pbr-payload-and-three-saved-stages",
+      "passed": true,
+      "evidence": {
+        "mode": "image_to_asset",
+        "image": "3eb572229a3d493d965150e6289a21f4",
+        "mesh": null,
+        "refine_geometry": true,
+        "generate_texture": true,
+        "texture_resolution": 512,
+        "texture_size": 2048,
+        "background": "keep",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa"
+      }
+    },
+    {
+      "check": "separate-pipeline-download-selection-and-verify",
+      "passed": true,
+      "evidence": [
+        {
+          "selection": "all"
+        },
+        {
+          "selection": "coarse"
+        },
+        {
+          "selection": "texture"
+        }
+      ]
+    },
+    {
+      "check": "responsive-layout",
+      "passed": true,
+      "evidence": {
+        "mobile_width": 390,
+        "horizontal_overflow": false
+      }
+    }
+  ],
+  "javascript_errors": [],
+  "gpu_inference": false,
+  "isolation": "Temporary root server; explicit HTTP fixtures; real uploads, model-viewer and canvas."
+}

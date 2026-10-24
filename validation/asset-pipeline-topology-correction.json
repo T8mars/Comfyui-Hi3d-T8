@@ -1,0 +1,81 @@
+{
+  "reason": "Original report counted UV seam vertex splits as surface holes/components",
+  "artifact_sha256_unchanged": "fff39149fec32136d8e45c82edff5b17c4a8467ff22e97ac2f848df3c54def57",
+  "original_raw_index_topology": {
+    "vertices": 590694,
+    "faces": 758788,
+    "bounds": [
+      [
+        -0.9064457416534424,
+        -0.9997609257698059,
+        -0.9908217787742615
+      ],
+      [
+        0.9027481079101562,
+        0.9935131669044495,
+        0.9912000298500061
+      ]
+    ],
+    "extents": [
+      1.8091938495635986,
+      1.9932740926742554,
+      1.9820218086242676
+    ],
+    "watertight": false,
+    "winding_consistent": true,
+    "boundary_edges": 389980,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 1,
+    "components": 39436,
+    "unchecked": [
+      "自交",
+      "壁厚",
+      "最小零件强度",
+      "切片可打印性"
+    ],
+    "units": "unknown",
+    "warnings": [
+      "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+    ]
+  },
+  "corrected_diagnostic_topology": {
+    "vertices": 590694,
+    "faces": 758788,
+    "bounds": [
+      [
+        -0.9064457416534424,
+        -0.9997609257698059,
+        -0.9908217787742615
+      ],
+      [
+        0.9027481079101562,
+        0.9935131669044495,
+        0.9912000298500061
+      ]
+    ],
+    "extents": [
+      1.8091938495635986,
+      1.9932740926742554,
+      1.9820218086242676
+    ],
+    "watertight": true,
+    "winding_consistent": true,
+    "boundary_edges": 0,
+    "nonmanifold_edges": 0,
+    "degenerate_faces": 1,
+    "components": 2,
+    "unchecked": [
+      "自交",
+      "壁厚",
+      "最小零件强度",
+      "切片可打印性"
+    ],
+    "units": "unknown",
+    "warnings": [
+      "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+    ],
+    "topology_vertices": 379282,
+    "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+  },
+  "repair_performed": false
+}

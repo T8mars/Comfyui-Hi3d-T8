@@ -6,12 +6,12 @@ from test_server_operations import isolated_server
 
 def test_upload_inspection_does_not_block_health(isolated_server,monkeypatch):
     server,client=isolated_server
-    entered=threading.Event();release=threading.Event();original=server.inspect_mesh
-    def inspect(mesh):
+    entered=threading.Event();release=threading.Event();original=server.inspect_asset_geometry
+    def inspect(path):
         entered.set()
         assert release.wait(8),'Test did not release geometry inspection'
-        return original(mesh)
-    monkeypatch.setattr(server,'inspect_mesh',inspect)
+        return original(path)
+    monkeypatch.setattr(server,'inspect_asset_geometry',inspect)
     with ThreadPoolExecutor(max_workers=2) as pool:
         upload=pool.submit(client.post,'/api/assets',files={'file':('mesh.glb',trimesh.creation.box().export(file_type='glb'))})
         try:

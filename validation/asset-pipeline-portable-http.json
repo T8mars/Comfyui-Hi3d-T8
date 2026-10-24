@@ -1,0 +1,2343 @@
+{
+  "passed": true,
+  "real_http": true,
+  "all_three_entry_modes_validated": true,
+  "cases": {
+    "image_default": {
+      "real_inference": true,
+      "mode": "image_to_asset",
+      "started": 1792838628.2906365,
+      "input_file": "reference.png",
+      "request": {
+        "mode": "image_to_asset",
+        "image": "767c0e427edd4b55a0a636777a6666e7",
+        "mesh": null,
+        "refine_geometry": false,
+        "generate_texture": true,
+        "background": "auto",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_resolution": 512,
+        "texture_size": 2048
+      },
+      "job_id": "f3ed169bcc6a4951a01db651107c953a",
+      "job": {
+        "id": "f3ed169bcc6a4951a01db651107c953a",
+        "created": 1792838628.8971066,
+        "state": "succeeded",
+        "stage": "complete",
+        "options": {
+          "mode": "image_to_asset",
+          "refine_geometry": false,
+          "generate_texture": true,
+          "texture_resolution": 512,
+          "texture_size": 2048,
+          "background": "auto",
+          "resolution": 512,
+          "steps": 25,
+          "seed": 0,
+          "offload": true,
+          "attention": "sdpa",
+          "image_asset": "767c0e427edd4b55a0a636777a6666e7",
+          "mesh_asset": null
+        },
+        "message": "模型与贴图已完成",
+        "worker_pid": 98428,
+        "worker_created": 1792838628.9206188,
+        "updated": 1792838963.116145,
+        "event": {
+          "stage": "complete",
+          "time": 1792838962.2735786,
+          "message": "模型与贴图已保存"
+        },
+        "report": {
+          "status": "succeeded",
+          "mode": "image_to_asset",
+          "stages": [
+            {
+              "stage": "coarse",
+              "model": {
+                "repo": "tencent/Hunyuan3D-2mini",
+                "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+                "license": "Tencent Hunyuan 3D 2.0 Community License",
+                "files": [
+                  "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+                  "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+                  "LICENSE",
+                  "NOTICE",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": true,
+              "texture_generated": false,
+              "vertices": 379282,
+              "faces": 758788,
+              "inference_steps": 5,
+              "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+              "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+              "transform": {
+                "coordinate_system": "Hunyuan canonical",
+                "unit_scale": "generator canonical; no absolute scale"
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\coarse\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\coarse\\coarse.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 88.617,
+              "peak_allocated_mb": 2468.37,
+              "peak_reserved_mb": 2610.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 590694,
+              "faces": 758788,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.0018488168716430664,
+                  -0.0031238794326782227,
+                  0.00018912553787231445
+                ],
+                "normalization_scale": 0.5016821337693573,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 227.053,
+              "peak_allocated_mb": 3311.34,
+              "peak_reserved_mb": 3584.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 327.15,
+          "peak_allocated_mb": 3311.34,
+          "actual_resolution": 256,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 590694,
+            "faces": 758788,
+            "bounds": [
+              [
+                -0.9064457416534424,
+                -0.9997609257698059,
+                -0.9908217787742615
+              ],
+              [
+                0.9027481079101562,
+                0.9935131669044495,
+                0.9912000298500061
+              ]
+            ],
+            "extents": [
+              1.8091938495635986,
+              1.9932740926742554,
+              1.9820218086242676
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 389980,
+            "nonmanifold_edges": 0,
+            "degenerate_faces": 1,
+            "components": 39436,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+            ]
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "6194487a42e710e73a0ea670a4e3d1dd715dcaaddca4625512965548cb7c3009",
+          "final_sha256": "fff39149fec32136d8e45c82edff5b17c4a8467ff22e97ac2f848df3c54def57",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "available_files": [
+          "coarse.glb",
+          "foreground.png",
+          "input.png",
+          "pipeline-progress.json",
+          "report.json",
+          "request.json",
+          "textured.glb",
+          "worker.log"
+        ]
+      },
+      "output_sha256": "fff39149fec32136d8e45c82edff5b17c4a8467ff22e97ac2f848df3c54def57",
+      "geometry": {
+        "vertices": 590694,
+        "faces": 758788,
+        "bounds": [
+          [
+            -0.9064457416534424,
+            -0.9997609257698059,
+            -0.9908217787742615
+          ],
+          [
+            0.9027481079101562,
+            0.9935131669044495,
+            0.9912000298500061
+          ]
+        ],
+        "extents": [
+          1.8091938495635986,
+          1.9932740926742554,
+          1.9820218086242676
+        ],
+        "watertight": false,
+        "winding_consistent": true,
+        "boundary_edges": 389980,
+        "nonmanifold_edges": 0,
+        "degenerate_faces": 1,
+        "components": 39436,
+        "unchecked": [
+          "自交",
+          "壁厚",
+          "最小零件强度",
+          "切片可打印性"
+        ],
+        "units": "unknown",
+        "warnings": [
+          "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+        ]
+      },
+      "material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_height_m": 0.08,
+      "passed": true,
+      "finished": 1792838981.944938,
+      "served_after_restart": {
+        "report": {
+          "status": "succeeded",
+          "mode": "image_to_asset",
+          "stages": [
+            {
+              "stage": "coarse",
+              "model": {
+                "repo": "tencent/Hunyuan3D-2mini",
+                "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+                "license": "Tencent Hunyuan 3D 2.0 Community License",
+                "files": [
+                  "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+                  "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+                  "LICENSE",
+                  "NOTICE",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": true,
+              "texture_generated": false,
+              "vertices": 379282,
+              "faces": 758788,
+              "inference_steps": 5,
+              "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+              "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+              "transform": {
+                "coordinate_system": "Hunyuan canonical",
+                "unit_scale": "generator canonical; no absolute scale"
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\coarse\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\coarse\\coarse.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 88.617,
+              "peak_allocated_mb": 2468.37,
+              "peak_reserved_mb": 2610.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 590694,
+              "faces": 758788,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.0018488168716430664,
+                  -0.0031238794326782227,
+                  0.00018912553787231445
+                ],
+                "normalization_scale": 0.5016821337693573,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\f3ed169bcc6a4951a01db651107c953a\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 227.053,
+              "peak_allocated_mb": 3311.34,
+              "peak_reserved_mb": 3584.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 327.15,
+          "peak_allocated_mb": 3311.34,
+          "actual_resolution": 256,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 590694,
+            "faces": 758788,
+            "bounds": [
+              [
+                -0.9064457416534424,
+                -0.9997609257698059,
+                -0.9908217787742615
+              ],
+              [
+                0.9027481079101562,
+                0.9935131669044495,
+                0.9912000298500061
+              ]
+            ],
+            "extents": [
+              1.8091938495635986,
+              1.9932740926742554,
+              1.9820218086242676
+            ],
+            "watertight": true,
+            "winding_consistent": true,
+            "boundary_edges": 0,
+            "nonmanifold_edges": 0,
+            "degenerate_faces": 1,
+            "components": 2,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 379282,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "6194487a42e710e73a0ea670a4e3d1dd715dcaaddca4625512965548cb7c3009",
+          "final_sha256": "fff39149fec32136d8e45c82edff5b17c4a8467ff22e97ac2f848df3c54def57",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ],
+          "diagnostic_revision": {
+            "reason": "Exclude coincident UV seam splits from topology diagnostics; GLB unchanged",
+            "original_report_sha256": "f0537b9bf9a7269cfbaf8cd16fe450580470252f60d5e004f88ed5d83292dbe6"
+          }
+        },
+        "state": "succeeded"
+      }
+    },
+    "image_full_chain": {
+      "real_inference": true,
+      "mode": "image_to_asset",
+      "started": 1792839102.4905965,
+      "input_file": "bunny-opaque-reference.png",
+      "request": {
+        "mode": "image_to_asset",
+        "image": "f8df95857847444cb2ac58c3ec835fd6",
+        "mesh": null,
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "auto",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_resolution": 512,
+        "texture_size": 2048
+      },
+      "job_id": "cbfc275839f941bb8ed4c7a186124954",
+      "job": {
+        "id": "cbfc275839f941bb8ed4c7a186124954",
+        "created": 1792839272.3330977,
+        "state": "succeeded",
+        "stage": "complete",
+        "options": {
+          "mode": "image_to_asset",
+          "refine_geometry": true,
+          "generate_texture": true,
+          "texture_resolution": 512,
+          "texture_size": 2048,
+          "background": "auto",
+          "resolution": 512,
+          "steps": 25,
+          "seed": 0,
+          "offload": true,
+          "attention": "sdpa",
+          "image_asset": "f8df95857847444cb2ac58c3ec835fd6",
+          "mesh_asset": null
+        },
+        "message": "模型与贴图已完成",
+        "worker_pid": 116028,
+        "worker_created": 1792839272.345131,
+        "updated": 1792839874.440538,
+        "event": {
+          "stage": "complete",
+          "time": 1792839873.7717981,
+          "message": "模型与贴图已保存"
+        },
+        "report": {
+          "status": "succeeded",
+          "mode": "image_to_asset",
+          "stages": [
+            {
+              "stage": "coarse",
+              "model": {
+                "repo": "tencent/Hunyuan3D-2mini",
+                "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+                "license": "Tencent Hunyuan 3D 2.0 Community License",
+                "files": [
+                  "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+                  "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+                  "LICENSE",
+                  "NOTICE",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": true,
+              "texture_generated": false,
+              "vertices": 134893,
+              "faces": 269800,
+              "inference_steps": 5,
+              "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+              "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+              "transform": {
+                "coordinate_system": "Hunyuan canonical",
+                "unit_scale": "generator canonical; no absolute scale"
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\coarse\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\coarse\\coarse.glb",
+              "status": "succeeded",
+              "background": "u2netp_cpu",
+              "seconds": 133.142,
+              "peak_allocated_mb": 2468.37,
+              "peak_reserved_mb": 2610.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            },
+            {
+              "stage": "refine",
+              "status": "succeeded",
+              "requested_resolution": 512,
+              "actual_resolution": 512,
+              "steps": 25,
+              "seed": 0,
+              "offload": true,
+              "attention": "sdpa",
+              "compatibility_port": true,
+              "seconds": 319.16,
+              "peak_allocated_mb": 908,
+              "peak_reserved_mb": 960,
+              "stage_metrics": [
+                {
+                  "stage": "voxelizing",
+                  "seconds": 1.253,
+                  "peak_vram_mb": 62,
+                  "rss_mb": 15836
+                },
+                {
+                  "stage": "sampling",
+                  "seconds": 189.103,
+                  "peak_vram_mb": 377,
+                  "rss_mb": 16555
+                },
+                {
+                  "stage": "decoding",
+                  "seconds": 3.035,
+                  "peak_vram_mb": 908,
+                  "rss_mb": 16733
+                },
+                {
+                  "stage": "extracting",
+                  "seconds": 3.387,
+                  "peak_vram_mb": 707,
+                  "rss_mb": 16872
+                },
+                {
+                  "stage": "postprocessing",
+                  "seconds": 4.475,
+                  "peak_vram_mb": 232,
+                  "rss_mb": 17372
+                }
+              ],
+              "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+              "environment": {
+                "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+                "platform": "Windows-10-10.0.26300-SP0",
+                "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+                "packages": {
+                  "torch": "2.11.0+cu128",
+                  "torchvision": "0.26.0+cu128",
+                  "triton-windows": "3.6.0.post26",
+                  "spconv-cu126": "2.3.8",
+                  "transformers": "4.46.3",
+                  "accelerate": "1.6.0",
+                  "numpy": "1.26.4"
+                },
+                "cuda": true,
+                "kernel_probe": "not_run",
+                "official_validated_environment": false,
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ],
+                "free_vram_mb": 22315,
+                "total_vram_mb": 24435,
+                "torch_cuda": "12.8"
+              },
+              "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+              "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+              "input_sha256": "4eec2beb9fd5af9c59cd18b5ce8f7fdc132978acf4d9331b10e50d72b205803c",
+              "coarse_sha256": "13fd548f654e5ff474294fc0b548933010ec8fb1178bfe3f0c376318caa2ff53",
+              "geometry": {
+                "vertices": 456516,
+                "faces": 913063,
+                "bounds": [
+                  [
+                    -0.4924742279115319,
+                    -0.6933150466924918,
+                    -0.40137425815270833
+                  ],
+                  [
+                    0.4746249245883279,
+                    0.9684873059826525,
+                    0.39557007409721945
+                  ]
+                ],
+                "extents": [
+                  0.9670991524998598,
+                  1.6618023526751444,
+                  0.7969443322499278
+                ],
+                "watertight": false,
+                "winding_consistent": true,
+                "boundary_edges": 15,
+                "nonmanifold_edges": 4,
+                "degenerate_faces": 0,
+                "components": 1,
+                "unchecked": [
+                  "自交",
+                  "壁厚",
+                  "最小零件强度",
+                  "切片可打印性"
+                ],
+                "units": "unknown",
+                "warnings": [
+                  "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+                ]
+              },
+              "normalized": true,
+              "texture_generated": false
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 534236,
+              "faces": 913063,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.00892464816570282,
+                  0.13758614659309387,
+                  -0.002902090549468994
+                ],
+                "normalization_scale": 0.6017502617640188,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "u2netp_cpu",
+              "seconds": 121.941,
+              "peak_allocated_mb": 2827.4,
+              "peak_reserved_mb": 2944.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 594.0,
+          "peak_allocated_mb": 2827.4,
+          "actual_resolution": 512,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 534236,
+            "faces": 913063,
+            "bounds": [
+              [
+                -0.49247419834136963,
+                -0.6933150291442871,
+                -0.4013742506504059
+              ],
+              [
+                0.474624902009964,
+                0.9684873223304749,
+                0.3955700695514679
+              ]
+            ],
+            "extents": [
+              0.9670991003513336,
+              1.661802351474762,
+              0.7969443202018738
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 15,
+            "nonmanifold_edges": 4,
+            "degenerate_faces": 0,
+            "components": 1,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 456516,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "c1be9ea1067acc64fafc259ba3ca8467c103212dd817e0a2599b5334bfd2110a",
+          "final_sha256": "487342ea7163db51c902ed8abe9ab320c89f7a51508bec3caee5b80acce0fe57",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "available_files": [
+          "coarse.glb",
+          "conditioning.png",
+          "foreground.png",
+          "input.png",
+          "pipeline-progress.json",
+          "refined.glb",
+          "refined.npz",
+          "refined.ply",
+          "refined.stl",
+          "report.json",
+          "request.json",
+          "textured.glb",
+          "worker.log"
+        ]
+      },
+      "output_sha256": "487342ea7163db51c902ed8abe9ab320c89f7a51508bec3caee5b80acce0fe57",
+      "geometry": {
+        "vertices": 534236,
+        "faces": 913063,
+        "bounds": [
+          [
+            -0.49247419834136963,
+            -0.6933150291442871,
+            -0.4013742506504059
+          ],
+          [
+            0.474624902009964,
+            0.9684873223304749,
+            0.3955700695514679
+          ]
+        ],
+        "extents": [
+          0.9670991003513336,
+          1.661802351474762,
+          0.7969443202018738
+        ],
+        "watertight": false,
+        "winding_consistent": true,
+        "boundary_edges": 15,
+        "nonmanifold_edges": 4,
+        "degenerate_faces": 0,
+        "components": 1,
+        "unchecked": [
+          "自交",
+          "壁厚",
+          "最小零件强度",
+          "切片可打印性"
+        ],
+        "units": "unknown",
+        "warnings": [
+          "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+        ],
+        "topology_vertices": 456516,
+        "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+      },
+      "material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_height_m": 0.08,
+      "passed": true,
+      "finished": 1792839889.4769006,
+      "served_after_restart": {
+        "report": {
+          "status": "succeeded",
+          "mode": "image_to_asset",
+          "stages": [
+            {
+              "stage": "coarse",
+              "model": {
+                "repo": "tencent/Hunyuan3D-2mini",
+                "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+                "license": "Tencent Hunyuan 3D 2.0 Community License",
+                "files": [
+                  "hunyuan3d-dit-v2-mini-turbo/config.yaml",
+                  "hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+                  "LICENSE",
+                  "NOTICE",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": true,
+              "texture_generated": false,
+              "vertices": 134893,
+              "faces": 269800,
+              "inference_steps": 5,
+              "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
+              "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper",
+              "transform": {
+                "coordinate_system": "Hunyuan canonical",
+                "unit_scale": "generator canonical; no absolute scale"
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\coarse\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\coarse\\coarse.glb",
+              "status": "succeeded",
+              "background": "u2netp_cpu",
+              "seconds": 133.142,
+              "peak_allocated_mb": 2468.37,
+              "peak_reserved_mb": 2610.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            },
+            {
+              "stage": "refine",
+              "status": "succeeded",
+              "requested_resolution": 512,
+              "actual_resolution": 512,
+              "steps": 25,
+              "seed": 0,
+              "offload": true,
+              "attention": "sdpa",
+              "compatibility_port": true,
+              "seconds": 319.16,
+              "peak_allocated_mb": 908,
+              "peak_reserved_mb": 960,
+              "stage_metrics": [
+                {
+                  "stage": "voxelizing",
+                  "seconds": 1.253,
+                  "peak_vram_mb": 62,
+                  "rss_mb": 15836
+                },
+                {
+                  "stage": "sampling",
+                  "seconds": 189.103,
+                  "peak_vram_mb": 377,
+                  "rss_mb": 16555
+                },
+                {
+                  "stage": "decoding",
+                  "seconds": 3.035,
+                  "peak_vram_mb": 908,
+                  "rss_mb": 16733
+                },
+                {
+                  "stage": "extracting",
+                  "seconds": 3.387,
+                  "peak_vram_mb": 707,
+                  "rss_mb": 16872
+                },
+                {
+                  "stage": "postprocessing",
+                  "seconds": 4.475,
+                  "peak_vram_mb": 232,
+                  "rss_mb": 17372
+                }
+              ],
+              "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+              "environment": {
+                "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+                "platform": "Windows-10-10.0.26300-SP0",
+                "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+                "packages": {
+                  "torch": "2.11.0+cu128",
+                  "torchvision": "0.26.0+cu128",
+                  "triton-windows": "3.6.0.post26",
+                  "spconv-cu126": "2.3.8",
+                  "transformers": "4.46.3",
+                  "accelerate": "1.6.0",
+                  "numpy": "1.26.4"
+                },
+                "cuda": true,
+                "kernel_probe": "not_run",
+                "official_validated_environment": false,
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ],
+                "free_vram_mb": 22315,
+                "total_vram_mb": 24435,
+                "torch_cuda": "12.8"
+              },
+              "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+              "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+              "input_sha256": "4eec2beb9fd5af9c59cd18b5ce8f7fdc132978acf4d9331b10e50d72b205803c",
+              "coarse_sha256": "13fd548f654e5ff474294fc0b548933010ec8fb1178bfe3f0c376318caa2ff53",
+              "geometry": {
+                "vertices": 456516,
+                "faces": 913063,
+                "bounds": [
+                  [
+                    -0.4924742279115319,
+                    -0.6933150466924918,
+                    -0.40137425815270833
+                  ],
+                  [
+                    0.4746249245883279,
+                    0.9684873059826525,
+                    0.39557007409721945
+                  ]
+                ],
+                "extents": [
+                  0.9670991524998598,
+                  1.6618023526751444,
+                  0.7969443322499278
+                ],
+                "watertight": false,
+                "winding_consistent": true,
+                "boundary_edges": 15,
+                "nonmanifold_edges": 4,
+                "degenerate_faces": 0,
+                "components": 1,
+                "unchecked": [
+                  "自交",
+                  "壁厚",
+                  "最小零件强度",
+                  "切片可打印性"
+                ],
+                "units": "unknown",
+                "warnings": [
+                  "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+                ]
+              },
+              "normalized": true,
+              "texture_generated": false
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 534236,
+              "faces": 913063,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.00892464816570282,
+                  0.13758614659309387,
+                  -0.002902090549468994
+                ],
+                "normalization_scale": 0.6017502617640188,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\cbfc275839f941bb8ed4c7a186124954\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "u2netp_cpu",
+              "seconds": 121.941,
+              "peak_allocated_mb": 2827.4,
+              "peak_reserved_mb": 2944.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 594.0,
+          "peak_allocated_mb": 2827.4,
+          "actual_resolution": 512,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 534236,
+            "faces": 913063,
+            "bounds": [
+              [
+                -0.49247419834136963,
+                -0.6933150291442871,
+                -0.4013742506504059
+              ],
+              [
+                0.474624902009964,
+                0.9684873223304749,
+                0.3955700695514679
+              ]
+            ],
+            "extents": [
+              0.9670991003513336,
+              1.661802351474762,
+              0.7969443202018738
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 15,
+            "nonmanifold_edges": 4,
+            "degenerate_faces": 0,
+            "components": 1,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 456516,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "c1be9ea1067acc64fafc259ba3ca8467c103212dd817e0a2599b5334bfd2110a",
+          "final_sha256": "487342ea7163db51c902ed8abe9ab320c89f7a51508bec3caee5b80acce0fe57",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "state": "succeeded"
+      }
+    },
+    "existing_texture_retry": {
+      "passed": true,
+      "real_inference": true,
+      "mode": "texture",
+      "reuse_of_cancelled_job": "0bf289a7e92e426ab92609d5426b65f5",
+      "job": {
+        "id": "699e66d73f2a425c91fe8190837d3c93",
+        "created": 1792839877.098174,
+        "state": "succeeded",
+        "stage": "complete",
+        "options": {
+          "mode": "texture",
+          "refine_geometry": false,
+          "generate_texture": true,
+          "texture_resolution": 512,
+          "texture_size": 2048,
+          "background": "auto",
+          "resolution": 512,
+          "steps": 25,
+          "seed": 0,
+          "offload": true,
+          "attention": "sdpa",
+          "image_asset": "67cb9507d55b49c0965bef702a1980c4",
+          "mesh_asset": "5a9a992c4c0648ae82e100d6fb95226f"
+        },
+        "message": "模型与贴图已完成",
+        "worker_pid": 110768,
+        "worker_created": 1792839877.1094909,
+        "updated": 1792839968.1608558,
+        "event": {
+          "stage": "complete",
+          "time": 1792839967.666616,
+          "message": "模型与贴图已保存"
+        },
+        "report": {
+          "status": "succeeded",
+          "mode": "texture",
+          "stages": [
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 228633,
+              "faces": 284245,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.004262179136276245,
+                  -0.0037027597427368164,
+                  0.0015534907579421997
+                ],
+                "normalization_scale": 0.5015052056264078,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\699e66d73f2a425c91fe8190837d3c93\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\699e66d73f2a425c91fe8190837d3c93\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 82.811,
+              "peak_allocated_mb": 2836.52,
+              "peak_reserved_mb": 2966.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 86.81,
+          "peak_allocated_mb": 2836.52,
+          "actual_resolution": 0,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 228633,
+            "faces": 284245,
+            "bounds": [
+              [
+                -0.5839419960975647,
+                -1.0006914138793945,
+                -0.4950767457485199
+              ],
+              [
+                0.5754176378250122,
+                0.9932858943939209,
+                0.4981837272644043
+              ]
+            ],
+            "extents": [
+              1.159359633922577,
+              1.9939773082733154,
+              0.9932604730129242
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 1,
+            "nonmanifold_edges": 1,
+            "degenerate_faces": 2,
+            "components": 2,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 142116,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "5a3ba3d4deb8885e4b8bed1dbedc8d4e775430b454d4f44ed3a4a6926fe565a2",
+          "final_sha256": "c2763e727eea1f65473aea41eac1134ea66e1b2ec42af3412704ed60ce1b6ba8",
+          "normalized": false,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "available_files": [
+          "coarse.glb",
+          "foreground.png",
+          "input.png",
+          "pipeline-progress.json",
+          "report.json",
+          "request.json",
+          "textured.glb",
+          "worker.log"
+        ]
+      },
+      "material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_height_m": 0.08,
+      "geometry": {
+        "vertices": 228633,
+        "faces": 284245,
+        "bounds": [
+          [
+            -0.5839419960975647,
+            -1.0006914138793945,
+            -0.4950767457485199
+          ],
+          [
+            0.5754176378250122,
+            0.9932858943939209,
+            0.4981837272644043
+          ]
+        ],
+        "extents": [
+          1.159359633922577,
+          1.9939773082733154,
+          0.9932604730129242
+        ],
+        "watertight": false,
+        "winding_consistent": true,
+        "boundary_edges": 1,
+        "nonmanifold_edges": 1,
+        "degenerate_faces": 2,
+        "components": 2,
+        "unchecked": [
+          "自交",
+          "壁厚",
+          "最小零件强度",
+          "切片可打印性"
+        ],
+        "units": "unknown",
+        "warnings": [
+          "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+        ],
+        "topology_vertices": 142116,
+        "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+      },
+      "output_sha256": "c2763e727eea1f65473aea41eac1134ea66e1b2ec42af3412704ed60ce1b6ba8",
+      "served_after_restart": {
+        "report": {
+          "status": "succeeded",
+          "mode": "texture",
+          "stages": [
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 228633,
+              "faces": 284245,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.004262179136276245,
+                  -0.0037027597427368164,
+                  0.0015534907579421997
+                ],
+                "normalization_scale": 0.5015052056264078,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\699e66d73f2a425c91fe8190837d3c93\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\699e66d73f2a425c91fe8190837d3c93\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 82.811,
+              "peak_allocated_mb": 2836.52,
+              "peak_reserved_mb": 2966.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 86.81,
+          "peak_allocated_mb": 2836.52,
+          "actual_resolution": 0,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 228633,
+            "faces": 284245,
+            "bounds": [
+              [
+                -0.5839419960975647,
+                -1.0006914138793945,
+                -0.4950767457485199
+              ],
+              [
+                0.5754176378250122,
+                0.9932858943939209,
+                0.4981837272644043
+              ]
+            ],
+            "extents": [
+              1.159359633922577,
+              1.9939773082733154,
+              0.9932604730129242
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 1,
+            "nonmanifold_edges": 1,
+            "degenerate_faces": 2,
+            "components": 2,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 142116,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "5a3ba3d4deb8885e4b8bed1dbedc8d4e775430b454d4f44ed3a4a6926fe565a2",
+          "final_sha256": "c2763e727eea1f65473aea41eac1134ea66e1b2ec42af3412704ed60ce1b6ba8",
+          "normalized": false,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "state": "succeeded"
+      }
+    },
+    "existing_refine_with_texture": {
+      "real_inference": true,
+      "mode": "refine",
+      "started": 1792840068.431088,
+      "input_file": "sculpted-vase.png",
+      "request": {
+        "mode": "refine",
+        "image": "f741830d2d9f4b9abc553a0b6e52242f",
+        "mesh": "0db5a1e5f94044818c2935d5df47afdb",
+        "refine_geometry": true,
+        "generate_texture": true,
+        "background": "auto",
+        "resolution": 512,
+        "steps": 25,
+        "seed": 0,
+        "offload": true,
+        "attention": "sdpa",
+        "texture_resolution": 512,
+        "texture_size": 2048
+      },
+      "job_id": "405df175cce24a01b479ace5913cbe86",
+      "job": {
+        "id": "405df175cce24a01b479ace5913cbe86",
+        "created": 1792840082.247418,
+        "state": "succeeded",
+        "stage": "complete",
+        "options": {
+          "mode": "refine",
+          "refine_geometry": true,
+          "generate_texture": true,
+          "texture_resolution": 512,
+          "texture_size": 2048,
+          "background": "auto",
+          "resolution": 512,
+          "steps": 25,
+          "seed": 0,
+          "offload": true,
+          "attention": "sdpa",
+          "image_asset": "f741830d2d9f4b9abc553a0b6e52242f",
+          "mesh_asset": "0db5a1e5f94044818c2935d5df47afdb"
+        },
+        "message": "模型与贴图已完成",
+        "worker_pid": 106484,
+        "worker_created": 1792840082.2565665,
+        "updated": 1792840613.2069607,
+        "event": {
+          "stage": "complete",
+          "time": 1792840612.7348857,
+          "message": "模型与贴图已保存"
+        },
+        "report": {
+          "status": "succeeded",
+          "mode": "refine",
+          "stages": [
+            {
+              "stage": "refine",
+              "status": "succeeded",
+              "requested_resolution": 512,
+              "actual_resolution": 512,
+              "steps": 25,
+              "seed": 0,
+              "offload": true,
+              "attention": "sdpa",
+              "compatibility_port": true,
+              "seconds": 301.52,
+              "peak_allocated_mb": 1722,
+              "peak_reserved_mb": 1798,
+              "stage_metrics": [
+                {
+                  "stage": "voxelizing",
+                  "seconds": 2.795,
+                  "peak_vram_mb": 33,
+                  "rss_mb": 15852
+                },
+                {
+                  "stage": "sampling",
+                  "seconds": 170.262,
+                  "peak_vram_mb": 674,
+                  "rss_mb": 16558
+                },
+                {
+                  "stage": "decoding",
+                  "seconds": 9.48,
+                  "peak_vram_mb": 1722,
+                  "rss_mb": 16745
+                },
+                {
+                  "stage": "extracting",
+                  "seconds": 3.609,
+                  "peak_vram_mb": 1332,
+                  "rss_mb": 16923
+                },
+                {
+                  "stage": "postprocessing",
+                  "seconds": 7.618,
+                  "peak_vram_mb": 418,
+                  "rss_mb": 17849
+                }
+              ],
+              "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+              "environment": {
+                "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+                "platform": "Windows-10-10.0.26300-SP0",
+                "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+                "packages": {
+                  "torch": "2.11.0+cu128",
+                  "torchvision": "0.26.0+cu128",
+                  "triton-windows": "3.6.0.post26",
+                  "spconv-cu126": "2.3.8",
+                  "transformers": "4.46.3",
+                  "accelerate": "1.6.0",
+                  "numpy": "1.26.4"
+                },
+                "cuda": true,
+                "kernel_probe": "not_run",
+                "official_validated_environment": false,
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ],
+                "free_vram_mb": 21571,
+                "total_vram_mb": 24435,
+                "torch_cuda": "12.8"
+              },
+              "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+              "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+              "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+              "coarse_sha256": "4e808212b10701d21770fa35aac9bfe55b24a6fb7e7886148bb2b97b1fe55371",
+              "geometry": {
+                "vertices": 500000,
+                "faces": 1000000,
+                "bounds": [
+                  [
+                    -0.9442884795496219,
+                    -0.8618433488596053,
+                    -0.9949653645217298
+                  ],
+                  [
+                    0.8557677787070703,
+                    0.943201558989755,
+                    0.9144434969282071
+                  ]
+                ],
+                "extents": [
+                  1.8000562582566921,
+                  1.8050449078493602,
+                  1.909408861449937
+                ],
+                "watertight": false,
+                "winding_consistent": true,
+                "boundary_edges": 18,
+                "nonmanifold_edges": 9,
+                "degenerate_faces": 0,
+                "components": 8,
+                "unchecked": [
+                  "自交",
+                  "壁厚",
+                  "最小零件强度",
+                  "切片可打印性"
+                ],
+                "units": "unknown",
+                "warnings": [
+                  "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+                ]
+              },
+              "normalized": true,
+              "texture_generated": false
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 697561,
+              "faces": 1000000,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.04426035284996033,
+                  0.040679097175598145,
+                  -0.04026094079017639
+                ],
+                "normalization_scale": 0.5237170608634767,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\405df175cce24a01b479ace5913cbe86\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\405df175cce24a01b479ace5913cbe86\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 207.885,
+              "peak_allocated_mb": 3094.05,
+              "peak_reserved_mb": 3280.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 523.02,
+          "peak_allocated_mb": 3094.05,
+          "actual_resolution": 512,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 697561,
+            "faces": 1000000,
+            "bounds": [
+              [
+                -0.9442884922027588,
+                -0.8618433475494385,
+                -0.9949653744697571
+              ],
+              [
+                0.8557677865028381,
+                0.9432015419006348,
+                0.9144434928894043
+              ]
+            ],
+            "extents": [
+              1.800056278705597,
+              1.8050448894500732,
+              1.9094088673591614
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 18,
+            "nonmanifold_edges": 9,
+            "degenerate_faces": 0,
+            "components": 8,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 500000,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+          "final_sha256": "1853fad67e9eb0b86c136f9e74697fe00f237509d82bb0aba96c56fdf0710ba2",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "available_files": [
+          "coarse.glb",
+          "conditioning.png",
+          "foreground.png",
+          "input.png",
+          "pipeline-progress.json",
+          "refined.glb",
+          "refined.npz",
+          "refined.ply",
+          "refined.stl",
+          "report.json",
+          "request.json",
+          "textured.glb",
+          "worker.log"
+        ]
+      },
+      "output_sha256": "1853fad67e9eb0b86c136f9e74697fe00f237509d82bb0aba96c56fdf0710ba2",
+      "geometry": {
+        "vertices": 697561,
+        "faces": 1000000,
+        "bounds": [
+          [
+            -0.9442884922027588,
+            -0.8618433475494385,
+            -0.9949653744697571
+          ],
+          [
+            0.8557677865028381,
+            0.9432015419006348,
+            0.9144434928894043
+          ]
+        ],
+        "extents": [
+          1.800056278705597,
+          1.8050448894500732,
+          1.9094088673591614
+        ],
+        "watertight": false,
+        "winding_consistent": true,
+        "boundary_edges": 18,
+        "nonmanifold_edges": 9,
+        "degenerate_faces": 0,
+        "components": 8,
+        "unchecked": [
+          "自交",
+          "壁厚",
+          "最小零件强度",
+          "切片可打印性"
+        ],
+        "units": "unknown",
+        "warnings": [
+          "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+        ],
+        "topology_vertices": 500000,
+        "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+      },
+      "material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_material_check": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "export_height_m": 0.08,
+      "passed": true,
+      "finished": 1792840626.9405642,
+      "served_after_restart": {
+        "report": {
+          "status": "succeeded",
+          "mode": "refine",
+          "stages": [
+            {
+              "stage": "refine",
+              "status": "succeeded",
+              "requested_resolution": 512,
+              "actual_resolution": 512,
+              "steps": 25,
+              "seed": 0,
+              "offload": true,
+              "attention": "sdpa",
+              "compatibility_port": true,
+              "seconds": 301.52,
+              "peak_allocated_mb": 1722,
+              "peak_reserved_mb": 1798,
+              "stage_metrics": [
+                {
+                  "stage": "voxelizing",
+                  "seconds": 2.795,
+                  "peak_vram_mb": 33,
+                  "rss_mb": 15852
+                },
+                {
+                  "stage": "sampling",
+                  "seconds": 170.262,
+                  "peak_vram_mb": 674,
+                  "rss_mb": 16558
+                },
+                {
+                  "stage": "decoding",
+                  "seconds": 9.48,
+                  "peak_vram_mb": 1722,
+                  "rss_mb": 16745
+                },
+                {
+                  "stage": "extracting",
+                  "seconds": 3.609,
+                  "peak_vram_mb": 1332,
+                  "rss_mb": 16923
+                },
+                {
+                  "stage": "postprocessing",
+                  "seconds": 7.618,
+                  "peak_vram_mb": 418,
+                  "rss_mb": 17849
+                }
+              ],
+              "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+              "environment": {
+                "python": "3.10.11 (tags/v3.10.11:7d4cc5a, Apr  5 2023, 00:38:17) [MSC v.1929 64 bit (AMD64)]",
+                "platform": "Windows-10-10.0.26300-SP0",
+                "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+                "packages": {
+                  "torch": "2.11.0+cu128",
+                  "torchvision": "0.26.0+cu128",
+                  "triton-windows": "3.6.0.post26",
+                  "spconv-cu126": "2.3.8",
+                  "transformers": "4.46.3",
+                  "accelerate": "1.6.0",
+                  "numpy": "1.26.4"
+                },
+                "cuda": true,
+                "kernel_probe": "not_run",
+                "official_validated_environment": false,
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ],
+                "free_vram_mb": 21571,
+                "total_vram_mb": 24435,
+                "torch_cuda": "12.8"
+              },
+              "model_manifest_sha256": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+              "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+              "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+              "coarse_sha256": "4e808212b10701d21770fa35aac9bfe55b24a6fb7e7886148bb2b97b1fe55371",
+              "geometry": {
+                "vertices": 500000,
+                "faces": 1000000,
+                "bounds": [
+                  [
+                    -0.9442884795496219,
+                    -0.8618433488596053,
+                    -0.9949653645217298
+                  ],
+                  [
+                    0.8557677787070703,
+                    0.943201558989755,
+                    0.9144434969282071
+                  ]
+                ],
+                "extents": [
+                  1.8000562582566921,
+                  1.8050449078493602,
+                  1.909408861449937
+                ],
+                "watertight": false,
+                "winding_consistent": true,
+                "boundary_edges": 18,
+                "nonmanifold_edges": 9,
+                "degenerate_faces": 0,
+                "components": 8,
+                "unchecked": [
+                  "自交",
+                  "壁厚",
+                  "最小零件强度",
+                  "切片可打印性"
+                ],
+                "units": "unknown",
+                "warnings": [
+                  "Hi3D 会重新归一化尺寸并可能删除小连通件；不保留原 UV/材质。"
+                ]
+              },
+              "normalized": true,
+              "texture_generated": false
+            },
+            {
+              "stage": "texture",
+              "model": {
+                "repo": "microsoft/TRELLIS.2-4B",
+                "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+                "license": "MIT; external image encoder has its own license",
+                "files": [
+                  "texturing_pipeline.json",
+                  "README.md",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.json",
+                  "ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.json",
+                  "ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+                  "ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors"
+                ]
+              },
+              "image_encoder": {
+                "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+                "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+                "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+                "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+                "upstream_identical": true,
+                "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+                "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+                "files": [
+                  "config.json",
+                  "model.safetensors",
+                  "preprocessor_config.json",
+                  "LICENSE.md",
+                  "README.md"
+                ]
+              },
+              "geometry_generated": false,
+              "texture_generated": true,
+              "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
+              "vertices": 697561,
+              "faces": 1000000,
+              "texture_size": 2048,
+              "pbr_channels": [
+                "baseColor",
+                "metallic",
+                "roughness",
+                "alpha"
+              ],
+              "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+              "offload_cache_policy": "release unused PyTorch cache at official stage boundaries",
+              "transform": {
+                "normalization_center": [
+                  -0.04426035284996033,
+                  0.040679097175598145,
+                  -0.04026094079017639
+                ],
+                "normalization_scale": 0.5237170608634767,
+                "normalization_restored": true,
+                "mesh_input_frame_preserved": true,
+                "uv_seam_vertex_splits_possible": true
+              },
+              "request_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\405df175cce24a01b479ace5913cbe86\\stages\\texture\\request.json",
+              "output_path": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\jobs\\405df175cce24a01b479ace5913cbe86\\stages\\texture\\textured.glb",
+              "status": "succeeded",
+              "background": "input_alpha",
+              "seconds": 207.885,
+              "peak_allocated_mb": 3094.05,
+              "peak_reserved_mb": 3280.0,
+              "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+              "runtime": {
+                "torch": "2.8.0+cu128",
+                "cuda": "12.8",
+                "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+                "capability": [
+                  12,
+                  0
+                ]
+              }
+            }
+          ],
+          "seconds": 523.02,
+          "peak_allocated_mb": 3094.05,
+          "actual_resolution": 512,
+          "texturing_resolution": 512,
+          "texture_size": 2048,
+          "geometry": {
+            "vertices": 697561,
+            "faces": 1000000,
+            "bounds": [
+              [
+                -0.9442884922027588,
+                -0.8618433475494385,
+                -0.9949653744697571
+              ],
+              [
+                0.8557677865028381,
+                0.9432015419006348,
+                0.9144434928894043
+              ]
+            ],
+            "extents": [
+              1.800056278705597,
+              1.8050448894500732,
+              1.9094088673591614
+            ],
+            "watertight": false,
+            "winding_consistent": true,
+            "boundary_edges": 18,
+            "nonmanifold_edges": 9,
+            "degenerate_faces": 0,
+            "components": 8,
+            "unchecked": [
+              "自交",
+              "壁厚",
+              "最小零件强度",
+              "切片可打印性"
+            ],
+            "units": "unknown",
+            "warnings": [
+              "拓扑统计临时合并完全相同坐标的 UV 接缝顶点；未修改交付网格，也不代表可打印。"
+            ],
+            "topology_vertices": 500000,
+            "topology_basis": "exact duplicate positions combined for diagnosis only; no tolerance or repair"
+          },
+          "final_file": "textured.glb",
+          "input_sha256": "395bd3beb4593041ea7267533e401c779078a282671aeed62265e97bf62c750a",
+          "final_sha256": "1853fad67e9eb0b86c136f9e74697fe00f237509d82bb0aba96c56fdf0710ba2",
+          "normalized": true,
+          "texture_generated": true,
+          "uv": true,
+          "embedded": true,
+          "images": 2,
+          "materials": 1,
+          "primitives": 1,
+          "channels": [
+            "base_color",
+            "metallic",
+            "roughness"
+          ]
+        },
+        "state": "succeeded"
+      }
+    }
+  },
+  "full_image_chain_whole_device_memory": {
+    "metric": "NVML whole-device memory; includes driver, desktop and other processes",
+    "completed": true,
+    "interval_seconds": 0.1,
+    "elapsed_seconds": 783.906,
+    "baseline_mb": 709.477,
+    "peak_used_mb": 3952.574
+  },
+  "sdk_isolated_existing_mesh_chain": {
+    "pid": 102052,
+    "exe": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\runtime\\python.exe",
+    "cwd": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0",
+    "validated_environment": {
+      "CUDA_PATH": null,
+      "CUDA_HOME": null,
+      "PYTHONHOME": null,
+      "PYTHONPATH": null,
+      "CC": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\runtime\\Lib\\site-packages\\triton\\runtime\\tcc\\tcc.exe",
+      "TRITON_CACHE_DIR": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data\\kernel-cache-portable-validation"
+    },
+    "sdk_path_removed": true,
+    "fresh_triton_cache": true
+  },
+  "history_copy": {
+    "passed": true,
+    "source": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.2.2\\data",
+    "target": "E:\\hi3d\\dist\\Hi3D-Workbench-Windows-0.3.0\\data",
+    "files_copied": 358,
+    "old_jobs": 15,
+    "all_old_files_preserved": true
+  },
+  "printability_guaranteed": false
+}

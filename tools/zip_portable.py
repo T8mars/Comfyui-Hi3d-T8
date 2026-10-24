@@ -9,11 +9,12 @@ from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]))
 from tools.build_release import ALLOWED
 
-ROOTS={Path(name).parts[0] for name in ALLOWED}|{'runtime','upstream','models','runtime-packages.txt','config.local.json'}
+ROOTS={Path(name).parts[0] for name in ALLOWED}|{'runtime','runtime-pipeline','upstream','models','runtime-packages.txt','runtime-pipeline-packages.txt','config.local.json'}
 
 def included(rel):
     return (rel.parts[0] in ROOTS and
-        not any(p in {'.git','__pycache__','.secrets','.cache','.downloads','.pytest_cache'} or p=='.env' or p.startswith('.env.') for p in rel.parts) and
+        not any(p in {'.git','__pycache__','.secrets','.cache','.downloads','.pytest_cache'} or p=='.env' or p.startswith('.env.') or '.parts' in p or p.endswith('.assembled') for p in rel.parts) and
+        rel.name not in {'download-state.json','.download.lock'} and
         rel.suffix not in {'.pyc','.tmp','.incomplete'} and rel.name!='hi3d_refine_api.json')
 
 def build(release):

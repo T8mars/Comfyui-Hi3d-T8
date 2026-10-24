@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="7" skipped="0" tests="7" time="8.397" timestamp="2026-10-24T08:29:02.406399-04:00" hostname="T8"><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[synchronize]" time="0.067"><failure message="AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'&#10;  &#10;  At index 0 diff: b'n' != b'p'&#10;  Use -v to get more diff">completed_stage_fixture = (WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_stage_failure_before_publ0/result.glb'), namespace(is...0x00000203E16F44A0&gt;, get_device_capability=&lt;function completed_stage_fixture.&lt;locals&gt;.&lt;lambda&gt; at 0x00000203E16F4540&gt;))
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000203E165F6E0&gt;
+boundary = 'synchronize'
+
+    @pytest.mark.parametrize('boundary', ['synchronize', 'metrics', 'report'])
+    def test_stage_failure_before_publication_preserves_previous_output(completed_stage_fixture, monkeypatch, boundary):
+        output, cuda = completed_stage_fixture
+        before = output.read_bytes()
+    
+        def failed():
+            raise RuntimeError('fixture post-inference failure')
+    
+        if boundary == 'synchronize':
+            cuda.synchronize = failed
+        elif boundary == 'metrics':
+            cuda.max_memory_allocated = failed
+        else:
+            write = run_stage.atomic_json
+    
+            def failed_success_report(path, value):
+                if path == output.with_suffix('.stage.json') and value.get('status') == 'succeeded':
+                    failed()
+                write(path, value)
+    
+            monkeypatch.setattr(run_stage, 'atomic_json', failed_success_report)
+        assert run_stage.main() == 1
+&gt;       assert output.read_bytes() == before
+E       AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'
+E         
+E         At index 0 diff: b'n' != b'p'
+E         Use -v to get more diff
+
+tests\test_pipeline_second_audit.py:66: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[metrics]" time="0.011"><failure message="AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'&#10;  &#10;  At index 0 diff: b'n' != b'p'&#10;  Use -v to get more diff">completed_stage_fixture = (WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_stage_failure_before_publ1/result.glb'), namespace(is...0x00000203E16F4C20&gt;, get_device_capability=&lt;function completed_stage_fixture.&lt;locals&gt;.&lt;lambda&gt; at 0x00000203E16F47C0&gt;))
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000203E16DFBF0&gt;
+boundary = 'metrics'
+
+    @pytest.mark.parametrize('boundary', ['synchronize', 'metrics', 'report'])
+    def test_stage_failure_before_publication_preserves_previous_output(completed_stage_fixture, monkeypatch, boundary):
+        output, cuda = completed_stage_fixture
+        before = output.read_bytes()
+    
+        def failed():
+            raise RuntimeError('fixture post-inference failure')
+    
+        if boundary == 'synchronize':
+            cuda.synchronize = failed
+        elif boundary == 'metrics':
+            cuda.max_memory_allocated = failed
+        else:
+            write = run_stage.atomic_json
+    
+            def failed_success_report(path, value):
+                if path == output.with_suffix('.stage.json') and value.get('status') == 'succeeded':
+                    failed()
+                write(path, value)
+    
+            monkeypatch.setattr(run_stage, 'atomic_json', failed_success_report)
+        assert run_stage.main() == 1
+&gt;       assert output.read_bytes() == before
+E       AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'
+E         
+E         At index 0 diff: b'n' != b'p'
+E         Use -v to get more diff
+
+tests\test_pipeline_second_audit.py:66: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[report]" time="0.010"><failure message="AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'&#10;  &#10;  At index 0 diff: b'n' != b'p'&#10;  Use -v to get more diff">completed_stage_fixture = (WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_stage_failure_before_publ2/result.glb'), namespace(is...0x00000203E171A520&gt;, get_device_capability=&lt;function completed_stage_fixture.&lt;locals&gt;.&lt;lambda&gt; at 0x00000203E171A020&gt;))
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000203E16DF5C0&gt;
+boundary = 'report'
+
+    @pytest.mark.parametrize('boundary', ['synchronize', 'metrics', 'report'])
+    def test_stage_failure_before_publication_preserves_previous_output(completed_stage_fixture, monkeypatch, boundary):
+        output, cuda = completed_stage_fixture
+        before = output.read_bytes()
+    
+        def failed():
+            raise RuntimeError('fixture post-inference failure')
+    
+        if boundary == 'synchronize':
+            cuda.synchronize = failed
+        elif boundary == 'metrics':
+            cuda.max_memory_allocated = failed
+        else:
+            write = run_stage.atomic_json
+    
+            def failed_success_report(path, value):
+                if path == output.with_suffix('.stage.json') and value.get('status') == 'succeeded':
+                    failed()
+                write(path, value)
+    
+            monkeypatch.setattr(run_stage, 'atomic_json', failed_success_report)
+        assert run_stage.main() == 1
+&gt;       assert output.read_bytes() == before
+E       AssertionError: assert b'new generat... GLB stand-in' == b'previous user deliverable'
+E         
+E         At index 0 diff: b'n' != b'p'
+E         Use -v to get more diff
+
+tests\test_pipeline_second_audit.py:66: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_range_download_stops_before_writing_an_oversized_response" time="0.163"><failure message="Failed: must stop consuming a response after the requested range is exceeded">tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_range_download_stops_befo0')
+monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x00000203E16DFE60&gt;
+
+    def test_range_download_stops_before_writing_an_oversized_response(tmp_path, monkeypatch):
+        import huggingface_hub
+        import requests
+        payload = b'expected bounded range'
+        destination = tmp_path / 'model.bin'
+        calls = []
+        monkeypatch.setattr(huggingface_hub, 'get_token', lambda: None)
+        monkeypatch.setattr(pipeline_models.time, 'sleep', lambda seconds: None)
+    
+        class Response:
+            status_code = 206
+            headers = {'Content-Range': f'bytes 0-{len(payload)-1}/{len(payload)}'}
+            def __enter__(self): return self
+            def __exit__(self, *args): pass
+            def raise_for_status(self): pass
+            def iter_content(self, size):
+                calls.append('stream')
+                yield payload + b'excess bytes must not be persisted'
+                pytest.fail('must stop consuming a response after the requested range is exceeded')
+    
+        monkeypatch.setattr(requests, 'get', lambda *args, **kwargs: Response())
+        with pytest.raises(ValueError, match='下载区间'):
+&gt;           pipeline_models._ranged_download({'repo': 'fixture/model', 'revision': 'fixed'},
+                'model.bin', destination, len(payload), hashlib.sha256(payload).hexdigest())
+
+tests\test_pipeline_second_audit.py:94: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+hi3d_workbench\pipeline_models.py:189: in _ranged_download
+    future.result()
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\concurrent\futures\_base.py:449: in result
+    return self.__get_result()
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\concurrent\futures\_base.py:401: in __get_result
+    raise self._exception
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\concurrent\futures\thread.py:59: in run
+    result = self.fn(*self.args, **self.kwargs)
+hi3d_workbench\pipeline_models.py:172: in fetch
+    for block in response.iter_content(256*1024):
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;test_pipeline_second_audit.test_range_download_stops_before_writing_an_oversized_response.&lt;locals&gt;.Response object at 0x00000203E2A83350&gt;
+size = 262144
+
+    def iter_content(self, size):
+        calls.append('stream')
+        yield payload + b'excess bytes must not be persisted'
+&gt;       pytest.fail('must stop consuming a response after the requested range is exceeded')
+E       Failed: must stop consuming a response after the requested range is exceeded
+
+tests\test_pipeline_second_audit.py:90: Failed</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[report0]" time="4.396"><failure message="AssertionError: assert 'succeeded' == 'failed'&#10;  &#10;  - failed&#10;  + succeeded">lifecycle = (&lt;module 'hi3d_workbench.jobs' from 'E:\\hi3d\\hi3d_workbench\\jobs.py'&gt;, &lt;hi3d_workbench.jobs.JobManager object at 0x...0/input.png'), WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_exit_zero_with_invalid_or0/coarse.glb'))
+report = []
+
+    @pytest.mark.parametrize('report', [[], None, {'status': 'failed', 'error': 'saved stage failure'}])
+    def test_exit_zero_with_invalid_or_failed_report_is_not_job_success(lifecycle, report):
+        _, manager, script, image, mesh = lifecycle
+        script.write_text('from pathlib import Path\nimport json,sys\n'
+            'folder=Path(sys.argv[-1]).parent\n'
+            '(folder/"refined.glb").write_bytes(b"fixture result")\n'
+            f'(folder/"report.json").write_text(json.dumps({report!r}))\n')
+        job = manager.create(image, mesh, {'resolution': 512})
+        wait_until(lambda: manager.active is None)
+        state = manager.get(job['id'])
+&gt;       assert state['state'] == 'failed'
+E       AssertionError: assert 'succeeded' == 'failed'
+E         
+E         - failed
+E         + succeeded
+
+tests\test_pipeline_second_audit.py:111: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[None]" time="1.081"><failure message="AssertionError: assert 'succeeded' == 'failed'&#10;  &#10;  - failed&#10;  + succeeded">lifecycle = (&lt;module 'hi3d_workbench.jobs' from 'E:\\hi3d\\hi3d_workbench\\jobs.py'&gt;, &lt;hi3d_workbench.jobs.JobManager object at 0x...1/input.png'), WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_exit_zero_with_invalid_or1/coarse.glb'))
+report = None
+
+    @pytest.mark.parametrize('report', [[], None, {'status': 'failed', 'error': 'saved stage failure'}])
+    def test_exit_zero_with_invalid_or_failed_report_is_not_job_success(lifecycle, report):
+        _, manager, script, image, mesh = lifecycle
+        script.write_text('from pathlib import Path\nimport json,sys\n'
+            'folder=Path(sys.argv[-1]).parent\n'
+            '(folder/"refined.glb").write_bytes(b"fixture result")\n'
+            f'(folder/"report.json").write_text(json.dumps({report!r}))\n')
+        job = manager.create(image, mesh, {'resolution': 512})
+        wait_until(lambda: manager.active is None)
+        state = manager.get(job['id'])
+&gt;       assert state['state'] == 'failed'
+E       AssertionError: assert 'succeeded' == 'failed'
+E         
+E         - failed
+E         + succeeded
+
+tests\test_pipeline_second_audit.py:111: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[report2]" time="1.035"><failure message="AssertionError: assert 'succeeded' == 'failed'&#10;  &#10;  - failed&#10;  + succeeded">lifecycle = (&lt;module 'hi3d_workbench.jobs' from 'E:\\hi3d\\hi3d_workbench\\jobs.py'&gt;, &lt;hi3d_workbench.jobs.JobManager object at 0x...2/input.png'), WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-340/test_exit_zero_with_invalid_or2/coarse.glb'))
+report = {'error': 'saved stage failure', 'status': 'failed'}
+
+    @pytest.mark.parametrize('report', [[], None, {'status': 'failed', 'error': 'saved stage failure'}])
+    def test_exit_zero_with_invalid_or_failed_report_is_not_job_success(lifecycle, report):
+        _, manager, script, image, mesh = lifecycle
+        script.write_text('from pathlib import Path\nimport json,sys\n'
+            'folder=Path(sys.argv[-1]).parent\n'
+            '(folder/"refined.glb").write_bytes(b"fixture result")\n'
+            f'(folder/"report.json").write_text(json.dumps({report!r}))\n')
+        job = manager.create(image, mesh, {'resolution': 512})
+        wait_until(lambda: manager.active is None)
+        state = manager.get(job['id'])
+&gt;       assert state['state'] == 'failed'
+E       AssertionError: assert 'succeeded' == 'failed'
+E         
+E         - failed
+E         + succeeded
+
+tests\test_pipeline_second_audit.py:111: AssertionError</failure></testcase></testsuite></testsuites>

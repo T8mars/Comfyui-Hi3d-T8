@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="4" skipped="0" tests="18" time="7.138" timestamp="2026-10-24T08:30:32.761416-04:00" hostname="T8"><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[synchronize]" time="0.042" /><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[metrics]" time="0.010" /><testcase classname="tests.test_pipeline_second_audit" name="test_stage_failure_before_publication_preserves_previous_output[report]" time="0.009" /><testcase classname="tests.test_pipeline_second_audit" name="test_range_download_stops_before_writing_an_oversized_response" time="0.114" /><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[report0]" time="4.075" /><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[None]" time="0.628" /><testcase classname="tests.test_pipeline_second_audit" name="test_exit_zero_with_invalid_or_failed_report_is_not_job_success[report2]" time="0.447" /><testcase classname="tests.test_pipeline_second_audit" name="test_child_failure_with_broken_diagnostic_preserves_real_exit_code[[]]" time="0.073"><failure message="AttributeError: 'list' object has no attribute 'get'">tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken0')
+saved = '[]'
+
+    @pytest.mark.parametrize('saved', ['[]', 'null', '{bad-json', '{"error":null}'])
+    def test_child_failure_with_broken_diagnostic_preserves_real_exit_code(tmp_path, saved):
+        request = tmp_path / 'request.json'
+        request.write_text('{}')
+        (tmp_path / 'failure.json').write_text(saved)
+        with pytest.raises(RuntimeError, match='texture 阶段失败：进程退出 7'):
+&gt;           pipeline_worker.run_child([sys.executable, '-c', 'raise SystemExit(7)'], request, tmp_path, 'texture')
+
+tests\test_pipeline_second_audit.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+command = ['E:\\hi3d\\.appenv\\Scripts\\python.exe', '-c', 'raise SystemExit(7)']
+request_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken0/request.json')
+directory = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken0')
+stage = 'texture'
+
+    def run_child(command, request_path, directory, stage):
+        """Persist child identity before consuming output so restart recovery is safe."""
+        import psutil
+        process = subprocess.Popen([*command, '--request', str(request_path)], cwd=ROOT,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
+            env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        created = None
+        try:
+            try:
+                created = psutil.Process(process.pid).create_time()
+            except psutil.NoSuchProcess:
+                created = None
+            atomic_json(directory / 'process.json', {'pid': process.pid, 'created': created,
+                        'request': str(request_path), 'stage': stage})
+            with (directory / 'stage.log').open('w', encoding='utf-8') as log:
+                for line in process.stdout:
+                    log.write(line)
+                    log.flush()
+                    if line.startswith('HI3D_EVENT '):
+                        try:
+                            event=json.loads(line[len('HI3D_EVENT '):])
+                            if event.get('stage')=='complete':
+                                event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
+                                line='HI3D_EVENT '+json.dumps(event,ensure_ascii=False)+'\n'
+                        except (ValueError,AttributeError):pass
+                    print(line, end='', flush=True)
+            code = process.wait()
+            if code:
+                failure = read_json(directory / 'failure.json', {})
+&gt;               raise RuntimeError(f'{stage} 阶段失败：{failure.get("error", f"进程退出 {code}，请查看日志")}')
+E               AttributeError: 'list' object has no attribute 'get'
+
+hi3d_workbench\pipeline_worker.py:48: AttributeError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_child_failure_with_broken_diagnostic_preserves_real_exit_code[null]" time="0.085"><failure message="AttributeError: 'NoneType' object has no attribute 'get'">tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken1')
+saved = 'null'
+
+    @pytest.mark.parametrize('saved', ['[]', 'null', '{bad-json', '{"error":null}'])
+    def test_child_failure_with_broken_diagnostic_preserves_real_exit_code(tmp_path, saved):
+        request = tmp_path / 'request.json'
+        request.write_text('{}')
+        (tmp_path / 'failure.json').write_text(saved)
+        with pytest.raises(RuntimeError, match='texture 阶段失败：进程退出 7'):
+&gt;           pipeline_worker.run_child([sys.executable, '-c', 'raise SystemExit(7)'], request, tmp_path, 'texture')
+
+tests\test_pipeline_second_audit.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+command = ['E:\\hi3d\\.appenv\\Scripts\\python.exe', '-c', 'raise SystemExit(7)']
+request_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken1/request.json')
+directory = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken1')
+stage = 'texture'
+
+    def run_child(command, request_path, directory, stage):
+        """Persist child identity before consuming output so restart recovery is safe."""
+        import psutil
+        process = subprocess.Popen([*command, '--request', str(request_path)], cwd=ROOT,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
+            env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        created = None
+        try:
+            try:
+                created = psutil.Process(process.pid).create_time()
+            except psutil.NoSuchProcess:
+                created = None
+            atomic_json(directory / 'process.json', {'pid': process.pid, 'created': created,
+                        'request': str(request_path), 'stage': stage})
+            with (directory / 'stage.log').open('w', encoding='utf-8') as log:
+                for line in process.stdout:
+                    log.write(line)
+                    log.flush()
+                    if line.startswith('HI3D_EVENT '):
+                        try:
+                            event=json.loads(line[len('HI3D_EVENT '):])
+                            if event.get('stage')=='complete':
+                                event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
+                                line='HI3D_EVENT '+json.dumps(event,ensure_ascii=False)+'\n'
+                        except (ValueError,AttributeError):pass
+                    print(line, end='', flush=True)
+            code = process.wait()
+            if code:
+                failure = read_json(directory / 'failure.json', {})
+&gt;               raise RuntimeError(f'{stage} 阶段失败：{failure.get("error", f"进程退出 {code}，请查看日志")}')
+E               AttributeError: 'NoneType' object has no attribute 'get'
+
+hi3d_workbench\pipeline_worker.py:48: AttributeError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_child_failure_with_broken_diagnostic_preserves_real_exit_code[{bad-json]" time="0.059"><failure message="json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)">tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken2')
+saved = '{bad-json'
+
+    @pytest.mark.parametrize('saved', ['[]', 'null', '{bad-json', '{"error":null}'])
+    def test_child_failure_with_broken_diagnostic_preserves_real_exit_code(tmp_path, saved):
+        request = tmp_path / 'request.json'
+        request.write_text('{}')
+        (tmp_path / 'failure.json').write_text(saved)
+        with pytest.raises(RuntimeError, match='texture 阶段失败：进程退出 7'):
+&gt;           pipeline_worker.run_child([sys.executable, '-c', 'raise SystemExit(7)'], request, tmp_path, 'texture')
+
+tests\test_pipeline_second_audit.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+hi3d_workbench\pipeline_worker.py:47: in run_child
+    failure = read_json(directory / 'failure.json', {})
+hi3d_workbench\common.py:28: in read_json
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\json\__init__.py:346: in loads
+    return _default_decoder.decode(s)
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\json\decoder.py:338: in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = &lt;json.decoder.JSONDecoder object at 0x000002698C6C7DD0&gt;, s = '{bad-json'
+idx = 0
+
+    def raw_decode(self, s, idx=0):
+        """Decode a JSON document from ``s`` (a ``str`` beginning with
+        a JSON document) and return a 2-tuple of the Python
+        representation and the index in ``s`` where the document ended.
+    
+        This can be used to decode a JSON document from a string that may
+        have extraneous data at the end.
+    
+        """
+        try:
+&gt;           obj, end = self.scan_once(s, idx)
+E           json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+C:\Users\27611\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\json\decoder.py:354: JSONDecodeError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_child_failure_with_broken_diagnostic_preserves_real_exit_code[{&quot;error&quot;:null}]" time="0.053"><failure message="AssertionError: Regex pattern did not match.&#10; Regex: 'texture 阶段失败：进程退出 7'&#10; Input: 'texture 阶段失败：None'">tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken3')
+saved = '{"error":null}'
+
+    @pytest.mark.parametrize('saved', ['[]', 'null', '{bad-json', '{"error":null}'])
+    def test_child_failure_with_broken_diagnostic_preserves_real_exit_code(tmp_path, saved):
+        request = tmp_path / 'request.json'
+        request.write_text('{}')
+        (tmp_path / 'failure.json').write_text(saved)
+        with pytest.raises(RuntimeError, match='texture 阶段失败：进程退出 7'):
+&gt;           pipeline_worker.run_child([sys.executable, '-c', 'raise SystemExit(7)'], request, tmp_path, 'texture')
+
+tests\test_pipeline_second_audit.py:122: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+command = ['E:\\hi3d\\.appenv\\Scripts\\python.exe', '-c', 'raise SystemExit(7)']
+request_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken3/request.json')
+directory = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken3')
+stage = 'texture'
+
+    def run_child(command, request_path, directory, stage):
+        """Persist child identity before consuming output so restart recovery is safe."""
+        import psutil
+        process = subprocess.Popen([*command, '--request', str(request_path)], cwd=ROOT,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
+            env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        created = None
+        try:
+            try:
+                created = psutil.Process(process.pid).create_time()
+            except psutil.NoSuchProcess:
+                created = None
+            atomic_json(directory / 'process.json', {'pid': process.pid, 'created': created,
+                        'request': str(request_path), 'stage': stage})
+            with (directory / 'stage.log').open('w', encoding='utf-8') as log:
+                for line in process.stdout:
+                    log.write(line)
+                    log.flush()
+                    if line.startswith('HI3D_EVENT '):
+                        try:
+                            event=json.loads(line[len('HI3D_EVENT '):])
+                            if event.get('stage')=='complete':
+                                event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
+                                line='HI3D_EVENT '+json.dumps(event,ensure_ascii=False)+'\n'
+                        except (ValueError,AttributeError):pass
+                    print(line, end='', flush=True)
+            code = process.wait()
+            if code:
+                failure = read_json(directory / 'failure.json', {})
+&gt;               raise RuntimeError(f'{stage} 阶段失败：{failure.get("error", f"进程退出 {code}，请查看日志")}')
+E               RuntimeError: texture 阶段失败：None
+
+hi3d_workbench\pipeline_worker.py:48: RuntimeError
+
+During handling of the above exception, another exception occurred:
+
+tmp_path = WindowsPath('E:/AI-Storage/Temp/pytest-of-27611/pytest-345/test_child_failure_with_broken3')
+saved = '{"error":null}'
+
+    @pytest.mark.parametrize('saved', ['[]', 'null', '{bad-json', '{"error":null}'])
+    def test_child_failure_with_broken_diagnostic_preserves_real_exit_code(tmp_path, saved):
+        request = tmp_path / 'request.json'
+        request.write_text('{}')
+        (tmp_path / 'failure.json').write_text(saved)
+&gt;       with pytest.raises(RuntimeError, match='texture 阶段失败：进程退出 7'):
+E       AssertionError: Regex pattern did not match.
+E        Regex: 'texture 阶段失败：进程退出 7'
+E        Input: 'texture 阶段失败：None'
+
+tests\test_pipeline_second_audit.py:121: AssertionError</failure></testcase><testcase classname="tests.test_pipeline_second_audit" name="test_stage_publish_failure_keeps_old_deliverable_and_records_failure" time="0.011" /><testcase classname="tests.test_pipeline_second_audit" name="test_stage_success_only_publishes_after_synchronization_and_clears_stale_failure" time="0.011" /><testcase classname="tests.test_pipeline_second_audit" name="test_short_engine_output_does_not_replace_previous_deliverable" time="0.009" /><testcase classname="tests.test_pipeline_second_audit" name="test_metadata_download_failure_keeps_manifest_and_releases_crossprocess_lock[auth]" time="0.044" /><testcase classname="tests.test_pipeline_second_audit" name="test_metadata_download_failure_keeps_manifest_and_releases_crossprocess_lock[missing-file]" time="0.022" /><testcase classname="tests.test_pipeline_second_audit" name="test_range_download_retries_truncated_or_timed_out_response_then_recovers" time="0.011" /><testcase classname="tests.test_pipeline_second_audit" name="test_range_resume_fetches_only_missing_ranges_and_verifies_assembled_bytes" time="0.023" /></testsuite></testsuites>

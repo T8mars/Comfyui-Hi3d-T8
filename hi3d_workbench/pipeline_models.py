@@ -161,21 +161,26 @@ def _ranged_download(spec, name, destination, size, expected):
         headers = {"Range": f"bytes={begin}-{end}"}
         if token:
             headers["Authorization"] = "Bearer " + token
+        temp = part.with_suffix(".tmp")
         for attempt in range(5):
             try:
                 with requests.get(url + f"?download=true&part={index}", headers=headers, stream=True, timeout=(20, 90)) as response:
                     response.raise_for_status()
                     if response.status_code != 206 or response.headers.get("Content-Range") != f"bytes {begin}-{end}/{size}":
                         raise ValueError("服务器未返回请求的下载区间")
-                    temp = part.with_suffix(".tmp")
                     with temp.open("wb") as stream:
+                        received = 0
                         for block in response.iter_content(256*1024):
+                            received += len(block)
+                            if received > end-begin+1:
+                                raise ValueError("下载区间响应超出请求长度")
                             stream.write(block)
                     if temp.stat().st_size != end-begin+1:
                         raise ValueError("下载区间不完整")
                     os.replace(temp, part)
                 return
             except Exception:
+                temp.unlink(missing_ok=True)
                 if attempt == 4:
                     raise
                 time.sleep(2 ** attempt)

@@ -44,8 +44,14 @@ def run_child(command, request_path, directory, stage):
                 print(line, end='', flush=True)
         code = process.wait()
         if code:
-            failure = read_json(directory / 'failure.json', {})
-            raise RuntimeError(f'{stage} 阶段失败：{failure.get("error", f"进程退出 {code}，请查看日志")}')
+            try:
+                failure = read_json(directory / 'failure.json', {})
+            except (OSError, ValueError):
+                failure = {}
+            detail = failure.get('error') if isinstance(failure, dict) else None
+            if not isinstance(detail, str) or not detail.strip():
+                detail = f'进程退出 {code}，请查看日志'
+            raise RuntimeError(f'{stage} 阶段失败：{detail}')
     finally:
         if process.poll() is None:
             from .jobs import _kill_worker_tree

@@ -284,7 +284,6 @@ def main():
         result = globals()[args.stage](request, image, temp, callback)
         if not temp.is_file() or temp.stat().st_size < 100:
             raise RuntimeError("推理没有生成有效GLB")
-        os.replace(temp, output)
         torch.cuda.synchronize()
         result.update(base, status="succeeded", background=background, seconds=round(time.perf_counter()-started, 3),
                       peak_allocated_mb=round(torch.cuda.max_memory_allocated()/2**20, 2),
@@ -293,6 +292,10 @@ def main():
                       runtime={"torch": str(torch.__version__), "cuda": torch.version.cuda,
                                "gpu": torch.cuda.get_device_name(), "capability": list(torch.cuda.get_device_capability())})
         atomic_json(report_path, result)
+        # A stage report is consumed only after this process exits successfully.
+        # Finish CUDA/error checks and persist it before replacing a previous
+        # deliverable; a failed synchronization or full disk must preserve it.
+        os.replace(temp, output)
         emit(args.stage + "_complete", **{k:v for k,v in result.items() if k not in {"stage", "model", "image_encoder"}})
     except BaseException as exc:
         failure = {**base, "status": "failed", "model": SPECS[args.stage],

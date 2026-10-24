@@ -134,14 +134,15 @@ def sample(name:str):
     return FileResponse(path)
 
 @app.get("/api/health")
-def health():
+def health(request: Request):
     probe_workers=probe_recovery_workers()
     blocked=manager.recovery_blocked or bool(probe_workers)
     errors=manager.recovery_errors.copy()
     if probe_workers:errors.append('上次 GPU 诊断仍有进程未退出，暂时阻止新的 GPU 操作')
     try:diagnostics=read_json(DATA/'diagnostics.json')
     except (OSError,ValueError) as exc:diagnostics={'error':f'诊断记录无法读取，请重新运行 GPU 检查：{exc}','kernel_probe':'not_run'}
-    return {"models":models.status(),"pipeline_models":pipeline_models.status(),"pipeline_model_checking":PIPELINE_MODELS_LOCK.locked(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":errors,"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers+probe_workers,"diagnostics":diagnostics,"port":config()["port"],"version":VERSION}
+    address=request.scope.get('server')
+    return {"models":models.status(),"pipeline_models":pipeline_models.status(),"pipeline_model_checking":PIPELINE_MODELS_LOCK.locked(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":errors,"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers+probe_workers,"diagnostics":diagnostics,"port":address[1] if address else config()["port"],"version":VERSION}
 
 @app.post("/api/diagnostics")
 def diagnose():
@@ -422,11 +423,18 @@ def export(jid:str,body:ExportInput):
     if not src.is_file():raise HTTPException(404)
     exportid=uuid.uuid4().hex
     out=DATA/"exports"/exportid;out.mkdir(parents=True)
-    if body.source=='textured':
-        from .asset_pipeline import export_textured_glb
-        meta=export_textured_glb(src,out/'model.glb',body.height_mm)
-    else:meta=export_mesh(load_mesh(src),out/("model."+body.format),body.height_mm)
-    atomic_json(out/"dimensions.json",meta)
+    try:
+        if body.source=='textured':
+            from .asset_pipeline import export_textured_glb
+            meta=export_textured_glb(src,out/'model.glb',body.height_mm)
+        else:meta=export_mesh(load_mesh(src),out/("model."+body.format),body.height_mm)
+        atomic_json(out/"dimensions.json",meta)
+    except Exception:
+        # A failed export must not leave a partial model or a large orphaned
+        # copy. Only this freshly allocated export directory is discarded.
+        for partial in out.iterdir():partial.unlink(missing_ok=True)
+        out.rmdir()
+        raise
     return {"url":f"/api/exports/{exportid}/model.{body.format}","dimensions":f"/api/exports/{exportid}/dimensions.json",**meta}
 
 @app.get("/api/exports/{eid}/{name}")

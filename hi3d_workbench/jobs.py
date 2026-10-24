@@ -251,6 +251,8 @@ class JobManager:
                 self._update(jid,state="cancelled",stage="cancelled",message="已停止；输入和日志已保留")
             elif code==0 and (folder/"report.json").is_file():
                 report=read_json(folder/'report.json')
+                if not isinstance(report,dict) or report.get('status')!='succeeded':
+                    raise ValueError('进程未提供有效的成功报告，请查看阶段日志')
                 expected='textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
                 if not (folder/expected).is_file():raise RuntimeError('进程退出但缺少预期结果文件')
                 if expected=='textured.glb':
@@ -259,8 +261,13 @@ class JobManager:
                     if not report.get('texture_generated'):raise ValueError('贴图报告未确认生成成功')
                 self._update(jid,state="succeeded",stage="complete",report=report,message="模型与贴图已完成" if expected=='textured.glb' else "模型已完成")
             else:
-                fail=read_json(folder/"failure.json",{"error":f"进程退出 {code}，请查看日志"})
-                self._update(jid,state="failed",stage="failed",failure=fail,message=fail["error"])
+                try:fail=read_json(folder/"failure.json",{})
+                except (OSError,ValueError):fail={}
+                if not isinstance(fail,dict):fail={}
+                message=fail.get('error')
+                if not isinstance(message,str) or not message.strip():message=f"进程退出 {code}，请查看日志"
+                fail={**fail,'error':message}
+                self._update(jid,state="failed",stage="failed",failure=fail,message=message)
         except Exception as e:
             try:self._update(jid,state="failed",stage="failed",message=str(e))
             except (OSError,ValueError):pass

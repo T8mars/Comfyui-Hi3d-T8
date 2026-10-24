@@ -1,0 +1,17 @@
+{
+  "version": "0.3.2",
+  "baseline": "14c5aaa173117ea3e05d7241eba322256a928254",
+  "rounds": 20,
+  "bugs_fixed": 6,
+  "tests": 207,
+  "failures": 0,
+  "browser_groups": 15,
+  "javascript_errors": 0,
+  "gpu_inference_this_audit": false,
+  "comfy_scope_unchanged": [
+    "comfy_nodes.py",
+    "__init__.py",
+    "examples/Hi3D-Refine.json",
+    "examples/README.md"
+  ]
+}

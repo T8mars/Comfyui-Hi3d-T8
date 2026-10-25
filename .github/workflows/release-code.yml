@@ -22,9 +22,18 @@ jobs:
         shell: bash
         run: |
           VERSION=$(python -c 'from hi3d_workbench.common import VERSION; print(VERSION)')
+          git checkout --detach "refs/tags/v$VERSION"
           test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/v$VERSION^{commit}")"
       - run: python -m pip install 'httpx>=0.28,<1' 'filelock>=3,<4' pytest psutil
-      - run: python -m pytest tests/test_updater.py -q
+      - name: Test updater outside the ComfyUI package entry point
+        shell: bash
+        run: |
+          TEST_ROOT="$RUNNER_TEMP/hi3d-updater-tests"
+          mkdir -p "$TEST_ROOT/tests"
+          cp -R hi3d_workbench "$TEST_ROOT/"
+          cp tests/test_updater.py "$TEST_ROOT/tests/"
+          cd "$TEST_ROOT"
+          python -m pytest tests/test_updater.py -q
       - run: python tools/prepare_release_upstream.py
       - run: python tools/build_release.py --dist-root dist/public
       - name: Publish source, nodes and code updater only

@@ -17,6 +17,22 @@ internal static class WorkbenchLauncher
     private static Timer stopTimer;
     private static readonly Handler handler = OnControl;
     private delegate bool Handler(uint signal);
+    // Apply code updates in a stable supervisor, then start a fresh interpreter.
+    // Windows os.execv exits the original process before its replacement exits.
+    // Waiting for that old process alone would close the job and kill the server.
+    private const string Bootstrap = @"
+import signal, subprocess, sys
+from hi3d_workbench import updater
+try:
+    updater.apply_on_start()
+except Exception as exc:
+    if updater.recovery_required():
+        raise
+    print('Code update deferred: ' + str(exc), flush=True)
+if hasattr(signal, 'SIGBREAK'):
+    signal.signal(signal.SIGBREAK, lambda *_: None)
+raise SystemExit(subprocess.call([sys.executable, '-u', '-m', 'hi3d_workbench', *sys.argv[1:]]))
+";
     [StructLayout(LayoutKind.Sequential)]
     private struct BasicLimits
     {
@@ -133,7 +149,7 @@ internal static class WorkbenchLauncher
             var limits = new ExtendedLimits(); limits.Basic.Flags = 0x2000; // KILL_ON_JOB_CLOSE
             Check(SetInformationJobObject(job, 9, ref limits, (uint)Marshal.SizeOf(limits)));
             Check(SetConsoleCtrlHandler(handler, true));
-            var command = new StringBuilder(Quote(python) + " -u -m hi3d_workbench --open");
+            var command = new StringBuilder(Quote(python) + " -u -c " + Quote(Bootstrap) + " --open");
             foreach (string arg in args) command.Append(" ").Append(Quote(arg));
             var startup = new StartupInfo(); startup.Size = Marshal.SizeOf(startup);
             ProcessInfo child;

@@ -8,3 +8,5 @@
 - Shutdown API rejects missing session tokens, cross-site requests and servers outside the managed console entry point.
 - Code update archive checked by the installed v0.4.1 updater: no new root executable or stop-script entry is required by its protected-path allowlist. Launcher compilation and stop-script creation are separate from the code overlay. Models and runtimes are excluded from public code assets.
 - Browser automation was unavailable on this host for this run; visual browser interaction is not claimed. New controls and resource links were checked through HTTP and application tests. No new GPU inference was required or claimed for this launcher change.
+
+The final v0.4.3 supervisor also passed a genuine v0.4.1 → v0.4.3 update with private Python, HTTP readiness, preserved runtime/config/model sentinels, authenticated shutdown, retained console and real Ctrl+C cleanup. The local full bundle reports v0.4.3 with its installed models ready. Final CPU regression count: 322 passed. See [v0.4.3 receipt](v043-launcher.json).

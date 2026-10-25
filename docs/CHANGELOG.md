@@ -1,3 +1,9 @@
+# v0.4.3 · 首次升级启动兼容
+
+2026-10-25。修复 Windows 旧版 `os.execv` 在替换解释器时提前结束原进程，导致 EXE 过早清理整个服务树的问题。稳定监督进程先完成代码安装，再启动全新服务解释器并等待其退出。v0.4.2 改为预发布；正式版使用 v0.4.3。
+
+Fix Windows first-update startup by keeping a stable supervisor alive across code installation and launching the server in a fresh interpreter.
+
 # v0.4.2 · 可见 EXE 启动与进程退出
 
 2026-10-25。独立 Windows 工作台增加 EXE 控制台启动器、网页关闭按钮和停止脚本。关闭启动器清理其服务及推理子进程，Ctrl+C 支持正常退出；重复启动复用本目录服务，端口冲突拒绝操作其他目录服务，服务就绪后再打开浏览器。启动失败保留日志，侧栏与页尾增加七个社媒资源入口。ComfyUI 节点和模型算法不变。

@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-25",
+  "version": "0.4.3",
+  "cpu_regressions_passed": 322,
+  "windows_native_lifecycle_cases_passed": 4,
+  "first_update": {
+    "from": "0.4.1",
+    "to": "0.4.3",
+    "real_private_python_and_native_launcher": true,
+    "fresh_server_stays_running": true,
+    "runtime_config_and_model_sentinels_preserved": true,
+    "authenticated_shutdown_releases_backends": true,
+    "console_retains_shutdown_log": true,
+    "actual_ctrl_c_shutdown_passed": true
+  },
+  "installed_bundle": {
+    "version": "0.4.3",
+    "http_ready": true,
+    "shutdown_supported": true,
+    "model_ready": true,
+    "model_checking": false,
+    "pipeline_checking": false,
+    "recovery_blocked": false
+  },
+  "browser_visual_automation": "unavailable; no visual interaction claimed",
+  "gpu_inference": "not rerun; no model or inference changes"
+}

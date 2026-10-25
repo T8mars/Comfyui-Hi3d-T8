@@ -16,8 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from hi3d_workbench.engines.acceleration_wheels import (  # noqa: E402
-    FLASH_ATTENTION_WHEEL, UV_ACCELERATION_WHEELS, download_verified_wheel,
-    validate_flash_environment, validate_uv_environment,
+    FLASH_ATTENTION_WHEEL, UV_ACCELERATION_WHEELS, VOXEL_ACCELERATION_WHEEL, download_verified_wheel,
+    validate_flash_environment, validate_uv_environment, validate_voxel_environment,
 )
 SOURCES = {
     "hunyuan": ("Tencent-Hunyuan/Hunyuan3D-2", "f8db63096c8282cb27354314d896feba5ba6ff8a"),
@@ -198,6 +198,50 @@ def install_optional_uv(python, runtime, *, skip=False):
     return receipt
 
 
+def probe_voxel_import(python):
+    return _probe_json(python,
+        "import json,torch,o_voxel,hi3d_voxel_cuda as native; "
+        "from hi3d_workbench.engines.voxel_acceleration import probe,supports_architecture,REVISION; "
+        "assert native.source_revision == REVISION, native.source_revision; "
+        "assert supports_architecture(native.architectures,torch.cuda.get_device_capability()), 'Unsupported GPU architecture'; "
+        "probe(native,o_voxel.convert.mesh_to_flexible_dual_grid); "
+        "print(json.dumps({'import_validation':'passed','kernel_probe':'passed','build_id':native.source_revision,'architectures':native.architectures}))")
+
+
+def install_optional_voxel(python, runtime):
+    """Add a separate converter; never replace o_voxel or resolve dependencies."""
+    receipt = {'schema':1,'status':'unavailable','backend':'cpu:official',
+        'wheel':dict(VOXEL_ACCELERATION_WHEEL),'wheel_verified':False,
+        'import_validation':'not_run','kernel_probe':'not_run','full_model_validation':'not_run',
+        'updated_utc':datetime.now(timezone.utc).isoformat()}
+    try:
+        receipt['environment']=probe_attention_environment(python)
+        validate_voxel_environment(receipt['environment'])
+        print('PIPELINE_SETUP checking pinned GPU voxelization wheel; existing o_voxel and Torch remain unchanged',flush=True)
+        wheel=download_verified_wheel(runtime/'wheelhouse',VOXEL_ACCELERATION_WHEEL)
+        receipt['wheel_verified']=True
+        # An interrupted pip replacement must not leave an old success receipt.
+        receipt['status']='installing'
+        _write_acceleration_receipt(runtime,receipt,'voxel-acceleration.json','voxel_acceleration')
+        run([python,'-m','pip','install','--no-deps','--no-index','--force-reinstall',
+             '--disable-pip-version-check','--no-cache-dir',wheel])
+        receipt['import_validation']='failed'
+        result=probe_voxel_import(python)
+        if result.get('import_validation')!='passed' or result.get('kernel_probe')!='passed':
+            raise RuntimeError('GPU voxelization basic kernel validation did not pass')
+        receipt.update(result,status='installed',backend='cuda',
+            reason='Basic CPU/GPU converter check passed; per-model results still require their own validation')
+        print('PIPELINE_SETUP GPU voxelization installed; basic CPU/GPU converter check passed',flush=True)
+    except Exception as error:
+        receipt['status']='unavailable'
+        receipt['reason']=f'{type(error).__name__}: {error}'
+        if isinstance(error,subprocess.CalledProcessError) and error.stderr:
+            receipt['reason']+=': '+str(error.stderr).strip()[-2000:]
+        print('PIPELINE_SETUP optional GPU voxelization unavailable; official CPU converter retained: '+receipt['reason'],flush=True)
+    _write_acceleration_receipt(runtime,receipt,'voxel-acceleration.json','voxel_acceleration')
+    return receipt
+
+
 def source(repo, revision, target):
     manifest = target / "source-manifest.json"
     if manifest.is_file():
@@ -241,6 +285,7 @@ def main(argv=None):
     mode.add_argument("--wheels-only", action="store_true", help="Verify/install only the small native extension wheels; does not mark runtime ready")
     mode.add_argument("--attention-only", action="store_true", help="Add optional pinned FlashAttention to an existing compatible runtime; never changes Torch or runtime readiness")
     mode.add_argument("--uv-only", action="store_true", help="Add optional pinned Numba/llvmlite to an existing CP312 Windows runtime; never changes NumPy/Torch or runtime readiness")
+    mode.add_argument('--voxel-only',action='store_true',help='Add the isolated optional GPU voxel converter to an existing compatible runtime')
     parser.add_argument("--skip-native-attention", action="store_true", help="Keep SDPA; skip the optional FlashAttention wheel")
     parser.add_argument("--skip-uv-acceleration", action="store_true", help="Keep the upstream Torch UV packer; skip optional Numba/llvmlite")
     args = parser.parse_args(argv)
@@ -252,12 +297,15 @@ def main(argv=None):
     if runtime in {(ROOT / ".venv").resolve(), (ROOT / ".appenv").resolve()}:
         raise ValueError("Existing Hi3D and application runtimes must not be modified")
     python = runtime_python(runtime)
-    if args.attention_only or args.uv_only:
+    if args.attention_only or args.uv_only or args.voxel_only:
         if python is None:
-            mode_name = "--attention-only" if args.attention_only else "--uv-only"
+            mode_name = "--attention-only" if args.attention_only else '--voxel-only' if args.voxel_only else "--uv-only"
             raise RuntimeError(f"{mode_name} requires an existing runtime with python.exe or Scripts/python.exe")
         if args.attention_only:
             install_optional_attention(python, runtime)
+        elif args.voxel_only:
+            result=install_optional_voxel(python,runtime)
+            if result['status']!='installed':raise RuntimeError(result['reason'])
         else:
             install_optional_uv(python, runtime)
         return

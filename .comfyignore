@@ -1,4 +1,4 @@
-# Registry archive: ComfyUI nodes and canvas examples only.
+# Registry archive: standalone Hi3D nodes, pinned official source and canvas examples.
 hi3d_workbench/
 scripts/
 tools/
@@ -22,7 +22,7 @@ requirements-pipeline-windows.txt
 docs/UPDATES.md
 docs/UPDATES.zh-CN.md
 docs/releases/
-models/
+/models/
 runtime/
 runtime-pipeline/
 .venv/
@@ -38,3 +38,6 @@ config.example.json
 upstream-source-manifest.json
 VALIDATION.md
 IMPLEMENTATION_STATUS.md
+
+# Historical bridge screenshot; the native canvas is supplied as JSON.
+docs/images/comfyui-canvas.png

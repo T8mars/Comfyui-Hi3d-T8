@@ -7,6 +7,18 @@ from pathlib import Path
 import urllib.request
 import uuid
 
+VOXEL_ACCELERATION_WHEEL = {
+    "package": "hi3d-voxel-cuda", "version": "0.1.3",
+    "filename": "hi3d_voxel_cuda-0.1.3-cp312-cp312-win_amd64.whl",
+    "url": "https://huggingface.co/t8star/Hi3d-Comfy/resolve/d22a4b9aaa08ec255ad3ae982d211c99f4a4b7c9/runtime-wheels/v0.4.9/hi3d_voxel_cuda-0.1.3-cp312-cp312-win_amd64.whl",
+    "bytes": 533673,
+    "sha256": "ee2c0465aaf83bea3090197edfcc35a610e43c16809b0f97f370204b1a60ceb6",
+    "python": [3, 12], "torch": "2.8.0+cu128", "cuda": "12.8", "platform": "win32",
+    "architectures": "8.6;8.9;12.0+PTX", "license": "MIT",
+    "build_id": "e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+    "source": "https://github.com/quantaji/o-voxel-gpu/tree/e477c69457c650dc680c02c2a1fb2ca58d3429ad",
+}
+
 
 FLASH_ATTENTION_WHEEL = {
     "package": "flash-attn",
@@ -83,6 +95,13 @@ def validate_uv_environment(environment: dict) -> None:
         mismatches.append("requires Windows x86-64")
     if mismatches:
         raise RuntimeError("Numba UV acceleration ABI mismatch: " + "; ".join(mismatches))
+
+
+def validate_voxel_environment(environment: dict) -> None:
+    try:
+        validate_flash_environment(environment)
+    except RuntimeError as error:
+        raise RuntimeError(str(error).replace('Native FlashAttention', 'GPU voxelization')) from error
 
 
 def _verified(path: Path, spec: dict) -> bool:

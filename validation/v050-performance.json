@@ -1,0 +1,513 @@
+{
+  "version": "0.5.0",
+  "hardware": "NVIDIA GeForce RTX5090 Laptop 24GB;64GB RAM;Windows",
+  "workbench_torch": "2.8.0+cu128",
+  "scope": "Standalone workbench optimization; ComfyUI native implementation is validated separately",
+  "full_parameters": {
+    "geometry_resolution": 512,
+    "geometry_steps": 12,
+    "geometry_target_faces": 1000000,
+    "texture_resolution": 1024,
+    "texture_steps": 12,
+    "texture_size": 4096,
+    "seed": 0,
+    "model_policy": "runtime",
+    "offload": true,
+    "attention": "auto"
+  },
+  "full_and_material_cases": [
+    {
+      "case": "full-million-4k-first",
+      "state": "succeeded",
+      "wall_seconds": 215.25,
+      "pipeline_seconds": 201.82,
+      "peak_sum_process_rss_MiB": 12066.97,
+      "runtime_policy": "runtime",
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 54.392,
+          "actual_resolution": 512,
+          "inference_steps": 12,
+          "vertices": 461297,
+          "faces": 972060,
+          "texture_size": null,
+          "peak_allocated_mb": 3058.78,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": null,
+          "baking": null,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 5,
+            "evictions": 0
+          }
+        },
+        {
+          "stage": "texture",
+          "seconds": 142.171,
+          "actual_resolution": null,
+          "inference_steps": 12,
+          "vertices": 959436,
+          "faces": 971945,
+          "texture_size": 4096,
+          "peak_allocated_mb": 16515.36,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": {
+            "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+            "kernel_probe": "passed",
+            "voxel_seconds": 0.231,
+            "occupied_voxels": 13037403,
+            "cache_saved": true,
+            "cache_hit": false,
+            "cache_key": "178cefc0b36b8ddd34c7e4d08050c308c9a36a64f69d152c4bbb1ba209cac46a",
+            "cache_seconds": 4.931
+          },
+          "baking": {
+            "workers": 4,
+            "seconds": 25.512,
+            "algorithm": "original OpenCV INPAINT_TELEA; radii 3/1/1/1"
+          },
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 9,
+            "evictions": 0
+          }
+        }
+      ]
+    },
+    {
+      "case": "same-million-mesh-material-repeat",
+      "state": "succeeded",
+      "wall_seconds": 117.782,
+      "pipeline_seconds": 107.12,
+      "peak_sum_process_rss_MiB": 10776.08,
+      "runtime_policy": "runtime",
+      "stages": [
+        {
+          "stage": "texture",
+          "seconds": 99.769,
+          "actual_resolution": null,
+          "inference_steps": 12,
+          "vertices": 959436,
+          "faces": 971945,
+          "texture_size": 4096,
+          "peak_allocated_mb": 13576.97,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": {
+            "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+            "kernel_probe": "passed",
+            "cache_hit": true,
+            "cache_key": "178cefc0b36b8ddd34c7e4d08050c308c9a36a64f69d152c4bbb1ba209cac46a",
+            "cache_seconds": 1.285
+          },
+          "baking": {
+            "workers": 4,
+            "seconds": 26.711,
+            "algorithm": "original OpenCV INPAINT_TELEA; radii 3/1/1/1"
+          },
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 12,
+            "evictions": 0
+          }
+        }
+      ]
+    },
+    {
+      "case": "same-million-mesh-cpu-material-reference",
+      "state": "succeeded",
+      "wall_seconds": 162.078,
+      "pipeline_seconds": 151.61,
+      "peak_sum_process_rss_MiB": 13372.95,
+      "runtime_policy": "runtime",
+      "stages": [
+        {
+          "stage": "texture",
+          "seconds": 144.381,
+          "actual_resolution": null,
+          "inference_steps": 12,
+          "vertices": 959436,
+          "faces": 971945,
+          "texture_size": 4096,
+          "peak_allocated_mb": 16516.14,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": {
+            "backend": "cpu:official",
+            "cache_hit": false,
+            "cache_key": "207f62e0eef2c23b72edc0ddd697438d76d6a03498a4665b5f4932e7a87bda74",
+            "cache_seconds": 49.624
+          },
+          "baking": {
+            "workers": 4,
+            "seconds": 26.485,
+            "algorithm": "original OpenCV INPAINT_TELEA; radii 3/1/1/1"
+          },
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 16,
+            "evictions": 0
+          }
+        }
+      ]
+    }
+  ],
+  "same_parameter_full_runtime_ab": [
+    {
+      "case": "fresh-interpreter-same-full-parameters",
+      "state": "succeeded",
+      "wall_seconds": 231.609,
+      "pipeline_seconds": 221.14,
+      "peak_sum_process_rss_MiB": 11177.34,
+      "runtime_policy": "runtime",
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 74.482,
+          "actual_resolution": 512,
+          "inference_steps": 12,
+          "vertices": 461379,
+          "faces": 972094,
+          "texture_size": null,
+          "peak_allocated_mb": 3058.78,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": null,
+          "baking": null,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 5,
+            "evictions": 0
+          }
+        },
+        {
+          "stage": "texture",
+          "seconds": 140.554,
+          "actual_resolution": null,
+          "inference_steps": 12,
+          "vertices": 965024,
+          "faces": 971980,
+          "texture_size": 4096,
+          "peak_allocated_mb": 16515.66,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": {
+            "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+            "kernel_probe": "passed",
+            "voxel_seconds": 0.2,
+            "occupied_voxels": 13032481,
+            "cache_saved": true,
+            "cache_hit": false,
+            "cache_key": "5a041092a02184f756036f32c2d15b00635ffc57d55fef195c940028f63c3d10",
+            "cache_seconds": 4.525
+          },
+          "baking": {
+            "workers": 4,
+            "seconds": 21.147,
+            "algorithm": "original OpenCV INPAINT_TELEA; radii 3/1/1/1"
+          },
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 9,
+            "evictions": 0
+          }
+        }
+      ]
+    },
+    {
+      "case": "retained-interpreter-same-full-parameters",
+      "state": "succeeded",
+      "wall_seconds": 184.156,
+      "pipeline_seconds": 177.45,
+      "peak_sum_process_rss_MiB": 11623.23,
+      "runtime_policy": "runtime",
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 39.123,
+          "actual_resolution": 512,
+          "inference_steps": 12,
+          "vertices": 461379,
+          "faces": 972050,
+          "texture_size": null,
+          "peak_allocated_mb": 3471.05,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": null,
+          "baking": null,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 14,
+            "evictions": 0
+          }
+        },
+        {
+          "stage": "texture",
+          "seconds": 133.83,
+          "actual_resolution": null,
+          "inference_steps": 12,
+          "vertices": 964200,
+          "faces": 971936,
+          "texture_size": 4096,
+          "peak_allocated_mb": 16512.98,
+          "memory_metric": "PyTorch CUDA allocator; external native allocations are not included",
+          "encoding": {
+            "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+            "kernel_probe": "passed",
+            "voxel_seconds": 0.193,
+            "occupied_voxels": 13031015,
+            "cache_saved": true,
+            "cache_hit": false,
+            "cache_key": "bc44e0e354d26393a27ec4276d22b5d2e665c3720f0a7a37bff5c7e1a9c9bd5b",
+            "cache_seconds": 4.231
+          },
+          "baking": {
+            "workers": 4,
+            "seconds": 20.795,
+            "algorithm": "original OpenCV INPAINT_TELEA; radii 3/1/1/1"
+          },
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 18,
+            "evictions": 0
+          }
+        }
+      ]
+    }
+  ],
+  "same_runtime_pid": true,
+  "raw_geometry_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+  "all_raw_geometry_identical": true,
+  "calibrated_cuda_converter": [
+    {
+      "name": "cube",
+      "resolution": 64,
+      "faces": 12,
+      "voxels": 23816,
+      "cpu_seconds": 0.056426299997838214,
+      "gpu_seconds": 0.3570340000005672,
+      "occupancy_match": true,
+      "intersected_mismatches": 0,
+      "dual_rms": 2.3355872097570463e-07,
+      "dual_max_error": 2.5510787963867188e-05,
+      "backend": {
+        "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+        "voxel_seconds": 0.35,
+        "occupied_voxels": 23816
+      }
+    },
+    {
+      "name": "sphere",
+      "resolution": 128,
+      "faces": 320,
+      "voxels": 75704,
+      "cpu_seconds": 0.17267960000026505,
+      "gpu_seconds": 0.033580500006792136,
+      "occupancy_match": true,
+      "intersected_mismatches": 0,
+      "dual_rms": 3.434338026618624e-05,
+      "dual_max_error": 0.003334611654281616,
+      "backend": {
+        "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+        "voxel_seconds": 0.013,
+        "occupied_voxels": 75704
+      }
+    },
+    {
+      "name": "open-boundary",
+      "resolution": 128,
+      "faces": 10,
+      "voxels": 80900,
+      "cpu_seconds": 0.12695289999828674,
+      "gpu_seconds": 0.06841310000163503,
+      "occupancy_match": true,
+      "intersected_mismatches": 0,
+      "dual_rms": 1.390055631416565e-09,
+      "dual_max_error": 5.960464477539063e-08,
+      "backend": {
+        "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+        "voxel_seconds": 0.048,
+        "occupied_voxels": 80900
+      }
+    },
+    {
+      "name": "owl-512",
+      "resolution": 512,
+      "faces": 971356,
+      "voxels": 3206313,
+      "cpu_seconds": 14.796513699999196,
+      "gpu_seconds": 1.7560259999881964,
+      "occupancy_match": true,
+      "intersected_mismatches": 0,
+      "dual_rms": 6.197134512474913e-05,
+      "dual_max_error": 0.001953125,
+      "backend": {
+        "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+        "voxel_seconds": 0.179,
+        "occupied_voxels": 3206313
+      }
+    },
+    {
+      "name": "owl-1024",
+      "resolution": 1024,
+      "faces": 971356,
+      "voxels": 13034892,
+      "cpu_seconds": 56.22107060000417,
+      "gpu_seconds": 7.730355300009251,
+      "occupancy_match": true,
+      "intersected_mismatches": 0,
+      "dual_rms": 4.522561797390867e-05,
+      "dual_max_error": 0.0009765625,
+      "backend": {
+        "backend": "cuda:e477c69457c650dc680c02c2a1fb2ca58d3429ad-t8-two-pass-fpstrict-v2",
+        "voxel_seconds": 0.393,
+        "occupied_voxels": 13034892
+      }
+    }
+  ],
+  "material_comparison": [
+    {
+      "case": "same-GPU-cached-repeat",
+      "geometry": {
+        "vertices": true,
+        "faces": true,
+        "vertex_normals": true,
+        "uv": true
+      },
+      "material": {
+        "baseColorTexture": {
+          "shape": [
+            4096,
+            4096,
+            4
+          ],
+          "pixels_exact": true,
+          "mean_absolute_error_255": 0.0,
+          "rms_255": 0.0,
+          "max_error_255": 0.0,
+          "PSNR_dB": null
+        },
+        "metallicRoughnessTexture": {
+          "shape": [
+            4096,
+            4096,
+            3
+          ],
+          "pixels_exact": true,
+          "mean_absolute_error_255": 0.0,
+          "rms_255": 0.0,
+          "max_error_255": 0.0,
+          "PSNR_dB": null
+        }
+      }
+    },
+    {
+      "case": "GPU-versus-official-CPU",
+      "geometry": {
+        "vertices": true,
+        "faces": true,
+        "vertex_normals": true,
+        "uv": true
+      },
+      "material": {
+        "baseColorTexture": {
+          "shape": [
+            4096,
+            4096,
+            4
+          ],
+          "pixels_exact": false,
+          "mean_absolute_error_255": 0.17962951958179474,
+          "rms_255": 0.5017921545883721,
+          "max_error_255": 8.0,
+          "PSNR_dB": 54.12032627004842
+        },
+        "metallicRoughnessTexture": {
+          "shape": [
+            4096,
+            4096,
+            3
+          ],
+          "pixels_exact": false,
+          "mean_absolute_error_255": 0.08385237058003743,
+          "rms_255": 0.3339737858868975,
+          "max_error_255": 9.0,
+          "PSNR_dB": 57.656556014451155
+        }
+      }
+    }
+  ],
+  "render_comparison": [
+    {
+      "view": "front",
+      "mean_absolute_error_255": 0.027422587076822918,
+      "max_error_255": 16.0,
+      "PSNR_dB": 63.456813931494224
+    },
+    {
+      "view": "quarter",
+      "mean_absolute_error_255": 0.030081431070963543,
+      "max_error_255": 13.0,
+      "PSNR_dB": 63.09385145727961
+    },
+    {
+      "view": "back",
+      "mean_absolute_error_255": 0.032407124837239586,
+      "max_error_255": 9.0,
+      "PSNR_dB": 62.943810884193766
+    }
+  ],
+  "serial_parallel_4k_golden": {
+    "all_material_pixels_exact": true,
+    "vertices_faces_uv_normals_exact": true,
+    "repeat_sparse_cache_pixels_exact": true,
+    "timing_scopes": "serial whole bake and parallel inpaint subsection are not comparable"
+  },
+  "cpu_loader": {
+    "official_seconds": 23.695,
+    "optimized_seconds": 0.141,
+    "state_tensors_exact": 641,
+    "limitation": "Official loader first; OS cache order differs; not an end-to-end multiplier"
+  },
+  "wheel": {
+    "commit": "d22a4b9aaa08ec255ad3ae982d211c99f4a4b7c9",
+    "wheel": "hi3d_voxel_cuda-0.1.3-cp312-cp312-win_amd64.whl",
+    "bytes": 533673,
+    "sha256": "ee2c0465aaf83bea3090197edfcc35a610e43c16809b0f97f370204b1a60ceb6"
+  },
+  "limitations": [
+    "OS disk caches were not flushed; full A/B used fresh then retained interpreters with the same parameters.",
+    "Repeated full generation retains exact raw geometry; GPU CuMesh cleanup can reorder or slightly vary processed meshes, so full texture bytes need not match.",
+    "GPU/CPU converter integer structure matches; QEF and material floating-point/pixel values are not bit-identical.",
+    "Peak CUDA allocation measures PyTorch allocator; native allocations and WDDM physical residency are outside that measure.",
+    "No controlled browser tab is available; do not claim live browser visual QA."
+  ]
+}

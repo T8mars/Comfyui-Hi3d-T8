@@ -38,6 +38,20 @@ def test_node_audit_rejects_stale_comfy_node(tmp_path,audit_module):
         with pytest.raises(AssertionError,match='comfy_nodes.py'):audit_module.verify_nodes(z,source_root=root)
 
 
+def test_workbench_overlay_remains_compatible_with_old_updater_allowlist(tmp_path):
+    path=Path(__file__).parents[1]/'tools/build_release.py'
+    spec=importlib.util.spec_from_file_location('overlay_builder_test',path)
+    builder=importlib.util.module_from_spec(spec);spec.loader.exec_module(builder)
+    source=tmp_path/'source.zip'
+    with zipfile.ZipFile(source,'w') as archive:
+        for name in ['hi3d_workbench/demo.py','docs/new.md','__init__.py','comfy_nodes.py',
+                     'hi3d_native/runtime.py','web/hi3d_mesh_upload.js']:
+            archive.writestr(name,b'current code')
+    overlay=builder.build_update(tmp_path,source)
+    with zipfile.ZipFile(overlay) as archive:
+        assert set(archive.namelist())=={'hi3d_workbench/demo.py','docs/new.md'}
+
+
 def test_release_file_inventory_omits_machine_specific_numba_cache(tmp_path):
     path=Path(__file__).parents[1]/'tools/build_release.py'
     spec=importlib.util.spec_from_file_location('release_builder_test',path)

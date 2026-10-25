@@ -1,4 +1,13 @@
-# ComfyUI node-side dependencies only. No torch/CUDA replacement.
+# Standalone ComfyUI nodes; use ComfyUI's existing Torch/CUDA.
 numpy>=1.26,<3
 Pillow>=10.3
-trimesh>=4.6,<5
+trimesh>=4.3,<5
+scipy>=1.11,<2
+safetensors>=0.5
+transformers>=4.46,<6
+accelerate>=1.0,<2
+huggingface-hub>=0.30,<2
+pyfqmr>=0.4,<0.5
+spconv-cu126==2.3.8
+triton-windows>=3.3.1,<4; platform_system == "Windows"
+triton>=3.3,<4; platform_system == "Linux"

@@ -14,10 +14,11 @@ def nodes():
     return module
 
 
-@pytest.mark.parametrize('url',['https://127.0.0.1:8378','http://example.com','http://127.0.0.1@example.com','file:///tmp/backend','http://127.0.0.1.attacker.example'])
-def test_backend_rejects_non_loopback_before_network(nodes,url,monkeypatch):
-    monkeypatch.setattr(nodes._LOCAL_HTTP,'open',lambda *a,**k:pytest.fail('Invalid endpoint must never make a request'))
-    with pytest.raises(ValueError,match='本机 HTTP'):nodes.request(url,'/api/session')
+def test_node_interface_is_standalone_without_backend_or_http(nodes):
+    assert set(nodes.NODE_CLASS_MAPPINGS)=={'Hi3DModelLoader','Hi3DLoadMesh','Hi3DRefine'}
+    assert 'backend' not in nodes.Hi3DRefine.INPUT_TYPES()['required']
+    assert not hasattr(nodes,'request') and not hasattr(nodes,'upload')
+    assert nodes.Hi3DRefine.RETURN_TYPES==('MESH','STRING')
 
 
 def test_float_face_indices_are_rejected_without_silent_geometry_change(nodes):

@@ -23,6 +23,10 @@ tags:
 
 **ComfyUI only uses the Hi3D core for reference-image + coarse-mesh geometry refinement.** Image-to-3D and PBR extensions belong to the standalone workbench. This model repository contains neither the application nor Python. GitHub Releases contain code only; T8star will provide the complete package with Python and models separately.
 
+Native nodes infer directly inside ComfyUI's own Python, without a workbench service. Upload the reference and coarse mesh to refine with the same original core weights. Replace legacy bridge canvases with the new example.
+
+**Workbench v0.5.0 retains all existing model weights.** The optional Windows CUDA converter is code in `runtime-wheels/v0.4.9/`, installed separately by the workbench with a pinned hash; it is not a checkpoint or a Python distribution. The GPU converter keeps the upstream MIT notices.
+
 **Workbench v0.4.8 uses the same weights.** Loading, bounded CPU residency and preview fixes are code updates from GitHub; no replacement checkpoints are needed. ComfyUI remains geometry-only.
 
 ## Included models
@@ -44,7 +48,7 @@ tags:
 
 ## Download
 
-Run from the **workbench root**, not `ComfyUI/models`.
+For native ComfyUI, use `ComfyUI/models/Hi3D/`. For the workbench, use its `models/` directory. The same core weights can also be selected through a custom model root. Replace `models` below with the desired target.
 
 Core only, sufficient for the Hi3D ComfyUI integration:
 

@@ -2,7 +2,7 @@
 .appenv/
 .pipelineenv/
 upstream/
-models/
+/models/
 data/
 dist/
 wheelhouse/

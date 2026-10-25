@@ -33,6 +33,15 @@ class HookModel:
         return self.result
 
 
+def test_gpu_converter_preparation_is_not_reported_as_cpu_voxelization():
+    model=HookModel();trace=[]
+    with observe_shape_encoding(SimpleNamespace(models={'shape_slat_encoder':model}),
+            lambda stage,**event:trace.append(event),voxel_backend='cuda:validated-build'):
+        assert trace[-1]['device']=='cpu' and 'CPU 网格体素化' not in trace[-1]['message']
+        model(object())
+    assert trace[-1]['phase']=='shape_encoding' and trace[-1]['device']=='cuda'
+
+
 def test_lazy_checkpoint_loading_restores_cpu_voxelization_before_method_runs():
     from hi3d_workbench.engines.model_loading import LazyModel
     trace=[]

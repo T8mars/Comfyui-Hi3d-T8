@@ -25,7 +25,7 @@ from .common import ROOT, DATA, MODELS, config, atomic_json, read_json, child_pa
 from .geometry import load_mesh, inspect_mesh, export_mesh
 from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
-from . import common, models, pipeline_models, updater, lifecycle
+from . import common, models, pipeline_models, updater, lifecycle, runtime_acceleration
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -40,6 +40,7 @@ PIPELINE_MODELS_LOCK=threading.Lock()
 MODEL_PATH_LOCK=threading.RLock()
 PREVIEW_LOCK=threading.Lock()
 PREVIEW_EVENTS=[]
+ACCELERATION_INSTALL={'state':'idle','message':''}
 JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
 
 @contextmanager
@@ -136,6 +137,41 @@ def session():return {"token":TOKEN,"version":VERSION,"source_revision":SOURCE_R
 @app.get('/api/runtime')
 def runtime_status():return manager.runtime_status()
 
+@app.get('/api/runtime/voxel-acceleration')
+def voxel_acceleration_status():
+    return {**runtime_acceleration.status(),'installation':dict(ACCELERATION_INSTALL)}
+
+def install_voxel_acceleration(guards):
+    try:
+        command=[sys.executable,str(ROOT/'tools/setup_pipeline_runtime.py'),
+                 '--runtime',str(runtime_acceleration.runtime_root()),'--voxel-only']
+        output,code=run_probe(command)
+        (DATA/'voxel-acceleration-install.log').write_text(output,encoding='utf-8')
+        if code or not runtime_acceleration.status()['installed']:
+            raise RuntimeError(runtime_acceleration.status()['receipt'].get('reason') or output[-1500:] or f'安装退出码 {code}')
+        ACCELERATION_INSTALL.update(state='succeeded',message='GPU 体素化组件安装并通过基础内核检查；下一次贴图任务自动使用')
+    except Exception as error:
+        ACCELERATION_INSTALL.update(state='failed',message=str(error))
+    finally:
+        guards.close()
+
+@app.post('/api/runtime/voxel-acceleration/install')
+def start_voxel_acceleration_install():
+    with ExitStack() as guards:
+        guards.enter_context(gpu_operation('installing_acceleration'))
+        if not runtime_acceleration.status()['runtime_exists']:
+            raise HTTPException(409,'请先安装完整扩展运行环境')
+        manager.close_resident()
+        ACCELERATION_INSTALL.update(state='running',message='正在校验、安装并检查 GPU 体素化组件，请稍候…')
+        transferred=guards.pop_all()
+        try:
+            threading.Thread(target=install_voxel_acceleration,args=(transferred,),daemon=False).start()
+        except Exception:
+            ACCELERATION_INSTALL.update(state='failed',message='安装线程未启动，请重试')
+            transferred.close()
+            raise
+    return voxel_acceleration_status()
+
 class PreviewStatus(BaseModel):
     view:StrictStr=Field(max_length=16)
     source:StrictStr=Field(max_length=512)
@@ -163,6 +199,7 @@ def unload_runtime():
 
 @app.post('/api/shutdown')
 def shutdown_workbench():
+    if operation=='installing_acceleration':raise HTTPException(409,'加速组件正在安装，请等待安装完成后关闭工作台')
     if not lifecycle.managed:raise HTTPException(409,'请从原启动窗口关闭此服务')
     return JSONResponse({'stopping':True},background=BackgroundTask(lifecycle.shutdown.set))
 
@@ -468,7 +505,9 @@ class JobInput(BaseModel):
     geometry_cleanup:bool=True
     geometry_target_faces:int=1000000
     pipeline_attention:str='auto'
-    model_policy:str='release'
+    model_policy:str='runtime'
+    voxel_backend:str='auto'
+    encoding_cache:bool=True
     texture_engine:str='trellis2'
     texture_steps:int | None=Field(None,ge=1,le=100)
     texture_resolution:int | None=None
@@ -485,7 +524,8 @@ def create_job(body:JobInput):
     from .engine_catalog import engine, is_ready
     if (body.resolution not in {512,1024,1536} or body.attention not in {"flash","sdpa"}
             or body.pipeline_attention not in {'auto','flash_attn','sdpa'}
-            or body.model_policy not in {'release','resident'}
+            or body.model_policy not in {'release','runtime','resident'}
+            or body.voxel_backend not in {'auto','cpu','cuda'}
             or body.geometry_target_faces not in {100000,300000,1000000}):raise HTTPException(400,"无效推理配置")
     try:
         geometry_choice=engine('coarse',body.geometry_engine)

@@ -2,13 +2,13 @@
 
 Workbench integration and design: By T8star. Upstream authorship and licenses remain as stated below.
 
-This is a community integration, not an official Hi3D product. The ComfyUI nodes and workbench call the unmodified Hi3D v1.0 inference implementation at commit 23dcc684bc6e1fab86ecafb99ec5270edad122f9. The node-only archive contains only integration code; Hi3D sources, weights and their accompanying licenses are supplied by the separate workbench distribution.
+This is a community integration, not an official Hi3D product. The ComfyUI nodes and workbench call the unmodified Hi3D v1.0 inference implementation at commit 23dcc684bc6e1fab86ecafb99ec5270edad122f9. The standalone ComfyUI node archive includes the pinned official Python source and upstream notices under hi3d_native/vendor, plus the integration and mesh-upload extension. It runs directly in ComfyUI, without a workbench service. Model weights and Python runtimes are not included.
 
 Hi3D is licensed under the Hi3D Open License Agreement Version 1.0. Copyright © 2026 OCEANO HK HOLDING LIMITED. All rights not expressly granted are reserved. The Hi3D trademarks are owned by OCEANO HK HOLDING LIMITED or its applicable affiliate(s).
 
 The accompanying upstream LICENSE, NOTICE, AUTHORS, THIRD_PARTY_LICENSES.md and sparc3d/ops/flexicubes/LICENSE.txt are retained. They govern their respective components. No license is asserted for the entire distribution as a single MIT work. Upstream assets/example.png and comparison figures are excluded from release archives. Procedural smoke-test samples are created by this project.
 
-The optional SDPA compatibility adapter is implemented by this integration in hi3d_workbench/attention.py. It is not part of the official measured inference stack. It replaces only packed attention calls inside the isolated process; no model weights are changed. It requires independent end-to-end quality evaluation.
+The optional SDPA compatibility adapter is implemented by this integration in hi3d_workbench/attention.py and hi3d_native/attention.py. It is not part of the official measured inference stack. It adapts only packed attention calls; the native ComfyUI adapter scopes and restores its Hi3D-only hooks after execution; no model weights are changed. It requires independent end-to-end quality evaluation.
 
 The local viewer bundles @google/model-viewer 4.0.0, copyright Google LLC, under Apache-2.0; its full LICENSE is in hi3d_workbench/web/vendor/model-viewer.LICENSE. Source: https://github.com/google/model-viewer .
 

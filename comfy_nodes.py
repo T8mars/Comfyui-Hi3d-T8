@@ -1,45 +1,12 @@
 from __future__ import annotations
-import io
 import json
-import time
-import urllib.request
-import urllib.error
 from pathlib import Path
-from urllib.parse import urlparse
-import uuid
 import os
 
-_LOCAL_HTTP=urllib.request.build_opener(urllib.request.ProxyHandler({}))
-_READ_TIMEOUT=15
-_WRITE_TIMEOUT=600
-_CANCEL_TIMEOUT=10
 
-def request(base,path,payload=None,token=None,raw=False,content_type=None):
-    parsed=urlparse(base)
-    if parsed.scheme!="http" or parsed.hostname not in {"127.0.0.1","localhost","::1"}:
-        raise ValueError("Hi3D 后端只允许本机 HTTP 地址")
-    headers={}
-    if payload is not None and token is None:
-        token=request(base,'/api/session')['token']
-    if token:headers["x-hi3d-token"]=token
-    if payload is not None and not isinstance(payload,bytes):
-        payload=json.dumps(payload).encode();headers["content-type"]="application/json"
-    if content_type:headers["content-type"]=content_type
-    req=urllib.request.Request(base.rstrip('/')+path,data=payload,headers=headers)
-    try:
-        # Polling and stopping a local worker must not wait for the long upload
-        # timeout; ComfyUI checks its interruption flag between these calls.
-        timeout=_CANCEL_TIMEOUT if payload is not None and path.endswith('/cancel') else (_WRITE_TIMEOUT if payload is not None else _READ_TIMEOUT)
-        with _LOCAL_HTTP.open(req,timeout=timeout) as r:
-            data=r.read()
-            return data if raw else json.loads(data)
-    except urllib.error.HTTPError as e:
-        raise RuntimeError(e.read().decode('utf-8',errors='replace')) from e
-
-def upload(backend,name,data):
-    boundary=uuid.uuid4().hex
-    body=(f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{name}"\r\nContent-Type: application/octet-stream\r\n\r\n').encode()+data+f'\r\n--{boundary}--\r\n'.encode()
-    return request(backend['url'],'/api/assets',body,content_type='multipart/form-data; boundary='+boundary)
+def native_package():
+    import importlib
+    return importlib.import_module((__package__+'.' if __package__ else '')+'hi3d_native')
 
 def arrays(mesh):
     import numpy as np
@@ -73,105 +40,121 @@ def mesh_value(v,f):
         MESH=SimpleNamespace
     return MESH(vertices=torch.as_tensor(v,dtype=torch.float32).unsqueeze(0),faces=torch.as_tensor(f,dtype=torch.int64).unsqueeze(0))
 
-class Hi3DBackend:
+
+def image_to_pil(image,mask=None):
+    import numpy as np
+    from PIL import Image
+    if len(image.shape)!=4 or image.shape[0]!=1 or image.shape[-1] not in (3,4) or min(image.shape[1:3])<=0:
+        raise ValueError('Hi3D 只支持单张 RGB / RGBA 参考图，形状须为 1×H×W×3/4')
+    pixels=image[0].detach().cpu().numpy()
+    if not np.isfinite(pixels).all():raise ValueError('参考图包含无效数值')
+    im=Image.fromarray((pixels.clip(0,1)*255).round().astype('uint8')).convert('RGBA')
+    if mask is not None:
+        m=mask.detach().cpu().numpy()
+        if m.ndim==3:
+            if m.shape[0]!=1:raise ValueError('Hi3D 只支持单个蒙版')
+            m=m[0]
+        if m.ndim!=2 or min(m.shape)<=0 or not np.isfinite(m).all():raise ValueError('蒙版须为有效的 H×W 或 1×H×W 数值')
+        alpha=Image.fromarray(((1-m.clip(0,1))*255).round().astype('uint8'))
+        if alpha.size!=im.size:alpha=alpha.resize(im.size,Image.Resampling.BILINEAR)
+        im.putalpha(Image.fromarray(np.minimum(np.asarray(im.getchannel('A')),np.asarray(alpha))))
+    return im
+
+
+class Hi3DModelLoader:
     @classmethod
-    def INPUT_TYPES(cls):return {'required':{'url':('STRING',{'default':'http://127.0.0.1:8378'})}}
-    RETURN_TYPES=('HI3D_BACKEND',)
-    FUNCTION='connect'
+    def INPUT_TYPES(cls):
+        return {'required':{
+            'model_root':('STRING',{'default':'','tooltip':'留空使用 ComfyUI/models/Hi3D；目录下包含 hi3d、dino、clip。支持自定义绝对路径与 extra_model_paths.yaml 的 hi3d 项。'}),
+            'cpu_offload':('BOOLEAN',{'default':True}),
+            'attention':(['sdpa','flash'],{'default':'sdpa' if os.name=='nt' else 'flash'}),
+            'keep_model_loaded':('BOOLEAN',{'default':False,'tooltip':'连续任务保留模型内存；关闭时每次精修后释放模型。'}),
+            'download_missing':('BOOLEAN',{'default':False,'tooltip':'缺少权重时，从固定版本的 t8star/Hi3d-Comfy 仅下载 Hi3D 核心与必需编码器。'})}}
+    RETURN_TYPES=('HI3D_MODEL',)
+    RETURN_NAMES=('model',)
+    FUNCTION='load'
     CATEGORY='Hi3D'
-    def connect(self,url):
-        request(url,'/api/session')
-        return ({'url':url},)
+    def load(self,model_root='',cpu_offload=True,attention='sdpa',keep_model_loaded=False,download_missing=False):
+        import importlib
+        package=native_package().__name__
+        models=importlib.import_module(package+'.models')
+        runtime=importlib.import_module(package+'.runtime')
+        if attention not in {'sdpa','flash'}:raise ValueError('无效 Hi3D 注意力选项')
+        return (runtime.ModelHandle(models.model_root(model_root),cpu_offload,attention,keep_model_loaded,download_missing),)
     @classmethod
-    def IS_CHANGED(cls,**kw):return float('nan')
+    def IS_CHANGED(cls,model_root='',**kwargs):
+        import importlib
+        models=importlib.import_module(native_package().__name__+'.models')
+        return models.identity(models.model_root(model_root))
+
 
 class Hi3DLoadMesh:
     @classmethod
-    def INPUT_TYPES(cls):return {'required':{'backend':('HI3D_BACKEND',),'path':('STRING',{'default':'','tooltip':'GLB/PLY/STL 本机路径；不包含其他模型'})}}
+    def INPUT_TYPES(cls):
+        import folder_paths
+        root=Path(folder_paths.get_input_directory())
+        files=sorted(path.relative_to(root).as_posix() for path in root.rglob('*')
+            if path.is_file() and path.suffix.lower() in {'.glb','.ply','.stl','.npz'})
+        return {'required':{'mesh_file':(files or ['请先上传粗模'],{'tooltip':'点击上传粗模按钮或把 GLB / PLY / STL 文件拖到节点；文件保存在 ComfyUI/input/hi3d。'})}}
     RETURN_TYPES=('MESH',)
+    RETURN_NAMES=('mesh',)
     FUNCTION='load'
     CATEGORY='Hi3D'
-    def load(self,backend,path):
-        import numpy as np
-        p=Path(path).expanduser()
-        if p.suffix.lower() not in {'.glb','.ply','.stl','.npz'}:raise ValueError('请选择 GLB/PLY/STL 网格')
-        item=upload(backend,'coarse'+p.suffix.lower(),p.read_bytes())
-        # Preserve the parsed mesh in a stable binary format returned by server.
-        # Download GLB and parse using ComfyUI's native Get3DComponents when possible.
-        data=request(backend['url'],item['url'],raw=True)
-        try:
-            from comfy_extras.nodes_mesh_io import Get3DComponents
-            from comfy_api.latest._util.geometry_types import File3D
-            return (Get3DComponents.execute(File3D(io.BytesIO(data),'glb'))[0],)
-        except ImportError:
-            # Legacy Comfy installations can install the lightweight trimesh extra.
-            import trimesh
-            m=trimesh.load(io.BytesIO(data),file_type='glb',force='mesh',process=False)
-            return (mesh_value(np.asarray(m.vertices),np.asarray(m.faces)),)
     @classmethod
-    def IS_CHANGED(cls,**kw):
-        p=Path(kw['path'])
-        return (p.stat().st_size,p.stat().st_mtime_ns) if p.is_file() else 'missing'
+    def file_path(cls,mesh_file):
+        import folder_paths
+        root=Path(folder_paths.get_input_directory()).resolve()
+        path=Path(folder_paths.get_annotated_filepath(mesh_file)).resolve()
+        if not path.is_relative_to(root) or path.suffix.lower() not in {'.glb','.ply','.stl','.npz'} or not path.is_file():
+            raise ValueError('请上传 GLB / PLY / STL 粗模，并在下拉列表选择文件')
+        return path
+    def load(self,mesh_file):
+        import numpy as np
+        import trimesh
+        path=self.file_path(mesh_file)
+        if path.suffix.lower()=='.npz':
+            with np.load(path,allow_pickle=False) as data:
+                from types import SimpleNamespace
+                vertices,faces=arrays(SimpleNamespace(vertices=data['vertices'],faces=data['faces']))
+        else:
+            mesh=trimesh.load(path,force='mesh',process=False,resolver={},allow_remote=False,skip_materials=True)
+            if isinstance(mesh,trimesh.Scene):
+                mesh=mesh.to_geometry() if hasattr(mesh,'to_geometry') else mesh.dump(concatenate=True)
+            if not isinstance(mesh,trimesh.Trimesh):raise ValueError('文件必须包含三角网格')
+            vertices,faces=arrays(mesh)
+        if not np.any(np.ptp(vertices,axis=0)>1e-12):raise ValueError('粗模尺寸无效')
+        return (mesh_value(vertices,faces),)
+    @classmethod
+    def IS_CHANGED(cls,mesh_file):
+        path=cls.file_path(mesh_file)
+        return path.stat().st_size,path.stat().st_mtime_ns,path.stat().st_ctime_ns
+    @classmethod
+    def VALIDATE_INPUTS(cls,mesh_file):
+        try:cls.file_path(mesh_file);return True
+        except ValueError as error:return str(error)
+
 
 class Hi3DRefine:
     @classmethod
-    def INPUT_TYPES(cls):return {'required':{'backend':('HI3D_BACKEND',),'image':('IMAGE',),'mesh':('MESH',),'resolution':([512,1024,1536],{'default':512}),'steps':('INT',{'default':25,'min':1,'max':100}),'seed':('INT',{'default':0,'min':0,'max':2**53-1}),'cpu_offload':('BOOLEAN',{'default':True}),'attention':(['flash','sdpa'],{'default':'sdpa' if os.name=='nt' else 'flash'})},'optional':{'mask':('MASK',)}}
-    RETURN_TYPES=('MESH','STRING','STRING')
-    RETURN_NAMES=('refined_mesh','report_json','job_id')
+    def INPUT_TYPES(cls):
+        return {'required':{'model':('HI3D_MODEL',),'image':('IMAGE',),'mesh':('MESH',),
+            'resolution':([512,1024,1536],{'default':512}),
+            'steps':('INT',{'default':25,'min':1,'max':100}),
+            'seed':('INT',{'default':0,'min':0,'max':2**53-1})},'optional':{'mask':('MASK',)}}
+    RETURN_TYPES=('MESH','STRING')
+    RETURN_NAMES=('refined_mesh','report_json')
     FUNCTION='refine'
     CATEGORY='Hi3D'
-    def refine(self,backend,image,mesh,resolution,steps,seed,cpu_offload,attention,mask=None):
-        import numpy as np
-        from PIL import Image
-        import comfy.model_management as mm
-        from comfy.utils import ProgressBar
-        if len(image.shape)!=4 or image.shape[0]!=1 or image.shape[-1] not in (3,4) or min(image.shape[1:3])<=0:
-            raise ValueError('Hi3D 只支持单张 RGB / RGBA 参考图，形状须为 1×H×W×3/4')
-        pixels=image[0].detach().cpu().numpy()
-        if not np.isfinite(pixels).all():raise ValueError('参考图包含无效数值')
-        pixels=(pixels.clip(0,1)*255).round().astype('uint8')
-        im=Image.fromarray(pixels).convert('RGBA')
-        if mask is not None:
-            m=mask.detach().cpu().numpy()
-            if m.ndim==3:
-                if m.shape[0]!=1:raise ValueError('Hi3D 只支持单个蒙版')
-                m=m[0]
-            if m.ndim!=2 or min(m.shape)<=0 or not np.isfinite(m).all():raise ValueError('蒙版须为有效的 H×W 或 1×H×W 数值')
-            # ComfyUI MASK: 1 means masked-out, so alpha is its inverse.
-            alpha=Image.fromarray(((1-m.clip(0,1))*255).round().astype('uint8'))
-            if alpha.size!=im.size:alpha=alpha.resize(im.size,Image.Resampling.BILINEAR)
-            # A connected MASK can remove more pixels but must never make an
-            # existing transparent IMAGE background opaque. min also avoids
-            # applying the same soft alpha twice when both inputs carry it.
-            im.putalpha(Image.fromarray(np.minimum(np.asarray(im.getchannel('A')),np.asarray(alpha))))
-        imagebuf=io.BytesIO();im.save(imagebuf,format='PNG')
-        v,f=arrays(mesh);meshbuf=io.BytesIO();np.savez_compressed(meshbuf,vertices=v,faces=f)
-        mm.throw_exception_if_processing_interrupted()
-        imageitem=upload(backend,'reference.png',imagebuf.getvalue())
-        mm.throw_exception_if_processing_interrupted()
-        meshitem=upload(backend,'coarse.npz',meshbuf.getvalue())
-        mm.throw_exception_if_processing_interrupted()
-        mm.unload_all_models();mm.soft_empty_cache()
-        job=request(backend['url'],'/api/jobs',{'image':imageitem['id'],'mesh':meshitem['id'],'resolution':resolution,'steps':steps,'seed':seed,'offload':cpu_offload,'attention':attention})
-        jid=job['id'];pbar=ProgressBar(steps*({512:1,1024:2,1536:3}[resolution]))
-        try:
-            while True:
-                mm.throw_exception_if_processing_interrupted()
-                j=request(backend['url'],'/api/jobs/'+jid)
-                if j['state']=='succeeded':break
-                if j['state'] in {'failed','cancelled','interrupted'}:raise RuntimeError(j.get('message','Hi3D 未完成'))
-                event=j.get('event',{})
-                if event.get('stage')=='sampling' and 'step' in event and 'pass_index' in event:pbar.update_absolute(event['pass_index']*steps+event['step'])
-                time.sleep(.5)
-        except BaseException:
-            try:request(backend['url'],f'/api/jobs/{jid}/cancel',{})
-            except Exception:pass
-            raise
-        result=request(backend['url'],f'/api/jobs/{jid}/files/refined.npz',raw=True)
-        with np.load(io.BytesIO(result),allow_pickle=False) as data:output=mesh_value(data['vertices'].copy(),data['faces'].copy())
-        return (output,json.dumps(j['report'],ensure_ascii=False),jid)
-    @classmethod
-    def IS_CHANGED(cls,**kw):return float('nan')  # External artifacts never silently reuse Comfy's cache.
+    def refine(self,model,image,mesh,resolution,steps,seed,mask=None):
+        import trimesh
+        if resolution not in {512,1024,1536} or not 1<=steps<=100 or not 0<=seed<=2**53-1:
+            raise ValueError('无效 Hi3D 推理配置')
+        im=image_to_pil(image,mask)
+        vertices,faces=arrays(mesh)
+        coarse=trimesh.Trimesh(vertices,faces,process=False)
+        refined,report=model.refine(im,coarse,resolution,steps,seed)
+        return mesh_value(*arrays(refined)),json.dumps(report,ensure_ascii=False)
 
-NODE_CLASS_MAPPINGS={'Hi3DBackend':Hi3DBackend,'Hi3DLoadMesh':Hi3DLoadMesh,'Hi3DRefine':Hi3DRefine}
-NODE_DISPLAY_NAME_MAPPINGS={'Hi3DBackend':'Hi3D · 本地后端','Hi3DLoadMesh':'Hi3D · 加载粗网格','Hi3DRefine':'Hi3D V1.0 · 几何精修'}
+
+NODE_CLASS_MAPPINGS={'Hi3DModelLoader':Hi3DModelLoader,'Hi3DLoadMesh':Hi3DLoadMesh,'Hi3DRefine':Hi3DRefine}
+NODE_DISPLAY_NAME_MAPPINGS={'Hi3DModelLoader':'Hi3D · 加载模型（独立）','Hi3DLoadMesh':'Hi3D · 上传粗模','Hi3DRefine':'Hi3D V1.0 · 几何精修'}

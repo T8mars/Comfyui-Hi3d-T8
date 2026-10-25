@@ -8,7 +8,13 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 [Models](https://huggingface.co/t8star/Hi3d-Comfy) · [Canvas workflow](examples/Hi3D-Refine.json) · [Validation](VALIDATION.md) · [Upstream Hi3D](https://github.com/hi3d-official/Hi3Dv1.0)
 
-![Hi3D canvas workflow in ComfyUI](docs/images/comfyui-canvas.png)
+```mermaid
+flowchart LR
+  A[Hi3D Model Loader] --> D[Hi3D Refine]
+  B[Upload Image] --> D
+  C[Upload Mesh] --> D
+  D --> E[SaveGLB]
+```
 
 ## Downloads and automatic updates
 
@@ -20,11 +26,9 @@ From v0.4.1, standalone bundles check and download code updates while idle, veri
 
 ### Launch and close the Windows bundle
 
-**Complete model bundles (v0.4.8):** three geometry choices and four texture entries, including separate UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B options. Full coverage needs 14 extension components plus the Hi3D core, approximately 79.3 GB of model/config files. A baseline-only package is not a complete multi-engine bundle. **Models → Complete all engines** prepares every registered dependency; the page reports ready/total engine counts. A complete package declares `full_engine_coverage: true` in `bundle-manifest.json`.
+**Complete model bundles (v0.5.0):** three geometry choices and four texture entries, including separate UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B options. Full coverage needs 14 extension components plus the Hi3D core, approximately 79.3 GB of model/config files. A baseline-only package is not a complete multi-engine bundle. **Models → Complete all engines** prepares every registered dependency; the page reports ready/total engine counts. A complete package declares `full_engine_coverage: true` in `bundle-manifest.json`.
 
 Builders must use `--include-models --include-pipeline --all-engines` with `tools/build_release.py`. The INT8 checkpoint is tsolful's pinned community quantization of **Base 9B**, not distilled/KV Klein; its original FLUX non-commercial license remains applicable. This project does not re-quantize it. INT8 is not guaranteed to use less VRAM or run faster than FP8 on every GPU.
-
-**v0.4.8 loading:** TRELLIS.2 loads components when each phase needs them. Choose per-phase release or bounded CPU residency for repeated jobs, independently of GPU offloading. Geometry and texturing share a runtime; **Release resident models and runtime** frees it. Checkpoint precision and sampling seeds are preserved. Preview artifacts are published only when complete, with retry controls. See [validation](validation/v048-loading.json). No new weights or Python packages are required.
 
 Double-click **Hi3D-Workbench.exe** or **Start-Workbench.cmd** and keep its console open to view logs. Stop with **Ctrl+C**, the console window's **X**, the webpage's **Close workbench** button, or **Stop-Workbench.cmd**. Closing only the browser leaves the service running. The EXE owns the server and its inference subprocesses, so closing it also releases its workers. Startup errors remain visible. A second launch reuses the same directory's service; it never stops another bundle sharing the port.
 
@@ -40,14 +44,20 @@ TRELLIS.2 offers **Auto / native FlashAttention / fused SDPA** for packed sparse
 
 Code updates preserve existing Python environments. To add the optional Windows cp312 / Torch 2.8 cu128 Flash wheel to an older full bundle, run `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` from the bundle root. This verifies a fixed SHA256 and installs with no dependencies; it does not upgrade Torch. Other systems retain SDPA. The optional CPU UV packer can be added with the same command and `--uv-only` (Numba 0.61.2 / llvmlite 0.44.0); it keeps the existing NumPy and Torch. First use includes JIT compilation. See [performance evidence and limits](docs/PERFORMANCE.md).
 
+**v0.5.0 performance:** the default releases phase weights while retaining the inference interpreter. Bounded CPU residency and exit-after-task remain selectable. Sequential checkpoint read-ahead, original-dtype parameter assignment, validated shape/topology caching and parallel original Telea baking reduce repeated work. Optional isolated CUDA voxelization retains the official CPU fallback; GPU floating-point results are not promised bit-identical. See [performance and validation](docs/PERFORMANCE.md).
+
+Install/update the optional converter under **Models and environment → GPU voxelization**, or run `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --voxel-only`. The pinned Windows x64 wheel requires CPython 3.12 and Torch 2.8.0+cu128, is size/SHA256 verified, and does not resolve dependencies, upgrade Torch or replace `o_voxel`. It does not change model readiness; CPU conversion remains available without it.
+
 ## ComfyUI
 
-1. Install **Hi3D T8** (`hi3d-t8`, publisher `t8star`) through ComfyUI-Manager once the Registry version is available. Alternatively clone this repository into `ComfyUI/custom_nodes/Comfyui-Hi3d-T8` and install `requirements.txt` with ComfyUI's Python.
-2. Start the **separate local workbench backend** and wait for models to be verified at `http://127.0.0.1:8378`. See [backend setup](#local-workbench).
-3. Drag [Hi3D-Refine.json](examples/Hi3D-Refine.json) onto the ComfyUI **canvas**. This is a visual workflow, not an API prompt. Upload the reference image in **Load Image** and set the absolute coarse-mesh path in **Hi3D Load Mesh**.
-4. Start with **512 / 25 steps / CPU offload**. Select `sdpa` for Windows or `flash` for the official Linux stack, then click **Run**. Native **SaveGLB** writes the output to ComfyUI's output directory.
+1. Find **Hi3D T8** in ComfyUI-Manager (node ID `hi3d-t8`, publisher `t8star`), or clone this repository into `ComfyUI/custom_nodes/Comfyui-Hi3d-T8`. Install `requirements.txt` with **ComfyUI's Python**, then restart ComfyUI.
+2. Put core weights under `ComfyUI/models/Hi3D/`, containing `hi3d/`, `dino/` and `clip/`. The loader supports a custom root, the `hi3d` entry in `extra_model_paths.yaml`, or an explicit `download_missing` option for the pinned core snapshot.
+3. Import the new [Hi3D-Refine.json](examples/Hi3D-Refine.json) **canvas workflow**. Upload a reference using **Load Image**. Use **Hi3D Load Mesh** to upload or drop a GLB / PLY / STL, then select it in the dropdown.
+4. Start with **512 / 25 steps / cpu_offload / sdpa**. **Hi3D Refine** runs inside ComfyUI; native **SaveGLB** saves the refined geometry to ComfyUI's output directory.
 
-The three custom nodes are **Hi3D Backend**, **Hi3D Load Mesh** and **Hi3D Refine**. They exchange native ComfyUI `MESH` values. The backend runs on the same computer; the node package does not install or replace ComfyUI's PyTorch/CUDA. See [node instructions](docs/COMFYUI.md).
+The three nodes are **Hi3D Model Loader**, **Hi3D Load Mesh** and **Hi3D Refine**, exchanging native `MESH` values and a JSON report. Pinned official source is included. No workbench service, page or interpreter is required. ComfyUI's existing Torch/CUDA is retained; only required inference dependencies are installed. The nodes reproduce Hi3D geometry refinement only.
+
+**Replace legacy bridge workflows with the new canvas file.** The `Hi3D Backend` address node is removed; existing reference images, meshes and seeds remain usable. See [standalone node instructions](docs/COMFYUI.md).
 
 ## Models and edition differences
 
@@ -63,7 +73,7 @@ The three custom nodes are **Hi3D Backend**, **Hi3D Load Mesh** and **Hi3D Refin
 
 The [Hugging Face repository](https://huggingface.co/t8star/Hi3d-Comfy) contains the **shared Hi3D core weights and configurations plus every standalone extension component**. There are no ComfyUI-specific Hi3D checkpoints. Extension models live under `models/extensions`, retaining pinned sources, hashes and their individual licenses. UltraTex uses an upstream-published fp8 base, not a new quantization by this project. The Registry/node download contains **code and the canvas workflow only**. Model files alone do not provide an inference environment.
 
-Download into the **workbench root**, not `ComfyUI/models`:
+ComfyUI defaults to `ComfyUI/models/Hi3D/`; the workbench uses its own `models/`. Both can share a custom weight root. Replace `models` below with the target directory:
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
@@ -86,7 +96,7 @@ Standalone workbench example: TRELLIS.2 geometry + UltraTex PBR; no Hi3D refinem
 
 The Windows edition starts with **Start-Workbench.cmd** and opens `http://127.0.0.1:8378`, independently of ComfyUI. The workbench has three entry points: image → initial mesh → optional Hi3D → PBR; reference + existing mesh → PBR; and reference + coarse mesh → Hi3D, optionally followed by PBR. Image mode defaults to **initial mesh + PBR**, with Hi3D optional: a paired cartoon test retained a cleaner mouth without refinement. It retains intermediate models, logs and reports. Geometry and texture engines are selected independently; install optional engines from **Models**. Existing self-contained GLBs retain their materials and usable single-material UVs. Saved jobs can be compared side by side with shared camera, HDR lighting and exposure. See [engine choices and quality evidence](docs/ENGINES.md). Material results export as self-contained **GLB**; **STL/PLY contain geometry only**.
 
-The v0.4.8 full-model offline package includes two isolated runtimes, Hi3D core and all 14 extension components, including Hunyuan 2.1, Hunyuan Paint and both UltraTex FP8/INT8 ConvRot bases. Exact contents are recorded in `bundle-manifest.json`. Older baseline packages can complete their dependencies in Models. Unavailable engines are identified explicitly. Node and source archives contain code; source installations prepare runtimes and weights separately.
+The v0.5.0 full-model offline package includes two isolated runtimes, Hi3D core and all 14 extension components, including Hunyuan 2.1, Hunyuan Paint and both UltraTex FP8/INT8 ConvRot bases. Exact contents are recorded in `bundle-manifest.json`. Older baseline packages can complete their dependencies in Models. Unavailable engines are identified explicitly. Node and source archives contain code; source installations prepare runtimes and weights separately.
 
 Three starting presets balance cost and detail: **Light** uses Mini Turbo 256 + TRELLIS PBR 512 / 2K; **Balanced** uses TRELLIS geometry 512 + PBR 1024 / 4K; **Detail** uses TRELLIS geometry 1024 + UltraTex INT8 ConvRot 1024 / 4K. UltraTex's FLUX.2 Klein 9B base has a **Non-Commercial** license. A larger atlas does not add detail missing from the generated texture. See [engine choices](docs/ENGINES.md) and the [workbench guide](docs/WORKBENCH.zh-CN.md).
 

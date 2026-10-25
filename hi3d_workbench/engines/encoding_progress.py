@@ -11,14 +11,16 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def observe_shape_encoding(pipeline, emit):
+def observe_shape_encoding(pipeline, emit, *, voxel_backend='cpu:official'):
     """Emit CUDA only when the official encoder actually begins a forward.
 
     A runtime without the standard hook protocol retains the CPU preparation
     status and reports the observer limitation, rather than guessing when CUDA
     began. Any installed hook is removed even if voxelization/forward fails.
     """
-    emit('encoding_mesh', phase='voxelize', device='cpu', message='CPU 网格体素化与编码准备')
+    accelerated=voxel_backend.startswith('cuda:')
+    preparation='CPU 网格数据与编码器准备' if accelerated else 'CPU 网格体素化与编码准备'
+    emit('encoding_mesh', phase='voxelize', device='cpu', message=preparation)
     handle = None
     state = {'active': False, 'started': False}
 
@@ -42,12 +44,13 @@ def observe_shape_encoding(pipeline, emit):
             state['active'] = True
             from .model_loading import LazyModel
             if isinstance(model,LazyModel):
-                emit('encoding_mesh',phase='voxelize',device='cpu',message='编码器已准备；正在进行 CPU 网格体素化')
+                model.prefetch_next()
+                emit('encoding_mesh',phase='voxelize',device='cpu',message='编码器已准备；接下来执行 GPU 网格体素化' if accelerated else '编码器已准备；正在进行 CPU 网格体素化')
         except Exception as error:
             # Observation is optional. A missing/unsupported hook must not
             # replace the official encoder, force a device, or stop inference.
             emit('encoding_mesh', phase='voxelize', device='cpu',
-                 message='CPU 网格体素化与编码准备；当前运行时无法观察编码器切换',
+                 message=preparation+'；当前运行时无法观察编码器切换',
                  encoding_observer_available=False,
                  encoding_observer_reason=f'{type(error).__name__}: {error}')
         yield

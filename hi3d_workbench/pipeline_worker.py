@@ -122,7 +122,8 @@ def run(request_path):
                    'geometry_steps': req.get('geometry_steps',50), 'texture_steps': req.get('texture_steps',12),
                    'geometry_cleanup': req.get('geometry_cleanup',True),
                    'pipeline_attention': req.get('pipeline_attention','auto'),
-                   'model_policy': req.get('model_policy','release'),
+                   'model_policy': req.get('model_policy','runtime'),
+                   'voxel_backend': req.get('voxel_backend','auto'), 'encoding_cache': req.get('encoding_cache',True),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}
         # Face budgets apply to generated geometry only. Existing mesh

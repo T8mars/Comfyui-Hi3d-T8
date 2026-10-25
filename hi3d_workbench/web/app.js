@@ -207,6 +207,8 @@ function availability() {
   $('#geometry-target-faces').disabled = busy || isHistory || !usesTrellisFaceBudget();
   $('#pipeline-attention').disabled = busy || isHistory || !usesTrellisPipeline();
   $('#model-policy').disabled = busy || isHistory || !usesTrellisPipeline();
+  for (const id of ['voxel-backend','encoding-cache']) $('#'+id).disabled = busy || isHistory || !wantsTexture() || $('#texture-engine').value !== 'trellis2';
+  $('#texture-acceleration').hidden = !wantsTexture() || $('#texture-engine').value !== 'trellis2';
   $('#unload-models').disabled = !online || Boolean(pending) || gpuBusy();
   document.querySelectorAll('[data-quality-preset]').forEach(button => {
     button.disabled=busy || isHistory;
@@ -231,7 +233,7 @@ function availability() {
     $('#'+id).textContent = `${ok ? '✓' : '○'} ${name}`; $('#'+id).classList.toggle('ready', ok);
   }
   const modelBusy = !online || Boolean(pending) || gpuBusy() || checking || downloading;
-  for (const id of ['download-models','verify-models','diagnose','download-pipeline-complete','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
+  for (const id of ['install-voxel','download-models','verify-models','diagnose','download-pipeline-complete','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
   document.querySelectorAll('[data-engine-download]').forEach(button => { button.disabled = modelBusy; });
   $('#refresh-comparisons').disabled = !online || Boolean(pending) || !currentJob;
   $('#comparison-job').disabled = !online || Boolean(pending) || !currentJob;
@@ -322,7 +324,9 @@ function applyOptions(options = {}) {
   $('#trellis-cleanup').checked = options.geometry_cleanup !== false;
   $('#geometry-target-faces').value = String([100000,300000,1000000].includes(options.geometry_target_faces) ? options.geometry_target_faces : 1000000);
   $('#pipeline-attention').value = ['auto','flash_attn','sdpa'].includes(options.pipeline_attention) ? options.pipeline_attention : 'auto';
-  $('#model-policy').value = options.model_policy === 'resident' ? 'resident' : 'release';
+  $('#model-policy').value = ['release','runtime','resident'].includes(options.model_policy) ? options.model_policy : 'runtime';
+  $('#voxel-backend').value = ['auto','cpu','cuda'].includes(options.voxel_backend) ? options.voxel_backend : 'auto';
+  $('#encoding-cache').checked = options.encoding_cache !== false;
   $('#texture-engine').value = options.texture_engine || 'trellis2';
   syncEngines('coarse'); syncEngines('texture');
   $('#geometry-resolution').value = String(options.geometry_resolution || 256);
@@ -530,7 +534,7 @@ syncView($('#before'), $('#after')); syncView($('#after'), $('#before'));
 $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]) view.autoRotate = event.target.checked; };
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 function generationOptions() {
-  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
+  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, voxel_backend:$('#voxel-backend').value, encoding_cache:$('#encoding-cache').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
 }
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
@@ -571,12 +575,13 @@ function renderJobProgress(job, now = Date.now()/1000) {
   const units = {steps:'步',charts:'分片',views:'视图',faces:'面',items:'项',models:'个模型',iterations:'轮',chart_operations:'次图块操作',chunks:'分区',cache:'次',textures:'张贴图'};
   const phases = {structure:'生成空间结构',geometry:'生成几何',color:'颜色贴图',material:'生成 PBR 材质',attention_probe:'检查注意力后端',uv_prepare:'准备 UV 网格',uv_adjacency:'建立网格邻接关系',uv_segment:'划分 UV 区域',uv_extract:'提取 UV 分片',uv_parameterize:'展开 UV 分片',uv_pack:'排布 UV 图集',uv_validate:'校验 UV 与顶点对应',uv_cache:'读取已验证 UV 缓存',uv_partition:'划分网格区域',uv_charts:'合并 UV 分片',uv_assemble:'组装 UV 网格',uv_fallback:'准备 UV 兼容路径',uv_repair:'修复局部 UV 小岛',uv_dependency:'检查 UV 加速依赖',uv_addmesh:'读取 UV 图块',uv_restore:'恢复 UV 顶点映射',runtime_import:'读取推理运行时',model_plan:'按需加载计划',model_cache:'复用常驻模型',model_release:'释放或缓存本阶段模型',model_read:'从磁盘载入模型',model_cuda:'设置 CUDA 执行环境',voxelize:'CPU 网格体素化与编码准备',shape_encoding:'CUDA 模型表面编码',texture_raster:'GPU UV光栅化',texture_inpaint:'CPU贴图补边',texture_bake:'材质烘焙与补边'};
   const pieces = [], active = activeStates.has(job.state), end = active ? now : job.updated || job.created;
+  Object.assign(phases,{checkpoint_prefetch:'顺序读取权重文件',model_transfer:'搬运模型权重',voxelize_cuda:'GPU 网格体素化',encoding_cache:'读取模型表面编码缓存'});
   $('#elapsed').textContent = `总计 ${duration(end-job.created)}`;
   bar.hidden = !(running && progress.measured);
   count.textContent = '';
   if (!bar.hidden) {
     bar.max = progress.total; bar.value = progress.current;
-    const label = progress.unit === 'percent' && progress.total === 100 ? `${progress.current}%` : `${progress.current} / ${progress.total} ${units[progress.unit] || '项'}`;
+    const label = progress.unit === 'bytes' ? `${(progress.current/1048576).toFixed(0)} / ${(progress.total/1048576).toFixed(0)} MiB` : progress.unit === 'percent' && progress.total === 100 ? `${progress.current}%` : `${progress.current} / ${progress.total} ${units[progress.unit] || '项'}`;
     const pass = validMetric(progress.passIndex) && Number.isInteger(progress.passIndex) ? validMetric(progress.numPasses) && progress.numPasses > progress.passIndex ? `第 ${progress.passIndex+1} / ${progress.numPasses} 轮 · ` : `第 ${progress.passIndex+1} 次采样 · ` : '';
     count.textContent = `${pass}${label}`;
     bar.setAttribute('aria-label',`当前环节进度：${label}`);
@@ -769,6 +774,7 @@ function renderHealth(pathRevision = modelPathRevision) {
   $('#pipeline-download-state').textContent = pipeline?.download?.message || '扩展组件尚无下载任务。';
   const coverage = pipeline?.engine_coverage;
   $('#pipeline-runtime-state').textContent = pipeline?.runtime?.ready ? `✓ 扩展运行环境就绪。${coverage ? '引擎已就绪 '+coverage.ready+' / '+coverage.total+'。' : ''}各阶段依次运行，所需组件按任务选择。` : `扩展运行环境尚未就绪。${pipeline?.runtime?.message || pipeline?.runtime?.error || '请完成扩展组件安装后重新检查。'}`;
+  void refreshVoxelAcceleration();
   syncEngines();
   if (health.diagnostics && pending !== 'diagnose') $('#diagnostics').textContent = JSON.stringify(health.diagnostics, null, 2);
   availability();
@@ -917,3 +923,20 @@ availability(); void tick(); setInterval(tick, 2500);
 $('#unload-models').onclick=async()=>{try{await post('/api/runtime/unload');toast('常驻模型和运行时已释放');}catch(error){showError(error);}};
 
 $('#retry-preview').onclick=()=>{for(const id of ['before','after']){const view=$('#'+id),url=view.dataset.sourceUrl || view.getAttribute('src');if(url){view.removeAttribute('src');delete view.dataset.sourceUrl;setView(id,url);}}};
+
+async function refreshVoxelAcceleration() {
+  try {
+    const value = await api('/api/runtime/voxel-acceleration');
+    const installing = value.installation?.state === 'running';
+    $('#voxel-acceleration-state').textContent = value.installation?.message || value.message;
+    $('#install-voxel').textContent = installing ? '正在安装并检查…' : value.installed ? '重新检查 / 更新加速组件' : '安装 GPU 体素化组件';
+    $('#install-voxel').disabled = $('#install-voxel').disabled || installing || !value.runtime_exists;
+  } catch (error) { $('#voxel-acceleration-state').textContent = `组件状态暂时无法读取：${error.message}`; }
+}
+$('#install-voxel').onclick = async () => {
+  if ($('#install-voxel').disabled) return;
+  pending = 'voxel-install'; availability();
+  try { await post('/api/runtime/voxel-acceleration/install'); await refresh(); }
+  catch (error) { showError(error); }
+  finally { pending = null; availability(); }
+};

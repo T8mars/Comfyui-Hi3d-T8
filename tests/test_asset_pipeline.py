@@ -430,13 +430,14 @@ def test_stage_recovery_reaps_only_verified_identity_and_blocks_unknown_survivor
 
 
 @pytest.mark.parametrize('identity',['matching','wrong-time','missing','unrelated','access-denied'])
-def test_supervisor_exit_cleans_or_guards_surviving_stage_before_releasing_job(tmp_path,monkeypatch,identity):
+@pytest.mark.parametrize('policy',['release','runtime','resident'])
+def test_supervisor_exit_cleans_or_guards_surviving_stage_before_releasing_job(tmp_path,monkeypatch,identity,policy):
     """A dead supervisor must not release CUDA while a separate stage survives."""
     monkeypatch.setattr(jobs,'DATA',tmp_path/'data')
     manager=jobs.JobManager();folder=manager.root/'dead-supervisor';stage=folder/'stages'/'texture';stage.mkdir(parents=True)
     request=stage/'request.json';request.write_text('{}')
     parent_request=folder/'request.json';parent_request.write_text('{}')
-    common.atomic_json(folder/'state.json',{'id':folder.name,'created':1,'state':'queued','options':{'mode':'texture','generate_texture':True}})
+    common.atomic_json(folder/'state.json',{'id':folder.name,'created':1,'state':'queued','options':{'mode':'texture','generate_texture':True,'model_policy':policy}})
     supervisor=tmp_path/'supervisor-exits.py'
     supervisor.write_text('import time\nprint("supervisor fixture exits",flush=True)\ntime.sleep(.05)\nraise SystemExit(3)\n')
     monkeypatch.setattr(jobs,'config',lambda:{'worker_command':[sys.executable,str(supervisor)]})

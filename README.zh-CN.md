@@ -4,11 +4,17 @@
 
 **By T8star** — Hi3D V1.0 ComfyUI 几何精修节点与独立本地 3D 工作台。
 
-**ComfyUI 节点**只复现官方 Hi3D：输入**同一物体的参考图＋粗网格**，输出精修几何；节点接口与画布工作流保持不变。**独立整合包 v0.4**另支持单图生成几何、多种建模／PBR 引擎选择，以及同灯光下的历史结果对比。已验证范围见 [roadmap.md](roadmap.md)。
+**ComfyUI 节点**只复现官方 Hi3D：输入**同一物体的参考图＋粗网格**，输出精修几何；直接在 ComfyUI 进程内运行，无需独立工作台服务。**独立整合包 v0.4**另支持单图生成几何、多种建模／PBR 引擎选择，以及同灯光下的历史结果对比。已验证范围见 [roadmap.md](roadmap.md)。
 
 [模型下载](https://huggingface.co/t8star/Hi3d-Comfy) · [画布工作流](examples/Hi3D-Refine.json) · [验证记录](VALIDATION.md) · [Hi3D 原项目](https://github.com/hi3d-official/Hi3Dv1.0)
 
-![ComfyUI 中的 Hi3D 画布工作流](docs/images/comfyui-canvas.png)
+```mermaid
+flowchart LR
+  A[Hi3D Model Loader] --> D[Hi3D Refine]
+  B[Upload Image] --> D
+  C[Upload Mesh] --> D
+  D --> E[SaveGLB]
+```
 
 ## 下载与自动更新
 
@@ -20,11 +26,11 @@
 
 ### Windows 整合包启动与关闭
 
-**v0.4.8 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
+**v0.5.0 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
 
 制作全模型包时，`tools/build_release.py` 需同时使用 `--include-models --include-pipeline --all-engines`。INT8 底座采用 tsolful 发布并固定哈希的社区量化 **Base 9B**，不是蒸馏版或 KV 版；保留原始 FLUX 非商业许可，本项目不重新量化。不同 GPU 上 INT8 不保证比 FP8 更省显存或更快，应以实际报告为准。
 
-**v0.4.8 加载优化：**TRELLIS.2 按阶段加载，可选「用完释放」或「常驻内存复用」，与省显存模式独立。建模和贴图复用运行时，可一键释放。保持权重精度与采样种子；预览文件完整写入后才发布，并支持重试。详见[验证记录](validation/v048-loading.json)。无需重新下载模型或安装 Python 依赖。
+**v0.5.0 性能优化：**默认按阶段释放权重、保留推理运行时，另可选「常驻内存复用」或「任务后退出」。增加有内存保护的权重顺序预读、保留原精度的参数加载、同网格表面编码缓存，以及原算法的并行 PBR 补边。可选独立 CUDA 组件加速 TRELLIS.2 贴图体素化；显存不足或不兼容时自动回退官方 CPU。权重与采样设置保持，GPU 浮点计算不承诺逐位一致。详见[性能说明](docs/PERFORMANCE.zh-CN.md)。
 
 双击 **Hi3D-Workbench.exe** 或 **Start-Workbench.cmd**，保留启动窗口查看日志。按 **Ctrl+C**、关闭启动窗口、点击网页的**关闭工作台**，或运行 **Stop-Workbench.cmd**，均可停止服务；**只关闭浏览器页面不会退出服务**。EXE 统一管理服务和推理子进程，关闭时释放其工作进程；启动失败时保留错误信息。重复双击会打开本目录已运行的工作台，不重复启动，也不会关闭其他目录的服务。
 
@@ -40,14 +46,18 @@ TRELLIS.2 的稀疏注意力可选**自动／原生 FlashAttention／兼容 SDPA
 
 代码自动更新保留 Python 环境。旧完整版若要补装可选的 Windows cp312／Torch 2.8 cu128 Flash 轮子，在整合包根目录运行 `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only`。固定 SHA256 校验后以无依赖模式安装，不升级 Torch；其他环境继续使用 SDPA。同一命令改为 `--uv-only` 可补装可选 CPU UV 排布加速（Numba 0.61.2／llvmlite 0.44.0），保留现有 NumPy／Torch；第一次使用含 JIT 编译。实测及限制见[性能说明](docs/PERFORMANCE.zh-CN.md)。
 
+旧完整版在「模型与环境 → 可选 GPU 体素化加速」安装 / 更新组件，也可运行 `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --voxel-only`。仅支持 Windows x64、CPython 3.12、Torch 2.8.0+cu128；固定文件大小和 SHA256，安装不解析依赖、不升级 Torch，也不替换 `o_voxel`。组件不影响模型就绪计数，未安装时仍能使用 CPU 路径。
+
 ## ComfyUI
 
-1. Registry 版本可用后，在 ComfyUI-Manager 搜索 **Hi3D T8**（节点 ID：`hi3d-t8`，Publisher：`t8star`）安装；也可克隆本仓库到 `ComfyUI/custom_nodes/Comfyui-Hi3d-T8`，使用 ComfyUI 自身 Python 安装 `requirements.txt`。
-2. 启动**独立的本地工作台后端**，等待 `http://127.0.0.1:8378` 显示模型校验通过，安装方法见[本地工作台](#本地工作台)。
-3. 将 [Hi3D-Refine.json](examples/Hi3D-Refine.json) 拖入 ComfyUI **画布**。这是包含节点位置和连线的可视化工作流，不是 API 格式。在 **Load Image** 上传参考图，在 **Hi3D Load Mesh** 填写粗网格的本机绝对路径。
-4. 建议从 **512 / 25 步 / CPU 卸载**开始。Windows 选择 `sdpa`，官方 Linux 环境选择 `flash`，点击运行。原生 **SaveGLB** 将结果保存到 ComfyUI 输出目录。
+1. 在 ComfyUI-Manager 搜索 **Hi3D T8**（节点 ID `hi3d-t8`，Publisher `t8star`），或将本仓库克隆到 `ComfyUI/custom_nodes/Comfyui-Hi3d-T8`，用 **ComfyUI 自身的 Python** 安装 `requirements.txt`，然后重启 ComfyUI。
+2. 将核心权重放入 `ComfyUI/models/Hi3D/`，目录下包含 `hi3d/`、`dino/`、`clip/`。加载器支持自定义模型根目录和 `extra_model_paths.yaml` 的 `hi3d` 项，也可开启 `download_missing` 下载固定版本核心。
+3. 拖入新版 [Hi3D-Refine.json](examples/Hi3D-Refine.json) **画布工作流**。在 **Load Image** 上传参考图，在 **Hi3D · 上传粗模** 点击文件上传或拖入 GLB / PLY / STL，并从下拉列表选择。
+4. 从 **512 / 25 步 / cpu_offload / sdpa** 开始。**Hi3D Refine** 在 ComfyUI 内执行，原生 **SaveGLB** 保存精修几何至 ComfyUI 输出目录。
 
-三个自定义节点为 **Hi3D Backend、Hi3D Load Mesh、Hi3D Refine**，使用 ComfyUI 原生 `MESH`。后端与 ComfyUI 运行在同一台电脑；节点包不安装或替换 ComfyUI 的 PyTorch/CUDA。详见[节点说明](docs/COMFYUI.md)。
+三个节点为 **Hi3D Model Loader、Hi3D Load Mesh、Hi3D Refine**，使用原生 `MESH`，输出几何与 JSON 报告。节点自带固定版本官方源码，不依赖工作台服务、浏览器页面或其 Python。现有 Torch/CUDA 保留，仅安装必需的推理依赖。节点只复现 Hi3D，不增加图片建模和贴图模型。
+
+**旧桥接工作流需替换为新版画布文件。**新版删除 `Hi3D Backend` 地址节点；参考图、粗模和种子可继续使用。详见[独立节点说明](docs/COMFYUI.md)。
 
 ## 模型与两个版本的区别
 
@@ -63,7 +73,7 @@ TRELLIS.2 的稀疏注意力可选**自动／原生 FlashAttention／兼容 SDPA
 
 [Hugging Face 模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)提供两版共用的 **Hi3D 核心权重与配置**，以及独立工作台的**全部扩展组件**。没有专供 ComfyUI 的另一套 Hi3D 权重；扩展放在 `models/extensions`，各自保留固定版本、校验值与许可。UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。Registry / 节点包只包含**代码和画布工作流**；单独下载权重不等于具备推理环境。
 
-在**工作台根目录**执行，权重无需放进 `ComfyUI/models`：
+工作台使用自己的 `models/`；ComfyUI 默认使用 `ComfyUI/models/Hi3D/`，也可在加载器指定同一套现有权重根目录。下面命令的 `models` 可替换为所需目录：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"

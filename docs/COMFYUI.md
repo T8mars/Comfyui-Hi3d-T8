@@ -1,23 +1,27 @@
-# ComfyUI-Hi3D
+# Hi3D — Standalone ComfyUI nodes
 
-By T8star · v0.2.2
+[English README](../README.md#comfyui) | [中文 README](../README.zh-CN.md#comfyui)
 
-只复现 Hi3D V1.0 的参考图＋粗网格几何精修。此节点小包不含推理运行时或权重；需要同机的 Hi3D 独立工作台后端。
+**By T8star.** 在 ComfyUI 自身 Python 进程内执行官方 Hi3D 的「同物体参考图＋粗模→精修几何」。无需打开或安装独立工作台，不使用工作台 HTTP 接口。节点包含固定版本官方 Python 源码及许可，不包含模型和 Python 运行环境。
 
-1. 从完整离线整合包运行 `Start-Workbench.cmd`，确认 `http://127.0.0.1:8378` 显示模型就绪。
-2. 将本文件所在的 `ComfyUI-Hi3D` 文件夹放入 ComfyUI 的 `custom_nodes`。
-3. 用 ComfyUI 自身的 Python 安装此文件夹的 `requirements.txt`，然后重启 ComfyUI。它只要求轻量节点依赖，不安装或替换 torch/CUDA。
-4. 拖入 `examples/Hi3D-Refine.json`。Load Image 上传参考图；Hi3D Load Mesh 填写同一物体的 GLB/PLY/STL 本机绝对路径。
-5. 先执行 512 / 25 步 / CPU 卸载。Windows 后端选 `sdpa`，官方 Linux 后端选 `flash`。三个节点均在 Hi3D 分类下。
+## 安装与模型
 
-示例是 ComfyUI 画布保存格式，包含节点位置、连线与控件值；发布包不含 API 格式示例。已在 ComfyUI 0.34.0 / 前端 1.53.6 中完成加载、保存、重新加载和真实 512 / 25 步执行，原生 SaveGLB 输出通过，浏览器零 JavaScript 错误。更换占位图片名与网格路径后即可运行。
+用 ComfyUI 自身的 Python 安装节点目录的 `requirements.txt`，重启 ComfyUI。保留现有 Torch/CUDA；需 NVIDIA 计算能力 8.0+、Triton、spconv 与图像编码器依赖。默认 `sdpa` 可使用 PyTorch 融合注意力；已有兼容 FlashAttention 时可选 `flash`。
 
-ComfyUI 与独立整合包共用同一套原始 Hi3D / DINOv2 / CLIP 权重，无专用量化版或第二套模型。权重与配置可从 https://huggingface.co/t8star/Hi3d-Comfy 下载，放在工作台的 models 目录，不是 ComfyUI/models。完整安装与中英双语说明：https://github.com/T8mars/Comfyui-Hi3d-T8 。
+默认模型根目录：`ComfyUI/models/Hi3D/`。其下放置 `hi3d/`、`dino/`、`clip/`，与工作台所用的原始 Hi3D 核心权重完全相同。`Hi3D Model Loader.model_root` 可指定其他根目录；留空时也支持 `extra_model_paths.yaml` 的 `hi3d` 路径。开启 `download_missing` 才会从固定版本模型仓库补齐核心，无默认后台下载。
 
-连接为 Backend → Load Mesh；IMAGE、可选 MASK、原生 MESH → Refine → 原生 SaveGLB。Hi3D 只支持单张参考图、单物体 batch；MASK 的 1 表示透明区域。推理前请求 ComfyUI 卸载模型，中断会请求后端停止任务。
+```bash
+hf download t8star/Hi3d-Comfy --local-dir ComfyUI/models/Hi3D --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
+```
 
-Refine 输出精修 MESH、报告 JSON 和 job ID。结果、输入及日志同时保存在工作台历史中。工作台本身可独立使用，不要求打开 ComfyUI。seed 范围为 0–9007199254740991。
+## 上传与工作流
 
-节点只连接本机回环 HTTP 地址，绕过系统代理。后端使用固定版本 Hi3D 与必需 DINOv2/CLIP；不接入其他 3D 模型，不生成初始粗模、UV 或纹理。Windows 是明确标识的 SDPA 兼容移植；实测范围和局限见完整工作台的 VALIDATION.md。
+导入 [Hi3D-Refine.json](../examples/Hi3D-Refine.json)，这是带位置和连线的画布 JSON。先在 `Load Image` 上传参考图，再点击 `Hi3D Load Mesh` 的**选择文件上传粗模**，或把 GLB / PLY / STL 拖到该节点；上传后自动选中，并保存在 `ComfyUI/input/hi3d/`。已有输入文件可直接下拉选择。
 
-代码许可与署名见 LICENSE、NOTICE.md。Hi3D 本身受其自定义许可约束。社区集成；[Powered by Hi3D 1.0](http://hi3d.ai/)。
+连接为：Model Loader → Refine；Load Image 的 IMAGE／可选 MASK → Refine；Load Mesh 的 MESH → Refine → 原生 SaveGLB。默认 512、25 步、`cpu_offload=true`、`sdpa`。原生 SaveGLB 保存到 ComfyUI 输出目录。`report_json` 提供分辨率、步数、种子及耗时。节点不写工作台历史。
+
+只支持单张图片和单物体 batch，MASK 的 1 表示透明；已有 RGBA 透明度保留。Hi3D 输出归一化的几何，会重建拓扑，不保留原 UV 或材质，不负责初始粗模或贴图。
+
+默认每次精修后释放模型；`keep_model_loaded` 可复用连续任务，但会占用模型内存。ComfyUI 中断标志会在采样更新及阶段边界检查，异常同样清理模型；控制台显示加载组件与实际采样步数。
+
+旧版桥接画布需重新导入新版示例；不再使用 `Hi3D Backend`。许可证见节点的 `hi3d_native/vendor/` 与根目录 NOTICE。验证范围见 [VALIDATION.md](../VALIDATION.md)。

@@ -88,7 +88,8 @@ class JobManager:
     def runtime_status(self):
         session=self.resident_session
         alive=bool(session and session.process.poll() is None)
-        return {'resident':alive,'pid':session.process.pid if alive else None,'busy':bool(self.active)}
+        return {'resident':alive,'pid':session.process.pid if alive else None,'busy':bool(self.active),
+                'model_policy':getattr(self,'runtime_model_policy',None) if alive else None}
 
     def _record_error(self,path,exc):
         message=f'任务 {path.parent.name} 的记录无法读取，已跳过历史条目：{exc}'
@@ -322,7 +323,8 @@ class JobManager:
         if progress.get('device'):pieces.append('CPU' if progress['device']=='cpu' else 'CUDA / GPU')
         if progress.get('total') is not None:
             current,total=progress['current'],progress['total']
-            pieces.append(f'{current:g}%' if progress['unit']=='percent' and total==100 else f'{current:g}/{total:g} {progress["unit"]}')
+            if progress['unit']=='bytes':pieces.append(f'{current/2**20:.0f}/{total/2**20:.0f} MiB')
+            else:pieces.append(f'{current:g}%' if progress['unit']=='percent' and total==100 else f'{current:g}/{total:g} {progress["unit"]}')
         elif progress.get('current') is not None:
             pieces.append(f'已合并 {progress["current"]:g}' if progress['unit']=='merges' else f'已处理 {progress["current"]:g} {progress["unit"]}')
         elapsed=max(0,time.time()-state.get('stage_started_at',state['created']))
@@ -343,7 +345,7 @@ class JobManager:
             cmd=cfg["worker_command"] or [str((ROOT/cfg["worker_python"]).resolve())]
             options=self.get(jid)['options']
             pipeline=options.get('mode','refine')!='refine' or options.get('generate_texture',False)
-            resident=pipeline and options.get('model_policy')=='resident' and (
+            resident=pipeline and options.get('model_policy') in {'runtime','resident'} and (
                 options.get('mode')=='image_to_asset' and options.get('geometry_engine')=='trellis2' or
                 (options.get('mode')=='texture' or options.get('generate_texture',False)) and options.get('texture_engine','trellis2')=='trellis2')
             module='hi3d_workbench.pipeline_worker' if pipeline else 'hi3d_workbench.worker'
@@ -357,6 +359,7 @@ class JobManager:
                         self.resident_session=RuntimeSession([*cmd,'-u','-m',module],DATA/'runtime-resident.request.json')
                         atomic_json(DATA/'runtime-resident.json',{'pid':self.resident_session.process.pid,'created':self.resident_session.created})
                     process=self.resident_session.process
+                    self.runtime_model_policy=options.get('model_policy','runtime')
                     lines=self.resident_session.stream(folder/'request.json')
                 else:
                     self.close_resident()
@@ -415,7 +418,7 @@ class JobManager:
             # Supervisor crashes and cancellation between stage transitions
             # can leave a child outside the earlier tree snapshot. Never free
             # the GPU gate until this final exact-request scan is recorded.
-            if pipeline and not resident:
+            if pipeline and (not resident or self.get(jid).get('state')!='succeeded'):
                 try:
                     if self._cleanup_stage_workers(folder/'request.json'):
                         message=f'任务 {jid} 的阶段进程尚未退出，已阻止新的 GPU 操作'

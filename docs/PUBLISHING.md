@@ -4,7 +4,7 @@ Repository: https://github.com/T8mars/Comfyui-Hi3d-T8
 
 Comfy Registry publisher: `t8star`; immutable node ID: `hi3d-t8`.
 
-Follow the [official publishing guide](https://docs.comfy.org/registry/publishing) and [metadata specification](https://docs.comfy.org/registry/specifications). The repository's `REGISTRY_ACCESS_TOKEN` Actions secret authenticates publishing; never commit it. `.comfyignore` keeps workbench code, development evidence and model files out of the Registry archive. Node dependencies do not install torch/CUDA; the backend is installed separately with the `workbench` extra.
+Follow the [official publishing guide](https://docs.comfy.org/registry/publishing) and [metadata specification](https://docs.comfy.org/registry/specifications). The repository's `REGISTRY_ACCESS_TOKEN` Actions secret authenticates publishing; never commit it. `.comfyignore` keeps workbench code, development evidence and model files out of the Registry archive. The node archive must include `hi3d_native/vendor/` (pinned official source and notices) and `web/hi3d_mesh_upload.js`. Nodes run inside ComfyUI using its existing Torch/CUDA; no workbench backend is required. Keep `/models/` anchored at the archive root in `.comfyignore` so the vendored Python `sparc3d/models/` package is retained.
 
 Before release, verify the canvas example with ComfyUI, run the test suite and run `comfy node pack`. Inspect the archive for the node entry point, `comfy_nodes.py`, metadata and `examples/Hi3D-Refine.json`. The example must contain a `nodes` array and links, not an API class_type mapping. Workflows exported by the frontend are saved using its canvas serializer.
 

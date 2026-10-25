@@ -4,12 +4,12 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hi3d-t8"
-version = "0.4.8"
+version = "0.5.0"
 description = "Local Hi3D v1.0 workbench and ComfyUI integration"
 license = { file = "LICENSE" }
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["numpy>=1.26,<3", "Pillow>=10.3", "trimesh>=4.6,<5"]
+dependencies = ["numpy>=1.26,<3", "Pillow>=10.3", "trimesh>=4.3,<5", "scipy>=1.11,<2", "safetensors>=0.5", "transformers>=4.46,<6", "accelerate>=1.0,<2", "huggingface-hub>=0.30,<2", "pyfqmr>=0.4,<0.5", "spconv-cu126==2.3.8", 'triton-windows>=3.3.1,<4; platform_system == "Windows"', 'triton>=3.3,<4; platform_system == "Linux"']
 classifiers = ["Operating System :: Microsoft :: Windows", "Operating System :: POSIX :: Linux", "Environment :: GPU :: NVIDIA CUDA"]
 
 [project.optional-dependencies]
@@ -30,10 +30,11 @@ requires-comfyui = ">=0.34.0"
 hi3d-workbench = "hi3d_workbench.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["hi3d_workbench*"]
+include = ["hi3d_workbench*", "hi3d_native*"]
 
 [tool.setuptools.package-data]
 hi3d_workbench = ["web/*", "web/vendor/*", "web/environments/*"]
+hi3d_native = ["vendor/**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

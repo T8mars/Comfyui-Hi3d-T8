@@ -12,6 +12,8 @@ from ..common import atomic_json, ROOT, digest
 from ..pipeline_models import MODEL_ROOT, SPECS
 from ..engine_catalog import engine
 
+_SOURCE_VERIFIED = {}
+
 
 def emit(stage, **values):
     print("HI3D_EVENT " + json.dumps({"stage": stage, "time": time.time(), **values}, ensure_ascii=False), flush=True)
@@ -42,11 +44,22 @@ def source_dir(name):
                 "comfy_core": "7cebca52227c63b4180ceed448cbd7ad22903b6d"}[name]
     if manifest.get("revision") != expected or not isinstance(manifest.get("files"), dict) or not manifest["files"]:
         raise RuntimeError(f"推理源码清单无效: {name}")
+    from ..models import _file_signature
+    source_key=(str(directory.resolve()),expected)
+    previous=_SOURCE_VERIFIED.get(source_key,{})
+    signatures={}
     for relative, digest in manifest["files"].items():
         candidate = (directory / relative).resolve()
-        if not candidate.is_relative_to(directory.resolve()) or not candidate.is_file() or hashlib.sha256(candidate.read_bytes()).hexdigest() != digest:
+        if not candidate.is_relative_to(directory.resolve()) or not candidate.is_file():
             raise RuntimeError(f"推理源码校验失败: {name}/{relative}")
-    sys.path.insert(0, str(directory))
+        signature=_file_signature(candidate)
+        if not signature or 'error' in signature:raise RuntimeError(f"无法验证推理源码: {name}/{relative}")
+        identity=(signature,digest)
+        if previous.get(relative)!=identity and hashlib.sha256(candidate.read_bytes()).hexdigest()!=digest:
+            raise RuntimeError(f"推理源码校验失败: {name}/{relative}")
+        signatures[relative]=identity
+    _SOURCE_VERIFIED[source_key]=signatures
+    if str(directory) not in sys.path:sys.path.insert(0,str(directory))
     return directory
 
 
@@ -258,6 +271,8 @@ def texture(request, image, output, emit_fn):
     if not np.isfinite(extent) or extent <= 0:
         raise ValueError("贴图输入网格尺寸无效")
     scale = 0.99999 / extent
+    baking_report = {}
+    encoding_report = {}
     # Wrap official methods only for progress; inference remains official.
     for method, stage_name in (("get_cond", "conditioning"), ("encode_shape_slat", "encoding_mesh"),
                                ("sample_tex_slat", "sampling"), ("decode_tex_slat", "decoding"),
@@ -271,7 +286,7 @@ def texture(request, image, output, emit_fn):
             if _stage=='sampling':
                 # Upstream distinguishes nn.Module from a list of cascaded
                 # flows. Pass the real module at that typed API boundary.
-                args,kwargs=flow_arguments(args,kwargs)
+                args,kwargs=flow_arguments(args,kwargs,device=pipeline.device)
             if _stage == 'baking' and args and getattr(args[0].visual,'uv',None) is not None:
                 # With pre-existing UVs the official baker rotates the cached
                 # normal array in place. Trimesh exposes that cache read-only;
@@ -280,11 +295,27 @@ def texture(request, image, output, emit_fn):
                 args[0].vertex_normals.setflags(write=True)
             if _stage == 'encoding_mesh':
                 from .encoding_progress import observe_shape_encoding
-                with observe_shape_encoding(pipeline, emit_fn):
-                    value = _original(*args, **kwargs)
+                from .voxel_acceleration import configure as configure_voxels
+                from .encoding_cache import encode_with_cache
+                model = pipeline.models['shape_slat_encoder']
+                def compute(mesh, resolution):
+                    with observe_shape_encoding(pipeline,emit_fn,voxel_backend=encoding_report['backend']):
+                        return encoded(mesh,resolution)
+                mesh_arg=args[0] if args else kwargs['mesh']
+                res_arg=args[1] if len(args)>1 else kwargs.get('resolution',1024)
+                encoded=configure_voxels(_original,mesh_arg,res_arg,request.get('voxel_backend','auto'),emit_fn,encoding_report)
+                value=encode_with_cache(compute,mesh_arg,res_arg,encoder_identity=model._key,
+                    backend=lambda:encoding_report['backend'],enabled=request.get('encoding_cache',True),
+                    emit=emit_fn,report=encoding_report)
+                model.prefetch_next()
             elif _stage == 'baking':
-                from .baking_progress import call_baking_with_progress
-                value = call_baking_with_progress(_original, emit_fn, *args, **kwargs)
+                if request.get('parallel_bake',True) and args and getattr(args[0].visual,'uv',None) is not None:
+                    from .texture_baking import bake
+                    value,details = bake(pipeline,*args,emit=emit_fn,**kwargs)
+                    baking_report.update(details)
+                else:
+                    from .baking_progress import call_baking_with_progress
+                    value = call_baking_with_progress(_original, emit_fn, *args, **kwargs)
             else:
                 value = _original(*args, **kwargs)
             if _stage == 'conditioning':release(pipeline.image_cond_model)
@@ -314,7 +345,7 @@ def texture(request, image, output, emit_fn):
             "geometry_generated": False, "texture_generated": True, "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
             'uv_policy': uv_policy,
             'uv_generation':uv_generation,'uv_runtime':uv_runtime,'shading_normals':'input normals preserved through UV and frame conversion',
-            'normal_repair':normal_repair,
+            'normal_repair':normal_repair, 'baking':baking_report, 'encoding':encoding_report,
             "vertices": len(textured.vertices), "faces": len(textured.faces), "texture_size": int(request.get("texture_size", 2048)),
             "pbr_channels": ["baseColor", "metallic", "roughness", "alpha"],
             "attention": attention,
@@ -388,6 +419,9 @@ def run_request(request_path, stage):
         from .model_loading import finish_stage, CACHE
         finish_stage()
         result['model_loading']=CACHE.status()
+        from .checkpoint_io import READ_AHEAD
+        result['checkpoint_io']={**READ_AHEAD.stats,'scope':'runtime_session_cumulative',
+                                 'note':'read-through bytes; not physical disk I/O counters'}
         if not temp.is_file() or temp.stat().st_size < 100:
             raise RuntimeError("推理没有生成有效GLB")
         torch.cuda.synchronize()

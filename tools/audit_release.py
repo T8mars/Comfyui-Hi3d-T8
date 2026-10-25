@@ -39,7 +39,7 @@ def verify_owned(z,prefix='',source_root=None):
     for name in ['hi3d_workbench/jobs.py','hi3d_workbench/server.py','hi3d_workbench/common.py','hi3d_workbench/web/app.js']:
         assert (root/name).is_file(),f'校验源码不完整：{name}'
     paths=[]
-    for directory in ['hi3d_workbench','scripts','examples','tools','tests','docs','licenses']:
+    for directory in ['hi3d_workbench','hi3d_native','web','scripts','examples','tools','tests','docs','licenses']:
         paths.extend(p for p in (root/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc')
     for name in ['__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','LICENSE','config.example.json','upstream-source-manifest.json','VALIDATION.md']:
         if (root/name).is_file():paths.append(root/name)
@@ -51,11 +51,15 @@ def verify_nodes(z,source_root=None):
     for name in ['__init__.py','comfy_nodes.py','requirements.txt','NOTICE.md','LICENSE']:
         _compare(z,'ComfyUI-Hi3D/'+name,root/name);count+=1
     _compare(z,'ComfyUI-Hi3D/README.md',root/'README.md');count+=1
-    for name in ['pyproject.toml','README.zh-CN.md','docs/COMFYUI.md','docs/images/comfyui-canvas.png']:
+    for name in ['pyproject.toml','README.zh-CN.md','docs/COMFYUI.md']:
         if (root/name).is_file():_compare(z,'ComfyUI-Hi3D/'+name,root/name);count+=1
     for path in (root/'examples').rglob('*'):
         if path.is_file() and '__pycache__' not in path.parts:
             _compare(z,'ComfyUI-Hi3D/'+path.relative_to(root).as_posix(),path);count+=1
+    for directory in ('hi3d_native','web'):
+        for path in (root/directory).rglob('*'):
+            if path.is_file() and '__pycache__' not in path.parts and path.suffix!='.pyc':
+                _compare(z,'ComfyUI-Hi3D/'+path.relative_to(root).as_posix(),path);count+=1
     return count
 
 

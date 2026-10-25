@@ -53,3 +53,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 v0.4.5 的可选加速依赖可单独补装，不更换运行时 ABI：`runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` 安装固定版本原生 Flash，改为 `--uv-only` 安装 Numba 排布加速。代码更新保留 SDPA／Torch 回退，不静默安装这些依赖。导入验证与实际 GPU、模型效果、首次 JIT 耗时分别记录。
 
 v0.4.8 的按需加载与常驻内存属于代码更新，无需下载新模型或运行环境，v0.4.7 EXE 可继续使用。需要腾出内存时点击「释放常驻模型与运行时」；关闭启动窗口同样会结束常驻进程。
+
+v0.5.0 代码更新保留现有运行环境和权重。默认仅复用解释器，各阶段释放权重；也可单独选择受限常驻模式。表面编码缓存按网格、模型与后端校验。可选 CUDA 体素化组件通过网页按钮或 `--voxel-only` 安装，固定哈希，不更换 Torch 或 `o_voxel`。缺失、过期或显卡不支持时，自动模式使用官方 CPU 路径。
+
+ComfyUI 节点通过 Manager、Git 或完整节点 ZIP 单独更新。工作台代码覆盖包只更新工作台，保留旧更新器兼容性，不安装独立节点包。v0.5.0 将旧桥接画布替换为原生 Hi3D 模型加载与粗模上传，无需工作台服务。

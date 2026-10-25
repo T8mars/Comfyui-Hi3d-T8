@@ -17,7 +17,7 @@ ComfyUI 节点仍只复现 Hi3D。下列选择只加入独立工作台。建模�
 
 工作台提供三个起点：轻量为 Mini Turbo 256＋TRELLIS PBR 512／2K；均衡为 TRELLIS 几何 512＋PBR 1024／4K；细节为 TRELLIS 几何 1024＋UltraTex 1024／4K。UltraTex 2048 颜色生成可手动选择，开销更高，MR 最高 1024；其底座适用非商业许可。Hunyuan 2.1 的建模和贴图保留为独立备选。这些是建议起点，不是通用质量排名；应使用同一几何、同一灯光比较后选择贴图器。
 
-在“模型”页按引擎下载固定版本依赖。缺少可选模型不会禁用已安装的引擎。v0.4 Windows 包内含 Hi3D 核心、Mini Turbo、TRELLIS.2 几何／PBR、DINOv3 和 CPU U2Netp；Hunyuan 2.1 建模／贴图及 UltraTex 权重需另行下载，准确组件清单见 `bundle-manifest.json`。权重保持原样；UltraTex 的 fp8 底座来自上游原始 fp8 发布，并非本项目自行量化。
+在“模型”页按引擎下载固定版本依赖。缺少可选模型不会禁用已安装的引擎。此前验收的 v0.4.0 Windows 包内含 Hi3D 核心、Mini Turbo、TRELLIS.2 几何／PBR、DINOv3 和 CPU U2Netp；Hunyuan 2.1 建模／贴图及 UltraTex 权重需另行下载，准确组件清单见 `bundle-manifest.json`。权重保持原样；UltraTex 的 fp8 底座来自上游原始 fp8 发布，并非本项目自行量化。
 
 比较贴图时，在“已有模型贴图”中使用完全相同的 GLB 与参考图。可用的单材质 UV 会保留，多材质下有歧义的 UV 会重新展开。报告记录实际贴图输入网格哈希；历史对比会说明是同图同网格，还是只相同图片、不同几何。选择前应检查正面、背面、接缝和至少两种灯光。预览灯光与曝光只改变显示。
 

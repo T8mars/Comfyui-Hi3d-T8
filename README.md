@@ -10,6 +10,14 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 ![Hi3D canvas workflow in ComfyUI](docs/images/comfyui-canvas.png)
 
+## Downloads and automatic updates
+
+**GitHub Releases contain code only: source, ComfyUI nodes and program updates. They include no model weights, Python interpreter or runtime. T8star will provide the complete package with Python and models separately and announce its download location.** Its `bundle-manifest.json` identifies the included components.
+
+[GitHub Releases](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [Update instructions](docs/UPDATES.md)
+
+From v0.4.1, standalone bundles check and download code updates while idle, verify them, and install on the next launch. Models, Python, configuration and history are preserved. Disable automatic downloads in **Models and environment → Program updates**, or close the app and run `Update-Workbench.cmd`. Old v0.4.0 bundles need one manual code overlay first. A runtime-incompatible release requests a new complete bundle instead of replacing Python dependencies. Git source checkouts update through Git.
+
 ## ComfyUI
 
 1. Install **Hi3D T8** (`hi3d-t8`, publisher `t8star`) through ComfyUI-Manager once the Registry version is available. Alternatively clone this repository into `ComfyUI/custom_nodes/Comfyui-Hi3d-T8` and install `requirements.txt` with ComfyUI's Python.
@@ -31,15 +39,15 @@ The three custom nodes are **Hi3D Backend**, **Hi3D Load Mesh** and **Hi3D Refin
 | DINOv3, DINOv2 Giant, FLUX.2 Klein 9B and Qwen3 | Dependencies of the selected extension engine | Workbench only |
 | CPU U2Netp | Optional foreground extraction for opaque images | Workbench only |
 
-The [Hugging Face repository](https://huggingface.co/t8star/Hi3d-Comfy) contains the **shared, unmodified Hi3D core weights and configurations**. There are no ComfyUI-specific checkpoints. The workbench's additional models are managed separately under `models/extensions`, downloaded from pinned upstream/public redistribution repositories with their own licenses. The Registry/node download contains **code and the canvas workflow only**. Model files alone do not provide an inference environment.
+The [Hugging Face repository](https://huggingface.co/t8star/Hi3d-Comfy) contains the **shared Hi3D core weights and configurations plus every standalone extension component**. There are no ComfyUI-specific Hi3D checkpoints. Extension models live under `models/extensions`, retaining pinned sources, hashes and their individual licenses. UltraTex uses an upstream-published fp8 base, not a new quantization by this project. The Registry/node download contains **code and the canvas workflow only**. Model files alone do not provide an inference environment.
 
 Download into the **workbench root**, not `ComfyUI/models`:
 
 ```bash
-hf download t8star/Hi3d-Comfy --local-dir models
+hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-Expected layout: `models/manifest.json`, `models/hi3d/`, `models/dino/`, `models/clip/`. The manifest records pinned upstream revisions and SHA256 hashes. The backend also supports downloading directly from the original upstream repositories.
+The command above downloads the core only. Omit `--include` to download every geometry/PBR extension (about 69.9GB); see the [model repository](https://huggingface.co/t8star/Hi3d-Comfy) for selective downloads. Layout: `models/manifest.json`, `models/hi3d/`, `models/dino/`, `models/clip/`, with extensions under `models/extensions/`. The manifest records pinned upstream revisions and SHA256 hashes. The backend also supports downloading directly from the original upstream repositories.
 
 <details>
 <summary>Actual textured example</summary>
@@ -54,7 +62,7 @@ Standalone workbench example: TRELLIS.2 geometry + UltraTex PBR; no Hi3D refinem
 
 The Windows edition starts with **Start-Workbench.cmd** and opens `http://127.0.0.1:8378`, independently of ComfyUI. The workbench has three entry points: image → initial mesh → optional Hi3D → PBR; reference + existing mesh → PBR; and reference + coarse mesh → Hi3D, optionally followed by PBR. Image mode defaults to **initial mesh + PBR**, with Hi3D optional: a paired cartoon test retained a cleaner mouth without refinement. It retains intermediate models, logs and reports. Geometry and texture engines are selected independently; install optional engines from **Models**. Existing self-contained GLBs retain their materials and usable single-material UVs. Saved jobs can be compared side by side with shared camera, HDR lighting and exposure. See [engine choices and quality evidence](docs/ENGINES.md). Material results export as self-contained **GLB**; **STL/PLY contain geometry only**.
 
-The v0.4 Windows package includes two isolated runtimes, the **Hi3D core, Mini Turbo, TRELLIS.2 geometry/PBR, DINOv3 and CPU U2Netp**. Its exact six extension components are recorded in `bundle-manifest.json`. **Hunyuan3D 2.1, Hunyuan Paint and UltraTex weights download separately** in Models. Selecting an unavailable engine never substitutes another model. The node and source archives contain code; source installations prepare runtimes and weights separately.
+The previously validated v0.4.0 Windows offline package includes two isolated runtimes, the **Hi3D core, Mini Turbo, TRELLIS.2 geometry/PBR, DINOv3 and CPU U2Netp**. Its exact six extension components are recorded in `bundle-manifest.json`. For that historical package, **Hunyuan3D 2.1, Hunyuan Paint and UltraTex weights download separately** in Models. New complete packages declare their contents in the bundled manifest. Selecting an unavailable engine never substitutes another model. The node and source archives contain code; source installations prepare runtimes and weights separately.
 
 Three starting presets balance cost and detail: **Light** uses Mini Turbo 256 + TRELLIS PBR 512 / 2K; **Balanced** uses TRELLIS geometry 512 + PBR 1024 / 4K; **Detail** uses TRELLIS geometry 1024 + UltraTex 1024 / 4K and requires its optional downloads. UltraTex's FLUX.2 Klein 9B base has a **Non-Commercial** license. A larger atlas does not add detail missing from the generated texture. See [engine choices](docs/ENGINES.md) and the [workbench guide](docs/WORKBENCH.zh-CN.md).
 

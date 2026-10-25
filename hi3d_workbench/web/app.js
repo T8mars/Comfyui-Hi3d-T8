@@ -654,7 +654,28 @@ async function refresh() {
   const session = sessionReady ? null : await api('/api/session');
   if (session) { token = session.token; sessionReady = true; if (!sessionDefaultsApplied && !currentJob) $('#attention').value = session.default_attention || 'flash'; sessionDefaultsApplied = true; document.querySelectorAll('.app-version').forEach(el => { el.textContent = session.version; }); }
   health = await api('/api/health'); online = true; renderHealth();
+  if (Date.now() - lastUpdateRefresh > 15000) { lastUpdateRefresh = Date.now(); void refreshUpdates(); }
 }
+let lastUpdateRefresh = 0;
+async function refreshUpdates() {
+  try {
+    const value = await api('/api/updates');
+    $('#auto-update').checked = value.auto_update;
+    $('#auto-update').disabled = value.source_checkout;
+    $('#update-state').textContent = value.source_checkout ? '当前为源码 Git 目录，请使用 Git 更新。独立整合包支持自动下载与安装。' : value.message;
+    $('#check-updates').disabled = ['checking','downloading'].includes(value.phase);
+  } catch (error) { $('#update-state').textContent = '更新状态暂时不可用：'+error.message; }
+}
+$('#check-updates').onclick = async () => {
+  $('#check-updates').disabled = true;
+  try { await post('/api/updates/check'); $('#update-state').textContent = '已开始检查，下载完成后会提示下次启动安装。'; }
+  catch (error) { showError(error); }
+  finally { lastUpdateRefresh = 0; }
+};
+$('#auto-update').onchange = async () => {
+  try { await post('/api/updates/preferences',{auto_update:$('#auto-update').checked}); await refreshUpdates(); }
+  catch (error) { showError(error); await refreshUpdates(); }
+};
 async function tick() {
   if (pollBusy) return; pollBusy = true;
   try {

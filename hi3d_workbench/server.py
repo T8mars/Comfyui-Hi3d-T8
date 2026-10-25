@@ -24,7 +24,7 @@ from .common import ROOT, DATA, MODELS, config, atomic_json, read_json, child_pa
 from .geometry import load_mesh, inspect_mesh, export_mesh
 from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
-from . import models, pipeline_models
+from . import models, pipeline_models, updater
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -91,8 +91,10 @@ async def lifespan(app):
         extension=pipeline_models.status()
         if extension['runtime']['ready'] and not extension['ready'] and all((pipeline_models.MODEL_ROOT/key/name).is_file() for key,spec in pipeline_models.SPECS.items() if not spec.get('optional') for name in spec['files']):
             threading.Thread(target=initial_pipeline_verification,daemon=True).start()
+        updater.start_background(lambda: bool(manager.active or operation or PIPELINE_MODELS_LOCK.locked()))
         yield
     finally:
+        updater.stop_background()
         if manager.active:manager.cancel(manager.active)
         server_lock.release()
 
@@ -125,6 +127,18 @@ def index():return (WEB/"index.html").read_text(encoding="utf-8").replace("__TOK
 
 @app.get("/api/session")
 def session():return {"token":TOKEN,"version":VERSION,"source_revision":SOURCE_REVISION,"default_attention":"sdpa" if os.name=="nt" and not config()["worker_command"] else "flash"}
+
+@app.get('/api/updates')
+def update_status():return updater.status()
+
+@app.post('/api/updates/check')
+def update_check():return {'started':updater.start_check()}
+
+class UpdatePreferences(BaseModel):
+    auto_update: bool
+
+@app.post('/api/updates/preferences')
+def update_preferences(value:UpdatePreferences):return updater.set_preferences(value.auto_update)
 
 @app.get('/api/sample/{name}')
 def sample(name:str):

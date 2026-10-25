@@ -1,0 +1,8 @@
+{
+  "passed": 313,
+  "updater_tests": 36,
+  "update_server_lifecycle_tests": 1,
+  "warnings": 1,
+  "new_gpu_inference": false,
+  "scope": "Code updater, server lifecycle and existing CPU regressions"
+}

@@ -1,7 +1,7 @@
 ---
 license: other
-license_name: hi3d-open-license-v1.0
-license_link: https://huggingface.co/t8star/Hi3d-Comfy/blob/main/LICENSE
+license_name: multiple-upstream-licenses
+license_link: https://huggingface.co/t8star/Hi3d-Comfy/blob/main/README.md#licenses
 language:
   - en
   - zh
@@ -10,50 +10,64 @@ tags:
   - comfyui
   - 3d
   - geometry-refinement
+  - image-to-3d
+  - pbr
   - safetensors
 ---
 
-# Hi3D V1.0 — T8 Model Bundle
+# Hi3D T8 — Core and Workbench Models
 
 **English** | [简体中文](README.zh-CN.md)
 
-**By T8star.** Verified, unmodified Hi3D V1.0 weights and required image encoders for [ComfyUI-Hi3D T8 and the local workbench](https://github.com/T8mars/Comfyui-Hi3d-T8). This is a community redistribution, not a new model, fine-tune or quantization.
+**By T8star.** Verified redistribution of the shared Hi3D core and all model components supported by the [standalone Hi3D T8 workbench](https://github.com/T8mars/Comfyui-Hi3d-T8). Original weights, configurations, pinned revisions and individual licenses are retained. UltraTex uses an upstream-published fp8 base; this project did not quantize it.
 
-Hi3D refines **a reference image and a coarse mesh of the same object**. It does not generate the initial coarse mesh, UVs or textures. No other 3D generation models are included.
+**ComfyUI only uses the Hi3D core for reference-image + coarse-mesh geometry refinement.** Image-to-3D and PBR extensions belong to the standalone workbench. This model repository contains neither the application nor Python. GitHub Releases contain code only; T8star will provide the complete package with Python and models separately.
 
-## Files and provenance
+## Included models
 
-| Directory | Original model | Pinned revision | License |
-|---|---|---|---|
-| `hi3d/` | [hi3d-official/Hi3Dv1.0](https://huggingface.co/hi3d-official/Hi3Dv1.0) | `705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a` | Hi3D Open License v1.0 |
-| `dino/` | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c` | Apache-2.0 |
-| `clip/` | [openai/clip-vit-large-patch14](https://huggingface.co/openai/clip-vit-large-patch14) | `32bd64288804d66eefd0ccbe215aa642df71cc41` | MIT |
+| Directories | Purpose | License |
+|---|---|---|
+| `hi3d/` | Hi3D V1.0 geometry refinement; 512 and 1024 checkpoints, shared VAE; 1536 uses 1024 weights | Hi3D Open License v1.0 |
+| `dino/`, `clip/` | Required DINOv2 Large and CLIP ViT-L/14 core encoders | Apache-2.0 / MIT |
+| `extensions/coarse/` | Hunyuan3D-2mini Turbo image-to-geometry | Tencent Hunyuan 3D 2.0 Community |
+| `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 image-to-geometry | Tencent Hunyuan 3D 2.1 Community |
+| `extensions/coarse_trellis2/`, `extensions/trellis_structure/` | TRELLIS.2 geometry and structure decoder | MIT |
+| `extensions/texture/`, `extensions/texture_encoder/` | TRELLIS.2 PBR and DINOv3 encoder | MIT / DINOv3 License |
+| `extensions/texture_hunyuan21/`, `extensions/paint_dino/`, `extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1, DINOv2 Giant and Real-ESRGAN | Tencent / Apache-2.0 / BSD-3-Clause |
+| `extensions/texture_ultratex/`, `extensions/ultratex_backbone/`, `extensions/ultratex_text_encoder/` | UltraTex adapters/decoder, FLUX.2 Klein 9B fp8, Qwen3 and VAE | MIT / FLUX Non-Commercial / Apache-2.0 |
+| `extensions/background/` | Optional CPU U2Netp foreground extraction | MIT / Apache-2.0 |
 
-`manifest.json` records the SHA256 and byte size of every distributed model artifact. These **shared Hi3D core** files are identical in ComfyUI and the offline workbench. DINOv2 and CLIP are required image encoders, not additional 3D models. `transformer_512` serves 512 refinement; `transformer_1024` serves both 1024 and 1536. There is no separate 1536 checkpoint.
+`manifest.json` records the shared core. `extensions/manifest.json` records 13 extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **94 model/config/license artifacts (69.9GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists.
 
-The v0.4 workbench additionally offers **Hunyuan3D-2mini-Turbo, Hunyuan3D 2.1 and TRELLIS.2** geometry engines, and **TRELLIS.2 PBR, Hunyuan3D-Paint 2.1 and UltraTex** texturing engines. Each choice downloads its own dependencies; UltraTex uses a FLUX.2 Klein 9B base under the FLUX Non-Commercial License. CPU **U2Netp** provides optional foreground extraction. These workbench-only components are managed separately under `models/extensions`, with pinned sources and their own licenses. They are not hosted in this core-weight repository or added to the ComfyUI nodes. See the [edition comparison](https://github.com/T8mars/Comfyui-Hi3d-T8#models-and-edition-differences).
+## Download
 
-## Download and use
+Run from the **workbench root**, not `ComfyUI/models`.
 
-Run from the **workbench root**:
+Core only, sufficient for the Hi3D ComfyUI integration:
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
+```
+
+All core and extension files (about 69.9GB; allow additional runtime and working space):
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
-This produces `models/hi3d/`, `models/dino/`, `models/clip/` and `models/manifest.json`. Start the configured workbench backend and wait for SHA256 verification. In ComfyUI, load the [canvas workflow](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/examples/Hi3D-Refine.json). Weights do not belong in `ComfyUI/models` for this integration.
+For selected engines, download the corresponding directories from the table plus `extensions/manifest.json` and their dependencies. The workbench's Models page can also download only the required engine components from pinned original/public sources. Missing optional engines do not disable installed ones. Verify files in the workbench before inference.
 
-**ComfyUI and the standalone workbench share the same Hi3D weights and refinement backend.** The Registry package contains node code and the canvas workflow; the complete offline workbench also contains Python, dependencies and models. This repository contains models and licenses only, not a standalone application. Setup: [English](https://github.com/T8mars/Comfyui-Hi3d-T8#local-workbench) / [中文](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md).
+## Program updates
+
+The standalone bundle checks stable GitHub Releases, downloads code updates and installs them on the next launch. Models, Python runtimes, configuration and history are preserved. Code updates do not download this entire model repository. Runtime-incompatible versions require a new complete package. [Update instructions](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.md).
 
 ## Validation and limits
 
-Real 512 ComfyUI and 512/1024/1536 workbench runs were validated on Windows / RTX 5090 Laptop 24GB / 64GB RAM. Smaller GPUs have not been validated. Start with 512, 25 steps and CPU offload. Windows uses an explicit SDPA compatibility adapter; the official Linux path uses FlashAttention. See [test evidence and limitations](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/VALIDATION.md).
+Real model runs were tested on Windows / RTX 5090 Laptop 24GB / 64GB RAM. Smaller GPUs have not been validated. Hi3D refinement is optional, rebuilds topology and does not generate textures; the separate PBR stage exports embedded-material GLB. Geometry, back views, UV seams and materials require inspection; printability and universal quality improvements are not guaranteed. [Engine evidence](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/ENGINES.md).
 
-Hi3D refinement outputs geometry only. The workbench's separate texturing stage produces a GLB with embedded UV/PBR maps. Hi3D normalizes scale and rebuilds topology; watertightness, printability and quality improvements are not guaranteed.
+## Licenses
 
-## License
-
-Hi3D files retain the [Hi3D Open License v1.0](LICENSE), including its attribution, acceptable-use and scale conditions. Original `hi3d/LICENSE`, `hi3d/NOTICE`, `hi3d/AUTHORS` and `hi3d/THIRD_PARTY_LICENSES.md` are preserved. Encoder licenses are in `licenses/`. No MIT license is asserted for the bundle as a whole. [Powered by Hi3D 1.0](https://www.hi3d.ai/).
+Each component retains its own license and attribution; no single MIT license covers the collection. Hi3D's LICENSE/NOTICE/AUTHORS are retained. DINOv3 retains the Meta agreement. UltraTex's **FLUX.2 Klein 9B base uses the FLUX Non-Commercial License**. See component directories, `licenses/` and the source manifests. [Powered by Hi3D 1.0](https://www.hi3d.ai/).
 
 ## T8star
 

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hi3d-t8"
-version = "0.4.0"
+version = "0.4.1"
 description = "Local Hi3D v1.0 workbench and ComfyUI integration"
 license = { file = "LICENSE" }
 readme = "README.md"
@@ -13,7 +13,7 @@ dependencies = ["numpy>=1.26,<3", "Pillow>=10.3", "trimesh>=4.6,<5"]
 classifiers = ["Operating System :: Microsoft :: Windows", "Operating System :: POSIX :: Linux", "Environment :: GPU :: NVIDIA CUDA"]
 
 [project.optional-dependencies]
-workbench = ["fastapi==0.115.12", "uvicorn==0.34.2", "python-multipart==0.0.20", "pillow>=10.3,<12", "numpy>=1.26,<2", "scipy>=1.13,<1.16", "networkx>=3,<4", "httpx>=0.28,<1", "psutil>=7,<8", "huggingface-hub>=0.34,<1", "hf_xet>=1.1,<2"]
+workbench = ["fastapi==0.115.12", "uvicorn==0.34.2", "python-multipart==0.0.20", "pillow>=10.3,<12", "numpy>=1.26,<2", "scipy>=1.13,<1.16", "networkx>=3,<4", "httpx>=0.28,<1", "filelock>=3.16,<4", "psutil>=7,<8", "huggingface-hub>=0.34,<1", "hf_xet>=1.1,<2"]
 
 [project.urls]
 Repository = "https://github.com/T8mars/Comfyui-Hi3d-T8"

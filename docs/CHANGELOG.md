@@ -1,3 +1,11 @@
+# v0.4.1 · 代码自动更新与完整模型清单
+
+2026-10-25。独立整合包增加正式 GitHub Release 自动检查、代码下载和下次启动安装，提供 SHA256 校验、代码备份、失败回滚与中断恢复。模型、Python 运行环境、配置和历史任务保留；依赖环境不兼容时要求新版完整版。源码 Git 目录不自动覆盖。
+
+GitHub Release 仅提供源码、节点和代码更新包，不包含 Python 或模型。完整版由 T8star 另行提供。Hugging Face 模型仓库扩展至 Hi3D 核心及 13 个扩展组件，共 94 个权重、配置与许可文件；各组件原始许可分别保留。ComfyUI 节点与画布接口不变，继续只做 Hi3D 几何精修。
+
+The standalone bundle gains stable-release code updates with staged installation, SHA256 verification, backups and rollback. GitHub distributes code only; T8star provides the complete Python/model bundle separately. The model repository covers all supported core and extension components. See [update instructions](UPDATES.md).
+
 # v0.4.0 · 多引擎资产工作台
 
 2026-10-24。ComfyUI 节点和可视化画布仍只复现 Hi3D；新增功能只进入独立工作台。当前验收见[质量记录](../validation/quality-upgrade-progress.json)与[20 项审查](../validation/quality-release-audit20.json)。

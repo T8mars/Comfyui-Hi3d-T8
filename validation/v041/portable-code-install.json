@@ -1,0 +1,15 @@
+{
+  "from": "0.4.0",
+  "to": "0.4.1",
+  "real_portable_install": true,
+  "code_files_verified": 314,
+  "runtime_and_model_files_preserved": 48122,
+  "representative_hashes_preserved": {
+    "runtime/python.exe": "3cce33d75d6fdae4e004d0bdf149320b3147482a9caf370079dcb9c191a1b260",
+    "runtime-pipeline/python.exe": "ceabb31054d429f57cb3825775677eeaf0db35fdabbc5ff6aef661c037154b00",
+    "models/manifest.json": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+    "models/extensions/manifest.json": "d71462b5bea803f24b5535c3fb41c720e9d45bdffeb2edc29b92f072d1434310",
+    "config.local.json": "19aa75e4ce9c07c6ca816f50533ef703136901050c42ba357991a33c8dc2cddf"
+  },
+  "new_gpu_inference": false
+}

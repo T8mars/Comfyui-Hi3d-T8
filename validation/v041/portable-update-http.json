@@ -1,0 +1,9 @@
+{
+  "version": "0.4.1",
+  "private_portable_python": true,
+  "html_update_controls_present": true,
+  "api_update_status": true,
+  "preference_toggle_roundtrip": true,
+  "mutation_requires_session_token": true,
+  "browser_interaction_verified": false
+}

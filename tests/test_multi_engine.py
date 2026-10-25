@@ -432,9 +432,10 @@ def test_unusable_uv_is_rebuilt_before_ai_baking(tmp_path,kind):
 
 def test_release_bundle_declarations_require_the_exact_engine_dependency_closure():
     from tools.audit_release import verify_bundle
+    from hi3d_workbench.common import VERSION
     baseline={'background','coarse','texture','texture_encoder'}
     components=baseline|{'coarse_trellis2','trellis_structure'}
-    bundle={'version':'0.4.0','models_included':True,'pipeline_runtime':True,
+    bundle={'version':VERSION,'models_included':True,'pipeline_runtime':True,
         'extension_components':list(components),'extra_engine_selections':['engine:coarse:trellis2']}
     state={'ready':True,'features':['trellis_geometry']}
     assert verify_bundle(bundle,components,state)['declared_components']==sorted(components)

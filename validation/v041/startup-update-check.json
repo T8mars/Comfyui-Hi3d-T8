@@ -1,0 +1,5 @@
+{
+  "startup_update_phase": "current",
+  "startup_check_started_without_button": true,
+  "auto_update": true
+}

@@ -12,7 +12,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from hi3d_workbench.common import VERSION
 DIST=ROOT/'dist'
-ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
+ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','Update-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
 
 def files(root):
     return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and not p.name.endswith('.pyc')]
@@ -35,6 +35,27 @@ def build_source(dist=None):
         for name in ['__init__.py','comfy_nodes.py','requirements.txt','pyproject.toml','README.md','README.zh-CN.md','docs/COMFYUI.md','docs/images/comfyui-canvas.png','NOTICE.md','LICENSE']:
             z.write(ROOT/name,Path('ComfyUI-Hi3D')/name)
         for f in files(ROOT/'examples'):z.write(f,Path('ComfyUI-Hi3D')/f.relative_to(ROOT))
+    return out
+
+def build_update(dist=None, source_archive=None):
+    """A verified code overlay; runtimes, weights and user data are excluded."""
+    from hi3d_workbench.updater import owned_name, validate_archive, RUNTIME_API
+    dist=Path(dist or DIST)
+    source_archive=source_archive or build_source(dist)
+    out=dist/f'Hi3D-Workbench-update-{VERSION}.zip'
+    entries={}
+    with zipfile.ZipFile(source_archive) as source, zipfile.ZipFile(out,'w',zipfile.ZIP_DEFLATED) as target:
+        for name in source.namelist():
+            owned_name(name)
+            content=source.read(name)
+            entries[name]={'bytes':len(content),'sha256':hashlib.sha256(content).hexdigest()}
+            target.writestr(name,content)
+    value={'schema':1,'repository':'T8mars/Comfyui-Hi3d-T8','version':VERSION,
+           'runtime_api':RUNTIME_API,'minimum_version':'0.4.0','archive':out.name,
+           'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),
+           'files':entries,'preserved':['models','runtime','runtime-pipeline','data','config.local.json']}
+    (dist/'update-manifest.json').write_text(json.dumps(value,ensure_ascii=False,indent=2),encoding='utf-8')
+    validate_archive(out,value,ROOT)
     return out
 
 def pipeline_runtime(out):
@@ -132,5 +153,10 @@ def manifest(dist=None):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
-    print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root) if args.portable_base else build_source(args.dist_root))
+    if args.portable_base:
+        print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root))
+    else:
+        source=build_source(args.dist_root)
+        print(source)
+        print(build_update(args.dist_root,source))
     manifest(args.dist_root)

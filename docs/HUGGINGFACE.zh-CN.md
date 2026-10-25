@@ -1,44 +1,56 @@
-# Hi3D V1.0 — T8 模型包
+# Hi3D T8 — 核心与工作台模型
 
 [English](README.md) | **简体中文**
 
-**By T8star。** 为 [ComfyUI-Hi3D T8 与本地工作台](https://github.com/T8mars/Comfyui-Hi3d-T8)整理的官方 Hi3D V1.0 权重和必需图像编码器。逐文件校验，未修改、微调或量化；属于社区分发，不是新模型。
+**By T8star。** 为 [Hi3D T8 本地工作台与 ComfyUI 节点](https://github.com/T8mars/Comfyui-Hi3d-T8)整理的完整模型组件。保留原始权重、配置、固定版本与各自许可；UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。
 
-Hi3D 以**同一物体的参考图＋粗网格**为输入进行几何精修，不生成初始粗模、UV 或纹理，不包含其他 3D 生成模型。
+**ComfyUI 只使用 Hi3D 核心，输入参考图＋粗模，输出精修几何。** 单图建模与 PBR 扩展仅用于独立工作台。本仓库不含应用或 Python；GitHub Release 只提供代码，含 Python 与模型的完整版由 T8star 另行提供。
 
-## 内容与来源
+## 包含哪些模型
 
-| 目录 | 原模型 | 固定版本 | 许可 |
-|---|---|---|---|
-| `hi3d/` | [hi3d-official/Hi3Dv1.0](https://huggingface.co/hi3d-official/Hi3Dv1.0) | `705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a` | Hi3D Open License v1.0 |
-| `dino/` | [facebook/dinov2-large](https://huggingface.co/facebook/dinov2-large) | `47b73eefe95e8d44ec3623f8890bd894b6ea2d6c` | Apache-2.0 |
-| `clip/` | [openai/clip-vit-large-patch14](https://huggingface.co/openai/clip-vit-large-patch14) | `32bd64288804d66eefd0ccbe215aa642df71cc41` | MIT |
+| 目录 | 用途 | 许可 |
+|---|---|---|
+| `hi3d/` | Hi3D V1.0 精修；512／1024 权重，共用 VAE；1536 使用 1024 权重 | Hi3D Open License v1.0 |
+| `dino/`、`clip/` | 核心必需的 DINOv2 Large、CLIP ViT-L/14 编码器 | Apache-2.0／MIT |
+| `extensions/coarse/` | Hunyuan3D-2mini Turbo 图片建模 | 腾讯 Hunyuan 3D 2.0 社区许可 |
+| `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 图片建模 | 腾讯 Hunyuan 3D 2.1 社区许可 |
+| `extensions/coarse_trellis2/`、`extensions/trellis_structure/` | TRELLIS.2 建模与结构解码器 | MIT |
+| `extensions/texture/`、`extensions/texture_encoder/` | TRELLIS.2 PBR 与 DINOv3 编码器 | MIT／DINOv3 License |
+| `extensions/texture_hunyuan21/`、`extensions/paint_dino/`、`extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1、DINOv2 Giant、Real-ESRGAN | 腾讯／Apache-2.0／BSD-3-Clause |
+| `extensions/texture_ultratex/`、`extensions/ultratex_backbone/`、`extensions/ultratex_text_encoder/` | UltraTex 适配器与解码器、FLUX.2 Klein 9B fp8、Qwen3 与 VAE | MIT／FLUX 非商业／Apache-2.0 |
+| `extensions/background/` | 可选 CPU U2Netp 抠图 | MIT／Apache-2.0 |
 
-`manifest.json` 记录每个模型工件的 SHA256 和字节数，这些 **Hi3D 共用核心**在 ComfyUI 与离线工作台中完全一致。DINOv2 和 CLIP 是 Hi3D 必需图像编码器。`transformer_512` 用于 512 精修，`transformer_1024` 同时用于 1024 和 1536，没有独立的 1536 权重。
+`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 13 个扩展组件及来源版本；`model-catalogue.json` 列出全部 **94 个权重／配置／许可文件，合计约 69.9GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。
 
-v0.4 独立工作台另提供 **Hunyuan3D-2mini-Turbo、Hunyuan3D 2.1、TRELLIS.2** 建模引擎，以及 **TRELLIS.2 PBR、Hunyuan3D-Paint 2.1、UltraTex** 贴图引擎，按选择下载依赖；UltraTex 的 FLUX.2 Klein 9B 底座适用 FLUX 非商业许可。CPU **U2Netp** 提供可选前景处理。这些组件单独放在 `models/extensions`，记录固定来源和各自许可；不托管在本核心权重仓库，也不加入 ComfyUI 节点。详见 [版本区别](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md#模型与两个版本的区别)。
+## 下载方式
 
-## 下载与使用
+在**工作台根目录**执行，模型无需放入 `ComfyUI/models`。
 
-在**工作台根目录**执行：
+仅下载 Hi3D 核心，供 ComfyUI 精修使用：
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
+```
+
+下载全部核心与扩展（约 69.9GB，另留运行环境和任务空间）：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
-下载后应为 `models/hi3d/`、`models/dino/`、`models/clip/` 和 `models/manifest.json`。启动配置完成的工作台后端并等待 SHA256 校验；在 ComfyUI 中导入[画布工作流](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/examples/Hi3D-Refine.json)。此集成不要求把权重放入 `ComfyUI/models`。
+按需下载时，选择上表对应目录、`extensions/manifest.json` 及配套依赖。工作台的「模型」页也可从固定版本的上游或公开分发源只下载所需引擎。缺少可选模型不影响已安装的引擎；使用前在工作台中校验。
 
-**ComfyUI 与独立工作台共用 Hi3D 权重及精修后端。** Registry 节点包包含代码与画布工作流，完整离线工作台另含独立 Python、依赖与权重。本仓库仅提供模型和许可，不是可直接启动的软件。安装见 [GitHub 中文说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/README.zh-CN.md)。
+## 程序自动更新
+
+独立整合包检查正式 GitHub Release，下载代码更新后在下次启动安装，保留模型、Python、配置和历史任务。程序更新不会下载整个模型仓库；需要更换运行环境的版本会提示获取作者提供的新版完整版。[更新说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.zh-CN.md)。
 
 ## 验证与限制
 
-在 Windows / RTX 5090 Laptop 24GB / 64GB RAM 上完成真实 ComfyUI 512 和工作台 512/1024/1536 推理，尚未验证更小显存设备。建议从 512、25 步、CPU 卸载开始。Windows 使用明确标识的 SDPA 兼容适配，官方 Linux 路径使用 FlashAttention。详见[验证记录](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/VALIDATION.md)。
+实测 Windows／RTX 5090 Laptop 24GB／64GB RAM，未验证更低显存设备。Hi3D 精修可选，会重建拓扑；纹理由独立 PBR 阶段生成，带材质结果使用 GLB。需检查形状、背面、接缝和材质，不保证可打印或每次均改善。[引擎与质量记录](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/ENGINES.zh-CN.md)。
 
-Hi3D 精修输出只有几何；工作台独立贴图阶段另输出内嵌 UV/PBR 的 GLB。Hi3D 会归一化尺寸并重建拓扑，不保证封闭、可打印或必然优于粗模。
+## 许可与署名
 
-## 许可
-
-Hi3D 文件保留 [Hi3D Open License v1.0](LICENSE) 的署名、可接受使用与规模条款，以及原始 `hi3d/LICENSE`、`hi3d/NOTICE`、`hi3d/AUTHORS`、`hi3d/THIRD_PARTY_LICENSES.md`。编码器许可保存在 `licenses/`；不将整个模型包标为 MIT。[Powered by Hi3D 1.0](https://www.hi3d.ai/)。
+各组件保留独立许可，不把整个集合声明为 MIT。Hi3D 原 LICENSE／NOTICE／AUTHORS 保留；DINOv3 保留 Meta 许可；UltraTex 的 **FLUX.2 Klein 9B 底座适用非商业许可**。完整文本见组件目录与 `licenses/`，来源版本见清单。[Powered by Hi3D 1.0](https://www.hi3d.ai/)。
 
 ## T8star
 

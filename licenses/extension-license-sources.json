@@ -17,5 +17,47 @@
     "file": "Real-ESRGAN-LICENSE.txt",
     "url": "https://raw.githubusercontent.com/xinntao/Real-ESRGAN/v0.3.0/LICENSE",
     "sha256": "4a699ec4863d96a91fc265948a0c90033f7e8735d515524dcf3444736406e0c2"
+  },
+  {
+    "file": "TRELLIS2-LICENSE.txt",
+    "repo": "microsoft/TRELLIS.2",
+    "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+    "path": "LICENSE",
+    "sha256": "d9a1b1e30d633d5732ea18e3cba9538d293ebc53e1a9e4e96ab739e0c5c4f1cb"
+  },
+  {
+    "file": "DINOv3-LICENSE.md",
+    "repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+    "revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+    "path": "LICENSE.md",
+    "sha256": "25d122eb8f5b880fd23c736fb6ea8018ee45c12237e00b8a86d14c653904999e"
+  },
+  {
+    "file": "Hunyuan3D2-LICENSE.txt",
+    "repo": "tencent/Hunyuan3D-2mini",
+    "revision": "f90a0f7df7d5e6f71109cf333f6a95a0ae3194a6",
+    "path": "LICENSE",
+    "sha256": "e5e6e2041e18326d82cd105a1b9404e36db55263dd9d42d4989f917c2501b67b"
+  },
+  {
+    "file": "Hunyuan3D21-LICENSE.txt",
+    "repo": "tencent/Hunyuan3D-2.1",
+    "revision": "0b94677654c57bb9a6b6845cd7b704ccf551d327",
+    "path": "LICENSE",
+    "sha256": "5bd08f93b2d280bb26ff3eed5d3996fe47a9698b5f7785163928668d7fd578c6"
+  },
+  {
+    "file": "UltraTex-LICENSE.txt",
+    "repo": "rekuen/Ultratex-Flux2-Klein",
+    "revision": "b7ceb755af158d73a121c00a3fa680ca78812ef6",
+    "path": "LICENSE-UltraTex-MIT",
+    "sha256": "1d0ddbb9d271e32eee95c487afb53e2d336bce67c2c0e601cda263ed13a1f419"
+  },
+  {
+    "file": "FLUX-NON-COMMERCIAL-LICENSE.md",
+    "repo": "rekuen/Ultratex-Flux2-Klein",
+    "revision": "b7ceb755af158d73a121c00a3fa680ca78812ef6",
+    "path": "FLUX-NON-COMMERCIAL-LICENSE.md",
+    "sha256": "468d9f4332c0c895e9132c035982a40a12750092603a2e910913cb49aa887d3b"
   }
 ]

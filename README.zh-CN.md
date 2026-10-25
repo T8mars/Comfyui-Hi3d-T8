@@ -10,6 +10,14 @@
 
 ![ComfyUI 中的 Hi3D 画布工作流](docs/images/comfyui-canvas.png)
 
+## 下载与自动更新
+
+**GitHub Release 只发布代码：源码包、节点包和程序更新包，不包含模型权重、Python 或运行环境。含 Python 与模型的完整版由 T8star 另行提供，下载地址由作者公布。** 完整版包含的具体组件以其 `bundle-manifest.json` 为准。
+
+[GitHub Release](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [完整更新说明](docs/UPDATES.zh-CN.md)
+
+独立整合包 v0.4.1 起默认空闲时自动检查并下载程序更新，校验后在下次启动安装；模型、Python、配置与历史任务保留。可在「模型与运行环境 → 程序自动更新」关闭，或关闭工作台后运行 `Update-Workbench.cmd`。旧 v0.4.0 需先手动覆盖一次代码更新包。需要更换 Python 依赖时会提示获取新版完整版，不自动替换环境。源码 Git 目录使用 Git 更新。
+
 ## ComfyUI
 
 1. Registry 版本可用后，在 ComfyUI-Manager 搜索 **Hi3D T8**（节点 ID：`hi3d-t8`，Publisher：`t8star`）安装；也可克隆本仓库到 `ComfyUI/custom_nodes/Comfyui-Hi3d-T8`，使用 ComfyUI 自身 Python 安装 `requirements.txt`。
@@ -31,15 +39,15 @@
 | DINOv3、DINOv2 Giant、FLUX.2 Klein 9B 和 Qwen3 | 按所选扩展引擎安装的依赖 | 仅独立整合包 |
 | CPU U2Netp | 不透明图片的可选前景提取 | 仅独立整合包 |
 
-[Hugging Face 模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)提供两版共用的 **Hi3D 核心权重与配置，未修改或量化**，没有专供 ComfyUI 的另一套权重。整合包新增模型单独放在 `models/extensions`，从固定版本的上游或公开分发仓库下载，并分别保留许可。Registry / 节点包只包含**代码和画布工作流**；单独下载权重不等于具备推理环境。
+[Hugging Face 模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)提供两版共用的 **Hi3D 核心权重与配置**，以及独立工作台的**全部扩展组件**。没有专供 ComfyUI 的另一套 Hi3D 权重；扩展放在 `models/extensions`，各自保留固定版本、校验值与许可。UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。Registry / 节点包只包含**代码和画布工作流**；单独下载权重不等于具备推理环境。
 
 在**工作台根目录**执行，权重无需放进 `ComfyUI/models`：
 
 ```bash
-hf download t8star/Hi3d-Comfy --local-dir models
+hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
+以上只下载 Hi3D 核心。下载全部建模／贴图扩展请去掉 `--include`，全量约 69.9GB；目录和按需下载说明见[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)。目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`，扩展位于 `models/extensions/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
 
 <details>
 <summary>实际贴图样例</summary>
@@ -54,7 +62,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 Windows 版双击 **Start-Workbench.cmd**，打开 `http://127.0.0.1:8378`，可脱离 ComfyUI 使用。工作台提供三个入口：图片→基础模型→可选 Hi3D 精修→PBR；参考图＋已有模型→PBR；参考图＋粗模→Hi3D，可选继续贴图。图片模式默认**基础模型＋PBR**，Hi3D 按需勾选：同图卡通对照中，跳过精修的嘴部更干净。各阶段保留模型、日志和报告。建模与贴图引擎独立选择，可在“模型”页按需下载。上传的自包含 GLB 保留材质和可用的单材质 UV；历史结果可在同视角、HDR 灯光与曝光下左右对比。选择建议见[引擎与质量记录](docs/ENGINES.zh-CN.md)。带材质结果使用自包含 **GLB**；**STL/PLY 只包含几何**。
 
-v0.4 Windows 包内含两套隔离运行时，以及 **Hi3D 核心、Mini Turbo、TRELLIS.2 几何／PBR、DINOv3 和 CPU U2Netp**；六个扩展组件的准确清单见 `bundle-manifest.json`。**Hunyuan3D 2.1、Hunyuan Paint 和 UltraTex 权重需在“模型”页另行下载**。所选引擎未就绪时会明确提示，不会自动替换。节点包和源码包只含代码，源码部署需另行准备环境与权重。
+此前验收的 v0.4.0 Windows 离线包包含两套隔离运行时，以及 **Hi3D 核心、Mini Turbo、TRELLIS.2 几何／PBR、DINOv3 和 CPU U2Netp**；六个扩展组件的准确清单见 `bundle-manifest.json`。该历史包的 **Hunyuan3D 2.1、Hunyuan Paint 和 UltraTex 权重需在“模型”页另行下载**；新版完整版以作者提供的随包清单为准。所选引擎未就绪时会明确提示，不会自动替换。节点包和源码包只含代码，源码部署需另行准备环境与权重。
 
 提供三个起点：**轻量**为 Mini Turbo 256＋TRELLIS PBR 512／2K；**均衡**为 TRELLIS 几何 512＋PBR 1024／4K；**细节**为 TRELLIS 几何 1024＋UltraTex 1024／4K，需先下载其可选依赖。UltraTex 的 FLUX.2 Klein 9B 底座适用**非商业许可**。调大输出贴图尺寸不会补出生成中缺失的细节。详见[引擎选择](docs/ENGINES.zh-CN.md)和[工作台说明](docs/WORKBENCH.zh-CN.md)。
 

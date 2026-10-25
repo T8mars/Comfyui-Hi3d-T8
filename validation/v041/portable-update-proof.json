@@ -1,0 +1,11 @@
+{
+  "from": "0.4.0",
+  "to": "0.4.1",
+  "real_portable_install": true,
+  "code_files_verified": 310,
+  "original_runtime_model_files_crc_verified": 48122,
+  "original_runtime_model_bytes_preserved": 45226200305,
+  "bytecode_cache_excluded": true,
+  "basis": "CRC of every original runtime/model file compared with untouched v0.4.0 archive; new owned code SHA256 checked",
+  "new_gpu_inference": false
+}

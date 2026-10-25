@@ -9,7 +9,39 @@ concurrency:
   group: code-release-${{ github.ref }}
   cancel-in-progress: false
 jobs:
+  launcher:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build native Windows console launcher
+        shell: pwsh
+        run: |
+          $version = ([regex]::Match((Get-Content hi3d_workbench/common.py -Raw), 'VERSION = "([0-9.]+)"')).Groups[1].Value
+          git checkout --detach "refs/tags/v$version"
+          if ($LASTEXITCODE -ne 0) { throw 'Matching version tag not found' }
+          ./scripts/Build-Launcher.ps1 -OutputDirectory dist/launcher -CreateArchive
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Test real Windows console process cleanup
+        shell: pwsh
+        run: |
+          python -m pip install pytest psutil
+          $testRoot = Join-Path $env:RUNNER_TEMP 'hi3d-launcher-tests'
+          New-Item -ItemType Directory -Force "$testRoot/tests" | Out-Null
+          Copy-Item scripts "$testRoot/scripts" -Recurse
+          Copy-Item Start-Workbench.cmd "$testRoot/"
+          Copy-Item tests/test_windows_launcher.py "$testRoot/tests/"
+          Set-Location $testRoot
+          python -m pytest tests/test_windows_launcher.py -q
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-launcher
+          path: dist/launcher/*.zip
   release:
+    needs: launcher
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +68,10 @@ jobs:
           cd "$TEST_ROOT"
           python -m pytest tests/test_updater.py -q
       - run: python "$RUNNER_TEMP/prepare_release_upstream.py" --root "$GITHUB_WORKSPACE"
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-launcher
+          path: dist/public
       - run: python tools/build_release.py --dist-root dist/public
       - name: Publish source, nodes and code updater only
         env:
@@ -45,7 +81,7 @@ jobs:
           VERSION=$(python -c 'from hi3d_workbench.common import VERSION; print(VERSION)')
           TAG="v$VERSION"
           test "${GITHUB_REF_TYPE}" != tag || test "${GITHUB_REF_NAME}" = "$TAG"
-          FILES=("dist/public/Hi3D-Workbench-source-$VERSION.zip" "dist/public/ComfyUI-Hi3D-nodes-$VERSION.zip" "dist/public/Hi3D-Workbench-update-$VERSION.zip" "dist/public/update-manifest.json" "dist/public/SHA256.json")
+          FILES=("dist/public/Hi3D-Workbench-source-$VERSION.zip" "dist/public/ComfyUI-Hi3D-nodes-$VERSION.zip" "dist/public/Hi3D-Workbench-update-$VERSION.zip" "dist/public/Hi3D-Workbench-launcher-$VERSION.zip" "dist/public/update-manifest.json" "dist/public/SHA256.json")
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release upload "$TAG" "${FILES[@]}" --clobber
           elif test -f "docs/releases/$TAG.md"; then

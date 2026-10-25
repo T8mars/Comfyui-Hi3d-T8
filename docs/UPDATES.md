@@ -4,6 +4,10 @@
 
 GitHub Releases contain source, ComfyUI nodes and code updates only: **no model weights, Python interpreter or bundled runtime**. **T8star will distribute the complete package separately** and announce its download location. The source archive is not a ready-to-run bundle. The complete package's `bundle-manifest.json` identifies its included models.
 
+## Windows console launcher
+
+From v0.4.2, bundles include `Hi3D-Workbench.exe`, a visible console launcher that owns the server and its workers. Close with Ctrl+C, the console X, the webpage shutdown button or `Stop-Workbench.cmd`; closing the browser alone keeps the service running. The code updater continues to exclude executables for compatibility with v0.4.1. The updated start script builds a missing launcher using Windows' .NET Framework 4 compiler, or you can extract the separate launcher ZIP from the matching Release after applying its code update. Future launcher binary changes require that launcher asset; Python and models remain separate.
+
 ## Automatic updates for the standalone bundle
 
 Starting with v0.4.1, the standalone bundle checks this project's stable GitHub Releases while idle, at most once every six hours. It downloads and verifies the code archive and every file using SHA256. Installation happens **on the next workbench launch**, after the previous server has closed; inference is never interrupted for an update.

@@ -5,6 +5,7 @@ let online = false, pending = null, exportPending = false, pollBusy = false;
 let epoch = 0, shownJob = null, sessionReady = false, sessionDefaultsApplied = false, toastTimer, logsKey = '';
 let selectedMode = 'image_to_asset', previewManual = false, exportSourceManual = false;
 let comparisonJob = null, comparisonCandidates = [], comparisonsFor = '';
+let workbenchStopped = false;
 const activeStates = new Set(['running', 'queued', 'cancelling']);
 const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
@@ -652,8 +653,8 @@ async function downloadEngine(stage,id) {
 }
 async function refresh() {
   const session = sessionReady ? null : await api('/api/session');
-  if (session) { token = session.token; sessionReady = true; if (!sessionDefaultsApplied && !currentJob) $('#attention').value = session.default_attention || 'flash'; sessionDefaultsApplied = true; document.querySelectorAll('.app-version').forEach(el => { el.textContent = session.version; }); }
-  health = await api('/api/health'); online = true; renderHealth();
+  if (session) { token = session.token; sessionReady = true; $('#shutdown-workbench').disabled = !session.can_shutdown; if (!sessionDefaultsApplied && !currentJob) $('#attention').value = session.default_attention || 'flash'; sessionDefaultsApplied = true; document.querySelectorAll('.app-version').forEach(el => { el.textContent = session.version; }); }
+  health = await api('/api/health'); if (workbenchStopped) return; online = true; renderHealth();
   if (Date.now() - lastUpdateRefresh > 15000) { lastUpdateRefresh = Date.now(); void refreshUpdates(); }
 }
 let lastUpdateRefresh = 0;
@@ -677,9 +678,10 @@ $('#auto-update').onchange = async () => {
   catch (error) { showError(error); await refreshUpdates(); }
 };
 async function tick() {
-  if (pollBusy) return; pollBusy = true;
+  if (pollBusy || workbenchStopped) return; pollBusy = true;
   try {
-    try { await refresh(); } catch (error) { unavailable(error); return; }
+    try { await refresh(); } catch (error) { if (!workbenchStopped) unavailable(error); return; }
+    if (workbenchStopped) return;
     const id = currentJob?.id, selectedEpoch = epoch;
     if (id) {
       let job;
@@ -699,6 +701,17 @@ async function tick() {
   } finally { pollBusy = false; }
 }
 $('#reconnect').onclick = () => { sessionReady = false; void tick(); };
+$('#shutdown-workbench').onclick = async () => {
+  if ((health?.active || health?.operation) && !window.confirm('关闭工作台并停止当前任务？已保存的输入和阶段结果会保留。')) return;
+  const button = $('#shutdown-workbench'); button.disabled = true;
+  try {
+    await post('/api/shutdown'); workbenchStopped = true; online = false; availability();
+    button.disabled = true; button.textContent = '已请求关闭';
+    $('#connection-alert').hidden = true;
+    $('#health-badge').textContent = '正在关闭工作台';
+    toast('已请求停止服务并释放推理进程。启动窗口显示“本次启动已结束”后，可关闭窗口和此页面。');
+  } catch (error) { button.disabled = false; showError(error); }
+};
 for (const [id, kind, action] of [['download-models','download',async () => { const result = await post('/api/models/download'); toast(result.started ? '开始下载 Hi3D 与必需编码器，请在此查看进度。' : '已有下载进程，请等待完成。'); }],['verify-models','verify',async () => { const result = await post('/api/models/verify'); toast(result.ok ? '全部模型文件 SHA256 校验通过。' : '校验未通过：'+result.errors.join('，')); }],['diagnose','diagnose',async () => { $('#diagnostics').textContent = '正在检查 GPU 基础内核，首次编译可能需要几分钟…'; const result = await post('/api/diagnostics'); $('#diagnostics').textContent = JSON.stringify(result,null,2); toast(result.kernel_probe === 'passed' ? 'GPU 基础内核检查通过，可以尝试精修。' : 'GPU 检查发现问题，请查看诊断详情。'); }]]) {
   $('#'+id).onclick = async () => { if ($('#'+id).disabled) return; pending = kind; availability(); try { await action(); await refresh(); } catch (error) { showError(error); } finally { pending = null; availability(); } };
 }

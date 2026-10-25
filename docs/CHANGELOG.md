@@ -1,3 +1,9 @@
+# v0.4.2 · 可见 EXE 启动与进程退出
+
+2026-10-25。独立 Windows 工作台增加 EXE 控制台启动器、网页关闭按钮和停止脚本。关闭启动器清理其服务及推理子进程，Ctrl+C 支持正常退出；重复启动复用本目录服务，端口冲突拒绝操作其他目录服务，服务就绪后再打开浏览器。启动失败保留日志，侧栏与页尾增加七个社媒资源入口。ComfyUI 节点和模型算法不变。
+
+Visible Windows console launcher, explicit shutdown, process-tree ownership, same-directory instance control and community links. GitHub provides a separate launcher ZIP without Python or weights; code updates remain compatible with v0.4.1.
+
 # v0.4.1 · 代码自动更新与完整模型清单
 
 2026-10-25。独立整合包增加正式 GitHub Release 自动检查、代码下载和下次启动安装，提供 SHA256 校验、代码备份、失败回滚与中断恢复。模型、Python 运行环境、配置和历史任务保留；依赖环境不兼容时要求新版完整版。源码 Git 目录不自动覆盖。

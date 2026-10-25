@@ -12,11 +12,17 @@
 
 ## 下载与自动更新
 
-**GitHub Release 只发布代码：源码包、节点包和程序更新包，不包含模型权重、Python 或运行环境。含 Python 与模型的完整版由 T8star 另行提供，下载地址由作者公布。** 完整版包含的具体组件以其 `bundle-manifest.json` 为准。
+**GitHub Release 只发布代码：源码包、节点包、程序更新包和小型 Windows 启动器，不包含模型权重、Python 或运行环境。含 Python 与模型的完整版由 T8star 另行提供，下载地址由作者公布。** 完整版包含的具体组件以其 `bundle-manifest.json` 为准。
 
 [GitHub Release](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [完整更新说明](docs/UPDATES.zh-CN.md)
 
 独立整合包 v0.4.1 起默认空闲时自动检查并下载程序更新，校验后在下次启动安装；模型、Python、配置与历史任务保留。可在「模型与运行环境 → 程序自动更新」关闭，或关闭工作台后运行 `Update-Workbench.cmd`。旧 v0.4.0 需先手动覆盖一次代码更新包。需要更换 Python 依赖时会提示获取新版完整版，不自动替换环境。源码 Git 目录使用 Git 更新。
+
+### Windows 整合包启动与关闭
+
+双击 **Hi3D-Workbench.exe** 或 **Start-Workbench.cmd**，保留启动窗口查看日志。按 **Ctrl+C**、关闭启动窗口、点击网页的**关闭工作台**，或运行 **Stop-Workbench.cmd**，均可停止服务；**只关闭浏览器页面不会退出服务**。EXE 统一管理服务和推理子进程，关闭时释放其工作进程；启动失败时保留错误信息。重复双击会打开本目录已运行的工作台，不重复启动，也不会关闭其他目录的服务。
+
+独立的 `Hi3D-Workbench-launcher-<版本>.zip` 仅包含小型 Windows 启动器和启停脚本，**不含 Python 或模型**。先安装对应代码更新，再把启动器解压到 `Start-Workbench.cmd` 同级目录。缺少 EXE 时，启动脚本可调用 `scripts/Build-Launcher.ps1`，使用 Windows 自带的 .NET Framework 4 编译器生成；源码随仓库提供，EXE 未做数字签名。新版完整版直接附带。工作台侧栏与页尾提供作者社媒、教程及资源入口。
 
 ## ComfyUI
 

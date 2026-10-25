@@ -18,3 +18,5 @@ comfy-runtime/
 .publishenv/
 node.zip
 build/
+/Hi3D-Workbench.exe
+/Stop-Workbench.cmd

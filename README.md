@@ -12,11 +12,17 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 ## Downloads and automatic updates
 
-**GitHub Releases contain code only: source, ComfyUI nodes and program updates. They include no model weights, Python interpreter or runtime. T8star will provide the complete package with Python and models separately and announce its download location.** Its `bundle-manifest.json` identifies the included components.
+**GitHub Releases contain code only: source, ComfyUI nodes, program updates and the small Windows launcher. They include no model weights, Python interpreter or runtime. T8star will provide the complete package with Python and models separately and announce its download location.** Its `bundle-manifest.json` identifies the included components.
 
 [GitHub Releases](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [Update instructions](docs/UPDATES.md)
 
 From v0.4.1, standalone bundles check and download code updates while idle, verify them, and install on the next launch. Models, Python, configuration and history are preserved. Disable automatic downloads in **Models and environment → Program updates**, or close the app and run `Update-Workbench.cmd`. Old v0.4.0 bundles need one manual code overlay first. A runtime-incompatible release requests a new complete bundle instead of replacing Python dependencies. Git source checkouts update through Git.
+
+### Launch and close the Windows bundle
+
+Double-click **Hi3D-Workbench.exe** or **Start-Workbench.cmd** and keep its console open to view logs. Stop with **Ctrl+C**, the console window's **X**, the webpage's **Close workbench** button, or **Stop-Workbench.cmd**. Closing only the browser leaves the service running. The EXE owns the server and its inference subprocesses, so closing it also releases its workers. Startup errors remain visible. A second launch reuses the same directory's service; it never stops another bundle sharing the port.
+
+The separate `Hi3D-Workbench-launcher-<version>.zip` contains a small Windows launcher and start/stop scripts, **not Python or models**. Apply the matching code update first, then extract the launcher beside `Start-Workbench.cmd`. A missing launcher can also be built by `scripts/Build-Launcher.ps1` using Windows' .NET Framework 4 compiler. Launcher source is included; the executable is unsigned. New complete bundles include it already. Community links are available in the workbench sidebar and footer.
 
 ## ComfyUI
 

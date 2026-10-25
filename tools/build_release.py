@@ -122,6 +122,10 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
     packages=subprocess.check_output([str(runtime/'python.exe'),'-m','pip','freeze'],cwd=out,text=True,encoding='utf-8')
     (out/'runtime-packages.txt').write_text(packages,encoding='utf-8')
     (out/'config.local.json').write_text(json.dumps({'worker_python':'runtime/python.exe','worker_command':[],'minimum_free_vram_mb':1500,'port':8378}),encoding='utf-8')
+    subprocess.run(['powershell','-NoProfile','-File',str(ROOT/'scripts/Build-Launcher.ps1'),
+                    '-OutputDirectory',str(out)],check=True,cwd=ROOT)
+    shutil.copy2(out/'Start-Workbench.cmd',out/'启动工作台.cmd')
+    shutil.copy2(out/'Stop-Workbench.cmd',out/'停止工作台.cmd')
     if include_pipeline:pipeline_runtime(out)
     if include_models:
         omitted=['.cache','.downloads','*.tmp','*.incomplete','*.parts*','*.assembled','*.bak','extensions','download-state.json','.download.lock']

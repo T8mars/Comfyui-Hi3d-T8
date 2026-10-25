@@ -16,6 +16,7 @@ from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.background import BackgroundTask
 from pydantic import BaseModel, Field
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.concurrency import run_in_threadpool
@@ -24,7 +25,7 @@ from .common import ROOT, DATA, MODELS, config, atomic_json, read_json, child_pa
 from .geometry import load_mesh, inspect_mesh, export_mesh
 from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
-from . import models, pipeline_models, updater
+from . import models, pipeline_models, updater, lifecycle
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -126,7 +127,12 @@ async def guard(request: Request,call_next):
 def index():return (WEB/"index.html").read_text(encoding="utf-8").replace("__TOKEN__",TOKEN).replace('__VERSION__',VERSION)
 
 @app.get("/api/session")
-def session():return {"token":TOKEN,"version":VERSION,"source_revision":SOURCE_REVISION,"default_attention":"sdpa" if os.name=="nt" and not config()["worker_command"] else "flash"}
+def session():return {"token":TOKEN,"version":VERSION,"source_revision":SOURCE_REVISION,"instance_id":lifecycle.instance_id(ROOT),"can_shutdown":lifecycle.managed,"default_attention":"sdpa" if os.name=="nt" and not config()["worker_command"] else "flash"}
+
+@app.post('/api/shutdown')
+def shutdown_workbench():
+    if not lifecycle.managed:raise HTTPException(409,'请从原启动窗口关闭此服务')
+    return JSONResponse({'stopping':True},background=BackgroundTask(lifecycle.shutdown.set))
 
 @app.get('/api/updates')
 def update_status():return updater.status()

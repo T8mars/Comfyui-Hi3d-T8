@@ -51,5 +51,6 @@
     "scope": "Earlier fox comparisons are historical and were not used as a universal ranking. Final showcase selection is example-specific; all three painters have new raw-NORMAL-preserving real inference evidence."
   },
   "superseded_fox_review": "Earlier fox reviews and ranking used an output whose authored normals were stripped. Retained as historical observation, superseded for final selection until new repaint is inspected.",
-  "cinema_backdrop_fix": "Fixed camera-relative cyclorama; previously occluded rear previews rejected and regenerated."
+  "cinema_backdrop_fix": "Fixed camera-relative cyclorama; previously occluded rear previews rejected and regenerated.",
+  "final_encoded_video_review": "Selected actual encoded 48-second four-up frame inspected; original PBR preserved. Both full films decoded and dimensions/frame counts/duration checked. Final no-black and encoded audio margin checks passed."
 }

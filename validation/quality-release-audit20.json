@@ -1065,8 +1065,9 @@
     "raw_authored_normals_three_painters": "passed",
     "portable_authored_normal_pbr_v2": "passed",
     "production_8378": "ready; all 13 extension components",
-    "video": "final render in progress",
-    "archives_publication": "pending packaging step",
-    "new_ui_interaction": "unavailable; not claimed passed"
+    "video": "Completed; validation/v040/delivery.json",
+    "archives_publication": "All three archives CRC/source/model/dependency checks passed; GitHub v0.4.0 and official Registry Action published, Registry Pending",
+    "new_ui_interaction": "unavailable; not claimed passed",
+    "updated_utc": "2026-10-25T00:32:53.615998+00:00"
   }
 }

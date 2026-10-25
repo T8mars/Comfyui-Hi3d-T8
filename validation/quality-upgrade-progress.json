@@ -1,6 +1,6 @@
 {
   "objective": "Improve geometry and PBR quality, support suitable alternative models in the standalone workbench, select defaults using actual same-input comparisons, complete and verify development and updated showcase.",
-  "status": "in_progress",
+  "status": "completed",
   "scope": {
     "comfyui": "Hi3D geometry only; no new model nodes or graph inputs",
     "standalone": "Selectable geometry and texture engines, reproducible comparisons, usable portable release",
@@ -85,11 +85,7 @@
     "Hunyuan Paint initial fox result has view alignment/material-boundary artifacts despite a correct CUDA projection round trip; do not select it as a universal default merely because it runs",
     "Neutral and HDR same-mesh comparisons favor UltraTex for fox seams and engraved detail; it can make owl enamel more metallic/teal than the reference. TRELLIS remains useful for lower-cost or more subdued materials."
   ],
-  "remaining_required": [
-    "Finish and validate rendered 60-second film",
-    "Build/audit final archives and publish authorized GitHub/Registry updates",
-    "New browser interaction remains unavailable through CUA; limitation is explicit"
-  ],
+  "remaining_required": [],
   "evidence_root": "data/quality-upgrade-20261024",
   "development_server": "Replaced by production endpoint",
   "production_server": "http://127.0.0.1:8378/",
@@ -107,13 +103,14 @@
     "project": "data/showreel-quality-60s-20261024-v4",
     "assets": 4,
     "music": "Original 60-second score and SFX edit rendered and mastered",
-    "status": "39 native 2K previews completed; selected actual front/detail/rear inspected, corrected backdrop and final model hashes bound. Full 13-shot render/edit in progress.",
+    "status": "Completed: 2K and 1080p, both 60s/1440 frames and full decode passed; no black segments over 0.1s.",
     "hi3d_claim": "Showcase demonstrates the standalone multi-engine workbench; selected examples do not claim Hi3D refinement",
-    "audio_validation": "60 seconds; measured integrated -13.9 LUFS, true peak -1.5dBFS",
+    "audio_validation": "Final encoded -15.4 LUFS / -1.7 dBFS true peak; video bitstreams unchanged during audio margin adjustment.",
     "quality_review": "validation/v040/quality-review.json",
-    "frames_location": "C:/Users/27611/AppData/Local/Hi3D-T8/showreel-quality-v4/frames"
+    "frames_location": "C:/Users/27611/AppData/Local/Hi3D-T8/showreel-quality-v4/frames",
+    "assets_archive": "Hi3D_Showcase_Models.zip"
   },
-  "updated_utc": "2026-10-24T23:44:15.791790+00:00",
+  "updated_utc": "2026-10-25T00:32:53.615998+00:00",
   "checks_completed": [],
   "post_recovery_validation": {
     "tests_before_edge_fixes": "255 passed, 1 warning; data/quality-upgrade-20261024/tests-final-v040.xml",
@@ -134,5 +131,13 @@
     "authored_normal_roundtrip": "Raw GLB normals checked against source for all three painters; faces/UV exact, positions within 1e-6, minimum cosine >0.99999.",
     "portable": "Bundled isolated runtimes completed mini geometry, TRELLIS image/PBR, existing authored-normal mesh PBR and fresh Hi3D kernel probe. No new full Hi3D inference.",
     "final_frame_cache": "TRELLIS final uniform coordinate restoration now saves/restores input-frame shading normals. Actual portable-v2 file proof min cosine 0.9999999999999989; old API-successful/raw-normal-failing result retained."
-  }
+  },
+  "completed_utc": "2026-10-25T00:32:53.615998+00:00",
+  "delivery_receipt": "validation/v040/delivery.json",
+  "reported_limitations": [
+    "New browser interaction unavailable through CUA; HTTP/static and historic UI checks are separate.",
+    "Registry Action and installation/CDN passed; platform review remains Pending.",
+    "Low-VRAM hardware not validated; full new Hi3D model inference not repeated in this release.",
+    "Crash-migration temporary copy on C remains because automatic approval blocked deletion; no specific reason was provided."
+  ]
 }

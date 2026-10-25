@@ -1,0 +1,123 @@
+{
+  "version": "0.4.0",
+  "completed_utc": "2026-10-25T00:32:53.615998+00:00",
+  "runtime_code_commit": "534ba7b317563d4c89b12f263884f5b088732f19",
+  "publication": {
+    "version": "0.4.0",
+    "publisher": "t8star",
+    "node_id": "hi3d-t8",
+    "git_commit": "534ba7b317563d4c89b12f263884f5b088732f19",
+    "github_release": "https://github.com/T8mars/Comfyui-Hi3d-T8/releases/tag/v0.4.0",
+    "action": "https://github.com/T8mars/Comfyui-Hi3d-T8/actions/runs/40145396084",
+    "action_conclusion": "success",
+    "registry_status": "NodeVersionStatusPending",
+    "install_http": 200,
+    "cdn_http": 200,
+    "cdn_sha256": "db7f8bedf61a043d16fddcc3e19eae8aca37dfd57035577807bd87dbcb65cb43",
+    "registry_files": 21,
+    "node_and_canvas_match_git": true,
+    "canvas_nodes": 5,
+    "canvas_links": 6,
+    "api_workflow_included": false,
+    "huggingface_readme_commit": "c1d415e20809dae8478e8c05f04910fe42f17eb9",
+    "hf_weights_changed": false,
+    "checked_utc": "2026-10-25T00:08:50.394233+00:00"
+  },
+  "archives": {
+    "Hi3D-Workbench-Windows-0.4.0.zip": {
+      "crc": "passed",
+      "files": 48422,
+      "bytes": 38701035195,
+      "sha256": "b5afefb82ee250c814a5583fc20bdc15f7690c0b7ca59d1bb85b85a3256d9c21",
+      "personal_data_excluded": true,
+      "upstream_python_sha256_verified": 61,
+      "integration_files_match_source": 112,
+      "model_artifacts_sha256_verified": 16,
+      "bundle_manifest": {
+        "declared_components": [
+          "background",
+          "coarse",
+          "coarse_trellis2",
+          "texture",
+          "texture_encoder",
+          "trellis_structure"
+        ],
+        "engine_dependency_closure": "passed"
+      },
+      "extension_artifacts_verified": 36
+    },
+    "Hi3D-Workbench-source-0.4.0.zip": {
+      "crc": "passed",
+      "files": 296,
+      "bytes": 10268618,
+      "sha256": "5e0899b01bbc609b2f92e94ee1a75693f7aa7cbe285b3ddc44aaa86c8c00a03c",
+      "personal_data_excluded": true,
+      "upstream_python_sha256_verified": 61,
+      "integration_files_match_source": 112
+    },
+    "ComfyUI-Hi3D-nodes-0.4.0.zip": {
+      "crc": "passed",
+      "files": 12,
+      "bytes": 163421,
+      "sha256": "8dae20eb9fdcbe9f475005f85b163c2000c8df7c68e97c8cea37efb5b03f44b0",
+      "personal_data_excluded": true,
+      "node_files_match_source": 12
+    }
+  },
+  "showcase": {
+    "local_project": "data/showreel-quality-60s-20261024-v4",
+    "generated_textured_models": 4,
+    "native_rendered_frames": 1296,
+    "edited_frames": 1440,
+    "media_qa": {
+      "passed": true,
+      "black_segments_over_0_1s": 0,
+      "encoded_integrated_lufs": -15.4,
+      "encoded_true_peak_dbfs": -1.7,
+      "full_decode": "passed",
+      "frames": 1440,
+      "seconds": 60,
+      "resolution": [
+        2560,
+        1440
+      ]
+    },
+    "files": {
+      "Hi3D_Materialized_60s_2K.mp4": {
+        "bytes": 65291982,
+        "sha256": "15c2161312c112f6eb0f3fb78ffbda61e95660a769ea012b21209456d06542a6"
+      },
+      "Hi3D_Materialized_60s_1080p.mp4": {
+        "bytes": 32857789,
+        "sha256": "00bf2f783846f5b52420a69053fe70dc707e7f841c582c4f3b348ed03c50f770"
+      },
+      "Hi3D_Materialized_Cover.jpg": {
+        "bytes": 558574,
+        "sha256": "39db3405739e25329d8fb6ff9c8813b07d21d539eb2bd7cb0746b83878af8d48"
+      }
+    },
+    "model_assets_archive": {
+      "file": "Hi3D_Showcase_Models.zip",
+      "bytes": 293722337,
+      "sha256": "c4bde664009131717b86492e2eb35558512c5ef9cf18d295a266fd3e4393297f"
+    },
+    "geometry": "TRELLIS.2",
+    "painters": [
+      "UltraTex",
+      "TRELLIS.2 PBR"
+    ],
+    "hi3d_refinement_in_these_examples": false,
+    "original_music_sfx": true,
+    "narration": false,
+    "tutorial": false
+  },
+  "pytest_passed": 276,
+  "new_browser_ui_interaction_verified": false,
+  "limitations": [
+    "New browser interaction unavailable through CUA; HTTP/static and historic UI checks are separate.",
+    "Registry Action and installation/CDN passed; platform review remains Pending.",
+    "Low-VRAM hardware not validated; full new Hi3D model inference not repeated in this release.",
+    "Crash-migration temporary copy on C remains because automatic approval blocked deletion; no specific reason was provided."
+  ],
+  "archive_snapshot_note": "Archives retain the pre-publication evidence snapshot at the runtime code commit. This additive receipt records final publication and film delivery; runtime code is unchanged."
+}

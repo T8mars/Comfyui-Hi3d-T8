@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hi3d-t8"
-version = "0.4.5"
+version = "0.4.6"
 description = "Local Hi3D v1.0 workbench and ComfyUI integration"
 license = { file = "LICENSE" }
 readme = "README.md"

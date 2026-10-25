@@ -66,7 +66,7 @@ Existing core files at a newly selected location still require **Reverify all co
 
 The standalone bundle checks stable GitHub Releases, downloads code updates and installs them on the next launch. Models, Python runtimes, configuration and history are preserved. Code updates do not download this entire model repository. Runtime-incompatible versions require a new complete package. [Update instructions](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.md).
 
-v0.4.5 adds UV fixes/cache, phase/device progress and optional native FlashAttention/Numba runtime wheels. **Model weights and this 95-file catalogue are unchanged.** Accelerator wheels are Python runtime dependencies, not extra models, and are not included in this model repository. Code updates preserve old environments and their SDPA/Torch fallbacks; the full package and optional setup commands are described in the [performance guide](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md).
+v0.4.6 adds UV fixes/cache, phase/device progress and optional native FlashAttention/Numba runtime wheels. **Model weights and this 95-file catalogue are unchanged.** Accelerator wheels are Python runtime dependencies, not extra models, and are not included in this model repository. Code updates preserve old environments and their SDPA/Torch fallbacks; the full package and optional setup commands are described in the [performance guide](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md).
 
 ## Validation and limits
 

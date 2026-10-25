@@ -49,7 +49,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 独立整合包检查正式 GitHub Release，下载代码更新后在下次启动安装，保留模型、Python、配置和历史任务。程序更新不会下载整个模型仓库；需要更换运行环境的版本会提示获取作者提供的新版完整版。[更新说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.zh-CN.md)。
 
-v0.4.5 增加 UV 修复／缓存、阶段与 CPU／GPU 进度，以及可选原生 FlashAttention／Numba 运行时轮子。**模型权重与这份95文件清单没有变化。** 加速轮子属于 Python 环境依赖，不是新增模型，不放在本模型仓库。程序更新保留旧环境及 SDPA／Torch 回退；新版完整版与补装命令见[性能说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md)。
+v0.4.6 增加 UV 修复／缓存、阶段与 CPU／GPU 进度，以及可选原生 FlashAttention／Numba 运行时轮子。**模型权重与这份95文件清单没有变化。** 加速轮子属于 Python 环境依赖，不是新增模型，不放在本模型仓库。程序更新保留旧环境及 SDPA／Torch 回退；新版完整版与补装命令见[性能说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md)。
 
 ## 验证与限制
 

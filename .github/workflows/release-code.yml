@@ -24,7 +24,7 @@ jobs:
           ./scripts/Build-Launcher.ps1 -OutputDirectory dist/launcher -CreateArchive
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
       - name: Test real Windows console process cleanup
         shell: pwsh
         run: |
@@ -49,7 +49,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
       - name: Require the matching version tag
         shell: bash
         run: |

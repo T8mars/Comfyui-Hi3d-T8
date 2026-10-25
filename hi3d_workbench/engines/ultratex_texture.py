@@ -162,9 +162,12 @@ def generate(request, image, output, emit):
     albedo_image.save(output.parent / 'albedo.png')
     orm_image.save(output.parent / 'metallic-roughness.png')
     result = bake.textured_mesh(prep, albedo_image, orm_image)
+    from ..asset_pipeline import repair_invalid_normals
+    normal_repair=repair_invalid_normals(result)
     emit('exporting', message='导出嵌入式 PBR 材质 GLB')
     result.export(output)
     return {'model': SPECS['texture_ultratex'], 'engine': selected_engine, 'backbone': SPECS[backbone_component],
+            'normal_repair':normal_repair,
             'backbone_precision': 'int8_convrot' if int8 else 'fp8', 'quantized_weight_tensors': quantized_parameters,
             'text_encoder_device': text_device, 'text_encoder_seconds': text_seconds,
             'geometry_generated': False, 'texture_generated': True, 'inference_steps': steps,

@@ -38,6 +38,8 @@ PROBE_WORKERS={}
 PROBE_WORKERS_LOCK=threading.Lock()
 PIPELINE_MODELS_LOCK=threading.Lock()
 MODEL_PATH_LOCK=threading.RLock()
+PREVIEW_LOCK=threading.Lock()
+PREVIEW_EVENTS=[]
 JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
 
 @contextmanager
@@ -98,6 +100,7 @@ async def lifespan(app):
     finally:
         updater.stop_background()
         if manager.active:manager.cancel(manager.active)
+        manager.close_resident()
         server_lock.release()
 
 app=FastAPI(title="Hi3D Workbench",docs_url=None,redoc_url=None,lifespan=lifespan)
@@ -129,6 +132,34 @@ def index():return (WEB/"index.html").read_text(encoding="utf-8").replace("__TOK
 
 @app.get("/api/session")
 def session():return {"token":TOKEN,"version":VERSION,"source_revision":SOURCE_REVISION,"instance_id":lifecycle.instance_id(ROOT),"can_shutdown":lifecycle.managed,"default_attention":"sdpa" if os.name=="nt" and not config()["worker_command"] else "flash"}
+
+@app.get('/api/runtime')
+def runtime_status():return manager.runtime_status()
+
+class PreviewStatus(BaseModel):
+    view:StrictStr=Field(max_length=16)
+    source:StrictStr=Field(max_length=512)
+    status:StrictStr=Field(max_length=16)
+    detail:StrictStr=Field(default='',max_length=500)
+
+@app.post('/api/preview-status')
+def preview_status(body:PreviewStatus):
+    if body.view not in {'before','after'} or body.status not in {'loaded','failed'} or not body.source.startswith(('/api/jobs/','/api/assets/')):
+        raise HTTPException(400,'无效预览记录')
+    with PREVIEW_LOCK:
+        PREVIEW_EVENTS.append({**body.model_dump(),'time':time.time()})
+        del PREVIEW_EVENTS[:-20]
+    return {'ok':True}
+
+@app.get('/api/preview-status')
+def preview_status_events():
+    with PREVIEW_LOCK:return list(PREVIEW_EVENTS)
+
+@app.post('/api/runtime/unload')
+def unload_runtime():
+    with gpu_operation('unloading'):
+        manager.close_resident()
+    return manager.runtime_status()
 
 @app.post('/api/shutdown')
 def shutdown_workbench():
@@ -228,6 +259,7 @@ def save_model_path(body:ModelPathInput):
                     raise HTTPException(409,'所选或当前目录有模型下载/校验进程运行，请稍候') from None
                 guards.callback(lock.release)
             with MODEL_PATH_LOCK:
+                manager.close_resident()
                 cfg=read_json(ROOT/'config.local.json',{})
                 if not isinstance(cfg,dict):raise ValueError('config.local.json 必须为 JSON 对象')
                 cfg['models_dir']=value
@@ -436,6 +468,7 @@ class JobInput(BaseModel):
     geometry_cleanup:bool=True
     geometry_target_faces:int=1000000
     pipeline_attention:str='auto'
+    model_policy:str='release'
     texture_engine:str='trellis2'
     texture_steps:int | None=Field(None,ge=1,le=100)
     texture_resolution:int | None=None
@@ -452,6 +485,7 @@ def create_job(body:JobInput):
     from .engine_catalog import engine, is_ready
     if (body.resolution not in {512,1024,1536} or body.attention not in {"flash","sdpa"}
             or body.pipeline_attention not in {'auto','flash_attn','sdpa'}
+            or body.model_policy not in {'release','resident'}
             or body.geometry_target_faces not in {100000,300000,1000000}):raise HTTPException(400,"无效推理配置")
     try:
         geometry_choice=engine('coarse',body.geometry_engine)
@@ -474,7 +508,9 @@ def create_job(body:JobInput):
         if models.LOCK.locked():raise HTTPException(409,"模型正在下载")
         if wants_refine:
             if not models.status()["ready"]:raise HTTPException(409,"Hi3D 模型未就绪，请先下载完整组件并校验")
-            if not verify_models()["ok"]:raise HTTPException(409,"Hi3D 权重校验失败，请重新下载损坏文件")
+            # status() binds the last full SHA256 receipt to current file
+            # identities, NTFS change times and the configured root. Rehashing
+            # unchanged multi-GB weights on every submission only repeats I/O.
         extension=pipeline_models.status()
         if body.mode=='image_to_asset' and not is_ready(extension,'coarse',body.geometry_engine):raise HTTPException(409,f'{geometry_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
         if wants_texture and not is_ready(extension,'texture',body.texture_engine):raise HTTPException(409,f'{texture_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')

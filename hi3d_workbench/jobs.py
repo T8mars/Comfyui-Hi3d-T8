@@ -78,6 +78,17 @@ class JobManager:
         self._recovery_workers=[]
         self._progress_writes={}
         self._console_progress={}
+        self.resident_session=None
+
+    def close_resident(self):
+        if self.resident_session is not None:
+            self.resident_session.close()
+            self.resident_session=None
+
+    def runtime_status(self):
+        session=self.resident_session
+        alive=bool(session and session.process.poll() is None)
+        return {'resident':alive,'pid':session.process.pid if alive else None,'busy':bool(self.active)}
 
     def _record_error(self,path,exc):
         message=f'任务 {path.parent.name} 的记录无法读取，已跳过历史条目：{exc}'
@@ -151,7 +162,16 @@ class JobManager:
     def recover(self):
         import psutil
         records=list(self.root.glob('*/state.json'))
-        snapshot=list(psutil.process_iter(['pid','cmdline','create_time'])) if records else []
+        snapshot=list(psutil.process_iter(['pid','cmdline','create_time']))
+        control=str(DATA/'runtime-resident.request.json')
+        # The fixed directory-specific command identity also covers a crash
+        # before the optional metadata receipt was written.
+        for proc in snapshot:
+            if _worker_request(proc.info.get('cmdline') or [])!=control:continue
+            try:
+                if not _kill_worker_tree(proc.pid,proc.info.get('create_time'),Path(control)):
+                    self._recovery_workers.append((proc.pid,proc.info['create_time']))
+            except (psutil.NoSuchProcess,psutil.AccessDenied):pass
         for p in records:
             try:
                 value=self._valid_state(read_json(p,{}),p.parent.name)
@@ -317,16 +337,31 @@ class JobManager:
         process=None
         created=None
         pipeline=False
+        resident=False
         try:
             cfg=config()
             cmd=cfg["worker_command"] or [str((ROOT/cfg["worker_python"]).resolve())]
             options=self.get(jid)['options']
             pipeline=options.get('mode','refine')!='refine' or options.get('generate_texture',False)
+            resident=pipeline and options.get('model_policy')=='resident' and (
+                options.get('mode')=='image_to_asset' and options.get('geometry_engine')=='trellis2' or
+                (options.get('mode')=='texture' or options.get('generate_texture',False)) and options.get('texture_engine','trellis2')=='trellis2')
             module='hi3d_workbench.pipeline_worker' if pipeline else 'hi3d_workbench.worker'
             # A custom command is a trusted local configuration, never HTTP input.
             with self.lock:
                 if jid in self.cancelled:return
-                process=subprocess.Popen([*cmd,"-u","-m",module,"--request",str(folder/"request.json")],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",env={**os.environ,"PYTHONIOENCODING":"utf-8"},creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
+                if resident:
+                    from .runtime_session import RuntimeSession
+                    if self.resident_session is None or self.resident_session.process.poll() is not None:
+                        self.close_resident()
+                        self.resident_session=RuntimeSession([*cmd,'-u','-m',module],DATA/'runtime-resident.request.json')
+                        atomic_json(DATA/'runtime-resident.json',{'pid':self.resident_session.process.pid,'created':self.resident_session.created})
+                    process=self.resident_session.process
+                    lines=self.resident_session.stream(folder/'request.json')
+                else:
+                    self.close_resident()
+                    process=subprocess.Popen([*cmd,"-u","-m",module,"--request",str(folder/"request.json")],cwd=ROOT,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding="utf-8",errors="replace",env={**os.environ,"PYTHONIOENCODING":"utf-8"},creationflags=subprocess.CREATE_NO_WINDOW if os.name=="nt" else 0)
+                    lines=process.stdout
                 self.process=process
                 import psutil
                 try:created=psutil.Process(process.pid).create_time()
@@ -334,11 +369,11 @@ class JobManager:
                 self.process_created=created
                 self._update(jid,state="running",message="正在启动推理进程",worker_pid=process.pid,worker_created=created)
             with (folder/"worker.log").open("w",encoding="utf-8") as log:
-                for line in process.stdout:
+                for line in lines:
                     log.write(line);log.flush()
                     for event in iter_events(line):
                         self._record_event(jid,event)
-            code=process.wait()
+            code=self.resident_session.code if resident else process.wait()
             if jid in self.cancelled:
                 self._update(jid,state="cancelled",stage="cancelled",message="已停止；输入和日志已保留")
             elif code==0 and (folder/"report.json").is_file():
@@ -366,7 +401,9 @@ class JobManager:
         finally:
             # A parser, log or state write can fail while CUDA is still running.
             # Keep the active slot until the actual child has exited.
-            if process is not None:
+            if resident:
+                if jid in self.cancelled or not self.get(jid).get('state')=='succeeded':self.close_resident()
+            elif process is not None:
                 if process.poll() is None:
                     try:_kill_worker_tree(process.pid,created,folder/'request.json')
                     except Exception:pass
@@ -378,7 +415,7 @@ class JobManager:
             # Supervisor crashes and cancellation between stage transitions
             # can leave a child outside the earlier tree snapshot. Never free
             # the GPU gate until this final exact-request scan is recorded.
-            if pipeline:
+            if pipeline and not resident:
                 try:
                     if self._cleanup_stage_workers(folder/'request.json'):
                         message=f'任务 {jid} 的阶段进程尚未退出，已阻止新的 GPU 操作'
@@ -407,5 +444,7 @@ class JobManager:
             try:self._update(jid,state="cancelling",message="已请求取消，正在释放进程")
             except (OSError,ValueError):pass  # A full/read-only disk must not prevent stopping CUDA.
             if self.process and self.process.poll() is None:
-                _kill_worker_tree(self.process.pid,self.process_created,self.root/jid/'request.json')
+                if self.resident_session and self.process is self.resident_session.process:
+                    self.close_resident()
+                else:_kill_worker_tree(self.process.pid,self.process_created,self.root/jid/'request.json')
             return self.get(jid)

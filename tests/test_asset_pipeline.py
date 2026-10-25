@@ -64,7 +64,7 @@ def test_modes_require_only_their_declared_model_components(backend,mode,flags,n
         assert response.status_code==(409 if needed else 200),response.text
         if needed:assert captures==[]
         else:
-            assert len(captures)==1 and bool(checks)==requires_hi3d
+            assert len(captures)==1 and not checks  # Unchanged verified weights are not rehashed per submission.
             assert (captures[0][1] is not None)==needs_mesh
 
 

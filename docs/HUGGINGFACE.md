@@ -23,6 +23,8 @@ tags:
 
 **ComfyUI only uses the Hi3D core for reference-image + coarse-mesh geometry refinement.** Image-to-3D and PBR extensions belong to the standalone workbench. This model repository contains neither the application nor Python. GitHub Releases contain code only; T8star will provide the complete package with Python and models separately.
 
+**Workbench v0.4.8 uses the same weights.** Loading, bounded CPU residency and preview fixes are code updates from GitHub; no replacement checkpoints are needed. ComfyUI remains geometry-only.
+
 ## Included models
 
 | Directories | Purpose | License |

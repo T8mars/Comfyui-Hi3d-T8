@@ -12,6 +12,7 @@ const activeStates = new Set(['running', 'queued', 'cancelling']);
 const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
 Object.assign(stageLabels, {starting:'启动阶段', initializing:'初始化推理运行时', background:'处理参考图背景', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', unwrapping:'展开 UV', uv:'展开 UV', baking:'烘焙 PBR 材质'});
+Object.assign(stageLabels,{releasing:'释放或缓存本阶段模型'});
 const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
 const modelVersions = ['textured','refined','coarse','generated'];
 const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
@@ -205,6 +206,8 @@ function availability() {
   for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','geometry-engine','geometry-resolution','geometry-steps','trellis-cleanup','texture-engine','texture-resolution','texture-steps','texture-size','geometry-target-faces','pipeline-attention']) $('#'+id).disabled = busy || isHistory;
   $('#geometry-target-faces').disabled = busy || isHistory || !usesTrellisFaceBudget();
   $('#pipeline-attention').disabled = busy || isHistory || !usesTrellisPipeline();
+  $('#model-policy').disabled = busy || isHistory || !usesTrellisPipeline();
+  $('#unload-models').disabled = !online || Boolean(pending) || gpuBusy();
   document.querySelectorAll('[data-quality-preset]').forEach(button => {
     button.disabled=busy || isHistory;
     const p=qualityPresets[button.dataset.qualityPreset];
@@ -280,8 +283,10 @@ function setView(id, url) {
   const empty = $('#'+id+'-empty');
   if (!url) {
     view.removeAttribute('src'); delete view.dataset.loading; delete view.dataset.loadError; empty.hidden = false;
+    delete view.dataset.sourceUrl;delete view.dataset.previewRetries;
     if (id === 'before') { empty.querySelector('b').textContent = '粗模型会出现在这里'; empty.querySelector('p').textContent = '图片建模会自动生成；其他模式请上传模型'; }
-  } else if (view.getAttribute('src') !== url) {
+  } else if ((view.dataset.sourceUrl || view.getAttribute('src')) !== url) {
+    view.dataset.sourceUrl=url;view.dataset.previewRetries='0';
     view.dataset.loading = 'true'; delete view.dataset.loadError; empty.hidden = false;
     empty.querySelector('b').textContent = id === 'before' ? '正在加载粗模型预览…' : '正在加载阶段结果预览…';
     view.setAttribute('src', url);
@@ -317,6 +322,7 @@ function applyOptions(options = {}) {
   $('#trellis-cleanup').checked = options.geometry_cleanup !== false;
   $('#geometry-target-faces').value = String([100000,300000,1000000].includes(options.geometry_target_faces) ? options.geometry_target_faces : 1000000);
   $('#pipeline-attention').value = ['auto','flash_attn','sdpa'].includes(options.pipeline_attention) ? options.pipeline_attention : 'auto';
+  $('#model-policy').value = options.model_policy === 'resident' ? 'resident' : 'release';
   $('#texture-engine').value = options.texture_engine || 'trellis2';
   syncEngines('coarse'); syncEngines('texture');
   $('#geometry-resolution').value = String(options.geometry_resolution || 256);
@@ -485,15 +491,29 @@ for (const view of [$('#before'), $('#after')]) {
   view.addEventListener('load', () => {
     if (!view.loaded || !view.hasAttribute('src')) return;
     delete view.dataset.loading; delete view.dataset.loadError; $('#'+view.id+'-empty').hidden = true;
+    void post('/api/preview-status',{view:view.id,source:view.dataset.sourceUrl || view.getAttribute('src'),status:'loaded'}).catch(()=>{});
     if (view.dataset.surface === 'pbr') return;
     for (const material of view.model.materials) {
       const pbr = material.pbrMetallicRoughness; pbr.setBaseColorFactor([.38,.37,.43,1]); pbr.setMetallicFactor(0); pbr.setRoughnessFactor(.8);
     }
   });
-  view.addEventListener('error', () => { if (view.hasAttribute('src')) {
+  view.addEventListener('error', event => { if (view.hasAttribute('src')) {
     view.dataset.loadError = 'true'; delete view.dataset.loading;
-    const empty = $('#'+view.id+'-empty'); empty.hidden = false; empty.querySelector('b').textContent = '三维预览加载失败';
-    toast('三维预览加载失败。请检查模型文件；仍可查看任务日志与导出文件。');
+    const empty = $('#'+view.id+'-empty'), url=view.dataset.sourceUrl || view.getAttribute('src');
+    empty.hidden = false;
+    const retries=Number(view.dataset.previewRetries || 0);
+    if(retries<2){
+      view.dataset.previewRetries=String(retries+1);
+      empty.querySelector('b').textContent=`正在重试三维预览（${retries+1}/2）…`;
+      setTimeout(()=>{if(view.dataset.sourceUrl===url && view.dataset.loadError){
+        view.dataset.loading='true';view.setAttribute('src',url+(url.includes('?')?'&':'?')+'preview_retry='+Date.now());
+      }},1500);
+    }else{
+      empty.querySelector('b').textContent='三维预览暂不可用';
+      empty.querySelector('p').textContent='预览失败不会影响生成结果；可点击“重试预览”，或导出 GLB 查看。';
+      void post('/api/preview-status',{view:view.id,source:url,status:'failed',detail:String(event.detail?.sourceError?.message || event.detail?.type || 'unknown').slice(0,500)}).catch(()=>{});
+      toast('三维预览失败；可重试预览或导出 GLB。'+(event.detail?.type ? `（${event.detail.type}）` : ''));
+    }
   } });
 }
 function syncView(source, target) {
@@ -510,7 +530,7 @@ syncView($('#before'), $('#after')); syncView($('#after'), $('#before'));
 $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]) view.autoRotate = event.target.checked; };
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 function generationOptions() {
-  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
+  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
 }
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
@@ -549,7 +569,7 @@ function renderJobProgress(job, now = Date.now()/1000) {
   const progress = observedProgress(job), running = job.state === 'running';
   const bar = $('#progress'), count = $('#progress-count'), meta = $('#progress-meta');
   const units = {steps:'步',charts:'分片',views:'视图',faces:'面',items:'项',models:'个模型',iterations:'轮',chart_operations:'次图块操作',chunks:'分区',cache:'次',textures:'张贴图'};
-  const phases = {structure:'生成空间结构',geometry:'生成几何',color:'颜色贴图',material:'生成 PBR 材质',attention_probe:'检查注意力后端',uv_prepare:'准备 UV 网格',uv_adjacency:'建立网格邻接关系',uv_segment:'划分 UV 区域',uv_extract:'提取 UV 分片',uv_parameterize:'展开 UV 分片',uv_pack:'排布 UV 图集',uv_validate:'校验 UV 与顶点对应',uv_cache:'读取已验证 UV 缓存',uv_partition:'划分网格区域',uv_charts:'合并 UV 分片',uv_assemble:'组装 UV 网格',uv_fallback:'准备 UV 兼容路径',uv_repair:'修复局部 UV 小岛',uv_dependency:'检查 UV 加速依赖',uv_addmesh:'读取 UV 图块',uv_restore:'恢复 UV 顶点映射',runtime_import:'读取推理运行时',model_read:'从磁盘载入模型',model_cuda:'设置 CUDA 执行环境',voxelize:'CPU 网格体素化与编码准备',shape_encoding:'CUDA 模型表面编码',texture_raster:'GPU UV光栅化',texture_inpaint:'CPU贴图补边',texture_bake:'材质烘焙与补边'};
+  const phases = {structure:'生成空间结构',geometry:'生成几何',color:'颜色贴图',material:'生成 PBR 材质',attention_probe:'检查注意力后端',uv_prepare:'准备 UV 网格',uv_adjacency:'建立网格邻接关系',uv_segment:'划分 UV 区域',uv_extract:'提取 UV 分片',uv_parameterize:'展开 UV 分片',uv_pack:'排布 UV 图集',uv_validate:'校验 UV 与顶点对应',uv_cache:'读取已验证 UV 缓存',uv_partition:'划分网格区域',uv_charts:'合并 UV 分片',uv_assemble:'组装 UV 网格',uv_fallback:'准备 UV 兼容路径',uv_repair:'修复局部 UV 小岛',uv_dependency:'检查 UV 加速依赖',uv_addmesh:'读取 UV 图块',uv_restore:'恢复 UV 顶点映射',runtime_import:'读取推理运行时',model_plan:'按需加载计划',model_cache:'复用常驻模型',model_release:'释放或缓存本阶段模型',model_read:'从磁盘载入模型',model_cuda:'设置 CUDA 执行环境',voxelize:'CPU 网格体素化与编码准备',shape_encoding:'CUDA 模型表面编码',texture_raster:'GPU UV光栅化',texture_inpaint:'CPU贴图补边',texture_bake:'材质烘焙与补边'};
   const pieces = [], active = activeStates.has(job.state), end = active ? now : job.updated || job.created;
   $('#elapsed').textContent = `总计 ${duration(end-job.created)}`;
   bar.hidden = !(running && progress.measured);
@@ -893,3 +913,7 @@ $('#mask-apply').onclick = async () => {
   finally { pending = null; availability(); }
 };
 availability(); void tick(); setInterval(tick, 2500);
+
+$('#unload-models').onclick=async()=>{try{await post('/api/runtime/unload');toast('常驻模型和运行时已释放');}catch(error){showError(error);}};
+
+$('#retry-preview').onclick=()=>{for(const id of ['before','after']){const view=$('#'+id),url=view.dataset.sourceUrl || view.getAttribute('src');if(url){view.removeAttribute('src');delete view.dataset.sourceUrl;setView(id,url);}}};

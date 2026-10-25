@@ -48,10 +48,11 @@ def generate(request, image, output, emit):
     local_config.write_text(json.dumps(config, ensure_ascii=True, indent=2), encoding='ascii')
     emit('loading', message='加载 TRELLIS.2 图生几何模型')
     from trellis2 import models as official_models
-    from .loading_progress import checkpoint_progress
-    with checkpoint_progress(official_models,config['args']['models'],emit):
+    from trellis2.modules import image_feature_extractor
+    from .model_loading import deferred_models, release
+    with deferred_models(official_models,config['args']['models'],image_feature_extractor,request,emit):
         pipeline = Trellis2ImageTo3DPipeline.from_pretrained(str(output.parent), config_file=local_config.name)
-    emit('loading',phase='model_cuda',device='cuda',message='模型已载入，设置 CUDA 执行环境')
+    emit('loading',phase='model_plan',device='cpu',message='按需加载计划已就绪；各组件将在使用前载入')
     pipeline.cuda()
     from .sampler_progress import track_sampler
     track_sampler(pipeline.sparse_structure_sampler, emit, 'structure', '生成空间结构')
@@ -63,9 +64,11 @@ def generate(request, image, output, emit):
         emit('conditioning', message='编码参考图', device='cuda')
         cond_512 = pipeline.get_cond([image], 512)
         cond = cond_512 if resolution == 512 else pipeline.get_cond([image], 1024)
+        release(pipeline.image_cond_model)
         emit('sampling', message='生成空间结构')
         sampler_params = {'steps': int(request.get('geometry_steps',12))}
         coords = pipeline.sample_sparse_structure(cond_512, 32, sampler_params=sampler_params)
+        for name in ('sparse_structure_flow_model','sparse_structure_decoder'):release(pipeline.models[name])
         if request.get('offload', True): torch.cuda.empty_cache()
         emit('sampling', message='生成几何细节')
         if resolution == 512:
@@ -74,9 +77,12 @@ def generate(request, image, output, emit):
             slat, resolution = pipeline.sample_shape_slat_cascade(cond_512,cond,
                 pipeline.models['shape_slat_flow_model_512'],pipeline.models['shape_slat_flow_model_1024'],
                 512,resolution,coords,sampler_params)
+        for name in ('shape_slat_flow_model_512','shape_slat_flow_model_1024'):
+            if name in pipeline.models:release(pipeline.models[name])
         if request.get('offload', True): torch.cuda.empty_cache()
         emit('decoding', message='解码网格表面', device='cuda')
         meshes, _ = pipeline.decode_shape_slat(slat, resolution)
+        release(pipeline.models['shape_slat_decoder'])
         mesh = meshes[0]
         raw_vertices = mesh.vertices.detach().cpu().numpy()[:, [0, 2, 1]].copy()
         raw_vertices[:, 2] *= -1

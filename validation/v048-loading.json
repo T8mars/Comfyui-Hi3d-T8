@@ -1,0 +1,147 @@
+{
+  "version": "0.4.8",
+  "regression": {
+    "passed": 588,
+    "seconds": 74.85,
+    "dependency_deprecation_warnings": 1
+  },
+  "checkpoint_loading_comparison": {
+    "status": "passed",
+    "architecture": "SparseStructureFlowModel 1.3B",
+    "device": "cpu",
+    "official_loader_seconds": 13.761,
+    "optimized_loader_seconds": 1.093,
+    "all_parameters_and_buffers_exact": true,
+    "state_tensors": 641,
+    "dtypes_preserved": true,
+    "limit": "Same process/file, official measured first then optimized; OS cache warmth differs. Loading only, not end-to-end inference."
+  },
+  "matching_geometry_case": {
+    "status": "passed",
+    "job": "4508c1791af248478f9f3c590b9c2a9b",
+    "original_job": "0fe8d2f222b143cda0b34873e2c921c4",
+    "same_image_seed_resolution_steps_face_budget": true,
+    "model_policy": "release",
+    "new_seconds": 53.984,
+    "old_coarse_seconds": 839.448,
+    "comparison_limit": "Separate runs under different I/O/cache conditions; not a controlled universal speed ratio",
+    "raw_geometry_byte_identical": true,
+    "old_raw_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+    "new_raw_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+    "no_resident_worker_after_release": true
+  },
+  "complete_image_to_asset_case": {
+    "parameters": "512 geometry / 12 steps / million-face budget; 1024 PBR / 12 steps / 4K atlas; offload; release mode",
+    "wall_seconds": 406.063,
+    "pipeline_report_seconds": 390.23,
+    "baseline_pipeline_report_seconds": 1667.48,
+    "original_raw_geometry_byte_identical": true,
+    "same_engine_process_across_stages": true,
+    "no_resident_worker_after_completion": true,
+    "final_geometry_faces": 971437,
+    "embedded_pbr": true,
+    "comparison_limit": "Separate runs under different OS-cache, disk and background CPU/I/O conditions; no fixed speedup or minimum hardware promise"
+  },
+  "small_cases": {
+    "geometry_parameters": "512 / four steps / 100K face budget",
+    "texture_parameters": "1280-face vase / 512 / four steps / 1K atlas",
+    "results": [
+      {
+        "case": "resident-first",
+        "seconds": 41.047,
+        "peak_process_tree_rss_MiB": 13034.68,
+        "succeeded": true,
+        "model_cache": {
+          "policy": "resident",
+          "entries": 5,
+          "bytes": 7549813056,
+          "hits": 0,
+          "loads": 5,
+          "evictions": 0
+        }
+      },
+      {
+        "case": "resident-repeat",
+        "seconds": 16.859,
+        "peak_process_tree_rss_MiB": 13042.7,
+        "succeeded": true,
+        "model_cache": {
+          "policy": "resident",
+          "entries": 5,
+          "bytes": 7549813056,
+          "hits": 5,
+          "loads": 5,
+          "evictions": 0
+        }
+      },
+      {
+        "case": "resident-texture",
+        "seconds": 22.907,
+        "peak_process_tree_rss_MiB": 18755.11,
+        "succeeded": true,
+        "model_cache": {
+          "policy": "resident",
+          "entries": 3,
+          "bytes": 4277384440,
+          "hits": 6,
+          "loads": 8,
+          "evictions": 5
+        }
+      },
+      {
+        "case": "release-mode",
+        "seconds": 43.547,
+        "peak_process_tree_rss_MiB": 9125.76,
+        "succeeded": true,
+        "model_cache": {
+          "policy": "release",
+          "entries": 0,
+          "bytes": 0,
+          "hits": 0,
+          "loads": 5,
+          "evictions": 0
+        }
+      }
+    ],
+    "resident_repeat_and_release_raw_geometry_byte_identical": true
+  },
+  "loader_correctness": {
+    "mixed_precision_preserved": true,
+    "computed_buffers_preserved": true,
+    "missing_parameter_fallback": true,
+    "sampling_rng_preserved": true,
+    "inference_mode_to_no_grad_reuse": true
+  },
+  "preview": {
+    "atomic_partial_copy_reader_regression": "passed",
+    "bounded_retry_and_stale_source_regressions": "passed",
+    "coarse_glb_standard_validation_errors": 0,
+    "old_texture_zero_normals_repaired": 15,
+    "repaired_old_glb_errors": 0,
+    "complete_new_4K_glb_validation_errors": 0,
+    "complete_new_4K_glb_validation_warnings": 0,
+    "live_browser_visual_check": "not_run; browser automation exposes no browser tab",
+    "blender_actual_glb_render": {
+      "status": "passed",
+      "views": [
+        "front",
+        "quarter",
+        "back"
+      ],
+      "engine": "CPU Cycles",
+      "samples": 24,
+      "version": "4.5.14 LTS",
+      "visual_qa": "inspected; embedded PBR, geometry and front/back appearance rendered successfully"
+    }
+  },
+  "weights_and_python_dependencies": "unchanged; no new download",
+  "scope": "Standalone workbench loading, artifact publication and invalid-normal export repair. ComfyUI remains Hi3D geometry refinement.",
+  "implemented_runtime_lifecycle": [
+    "owned descendant cleanup",
+    "cancel active request",
+    "idle unload",
+    "model-root change",
+    "restart recovery",
+    "parent death"
+  ]
+}

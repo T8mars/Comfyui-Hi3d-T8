@@ -11,18 +11,38 @@ import time
 import traceback
 from pathlib import Path
 
-from .common import ROOT, atomic_json, config, digest, read_json
+from .common import ROOT, atomic_json, atomic_copy, config, digest, read_json
 from .events import EVENT_MARKER, event_spans
 from .worker import emit
+
+_engine_session=None
+
+
+def close_engine_session():
+    global _engine_session
+    if _engine_session is not None:
+        _engine_session.close();_engine_session=None
 
 
 def run_child(command, request_path, directory, stage):
     """Persist child identity before consuming output so restart recovery is safe."""
     import psutil
-    process = subprocess.Popen([*command, '--request', str(request_path)], cwd=ROOT,
+    global _engine_session
+    session=None
+    if 'hi3d_workbench.engines.run_stage' in command and read_json(request_path).get('engine')=='trellis2':
+        from .runtime_session import RuntimeSession
+        if _engine_session is None or _engine_session.process.poll() is not None:
+            _engine_session=RuntimeSession(command[:command.index('--stage')],request_path)
+        session=_engine_session
+        process=session.process
+        lines=session.stream(request_path,stage)
+    else:
+        close_engine_session()
+        process = subprocess.Popen([*command, '--request', str(request_path)], cwd=ROOT,
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, encoding='utf-8', errors='replace',
         env={**os.environ, 'PYTHONIOENCODING': 'utf-8'},
-        creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+            creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        lines=process.stdout
     created = None
     try:
         try:
@@ -32,7 +52,7 @@ def run_child(command, request_path, directory, stage):
         atomic_json(directory / 'process.json', {'pid': process.pid, 'created': created,
                     'request': str(request_path), 'stage': stage})
         with (directory / 'stage.log').open('w', encoding='utf-8') as log:
-            for line in process.stdout:
+            for line in lines:
                 log.write(line)
                 log.flush()
                 spans=list(event_spans(line))
@@ -52,7 +72,7 @@ def run_child(command, request_path, directory, stage):
                     cursor=end
                 tail=line[cursor:]
                 if tail.strip():print(tail,end='' if tail.endswith('\n') else '\n',flush=True)
-        code = process.wait()
+        code = session.code if session else process.wait()
         if code:
             try:
                 failure = read_json(directory / 'failure.json', {})
@@ -63,12 +83,14 @@ def run_child(command, request_path, directory, stage):
                 detail = f'进程退出 {code}，请查看日志'
             raise RuntimeError(f'{stage} 阶段失败：{detail}')
     finally:
-        if process.poll() is None:
-            from .jobs import _kill_worker_tree
-            _kill_worker_tree(process.pid, created, request_path)
-            process.wait()
-        if process.stdout:
-            process.stdout.close()
+        if session:
+            if session.code!=0:close_engine_session()
+        else:
+            if process.poll() is None:
+                from .jobs import _kill_worker_tree
+                _kill_worker_tree(process.pid, created, request_path)
+                process.wait()
+            if process.stdout:process.stdout.close()
 
 
 def run(request_path):
@@ -100,6 +122,7 @@ def run(request_path):
                    'geometry_steps': req.get('geometry_steps',50), 'texture_steps': req.get('texture_steps',12),
                    'geometry_cleanup': req.get('geometry_cleanup',True),
                    'pipeline_attention': req.get('pipeline_attention','auto'),
+                   'model_policy': req.get('model_policy','release'),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}
         # Face budgets apply to generated geometry only. Existing mesh
@@ -117,17 +140,18 @@ def run(request_path):
         if not isinstance(stage_report, dict) or stage_report.get('status') != 'succeeded':
             raise ValueError('模型阶段没有提供有效的成功报告')
         stages.append({'stage': stage, **stage_report})
+        if stage == 'coarse':atomic_copy(out, mesh, immutable=True)
         if stage == 'coarse' and (stage_dir/'raw-geometry.glb').is_file():
-            shutil.copy2(stage_dir/'raw-geometry.glb',folder/'generated.glb')
+            atomic_copy(stage_dir/'raw-geometry.glb',folder/'generated.glb',immutable=True)
         for candidate in (stage_dir / 'foreground.png', out.with_name('foreground.png')):
             if candidate.is_file():
-                shutil.copy2(candidate, folder / 'foreground.png')
+                atomic_copy(candidate, folder / 'foreground.png')
                 break
         atomic_json(folder / 'pipeline-progress.json', {'stages': stages})
         return out
 
     if mode == 'image_to_asset':
-        shutil.copy2(extension_stage('coarse'), mesh)
+        extension_stage('coarse')
     if not mesh.is_file():
         raise ValueError('此模式需要已有模型')
     inspect_mesh(load_mesh(mesh))
@@ -149,14 +173,14 @@ def run(request_path):
         stages.append({'stage': 'refine', **stage_report})
         for name in ('refined.glb', 'refined.ply', 'refined.stl', 'refined.npz', 'conditioning.png'):
             if (stage_dir / name).is_file():
-                shutil.copy2(stage_dir / name, folder / name)
+                atomic_copy(stage_dir / name, folder / name,immutable=True)
         atomic_json(folder / 'pipeline-progress.json', {'stages': stages})
         final = folder / 'refined.glb'
     material = {'texture_generated': False}
     if want_texture:
         output = extension_stage('texture', final)
         material = inspect_textured_glb(output)
-        shutil.copy2(output, folder / 'textured.glb')
+        atomic_copy(output, folder / 'textured.glb',immutable=True)
         final = folder / 'textured.glb'
     report = {'status': 'succeeded', 'mode': mode, 'stages': stages, 'seconds': round(time.time() - started, 2),
               'peak_allocated_mb': max((s.get('peak_allocated_mb', s.get('peak_vram_mb', 0)) for s in stages), default=0),
@@ -177,7 +201,20 @@ def run(request_path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--request', type=Path, required=True)
+    parser.add_argument('--session', action='store_true')
     args = parser.parse_args()
+    if args.session:
+        from .runtime_session import serve
+        def execute(item):
+            try:run(Path(item['request']));return 0
+            except Exception as exc:
+                path=Path(item['request'])
+                atomic_json(path.parent/'failure.json',{'status':'failed','error':str(exc),'traceback':traceback.format_exc()})
+                close_engine_session()
+                emit('failed',message=str(exc))
+                return 1
+        try:return serve(execute)
+        finally:close_engine_session()
     try:
         run(args.request)
     except Exception as exc:
@@ -185,6 +222,7 @@ def main():
                     'traceback': traceback.format_exc(), 'partial_results_preserved': True})
         emit('failed', message=str(exc))
         raise SystemExit(1)
+    finally:close_engine_session()
 
 
 if __name__ == '__main__':

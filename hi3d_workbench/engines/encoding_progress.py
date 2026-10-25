@@ -40,6 +40,9 @@ def observe_shape_encoding(pipeline, emit):
                 raise TypeError('shape_slat_encoder hook 没有可用的移除句柄')
             handle = candidate
             state['active'] = True
+            from .model_loading import LazyModel
+            if isinstance(model,LazyModel):
+                emit('encoding_mesh',phase='voxelize',device='cpu',message='编码器已准备；正在进行 CPU 网格体素化')
         except Exception as error:
             # Observation is optional. A missing/unsupported hook must not
             # replace the official encoder, force a device, or stop inference.

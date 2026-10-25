@@ -33,6 +33,20 @@ class HookModel:
         return self.result
 
 
+def test_lazy_checkpoint_loading_restores_cpu_voxelization_before_method_runs():
+    from hi3d_workbench.engines.model_loading import LazyModel
+    trace=[]
+    model=HookModel()
+    lazy=LazyModel('shape_slat_encoder',('progress-fixture',),lambda:model,
+        lambda stage,**event:trace.append(event))
+    with observe_shape_encoding(SimpleNamespace(models={'shape_slat_encoder':lazy}),
+            lambda stage,**event:trace.append(event)):
+        assert trace[-1]['phase']=='voxelize' and trace[-1]['device']=='cpu'
+        lazy(object())
+    assert trace[-1]['phase']=='shape_encoding' and trace[-1]['device']=='cuda'
+    assert not model.hooks
+
+
 def test_cpu_preparation_then_actual_encoder_forward_preserves_parameters_and_result():
     model = HookModel()
     pipeline = SimpleNamespace(models={'shape_slat_encoder': model})

@@ -51,3 +51,5 @@ hf download t8star/Hi3d-Comfy --local-dir models
 See the model repository's bilingual README for directories and licenses. UltraTex's FLUX.2 Klein 9B base uses a non-commercial license.
 
 v0.4.5 optional accelerators can be installed separately without changing the runtime ABI: `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` for the pinned native Flash wheel, or `--uv-only` for the pinned Numba packer. Code updates retain SDPA/Torch fallbacks and never silently install these dependencies. GPU probes, numerical/model checks and first-use JIT timing are recorded separately from package import validation.
+
+v0.4.8 adds on-demand loading and optional bounded CPU residency to TRELLIS.2, with no runtime or model download. The v0.4.7 EXE is compatible. Use **Release resident models and runtime** before freeing memory for another application. Closing the launcher also stops resident workers.

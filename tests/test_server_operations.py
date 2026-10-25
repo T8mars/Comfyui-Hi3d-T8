@@ -70,21 +70,19 @@ def test_preflight_blocks_duplicate_submit_and_gpu_diagnostic(isolated_server,mo
     server,client=isolated_server
     inputs=_input_pair(client)
     entered=threading.Event();release=threading.Event();created=[]
-    def verify():
-        entered.set()
-        assert release.wait(10),'Test never released the simulated weight verification'
-        return {'ok':True,'errors':[]}
     def create(image,mesh,options):
+        entered.set()
+        assert release.wait(10),'Test never released the simulated submission'
         created.append(options)
         return {'id':'simulated-job','state':'queued','options':options}
-    monkeypatch.setattr(server.models,'verify_all',verify)
+    monkeypatch.setattr(server.models,'verify_all',lambda:pytest.fail('Unchanged verified weights must not be rehashed on each submit'))
     monkeypatch.setattr(server.manager,'create',create)
     with ThreadPoolExecutor(max_workers=1) as pool:
         pending=pool.submit(client.post,'/api/jobs',json=inputs)
         try:
             assert entered.wait(5)
             health=client.get('/api/health').json()
-            assert health['operation']=='preparing' and health['model_checking']
+            assert health['operation']=='preparing' and not health['model_checking']
             duplicate=client.post('/api/jobs',json=inputs)
             diagnostic=client.post('/api/diagnostics')
             assert duplicate.status_code==diagnostic.status_code==409

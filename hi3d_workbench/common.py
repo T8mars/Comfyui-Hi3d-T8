@@ -2,6 +2,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import tempfile
 from pathlib import Path
 
@@ -11,7 +12,7 @@ ROOT = Path(os.environ.get("HI3D_WORKBENCH_ROOT", _project_root)).resolve()
 DATA = ROOT / "data"
 DEFAULT_MODELS = ROOT / "models"
 SOURCE_REVISION = "23dcc684bc6e1fab86ecafb99ec5270edad122f9"
-VERSION = "0.4.7"
+VERSION = "0.4.8"
 MODEL_REVISION = "705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a"
 
 def atomic_json(path: Path, value):
@@ -25,6 +26,23 @@ def atomic_json(path: Path, value):
             f.flush()
             os.fsync(f.fileno())
         os.replace(name, path)
+    finally:
+        Path(name).unlink(missing_ok=True)
+
+def atomic_copy(source: Path, target: Path, *, immutable=False):
+    """Publish a completed artifact; HTTP readers never see a partial GLB."""
+    source, target = Path(source), Path(target)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(dir=target.parent, suffix='.copy-tmp')
+    os.close(fd)
+    try:
+        if immutable:
+            Path(name).unlink()
+            try:os.link(source,name)
+            except OSError:shutil.copyfile(source,name)
+        else:shutil.copyfile(source, name)
+        with open(name, 'r+b') as stream:os.fsync(stream.fileno())
+        os.replace(name, target)
     finally:
         Path(name).unlink(missing_ok=True)
 

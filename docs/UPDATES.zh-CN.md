@@ -51,3 +51,5 @@ hf download t8star/Hi3d-Comfy --local-dir models
 完整目录与许可见模型仓库双语 README；UltraTex 的 FLUX.2 Klein 9B 底座适用非商业许可。
 
 v0.4.5 的可选加速依赖可单独补装，不更换运行时 ABI：`runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` 安装固定版本原生 Flash，改为 `--uv-only` 安装 Numba 排布加速。代码更新保留 SDPA／Torch 回退，不静默安装这些依赖。导入验证与实际 GPU、模型效果、首次 JIT 耗时分别记录。
+
+v0.4.8 的按需加载与常驻内存属于代码更新，无需下载新模型或运行环境，v0.4.7 EXE 可继续使用。需要腾出内存时点击「释放常驻模型与运行时」；关闭启动窗口同样会结束常驻进程。

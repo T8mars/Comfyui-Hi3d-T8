@@ -92,3 +92,8 @@
 随包报告与截图保存在 validation/；开发机完整证据保存在 data/qa 与 data/jobs。
 
 v0.2.0 测试修正过一个导入顺序造成的隔离问题：测试模块提前缓存路径，旧测试误写了开发目录模型文件。已从先前验收的完整包恢复清单与对应文件，并对全部 16 个文件真实 SHA256 逐一确认一致。新增测试改为 fixture 内延迟导入，正反收集顺序均为 21 passed，修正后的真实文件身份与清单 SHA 前后不变。进一步增加导入路径保护与损坏模型测试的独立 fixture；预先导入生产模块时，会在收集阶段明确报错并停止（test-import-guard.json），不会执行测试。仅测试创建的目录可恢复地移入 data/test-isolation-recovery；原完整包未受影响。恢复证据及隔离结果分别为 model-restoration-2026-10-23.json、test-isolation-result.json。发行包权重还会独立复核。
+
+
+## v0.4.8 loading and preview validation
+
+See [the version-bound record](validation/v048-loading.json). The frozen CPU suite passed 588 tests in 74.85 seconds. Real resident, repeated, texturing and release cases passed. Matching 512/12-step/million-face raw geometry is byte-identical to the previous implementation. The complete matching 4K PBR run took 406.063 wall-clock seconds, shares one inference interpreter between stages, and releases it afterward. Checkpoint tensors/dtypes, RNG preservation, mixed inference-mode reuse, partial-artifact publication, retry behavior and invalid-normal export were checked. The final GLB has zero standard-validation errors/warnings and was inspected through actual three-view Blender CPU renders. Speed samples have different OS-cache and system-load conditions; they are not universal ratios or hardware minima. Browser automation exposes no tab, so fresh browser visual interaction is not claimed. Models and runtime dependencies are unchanged.

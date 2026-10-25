@@ -127,6 +127,32 @@ def _texture_scene_mesh(scene):
     return mesh
 
 
+def repair_invalid_normals(mesh):
+    """Keep authored unit normals; repair undefined directions only."""
+    normals=np.asarray(mesh.vertex_normals).copy()
+    length=np.linalg.norm(normals,axis=1)
+    invalid=~np.isfinite(normals).all(axis=1) | (length<1e-12)
+    renormalize=~invalid & (np.abs(length-1)>1e-6)
+    if not invalid.any() and not renormalize.any():return {'invalid_repaired':0,'renormalized':0}
+    normals[renormalize]/=length[renormalize,None]
+    if invalid.any():
+        faces=np.asarray(mesh.faces)
+        positions=np.asarray(mesh.vertices)
+        cross=np.cross(positions[faces[:,1]]-positions[faces[:,0]],positions[faces[:,2]]-positions[faces[:,0]])
+        area=np.linalg.norm(cross,axis=1)
+        rows,columns=np.nonzero(invalid[faces])
+        good=area[rows]>1e-20
+        rows,columns=rows[good],columns[good]
+        vertices=faces[rows,columns]
+        order=np.lexsort((-area[rows],vertices))
+        vertices,rows=vertices[order],rows[order]
+        unique,first=np.unique(vertices,return_index=True)
+        normals[invalid]=[0,1,0]  # Unreferenced or wholly degenerate vertices.
+        normals[unique]=cross[rows[first]]/area[rows[first],None]
+    mesh.vertex_normals=normals
+    return {'invalid_repaired':int(invalid.sum()),'renormalized':int(renormalize.sum())}
+
+
 def load_texture_input(path: Path):
     """Retain valid single-material UVs; rebuild ambiguous multi-material atlases."""
     from .geometry import validate
@@ -134,6 +160,7 @@ def load_texture_input(path: Path):
     scene=trimesh.load(path,force='scene',process=False,resolver={},allow_remote=False)
     mesh=_texture_scene_mesh(scene)
     validate(mesh)
+    mesh.metadata['normal_repair']=repair_invalid_normals(mesh)
     uv=getattr(mesh.visual,'uv',None)
     material=getattr(mesh.visual,'material',None)
     multiple=len(getattr(material,'materials',[]))>1

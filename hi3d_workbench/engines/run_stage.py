@@ -218,12 +218,13 @@ def texture(request, image, output, emit_fn):
     config_temp.write_text(json.dumps(config, ensure_ascii=True, indent=2), encoding="ascii")
     os.replace(config_temp, local_config)
     from trellis2 import models as official_models
-    from .loading_progress import checkpoint_progress
+    from trellis2.modules import image_feature_extractor
+    from .model_loading import deferred_models, release, flow_arguments
     expected_models={key:(Path(value) if Path(value).is_absolute() else load_root/value)
                      for key,value in config['args']['models'].items()}
-    with checkpoint_progress(official_models,expected_models,emit_fn):
+    with deferred_models(official_models,expected_models,image_feature_extractor,request,emit_fn):
         pipeline = Trellis2TexturingPipeline.from_pretrained(str(load_root), config_file=config_name)
-    emit_fn('loading',phase='model_cuda',device='cuda',message='模型已载入，设置 CUDA 执行环境')
+    emit_fn('loading',phase='model_plan',device='cpu',message='按需加载计划已就绪；各组件将在使用前载入')
     pipeline.cuda()
     from .sampler_progress import track_sampler
     track_sampler(pipeline.tex_slat_sampler, emit_fn, 'material', '生成 PBR 材质')
@@ -267,6 +268,10 @@ def texture(request, image, output, emit_fn):
                         "sampling": "生成 PBR 材质", "decoding": "重建材质细节", "baking": "展开 UV 并烘焙贴图"}
             if _stage not in {'encoding_mesh', 'baking'}:
                 emit_fn(_stage, message=messages[_stage], device='cuda')
+            if _stage=='sampling':
+                # Upstream distinguishes nn.Module from a list of cascaded
+                # flows. Pass the real module at that typed API boundary.
+                args,kwargs=flow_arguments(args,kwargs)
             if _stage == 'baking' and args and getattr(args[0].visual,'uv',None) is not None:
                 # With pre-existing UVs the official baker rotates the cached
                 # normal array in place. Trimesh exposes that cache read-only;
@@ -282,6 +287,10 @@ def texture(request, image, output, emit_fn):
                 value = call_baking_with_progress(_original, emit_fn, *args, **kwargs)
             else:
                 value = _original(*args, **kwargs)
+            if _stage == 'conditioning':release(pipeline.image_cond_model)
+            for name in {'encoding_mesh':('shape_slat_encoder',),'sampling':('tex_slat_flow_model_512','tex_slat_flow_model_1024'),
+                         'decoding':('tex_slat_decoder',)}.get(_stage,()):
+                if name in pipeline.models:release(pipeline.models[name])
             if request.get("offload", True):
                 # Native CuMesh/nvdiffrast allocations cannot reuse memory
                 # reserved by PyTorch after a model was offloaded to CPU.
@@ -298,11 +307,14 @@ def texture(request, image, output, emit_fn):
     material = textured.visual.material
     if getattr(material, "baseColorTexture", None) is None or getattr(material, "metallicRoughnessTexture", None) is None:
         raise RuntimeError("PBR贴图输出不完整")
+    from ..asset_pipeline import repair_invalid_normals
+    normal_repair=repair_invalid_normals(textured)
     textured.export(output, file_type="glb")
     return {"model": SPECS["texture"], "engine": 'trellis2', "inference_steps": int(request.get('texture_steps',12)), "image_encoder": SPECS["texture_encoder"],
             "geometry_generated": False, "texture_generated": True, "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
             'uv_policy': uv_policy,
             'uv_generation':uv_generation,'uv_runtime':uv_runtime,'shading_normals':'input normals preserved through UV and frame conversion',
+            'normal_repair':normal_repair,
             "vertices": len(textured.vertices), "faces": len(textured.faces), "texture_size": int(request.get("texture_size", 2048)),
             "pbr_channels": ["baseColor", "metallic", "roughness", "alpha"],
             "attention": attention,
@@ -312,11 +324,9 @@ def texture(request, image, output, emit_fn):
                           "uv_seam_vertex_splits_possible": True}}
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--request", type=Path, required=True)
-    parser.add_argument("--stage", choices=["coarse", "texture"], required=True)
-    args = parser.parse_args()
+def run_request(request_path, stage):
+    from types import SimpleNamespace
+    args=SimpleNamespace(request=Path(request_path),stage=stage)
     request_path = args.request.resolve()
     started = time.perf_counter()
     try:
@@ -375,6 +385,9 @@ def main():
         image, background = foreground(request, output.parent, args.stage)
         callback = lambda stage, **kw: emit(args.stage + "_" + stage, **kw)
         result = globals()[args.stage](request, image, temp, callback)
+        from .model_loading import finish_stage, CACHE
+        finish_stage()
+        result['model_loading']=CACHE.status()
         if not temp.is_file() or temp.stat().st_size < 100:
             raise RuntimeError("推理没有生成有效GLB")
         torch.cuda.synchronize()
@@ -395,6 +408,11 @@ def main():
         os.replace(temp, output)
         emit(args.stage + "_complete", **{k:v for k,v in result.items() if k not in {"stage", "model", "image_encoder"}})
     except BaseException as exc:
+        if 'torch' in locals():
+            try:
+                from .model_loading import finish_stage
+                finish_stage(success=False)
+            except Exception:pass
         failed_choice = locals().get('choice', {})
         component = failed_choice.get('components', [args.stage])[0]
         failure = {**base, "status": "failed", "model": SPECS.get(component, {}), "engine": failed_choice.get('id', request.get('engine')),
@@ -417,6 +435,19 @@ def main():
             temp.unlink(missing_ok=True)
         return 1
     return 0
+
+
+def main():
+    parser=argparse.ArgumentParser()
+    parser.add_argument('--request',type=Path,required=True)
+    parser.add_argument('--stage',choices=['coarse','texture'])
+    parser.add_argument('--session',action='store_true')
+    args=parser.parse_args()
+    if args.session:
+        from ..runtime_session import serve
+        return serve(lambda item:run_request(item['request'],item['stage']))
+    if not args.stage:parser.error('--stage is required')
+    return run_request(args.request,args.stage)
 
 
 if __name__ == "__main__":

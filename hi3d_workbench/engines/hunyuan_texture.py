@@ -178,8 +178,11 @@ def generate(request, image, output, emit):
     final=trimesh.Trimesh(vertices,faces,vertex_normals=np.asarray(mesh.vertex_normals),process=False,
                          visual=trimesh.visual.TextureVisuals(uv=uv,material=material))
     emit('exporting',message='导出 Hunyuan PBR 材质 GLB')
+    from ..asset_pipeline import repair_invalid_normals
+    normal_repair=repair_invalid_normals(final)
     final.export(output)
     return {'model':SPECS['texture_hunyuan21'],'engine':'hunyuan21','geometry_generated':False,'texture_generated':True,
+            'normal_repair':normal_repair,
             'uv_policy':uv_policy, 'uv_runtime':uv_runtime,
             'uv_generation':uv_generation,
             'shading_normals':'input normals preserved; no UV-chart normal recomputation',

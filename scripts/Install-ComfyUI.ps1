@@ -9,8 +9,9 @@ New-Item -ItemType Directory -Path $destination | Out-Null
 foreach ($name in @('__init__.py','comfy_nodes.py','requirements.txt','pyproject.toml','README.md','README.zh-CN.md','NOTICE.md','LICENSE')) {
     Copy-Item -LiteralPath (Join-Path $sourceRoot $name) -Destination $destination
 }
-New-Item -ItemType Directory -Path (Join-Path $destination 'docs\images') -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $destination 'docs') -Force | Out-Null
 Copy-Item -LiteralPath (Join-Path $sourceRoot 'docs\COMFYUI.md') -Destination (Join-Path $destination 'docs\COMFYUI.md')
-Copy-Item -LiteralPath (Join-Path $sourceRoot 'docs\images\comfyui-canvas.png') -Destination (Join-Path $destination 'docs\images\comfyui-canvas.png')
-Copy-Item -LiteralPath (Join-Path $sourceRoot 'examples') -Destination $destination -Recurse
-Write-Host "节点已安装到 $destination。用 ComfyUI 自身 Python 安装 requirements.txt，然后重新启动 ComfyUI。工作台后端须运行于同一台机器。"
+foreach ($name in @('examples','hi3d_native','web')) {
+    Copy-Item -LiteralPath (Join-Path $sourceRoot $name) -Destination $destination -Recurse
+}
+Write-Host "节点已安装到 $destination。用 ComfyUI 自身 Python 安装 requirements.txt，然后重新启动 ComfyUI。无需启动工作台；在 Hi3D Load Mesh 节点上传粗模。"

@@ -12,6 +12,23 @@ from hi3d_workbench.engines import model_loading as loading
 from hi3d_workbench.runtime_session import RuntimeSession
 
 
+def test_session_reports_exit_code_when_supervisor_dies_before_submission(tmp_path):
+    session=RuntimeSession.__new__(RuntimeSession)
+    session.process=SimpleNamespace(poll=lambda:3)
+    session.code=None
+    with pytest.raises(RuntimeError,match='3'):list(session.stream(tmp_path/'request.json'))
+    assert session.code==3
+
+
+def test_session_reports_exit_code_if_stdin_closes_between_poll_and_write(tmp_path):
+    session=RuntimeSession.__new__(RuntimeSession)
+    def broken(*args):raise BrokenPipeError('closed')
+    session.process=SimpleNamespace(poll=lambda:None,stdin=SimpleNamespace(write=broken),wait=lambda timeout:3)
+    session.code=None
+    with pytest.raises(RuntimeError,match='3'):list(session.stream(tmp_path/'request.json'))
+    assert session.code==3
+
+
 class Model:
     def __init__(self):self.weight=42;self.moves=[]
     def to(self,*args,**kwargs):self.moves.append(args);return self

@@ -21,15 +21,24 @@ class RuntimeSession:
             text=True,encoding='utf-8',errors='replace',bufsize=1,
             env={**os.environ,'PYTHONIOENCODING':'utf-8'},
             creationflags=subprocess.CREATE_NO_WINDOW if os.name=='nt' else 0)
-        self.created=psutil.Process(self.process.pid).create_time()
+        try:self.created=psutil.Process(self.process.pid).create_time()
+        except psutil.NoSuchProcess:self.created=None  # Preserve the real exit status of a very short process.
         self.code=None
 
     def stream(self, request, stage=None):
         self.code=None
-        if self.process.poll() is not None:raise RuntimeError('常驻运行时已退出，请重新提交任务')
+        exited=self.process.poll()
+        if exited is not None:
+            self.code=exited
+            raise RuntimeError(f'常驻运行时已退出（{exited}），请重新提交任务')
         identity=uuid.uuid4().hex
-        self.process.stdin.write(json.dumps({'id':identity,'request':str(Path(request).resolve()),'stage':stage})+'\n')
-        self.process.stdin.flush()
+        try:
+            self.process.stdin.write(json.dumps({'id':identity,'request':str(Path(request).resolve()),'stage':stage})+'\n')
+            self.process.stdin.flush()
+        except OSError:
+            try:self.code=self.process.wait(timeout=.2)
+            except subprocess.TimeoutExpired:raise
+            raise RuntimeError(f'运行时意外退出（{self.code}），请查看任务日志') from None
         for line in self.process.stdout:
             if not line.strip():continue
             if line.startswith(RESULT):

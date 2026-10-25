@@ -1,5 +1,20 @@
 # 验证记录
 
+## v0.5.0 当前验收范围
+
+ComfyUI 已改为独立 Hi3D 节点；后文的桥接验收均为历史版本。当前画布为 5 节点／5 连线的画布 JSON，包含模型加载、参考图、可上传粗模、Hi3D 精修和原生 SaveGLB，不含工作台地址。源码及许可固定校验。GLB／PLY／STL 本地导入、上传处理器、旧简单画布迁移、路径边界和取消清理均有自动化覆盖。
+
+在实际 ComfyUI Python（Torch 2.7.0+cu128）内，通过真实 PromptExecutor 完成 512／25 步／seed 23／SDPA／CPU 卸载；工作台 8378／8382 均关闭，无工作台模块导入。墙钟 211.694 秒，模型阶段 209.735 秒，499,798 顶点／999,999 面；原生 SaveGLB 输出 18,003,428 字节，标准校验零错误／零警告，Blender CPU 三视角渲染通过。PyTorch allocated 峰值 1,287.63 MiB，不含外部原生分配，不能推导最低显存。此单样例不构成美术、拓扑或打印质量保证。详细证据：[独立节点](validation/v050-native-comfy.json)。
+
+工作台同参数百万面／4K PBR 完成：新解释器 231.609 秒、复用解释器 184.156 秒，原始几何字节一致；同网格重复材质 117.782 秒，缓存重复材质像素完全一致。CUDA／CPU 相同网格的材质 PSNR 为 54.12／57.66 dB，三视角渲染 PSNR 为 62.94–63.46 dB；CUDA 浮点结果不保证逐字节一致。磁盘缓存未清空，不据此承诺通用倍速。模型权重及有效几何／UV／法线保留，详见 [工作台性能证据](validation/v050-performance.json)。
+
+CPU 回归 **635 项通过，123.38 秒**，1 条 Starlette／AnyIO 弃用警告。已修复短命运行时退出时漏报实际退出码、旧 Trimesh 缺少 Scene.to_geometry 以及旧更新器不接受新增节点顶层目录的问题；工作台覆盖更新不分发独立节点，节点通过 Manager／Git／节点 ZIP 更新。可选 CUDA 轮子经过固定哈希下载、独立安装及真实内核验证，不升级 Torch、不替换原 o_voxel。
+
+浏览器工具未暴露可控制标签页，未声称完成新版实时画布点选、拖放或视觉验收；上传 HTTP、真实执行器、导出和渲染的验证范围分别记录。旧服务需重启后才会载入新版节点。
+
+## 历史版本记录
+
+
 > v0.4.6 补齐加速组件许可证与本验证文档；下列 v0.4.5 推理实测仍适用，推理代码未变。Packaging correction only: acceleration licenses and validation are included; inference is unchanged.
 
 **v0.4.5**：独立工作台增加原索引 UV 展开／校验／缓存、真实网页和终端进度、TRELLIS.2 注意力选择、自定义模型目录与新生成几何的面数预算；UV 默认顺序为 CuMesh 原生→社区 GPU PEC→有界 CPU 分区。ComfyUI 节点及画布工作流仍只做 Hi3D 几何精修；GitHub 附件不含 Python 或模型。CPU 全套回归 567 项通过（57.91 秒，1 条 anyio 依赖弃用警告）。复杂网格 UV／缓存／GLB、注意力 GPU 探针、完整大网格 PBR／渲染／导出及自定义路径的第二次真实 PBR 已通过；新版浏览器交互未验收。详见[双语性能说明](docs/PERFORMANCE.zh-CN.md)与[本版说明](docs/releases/v0.4.5.md)。

@@ -1,0 +1,78 @@
+{
+  "version": "0.5.0",
+  "scope": "Independent Hi3D refinement in the actual ComfyUI Python and real PromptExecutor; stock LoadImage and SaveGLB",
+  "hardware": "RTX 5090 Laptop 24GB;64GB RAM;Windows",
+  "comfyui": "0.34.0",
+  "torch": "2.7.0+cu128",
+  "workbench_services_during_inference": "8378 and 8382 stopped",
+  "workbench_modules_imported": [],
+  "canvas_format": 0.4,
+  "canvas_nodes": 5,
+  "canvas_links": 5,
+  "coarse_mesh_input": [
+    "GLB upload",
+    "PLY upload",
+    "STL upload",
+    "drag and drop",
+    "input directory dropdown"
+  ],
+  "native_executor": {
+    "success": true,
+    "wall_seconds": 211.69367929999135,
+    "engine_report": {
+      "status": "succeeded",
+      "runtime": "ComfyUI in-process",
+      "source_revision": "23dcc684bc6e1fab86ecafb99ec5270edad122f9",
+      "requested_resolution": 512,
+      "actual_resolution": 512,
+      "steps": 25,
+      "seed": 23,
+      "offload": true,
+      "attention": "sdpa",
+      "seconds": 209.735,
+      "torch": "2.7.0+cu128",
+      "vertices": 499798,
+      "faces": 999999,
+      "peak_allocated_mb": 1287.63,
+      "memory_metric": "PyTorch CUDA allocator; native allocations excluded",
+      "texture_generated": false,
+      "normalized": true
+    }
+  },
+  "output": {
+    "filename": "native_bunny_00001_.glb",
+    "bytes": 18003428,
+    "sha256": "1bf73f68678af47f47fc819e5334256caeedee515a30026017e3cba8661ccfa3",
+    "gltf_errors": 0,
+    "gltf_warnings": 0
+  },
+  "render": {
+    "model_sha256": "1bf73f68678af47f47fc819e5334256caeedee515a30026017e3cba8661ccfa3",
+    "geometry_only": true,
+    "environment": "neutral world + three area lights",
+    "engine": "CYCLES",
+    "samples": 24,
+    "blender": "4.5.14 LTS",
+    "view_transform": "AgX",
+    "look": "None",
+    "exposure": 0,
+    "images": {
+      "front": "6bbd10d77bb3d76f4105bb130e3056777e904a2d32d928faf0879c3e10349665",
+      "quarter": "c6c581a83b26f5d5e30a49ee8a2fffae8e77ae8c57563fa2d0214f74a194fba5",
+      "back": "7903477962f7d8ec62e98162ada010b35a7f27f4da007fcdd5df216b7efd2797"
+    }
+  },
+  "regression": {
+    "passed": 635,
+    "seconds": 123.38,
+    "warnings": 1,
+    "warning": "Starlette/AnyIO deprecation"
+  },
+  "limitations": [
+    "PyTorch allocator peak excludes native CUDA allocations; not a minimum VRAM requirement",
+    "Single 512/25 geometry sample, not an artistic quality or printability benchmark",
+    "Live browser visual/click/drag-drop inspection unavailable: automation exposes no controllable browser tabs",
+    "Legacy cached ComfyUI services require restart to load the final nodes; executor validation used the current source",
+    "Initial API attempt failed on old Trimesh Scene API and was fixed; the successful receipt above is the subsequent full native execution"
+  ]
+}

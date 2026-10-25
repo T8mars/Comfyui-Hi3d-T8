@@ -94,3 +94,15 @@ def test_native_canvas_has_upload_mesh_model_handle_and_no_service_url():
     assert len(workflow['links'])==5
     assert 'http://' not in json.dumps(workflow) and 'HI3D_BACKEND' not in json.dumps(workflow)
     assert 'hi3d_workbench' not in (root/'comfy_nodes.py').read_text(encoding='utf-8')
+
+
+def test_node_package_relative_imports_work_without_workbench(monkeypatch,tmp_path):
+    root=Path(__file__).parents[1]
+    spec=importlib.util.spec_from_file_location('native_node_package_fixture',root/'__init__.py',submodule_search_locations=[str(root)])
+    package=importlib.util.module_from_spec(spec)
+    monkeypatch.setitem(sys.modules,spec.name,package)
+    spec.loader.exec_module(package)
+    model=package.NODE_CLASS_MAPPINGS['Hi3DModelLoader']().load(model_root=str(tmp_path))[0]
+    assert model.root==tmp_path and model.pipeline is None
+    assert type(model).__module__=='native_node_package_fixture.hi3d_native.runtime'
+    assert package.WEB_DIRECTORY=='./web'

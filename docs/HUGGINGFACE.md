@@ -27,8 +27,6 @@ Native nodes infer directly inside ComfyUI's own Python, without a workbench ser
 
 **Workbench v0.5.0 retains all existing model weights.** The optional Windows CUDA converter is code in `runtime-wheels/v0.4.9/`, installed separately by the workbench with a pinned hash; it is not a checkpoint or a Python distribution. The GPU converter keeps the upstream MIT notices.
 
-**Workbench v0.4.8 uses the same weights.** Loading, bounded CPU residency and preview fixes are code updates from GitHub; no replacement checkpoints are needed. ComfyUI remains geometry-only.
-
 ## Included models
 
 | Directories | Purpose | License |

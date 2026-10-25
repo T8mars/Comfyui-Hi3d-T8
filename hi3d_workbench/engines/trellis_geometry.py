@@ -17,7 +17,8 @@ def generate(request, image, output, emit):
     os.environ['SPARSE_ATTN_BACKEND'] = 'sdpa'
     os.environ['SPARSE_CONV_BACKEND'] = 'flex_gemm'
     from .attention import install
-    install()
+    attention = install(request.get('pipeline_attention', 'auto'), emit=emit)
+    emit('loading',phase='runtime_import',device='cpu',message='载入 TRELLIS.2 代码与本地依赖')
     from trellis2.pipelines import Trellis2ImageTo3DPipeline
     from trellis2.pipelines import rembg
 
@@ -46,13 +47,20 @@ def generate(request, image, output, emit):
     local_config = output.parent / 'geometry-runtime.json'
     local_config.write_text(json.dumps(config, ensure_ascii=True, indent=2), encoding='ascii')
     emit('loading', message='加载 TRELLIS.2 图生几何模型')
-    pipeline = Trellis2ImageTo3DPipeline.from_pretrained(str(output.parent), config_file=local_config.name)
+    from trellis2 import models as official_models
+    from .loading_progress import checkpoint_progress
+    with checkpoint_progress(official_models,config['args']['models'],emit):
+        pipeline = Trellis2ImageTo3DPipeline.from_pretrained(str(output.parent), config_file=local_config.name)
+    emit('loading',phase='model_cuda',device='cuda',message='模型已载入，设置 CUDA 执行环境')
     pipeline.cuda()
+    from .sampler_progress import track_sampler
+    track_sampler(pipeline.sparse_structure_sampler, emit, 'structure', '生成空间结构')
+    track_sampler(pipeline.shape_slat_sampler, emit, 'geometry', '生成几何细节')
     with torch.inference_mode():
         torch.manual_seed(int(request.get('seed', 0)))
         image = pipeline.preprocess_image(image)
         image.save(output.parent / 'conditioning.png')
-        emit('conditioning', message='编码参考图')
+        emit('conditioning', message='编码参考图', device='cuda')
         cond_512 = pipeline.get_cond([image], 512)
         cond = cond_512 if resolution == 512 else pipeline.get_cond([image], 1024)
         emit('sampling', message='生成空间结构')
@@ -67,7 +75,7 @@ def generate(request, image, output, emit):
                 pipeline.models['shape_slat_flow_model_512'],pipeline.models['shape_slat_flow_model_1024'],
                 512,resolution,coords,sampler_params)
         if request.get('offload', True): torch.cuda.empty_cache()
-        emit('decoding', message='解码网格表面')
+        emit('decoding', message='解码网格表面', device='cuda')
         meshes, _ = pipeline.decode_shape_slat(slat, resolution)
         mesh = meshes[0]
         raw_vertices = mesh.vertices.detach().cpu().numpy()[:, [0, 2, 1]].copy()
@@ -80,7 +88,10 @@ def generate(request, image, output, emit):
             # loops, narrow-band dual-contouring remesh, then simplify. Raw
             # open-surface geometry remains available as a separate artifact.
             import cumesh
-            emit('postprocessing', message='整理 TRELLIS.2 开放表面并保留原始几何')
+            target_faces = int(request.get('target_faces', 1000000))
+            if target_faces not in {100000,300000,1000000}:
+                raise ValueError('无效几何面数预算')
+            emit('postprocessing', message='整理 TRELLIS.2 开放表面并保留原始几何', device='cuda')
             started = time.perf_counter()
             torch.cuda.empty_cache()
             handler = cumesh.CuMesh()
@@ -92,11 +103,11 @@ def generate(request, image, output, emit):
                 center=torch.zeros(3,device='cuda'),scale=(resolution+3)/resolution,
                 resolution=resolution,band=1,project_back=0,verbose=False,bvh=bvh)
             handler.init(*remeshed)
-            handler.simplify(1000000,verbose=False)
+            handler.simplify(target_faces,verbose=False)
             final_vertices, final_faces = handler.read()
             mesh.vertices, mesh.faces = final_vertices, final_faces
             processing.update(method='official CuMesh opaque-asset narrow-band DC; band=1, project_back=0',
-                              target_faces=1000000,seconds=round(time.perf_counter()-started,3))
+                              target_faces=target_faces,seconds=round(time.perf_counter()-started,3))
         # TRELLIS representation is Z-up. Official texturing export uses
         # glTF Y-up (x,z,-y); keep the same interchange frame for all engines.
         vertices = mesh.vertices.detach().cpu().numpy()
@@ -113,6 +124,6 @@ def generate(request, image, output, emit):
             'pipeline_type': '512' if resolution == 512 else '1024_cascade',
             'requested_resolution':requested_resolution,'actual_resolution':resolution,
             'vertices': len(result.vertices), 'faces': len(result.faces),
-            'inference_steps': sampler_params['steps'],
+            'inference_steps': sampler_params['steps'], 'attention': attention,
             'transform': {'coordinate_system': 'glTF Y-up', 'axis_mapping': '[x,z,-y]',
                           'unit_scale': 'generator canonical; no absolute scale'}}

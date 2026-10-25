@@ -6,10 +6,12 @@ let epoch = 0, shownJob = null, sessionReady = false, sessionDefaultsApplied = f
 let selectedMode = 'image_to_asset', previewManual = false, exportSourceManual = false;
 let comparisonJob = null, comparisonCandidates = [], comparisonsFor = '';
 let workbenchStopped = false;
+let modelPath = null, modelPathDirty = false, modelPathMessage = '', modelPathUnsupported = false;
+let modelPathRevision = 0;
 const activeStates = new Set(['running', 'queued', 'cancelling']);
 const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
-Object.assign(stageLabels, {initializing:'初始化推理运行时', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', baking:'烘焙 PBR 材质'});
+Object.assign(stageLabels, {starting:'启动阶段', initializing:'初始化推理运行时', background:'处理参考图背景', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', unwrapping:'展开 UV', uv:'展开 UV', baking:'烘焙 PBR 材质'});
 const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
 const modelVersions = ['textured','refined','coarse','generated'];
 const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
@@ -21,6 +23,8 @@ const qualityPresets = {
 function needsMesh(mode = selectedMode) { return mode !== 'image_to_asset'; }
 function wantsRefine(options = null) { return options ? (options.mode || 'refine') === 'refine' || options.mode === 'image_to_asset' && options.refine_geometry === true : selectedMode === 'refine' || selectedMode === 'image_to_asset' && $('#refine-geometry').checked; }
 function wantsTexture(options = null) { return options ? options.mode === 'texture' || Boolean(options.generate_texture ?? options.mode === 'image_to_asset') : selectedMode === 'texture' || $('#generate-texture').checked; }
+function usesTrellisPipeline() { return selectedMode === 'image_to_asset' && $('#geometry-engine').value === 'trellis2' || wantsTexture() && $('#texture-engine').value === 'trellis2'; }
+function usesTrellisFaceBudget() { return selectedMode === 'image_to_asset' && $('#geometry-engine').value === 'trellis2' && $('#trellis-cleanup').checked; }
 function inputsReady() { return Boolean(inputImage && (!needsMesh() || inputMesh)); }
 function downloadingModels() { return health?.models?.download?.state === 'downloading' || health?.pipeline_models?.download?.state === 'downloading'; }
 function checkingModels() { return Boolean(health?.model_checking || health?.pipeline_model_checking || health?.pipeline_models?.checking); }
@@ -65,6 +69,8 @@ function syncModeUI() {
   $('#refine-settings').hidden = !refine; $('#texture-settings').hidden = !texture;
   $('#geometry-settings').hidden = !imageMode;
   $('#trellis-cleanup-field').hidden = !imageMode || $('#geometry-engine').value !== 'trellis2';
+  $('#trellis-target-faces-field').hidden = !usesTrellisFaceBudget();
+  $('#pipeline-attention-settings').hidden = !usesTrellisPipeline();
   $('#hi3d-steps-field').hidden = !refine; $('#hi3d-attention-field').hidden = !refine;
   $('#advanced-fields').classList.toggle('seed-only',!refine);
   $('#advanced-summary').textContent = refine ? '高级设置 · 种子 / Hi3D 步数与兼容模式' : '高级设置 · 随机种子';
@@ -75,7 +81,7 @@ function syncModeUI() {
   $('#input-help').textContent = imageMode ? '图片建模不需要粗模型。图片尽量背景简单、主体完整；自动处理背景或手动清理透明区域后再开始。' : '从建模软件导出 GLB、PLY 或 STL。图片与模型应为同一物体，主体与朝向匹配；贴图过程不会替代几何精修。';
 }
 function stageName(stage = '') {
-  for (const [prefix,label] of [['coarse_','图片建模'],['texture_','PBR 贴图']]) if (stage.startsWith(prefix)) return `${label} · ${stageLabels[stage.slice(prefix.length)] || '正在处理'}`;
+  for (const [prefix,label] of [['coarse_','图片建模'],['refine_','Hi3D 精修'],['texture_','PBR 贴图']]) if (stage.startsWith(prefix)) return `${label} · ${stageLabels[stage.slice(prefix.length)] || stage.slice(prefix.length) || '正在处理'}`;
   return stageLabels[stage] || stage || '正在处理';
 }
 function toast(message) {
@@ -130,6 +136,62 @@ $('#health-badge').onclick = () => page('models');
 function gpuBusy() { return Boolean(health?.active || health?.operation || health?.recovery_blocked || activeStates.has(currentJob?.state)); }
 function hasJobFile(job, name) { return Array.isArray(job?.available_files) ? job.available_files.includes(name) : ['coarse.glb','input.png'].includes(name); }
 function inputBusy() { return !online || Boolean(pending) || gpuBusy(); }
+function modelPathBusy() { return !online || Boolean(pending) || gpuBusy() || checkingModels() || downloadingModels() || Boolean(modelPath?.busy); }
+function renderModelPathControls() {
+  const busy = modelPathBusy(), known = Boolean(modelPath);
+  $('#models-directory-input').disabled = !known || busy;
+  $('#models-directory-save').disabled = !known || busy || !modelPathDirty || !$('#models-directory-input').value.trim();
+  $('#models-directory-reset').disabled = !known || busy || modelPath.is_default;
+  $('#models-directory-save').textContent = pending === 'model-path-saving' ? '正在保存…' : '保存目录';
+  $('#models-directory-reset').textContent = pending === 'model-path-resetting' ? '正在恢复…' : '恢复默认';
+  const status = modelPathMessage || (modelPathUnsupported ? '当前服务未提供目录设置，请更新并重启工作台。' : !known ? '正在读取模型目录配置…' : modelPath.busy || gpuBusy() || checkingModels() || downloadingModels() ? `${modelPath.busy_reason || '任务、下载或校验进行中'}；空闲后可切换模型目录。` : modelPath.restart_required ? '目录配置已保存，下次启动后生效。' : modelPath.exists ? '空闲时保存立即生效，无需重启。已有核心文件也需完整校验，通过后才显示就绪。' : '目录尚不存在；可以保存，下载模型时才会创建，不会移动已有模型。');
+  $('#models-directory-state').textContent = status;
+}
+function renderModelPath(value, force = false, revision = modelPathRevision) {
+  if (revision !== modelPathRevision) return;
+  if (!value || typeof value !== 'object') return;
+  if (force || modelPath?.resolved_path !== value.resolved_path || modelPath?.models_dir !== value.models_dir) modelPathMessage = '';
+  modelPath = value; modelPathUnsupported = false;
+  $('#models-directory-current').textContent = value.resolved_path || '—';
+  $('#models-directory-configured').textContent = value.models_dir || '默认（models）';
+  $('#models-directory-reset').title = `恢复为 ${value.default_path || '工作台根目录下的 models'}`;
+  if (force || !modelPathDirty) {
+    $('#models-directory-input').value = value.models_dir || 'models';
+    modelPathDirty = false;
+  }
+  renderModelPathControls();
+}
+async function refreshModelPath() {
+  const revision = modelPathRevision;
+  try { renderModelPath(await api('/api/model-path'),false,revision); }
+  catch (error) {
+    if (revision !== modelPathRevision) return;
+    modelPathUnsupported = error.status === 404;
+    modelPathMessage = modelPathUnsupported ? '' : `模型目录暂时无法读取：${error.message}`;
+    renderModelPathControls();
+  }
+}
+async function saveModelPath(reset = false) {
+  if (!modelPath || modelPathBusy()) return;
+  const value = $('#models-directory-input').value.trim();
+  if (!reset && !value) return;
+  pending = reset ? 'model-path-resetting' : 'model-path-saving';
+  modelPathRevision++;
+  modelPathMessage = ''; availability();
+  try {
+    const result = await post('/api/model-path', {models_dir:reset ? null : value});
+    modelPathRevision++;
+    renderModelPath(result,true);
+    modelPathMessage = result.restart_required ? '目录配置已保存，下次启动后生效；已有模型未移动。' : '模型目录已切换并立即生效；已有文件未移动，核心模型需完整校验后才显示就绪。';
+    await refresh();
+    toast(modelPathMessage);
+  } catch (error) { modelPathMessage = error.message; showError(error); }
+  finally { pending = null; availability(); }
+}
+$('#models-directory-input').oninput = () => { modelPathDirty = true; modelPathMessage = ''; renderModelPathControls(); };
+$('#models-directory-input').onkeydown = event => { if (event.key === 'Enter' && !$('#models-directory-save').disabled) { event.preventDefault(); void saveModelPath(); } };
+$('#models-directory-save').onclick = () => saveModelPath();
+$('#models-directory-reset').onclick = () => saveModelPath(true);
 function availability() {
   const busy = inputBusy(), checking = checkingModels(), downloading = downloadingModels();
   const isHistory = Boolean(currentJob), missing = missingModels(), ready = !missing.length;
@@ -140,7 +202,9 @@ function availability() {
   $('#load-sample').textContent = pending === 'sample' ? '正在载入样例输入…' : '载入样例，熟悉流程 →';
   $('#mask-open').disabled = busy || !inputImage;
   $('#mask-apply').disabled = busy;
-  for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','geometry-engine','geometry-resolution','geometry-steps','trellis-cleanup','texture-engine','texture-resolution','texture-steps','texture-size']) $('#'+id).disabled = busy || isHistory;
+  for (const id of ['resolution','steps','seed','offload','attention','background','refine-geometry','generate-texture','geometry-engine','geometry-resolution','geometry-steps','trellis-cleanup','texture-engine','texture-resolution','texture-steps','texture-size','geometry-target-faces','pipeline-attention']) $('#'+id).disabled = busy || isHistory;
+  $('#geometry-target-faces').disabled = busy || isHistory || !usesTrellisFaceBudget();
+  $('#pipeline-attention').disabled = busy || isHistory || !usesTrellisPipeline();
   document.querySelectorAll('[data-quality-preset]').forEach(button => {
     button.disabled=busy || isHistory;
     const p=qualityPresets[button.dataset.qualityPreset];
@@ -164,7 +228,7 @@ function availability() {
     $('#'+id).textContent = `${ok ? '✓' : '○'} ${name}`; $('#'+id).classList.toggle('ready', ok);
   }
   const modelBusy = !online || Boolean(pending) || gpuBusy() || checking || downloading;
-  for (const id of ['download-models','verify-models','diagnose','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
+  for (const id of ['download-models','verify-models','diagnose','download-pipeline-complete','download-pipeline-all','download-pipeline-coarse','download-pipeline-texture','verify-pipeline-models']) $('#'+id).disabled = modelBusy;
   document.querySelectorAll('[data-engine-download]').forEach(button => { button.disabled = modelBusy; });
   $('#refresh-comparisons').disabled = !online || Boolean(pending) || !currentJob;
   $('#comparison-job').disabled = !online || Boolean(pending) || !currentJob;
@@ -178,6 +242,7 @@ function availability() {
   exportAvailability();
   $('#mask-apply').textContent = pending === 'mask-saving' ? '正在保存蒙版…' : '应用透明蒙版';
   renderHealthBadge();
+  renderModelPathControls();
   updateDock();
 }
 function dockTarget() { return currentJob ? (activeStates.has(currentJob.state) ? $('#cancel') : $('#reuse')) : $('#run'); }
@@ -231,6 +296,7 @@ function resetResult() {
   $('#dimension-link').hidden = true; $('#dimension-link').removeAttribute('href'); logsKey = '';
   for (const id of ['face-stat','time-stat','memory-stat','res-stat']) $('#'+id).textContent = '—';
   $('#progress').hidden = true; $('#elapsed').textContent = ''; $('#log').textContent = '还没有任务。';
+  $('#progress-count').textContent = ''; $('#progress-meta').textContent = ''; $('#progress-note').hidden = true;
   $('#after-title').textContent = '阶段结果会出现在这里';
   $('#after-hint').textContent = '左右拖动旋转，滚轮缩放；两侧视角同步';
   previewManual = false; exportSourceManual = false;
@@ -249,6 +315,8 @@ function applyOptions(options = {}) {
   $('#generate-texture').checked = Boolean(options.generate_texture ?? selectedMode === 'image_to_asset');
   $('#geometry-engine').value = options.geometry_engine || 'hunyuan_mini';
   $('#trellis-cleanup').checked = options.geometry_cleanup !== false;
+  $('#geometry-target-faces').value = String([100000,300000,1000000].includes(options.geometry_target_faces) ? options.geometry_target_faces : 1000000);
+  $('#pipeline-attention').value = ['auto','flash_attn','sdpa'].includes(options.pipeline_attention) ? options.pipeline_attention : 'auto';
   $('#texture-engine').value = options.texture_engine || 'trellis2';
   syncEngines('coarse'); syncEngines('texture');
   $('#geometry-resolution').value = String(options.geometry_resolution || 256);
@@ -342,6 +410,7 @@ document.querySelectorAll('[data-mode]').forEach(button => { button.onclick = ()
   resetResult(); renderDraft();
 }; });
 for (const id of ['refine-geometry','generate-texture']) $('#'+id).onchange = availability;
+$('#trellis-cleanup').onchange = availability;
 $('#geometry-engine').onchange = () => { syncEngines('coarse'); availability(); };
 $('#texture-engine').onchange = () => { syncEngines('texture'); availability(); };
 document.querySelectorAll('[data-quality-preset]').forEach(button => { button.onclick=() => {
@@ -440,13 +509,16 @@ function syncView(source, target) {
 syncView($('#before'), $('#after')); syncView($('#after'), $('#before'));
 $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]) view.autoRotate = event.target.checked; };
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
+function generationOptions() {
+  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
+}
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
   const numericFields = ['seed', ...(wantsRefine() ? ['steps'] : []), ...(selectedMode === 'image_to_asset' ? ['geometry-steps'] : []), ...(wantsTexture() ? ['texture-steps'] : [])];
   for (const id of numericFields) if (!$('#'+id).checkValidity() || !$('#'+id).value) { $('#advanced').open = true; $('#'+id).reportValidity(); $('#'+id).focus(); return; }
   pending = 'submitting'; availability();
   try {
-    const job = await post('/api/jobs', {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value});
+    const job = await post('/api/jobs', generationOptions());
     epoch++; inputImage = null; inputMesh = null; renderJob(job); await loadArtifacts(job, epoch); await refresh();
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
@@ -460,6 +532,46 @@ $('#cancel').onclick = () => cancelJob(currentJob?.id);
 $('#cancel-active').onclick = () => cancelJob(health?.active);
 $('#show-active').onclick = () => { if (health?.active) void openJob(health.active); };
 function duration(seconds) { const s = Math.max(0, Math.round(seconds)); return s >= 60 ? `${Math.floor(s/60)} 分 ${s%60} 秒` : `${s} 秒`; }
+function observedProgress(job) {
+  const event = job.event && typeof job.event === 'object' ? job.event : {};
+  const saved = job.progress && typeof job.progress === 'object' ? job.progress : null;
+  // An empty normalized progress object intentionally clears a previous stage.
+  const source = saved || (event.stage === job.stage ? event : {});
+  const structured = saved !== null || 'progress_current' in source || 'progress_total' in source;
+  const current = saved !== null ? source.current : structured ? source.progress_current : source.step;
+  const total = saved !== null ? source.total : structured ? source.progress_total : source.num_inference_steps ?? source.steps;
+  const unit = saved !== null ? source.unit : structured ? source.progress_unit : 'steps';
+  const measured = validMetric(current) && validMetric(total) && total > 0 && current <= total;
+  const counted = validMetric(current) && total == null;
+  return {current,total,unit,measured,counted,phase:source.phase,device:['cpu','cuda'].includes(source.device) ? source.device : null,passIndex:source.pass_index,numPasses:source.num_passes,pipelineStage:source.pipeline_stage};
+}
+function renderJobProgress(job, now = Date.now()/1000) {
+  const progress = observedProgress(job), running = job.state === 'running';
+  const bar = $('#progress'), count = $('#progress-count'), meta = $('#progress-meta');
+  const units = {steps:'步',charts:'分片',views:'视图',faces:'面',items:'项',models:'个模型',iterations:'轮',chart_operations:'次图块操作',chunks:'分区',cache:'次',textures:'张贴图'};
+  const phases = {structure:'生成空间结构',geometry:'生成几何',color:'颜色贴图',material:'生成 PBR 材质',attention_probe:'检查注意力后端',uv_prepare:'准备 UV 网格',uv_adjacency:'建立网格邻接关系',uv_segment:'划分 UV 区域',uv_extract:'提取 UV 分片',uv_parameterize:'展开 UV 分片',uv_pack:'排布 UV 图集',uv_validate:'校验 UV 与顶点对应',uv_cache:'读取已验证 UV 缓存',uv_partition:'划分网格区域',uv_charts:'合并 UV 分片',uv_assemble:'组装 UV 网格',uv_fallback:'准备 UV 兼容路径',uv_repair:'修复局部 UV 小岛',uv_dependency:'检查 UV 加速依赖',uv_addmesh:'读取 UV 图块',uv_restore:'恢复 UV 顶点映射',runtime_import:'读取推理运行时',model_read:'从磁盘载入模型',model_cuda:'设置 CUDA 执行环境',voxelize:'CPU 网格体素化与编码准备',shape_encoding:'CUDA 模型表面编码',texture_raster:'GPU UV光栅化',texture_inpaint:'CPU贴图补边',texture_bake:'材质烘焙与补边'};
+  const pieces = [], active = activeStates.has(job.state), end = active ? now : job.updated || job.created;
+  $('#elapsed').textContent = `总计 ${duration(end-job.created)}`;
+  bar.hidden = !(running && progress.measured);
+  count.textContent = '';
+  if (!bar.hidden) {
+    bar.max = progress.total; bar.value = progress.current;
+    const label = progress.unit === 'percent' && progress.total === 100 ? `${progress.current}%` : `${progress.current} / ${progress.total} ${units[progress.unit] || '项'}`;
+    const pass = validMetric(progress.passIndex) && Number.isInteger(progress.passIndex) ? validMetric(progress.numPasses) && progress.numPasses > progress.passIndex ? `第 ${progress.passIndex+1} / ${progress.numPasses} 轮 · ` : `第 ${progress.passIndex+1} 次采样 · ` : '';
+    count.textContent = `${pass}${label}`;
+    bar.setAttribute('aria-label',`当前环节进度：${label}`);
+  } else if (running && progress.counted) {
+    count.textContent = progress.unit === 'merges' ? `已合并 ${progress.current}` : `已处理 ${progress.current} ${units[progress.unit] || '项'}`;
+  }
+  if (running && progress.phase) pieces.push(phases[progress.phase] || progress.phase);
+  if (running && progress.device) pieces.push(progress.device === 'cpu' ? '当前执行：CPU' : '当前执行：CUDA / GPU');
+  if (active && validMetric(job.stage_started_at) && job.stage_started_at > 0) pieces.push(`本阶段 ${duration(end-job.stage_started_at)}`);
+  if (active && validMetric(job.phase_started_at) && job.phase_started_at > (job.stage_started_at || 0)+1) pieces.push(`当前环节 ${duration(end-job.phase_started_at)}`);
+  if (running && validMetric(job.last_progress_at) && job.last_progress_at > 0) pieces.push(`距上次有效进展 ${duration(now-job.last_progress_at)}`);
+  meta.textContent = pieces.join(' · ');
+  $('#progress-note').hidden = !running;
+  $('#progress-note').textContent = progress.measured ? '仅为当前环节进度，后续阶段还需处理；不代表整个任务的完成比例。' : progress.counted ? '当前环节只报告已处理数量，尚无总量，不估算百分比。' : '当前环节未提供可量化进度；阶段仍在运行，可在日志查看具体信息。';
+}
 function renderPreview(job) {
   const available = modelVersions.filter(version => hasJobFile(job,version+'.glb')), selector = $('#result-preview');
   for (const option of selector.options) option.disabled = !available.includes(option.value);
@@ -504,15 +616,11 @@ function renderJob(job) {
   $('#image-name').textContent = hasJobFile(job,'input.png') ? '此任务的参考图片' : '参考图片文件已缺失';
   $('#mesh-name').textContent = hasJobFile(job,'coarse.glb') ? selectedMode === 'image_to_asset' ? '此任务生成的粗模型' : '此任务的输入粗模型' : selectedMode === 'image_to_asset' ? '此任务尚无粗模型' : '输入粗模型文件已缺失';
   const displayStage = {succeeded:'complete',failed:'failed',cancelled:'cancelled',interrupted:'interrupted'}[job.state] || job.stage;
-  $('#progress-label').textContent = job.state === 'cancelling' ? '正在停止任务并释放显存…' : stageName(displayStage) || stateLabels[job.state] || job.state;
+  const context = job.progress?.pipeline_stage;
+  const contextLabel = context === 'refine' && !String(displayStage).startsWith('refine_') && activeStates.has(job.state) ? 'Hi3D 精修 · ' : '';
+  $('#progress-label').textContent = job.state === 'cancelling' ? '正在停止任务并释放显存…' : contextLabel+(stageName(displayStage) || stateLabels[job.state] || job.state);
   $('#stage-detail').textContent = job.message || '';
-  $('#elapsed').textContent = duration((activeStates.has(job.state) ? Date.now()/1000 : job.updated || job.created) - job.created);
-  const event = job.event || {};
-  if (job.state === 'running' && validMetric(event.step) && event.step > 0 && validMetric(event.num_inference_steps) && event.num_inference_steps > 0) {
-    $('#progress').hidden = false; $('#progress').max = event.num_inference_steps; $('#progress').value = event.step;
-    const pass = validMetric(event.pass_index) && validMetric(event.num_passes) ? `第 ${event.pass_index+1} / ${event.num_passes} 轮 · ` : '';
-    $('#stage-detail').textContent = `${job.message ? job.message+' · ' : ''}${pass}本轮采样 ${event.step} / ${event.num_inference_steps}。这是当前阶段进度，后续还需处理与保存。`;
-  } else $('#progress').hidden = true;
+  renderJobProgress(job);
   const report = job.report && typeof job.report === 'object' ? job.report : {}, version = renderPreview(job);
   renderComparison(job);
   $('#face-stat').textContent = validMetric(report.geometry?.faces) ? report.geometry.faces.toLocaleString() : '—';
@@ -601,7 +709,8 @@ async function history() {
   finally { if (historyEpoch === selectedEpoch) $('#refresh-history').disabled = false; }
 }
 $('#refresh-history').onclick = history;
-function renderHealth() {
+function renderHealth(pathRevision = modelPathRevision) {
+  if (health.model_path) renderModelPath(health.model_path,false,pathRevision);
   const recoveryBlocked = Boolean(health.recovery_blocked), recoveryErrors = health.recovery_errors || [];
   $('#recovery-alert').hidden = !recoveryBlocked && !recoveryErrors.length;
   $('#recovery-alert').textContent = recoveryBlocked ? `检测到重启前仍在运行的工作进程，已暂停新任务。请等待进程退出；涉及进程：${(health.recovery_workers || []).map(item => item.pid).join('、')}。` : `有 ${recoveryErrors.length} 条历史记录无法读取，已跳过；其他记录仍可使用。详情：${recoveryErrors.map(item => typeof item === 'string' ? item : JSON.stringify(item)).join('；')}`;
@@ -656,7 +765,9 @@ async function downloadEngine(stage,id) {
 async function refresh() {
   const session = sessionReady ? null : await api('/api/session');
   if (session) { token = session.token; sessionReady = true; $('#shutdown-workbench').disabled = !session.can_shutdown; if (!sessionDefaultsApplied && !currentJob) $('#attention').value = session.default_attention || 'flash'; sessionDefaultsApplied = true; document.querySelectorAll('.app-version').forEach(el => { el.textContent = session.version; }); }
-  health = await api('/api/health'); if (workbenchStopped) return; online = true; renderHealth();
+  const pathRevision = modelPathRevision;
+  health = await api('/api/health'); if (workbenchStopped) return; online = true; renderHealth(pathRevision);
+  if (!health.model_path && !modelPath && !modelPathUnsupported) await refreshModelPath();
   if (Date.now() - lastUpdateRefresh > 15000) { lastUpdateRefresh = Date.now(); void refreshUpdates(); }
 }
 let lastUpdateRefresh = 0;

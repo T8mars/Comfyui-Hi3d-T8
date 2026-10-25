@@ -6,17 +6,17 @@ import shutil
 import subprocess
 import sys
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
-from hi3d_workbench.common import VERSION
+from hi3d_workbench.common import VERSION, MODELS
 from hi3d_workbench.engine_catalog import covers_all_engines
 DIST=ROOT/'dist'
 ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','Update-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
 
 def files(root):
-    return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and not p.name.endswith('.pyc')]
+    return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix.lower() not in {'.pyc','.nbi','.nbc'}]
 
 def build_source(dist=None):
     dist=Path(dist or DIST)
@@ -76,13 +76,34 @@ def pipeline_runtime(out):
         for path in files(base/'Lib'):
             rel=path.relative_to(base/'Lib')
             if rel.parts[0] not in {'site-packages','test','tests','idlelib','tkinter','ensurepip'}:z.write(path,rel)
-    shutil.copytree(source/'Lib/site-packages',target/'Lib/site-packages',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
-    shutil.copytree(source/'sources',target/'sources',ignore=shutil.ignore_patterns('__pycache__','*.pyc','.git'))
+    shutil.copytree(source/'Lib/site-packages',target/'Lib/site-packages',ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.nbi','*.nbc'))
+    shutil.copytree(source/'sources',target/'sources',ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.nbi','*.nbc','.git'))
     shutil.copy2(source/'pipeline-runtime.json',target/'pipeline-runtime.json')
     (target/'python312._pth').write_text('python312.zip\nDLLs\nLib/site-packages\n..\nimport site\n')
     packages=subprocess.check_output([str(target/'python.exe'),'-m','pip','freeze'],cwd=out,text=True,encoding='utf-8')
     (out/'runtime-pipeline-packages.txt').write_text(packages,encoding='utf-8')
     return target
+
+
+def copy_model_components(source, target, keys):
+    """Bundle only catalogued components from a possibly shared model folder."""
+    from hi3d_workbench.common import atomic_json
+    source, target = Path(source), Path(target)
+    manifest = json.loads((source/'manifest.json').read_text(encoding='utf-8'))
+    selected = {}
+    for key in keys:
+        if Path(key).name != key or key in {'.', '..'}:
+            raise ValueError('Invalid model component name')
+        component = manifest['components'][key]
+        for name in component['files']:
+            relative = Path(name)
+            if relative.is_absolute() or PureWindowsPath(name).drive or '..' in relative.parts or '\\' in name:
+                raise ValueError('Invalid model artifact path')
+            destination = target/key/relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source/key/relative, destination)
+        selected[key] = component
+    atomic_json(target/'manifest.json', {'components':selected})
 
 def portable(base,include_models,name,include_pipeline=False,pipeline_engines=(),dist=None):
     if Path(name).name!=name:raise ValueError('发行目录名称不能包含路径')
@@ -129,15 +150,10 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
     shutil.copy2(out/'Stop-Workbench.cmd',out/'停止工作台.cmd')
     if include_pipeline:pipeline_runtime(out)
     if include_models:
-        omitted=['.cache','.downloads','*.tmp','*.incomplete','*.parts*','*.assembled','*.bak','extensions','download-state.json','.download.lock']
-        shutil.copytree(ROOT/'models',out/'models',ignore=shutil.ignore_patterns(*omitted))
+        from hi3d_workbench.models import SPECS as CORE_SPECS
+        copy_model_components(MODELS,out/'models',CORE_SPECS)
         if include_pipeline:
-            extension=out/'models/extensions';extension.mkdir()
-            installed=json.loads((ROOT/'models/extensions/manifest.json').read_text(encoding='utf-8'))
-            for key in selected:
-                shutil.copytree(ROOT/'models/extensions'/key,extension/key,ignore=shutil.ignore_patterns(*omitted))
-            from hi3d_workbench.common import atomic_json
-            atomic_json(extension/'manifest.json',{'components':{key:installed['components'][key] for key in selected}})
+            copy_model_components(MODELS/'extensions',out/'models/extensions',selected)
     from hi3d_workbench.common import atomic_json
     atomic_json(out/'bundle-manifest.json',{'version':VERSION,'pipeline_runtime':include_pipeline,
         'models_included':include_models,'extension_components':selected if include_models else [],

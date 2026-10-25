@@ -132,18 +132,18 @@ def coarse(request, image, output, emit_fn):
     original_condition = pipeline.encode_cond
     def conditioned(*args, **kwargs):
         value = original_condition(*args, **kwargs)
-        emit_fn("sampling", message="生成基础几何", steps=steps)
+        emit_fn("sampling", message="生成基础几何", steps=steps,device='cuda')
         return value
     pipeline.encode_cond = conditioned
     original_export = pipeline._export
     def decoded(*args, **kwargs):
-        emit_fn("decoding", message="解码网格表面")
+        emit_fn("decoding", message="解码网格表面",device='cuda')
         return original_export(*args, **kwargs)
     pipeline._export = decoded
-    emit_fn("conditioning", message="编码参考图片")
+    emit_fn("conditioning", message="编码参考图片",device='cuda')
     mesh = pipeline(image=image, num_inference_steps=steps, octree_resolution=int(request.get("resolution", 256)),
                     num_chunks=8000, generator=torch.Generator(device="cpu").manual_seed(int(request.get("seed", 0))),
-                    callback=lambda step, timestep, values: emit_fn("sampling", step=int(step)+1, total_steps=steps), callback_steps=1,
+                    callback=lambda step, timestep, values: emit_fn("sampling", step=int(step)+1, num_inference_steps=steps,device='cuda'), callback_steps=1,
                     output_type="trimesh")[0]
     if mesh is None or len(mesh.faces) == 0:
         raise RuntimeError("基础模型没有生成有效网格")
@@ -171,10 +171,18 @@ def texture(request, image, output, emit_fn):
     os.environ["ATTN_BACKEND"] = "sdpa"
     os.environ["SPARSE_ATTN_BACKEND"] = "sdpa"
     os.environ["SPARSE_CONV_BACKEND"] = "flex_gemm"
+    emit_fn('loading',phase='runtime_import',device='cpu',message='载入 TRELLIS.2 代码与本地依赖')
     from trellis2.pipelines import Trellis2TexturingPipeline
     from trellis2.pipelines import rembg as upstream_rembg
-    from .attention import install as install_sdpa
-    install_sdpa()
+    from .attention import install as install_attention
+    attention = install_attention(request.get('pipeline_attention', 'auto'), emit=emit_fn)
+
+    # UV construction can use substantial native CUDA memory. Run it before
+    # loading the diffusion models, including when CPU offloading is disabled.
+    from ..asset_pipeline import load_texture_input
+    loaded, uv_policy = load_texture_input(Path(request['mesh_path']))
+    from .uv_runtime import prepare
+    loaded,uv_generation,uv_runtime=prepare(loaded,request,emit_fn)
 
     class PreparedForeground:
         def __init__(self, **kwargs): pass
@@ -209,13 +217,16 @@ def texture(request, image, output, emit_fn):
     config_temp = local_config.with_name(local_config.name + ".tmp")
     config_temp.write_text(json.dumps(config, ensure_ascii=True, indent=2), encoding="ascii")
     os.replace(config_temp, local_config)
-    pipeline = Trellis2TexturingPipeline.from_pretrained(str(load_root), config_file=config_name)
+    from trellis2 import models as official_models
+    from .loading_progress import checkpoint_progress
+    expected_models={key:(Path(value) if Path(value).is_absolute() else load_root/value)
+                     for key,value in config['args']['models'].items()}
+    with checkpoint_progress(official_models,expected_models,emit_fn):
+        pipeline = Trellis2TexturingPipeline.from_pretrained(str(load_root), config_file=config_name)
+    emit_fn('loading',phase='model_cuda',device='cuda',message='模型已载入，设置 CUDA 执行环境')
     pipeline.cuda()
-    from ..asset_pipeline import load_texture_input
-    loaded, uv_policy = load_texture_input(Path(request['mesh_path']))
-    from .mesh_uv import ensure_uv
-    emit_fn('unwrapping',message='检查 UV 并展开网格，保留原始着色法线')
-    loaded,uv_generation=ensure_uv(loaded)
+    from .sampler_progress import track_sampler
+    track_sampler(pipeline.tex_slat_sampler, emit_fn, 'material', '生成 PBR 材质')
     if not isinstance(loaded, trimesh.Trimesh) or not len(loaded.faces):
         raise ValueError("贴图输入不是有效三角网格")
     if not np.isfinite(loaded.vertices).all():
@@ -254,14 +265,23 @@ def texture(request, image, output, emit_fn):
         def wrapped(*args, _original=original, _stage=stage_name, **kwargs):
             messages = {"conditioning": "分析参考图的颜色与材质", "encoding_mesh": "分析模型表面",
                         "sampling": "生成 PBR 材质", "decoding": "重建材质细节", "baking": "展开 UV 并烘焙贴图"}
-            emit_fn(_stage, message=messages[_stage])
+            if _stage not in {'encoding_mesh', 'baking'}:
+                emit_fn(_stage, message=messages[_stage], device='cuda')
             if _stage == 'baking' and args and getattr(args[0].visual,'uv',None) is not None:
                 # With pre-existing UVs the official baker rotates the cached
                 # normal array in place. Trimesh exposes that cache read-only;
                 # make this temporary normalized mesh's array writable, as in
                 # the upstream UV-unwrapping branch which indexes a fresh copy.
                 args[0].vertex_normals.setflags(write=True)
-            value = _original(*args, **kwargs)
+            if _stage == 'encoding_mesh':
+                from .encoding_progress import observe_shape_encoding
+                with observe_shape_encoding(pipeline, emit_fn):
+                    value = _original(*args, **kwargs)
+            elif _stage == 'baking':
+                from .baking_progress import call_baking_with_progress
+                value = call_baking_with_progress(_original, emit_fn, *args, **kwargs)
+            else:
+                value = _original(*args, **kwargs)
             if request.get("offload", True):
                 # Native CuMesh/nvdiffrast allocations cannot reuse memory
                 # reserved by PyTorch after a model was offloaded to CPU.
@@ -282,10 +302,10 @@ def texture(request, image, output, emit_fn):
     return {"model": SPECS["texture"], "engine": 'trellis2', "inference_steps": int(request.get('texture_steps',12)), "image_encoder": SPECS["texture_encoder"],
             "geometry_generated": False, "texture_generated": True, "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
             'uv_policy': uv_policy,
-            'uv_generation':uv_generation,'shading_normals':'input normals preserved through UV and frame conversion',
+            'uv_generation':uv_generation,'uv_runtime':uv_runtime,'shading_normals':'input normals preserved through UV and frame conversion',
             "vertices": len(textured.vertices), "faces": len(textured.faces), "texture_size": int(request.get("texture_size", 2048)),
             "pbr_channels": ["baseColor", "metallic", "roughness", "alpha"],
-            "attention": "PyTorch fused SDPA; explicit packed sparse-attention Windows adapter",
+            "attention": attention,
             "offload_cache_policy": "release unused PyTorch cache at official stage boundaries" if request.get("offload", True) else "standard CUDA allocator caching",
             "transform": {"normalization_center": center.tolist(), "normalization_scale": scale,
                           "normalization_restored": True, "mesh_input_frame_preserved": True,
@@ -345,7 +365,7 @@ def main():
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
         if os.name != "nt":
             os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
-        emit(args.stage + "_initializing", message="启动独立 CUDA 推理运行时", request_path=str(request_path))
+        emit(args.stage + "_initializing", phase='runtime_import', device='cpu', message="读取独立推理运行时（磁盘 → 内存）", request_path=str(request_path))
         import torch
         if not torch.cuda.is_available():
             raise RuntimeError("需要 NVIDIA CUDA GPU")

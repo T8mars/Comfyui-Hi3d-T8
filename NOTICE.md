@@ -24,8 +24,16 @@ Preview lighting uses the unmodified Poly Haven studio_small_08 and studio_small
 
 The optional UltraTex INT8 ConvRot Base 9B checkpoint is the community quantization published by tsolful at https://civitai.com/models/2738890?modelVersionId=3080042 (file 2959286). It is distributed unchanged with a pinned SHA256 and retains the original FLUX Non-Commercial License, included with the UltraTex adapter component. It is not the distilled or KV checkpoint and was not quantized by this project. The FP8 base remains a separate option.
 
-The additional Windows runtime uses an integration SDPA compatibility adapter for packed sparse attention. It does not replace model weights and is not the official Linux FlashAttention environment. Runtime/source/package versions and component licenses must accompany a full-chain distribution. Real inference and memory validation for the new pipeline are tracked separately in roadmap.md.
+The additional Windows runtime offers integration fused SDPA and an optional ABI-pinned native FlashAttention adapter for packed sparse attention. It does not replace model weights and is not the official Linux inference environment. Runtime/source/package versions and component licenses must accompany a full-chain distribution. Validation and measured limits are recorded in docs/PERFORMANCE.md.
 
 Windows runtime distributions include CPython, PyTorch, Triton Windows, spconv/cumm, Transformers, Accelerate, NumPy, SciPy, trimesh and other Python dependencies. Their package license files remain in the runtime. Exact installed versions are recorded in runtime-packages.txt. Python's LICENSE is retained in the runtime directory.
 
 Powered by Hi3D 1.0 — http://hi3d.ai/
+
+The original-index GPU UV adapter in hi3d_workbench/engines/community_uv.py is derived from Comfy-Org/ComfyUI nodes_mesh_postprocess._uv_unwrap at 7cebca52227c63b4180ceed448cbd7ad22903b6d and retains GPL-3.0. Its license is included as licenses/ComfyUI-GPL-3.0.txt; the full pinned corresponding source accompanies runtime-pipeline/sources/comfy_core. The MIT scope excludes that derived file. The adapter omits automatic welding to retain source hard-edge normals.
+
+The progress adapter in hi3d_workbench/engines/native_uv.py follows the MIT-licensed JeffreyXiang/CuMesh CuMesh.uv_unwrap flow. It reuses the installed native kernels and per-instance xatlas callbacks; the SDK Python source and its license remain in runtime-pipeline/Lib/site-packages/cumesh and cumesh-1.0.dist-info/licenses/LICENSE.
+
+Optional native FlashAttention 2.8.3 for the cp312 / Torch 2.8 cu128 pipeline uses the pinned kingbri1 Windows community wheel under BSD-3-Clause (licenses/FlashAttention-LICENSE.txt). Its size and SHA256 are fixed in engines/acceleration_wheels.py. CUDA packed-kernel validation gates automatic selection; unsupported systems retain explicit fused SDPA. Hi3D refinement and UltraTex trained sparse attention are configured separately.
+
+The optional CPU bitmap UV packer uses the original Numba 0.61.2 and llvmlite 0.44.0 Windows wheels (BSD licenses retained in the runtime). Fixed PyPI sizes and SHA256 values are recorded in acceleration_wheels.py. Runtime installation does not upgrade NumPy or Torch; machine-specific JIT caches are excluded from release archives.

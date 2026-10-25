@@ -1,5 +1,5 @@
 Scope: This MIT license covers only the original integration code in
-hi3d_workbench/ (excluding web/vendor/), comfy_nodes.py, __init__.py, scripts/,
+hi3d_workbench/ (excluding web/vendor/ and the GPL-derived engines/community_uv.py), comfy_nodes.py, __init__.py, scripts/,
 tools/, tests/ and examples/. Upstream Hi3D code, model and encoder weights,
 the bundled viewer and runtime dependencies retain their own licenses.
 See NOTICE.md and the accompanying component license files.

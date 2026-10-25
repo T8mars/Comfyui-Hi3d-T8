@@ -68,8 +68,8 @@ def generate(request, image, output, emit):
     emit('encoding_mesh', message='为 Hunyuan Paint 准备网格与多视角条件')
     from ..asset_pipeline import load_texture_input
     mesh, uv_policy = load_texture_input(Path(request['mesh_path']))
-    from .mesh_uv import ensure_uv
-    mesh,uv_generation=ensure_uv(mesh)
+    from .uv_runtime import prepare
+    mesh,uv_generation,uv_runtime=prepare(mesh,request,emit)
     render = MeshRender(default_resolution=render_size, texture_size=texture_size, bake_mode='back_sample', raster_mode='cr')
     render.load_mesh(mesh=mesh)
     cfg = SimpleNamespace(bake_exp=4)
@@ -116,9 +116,9 @@ def generate(request, image, output, emit):
         pipeline.denoise=denoise_on_execution_device
     else:
         pipeline.to('cuda')
-    emit('sampling', message='生成多视角颜色与金属度 / 粗糙度', steps=steps)
+    emit('sampling', message='生成多视角颜色与金属度 / 粗糙度', steps=steps,device='cuda')
     def sample_progress(pipe,index,timestep,values):
-        emit('sampling',message=f'多视角 PBR · {index+1}/{steps}',step=index+1,steps=steps)
+        emit('sampling',message=f'多视角 PBR · {index+1}/{steps}',step=index+1,steps=steps,device='cuda')
         return values
     # Upstream VAE posterior sampling does not use the supplied noise
     # generator. Seed its global RNG too, after component initialization.
@@ -180,7 +180,7 @@ def generate(request, image, output, emit):
     emit('exporting',message='导出 Hunyuan PBR 材质 GLB')
     final.export(output)
     return {'model':SPECS['texture_hunyuan21'],'engine':'hunyuan21','geometry_generated':False,'texture_generated':True,
-            'uv_policy':uv_policy,
+            'uv_policy':uv_policy, 'uv_runtime':uv_runtime,
             'uv_generation':uv_generation,
             'shading_normals':'input normals preserved; no UV-chart normal recomputation',
             'inference_steps':steps,'texture_size':texture_size,'vertices':len(final.vertices),'faces':len(final.faces),

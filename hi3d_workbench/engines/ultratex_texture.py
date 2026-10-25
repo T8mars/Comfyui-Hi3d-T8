@@ -53,8 +53,8 @@ def generate(request, image, output, emit):
     emit('encoding_mesh', message='为 UltraTex 准备六视角法线与 UV')
     from ..asset_pipeline import load_texture_input
     mesh, uv_policy = load_texture_input(Path(request['mesh_path']))
-    from .mesh_uv import ensure_uv
-    mesh,uv_generation=ensure_uv(mesh)
+    from .uv_runtime import prepare
+    mesh,uv_generation,uv_runtime=prepare(mesh,request,emit)
     # An existing UV map is retained. A new xatlas layout may split vertices
     # along seams but does not simplify, remesh, or change input positions.
     uv_mode = 'keep_existing'
@@ -74,7 +74,7 @@ def generate(request, image, output, emit):
     clip = comfy.sd.load_clip([str(text_checkpoint)], clip_type=comfy.sd.CLIPType.FLUX2,
                               model_options=text_options)
     text_device = str(clip.patcher.load_device)
-    emit('encoding_reference', message=f'编码参考条件（{text_device}）')
+    emit('encoding_reference', message=f'编码参考条件（{text_device}）', device=text_device.split(':')[0])
     positive = clip.encode_from_tokens_scheduled(clip.tokenize(''))
     text_seconds = round(time.perf_counter() - text_started, 3)
     capture_peak()
@@ -112,7 +112,8 @@ def generate(request, image, output, emit):
         if not quantized_parameters:raise RuntimeError('INT8 ConvRot 底座没有按原生量化格式加载，已停止贴图')
 
     def predict(branch, sample_resolution):
-        emit('sampling', message='生成六视角颜色贴图' if branch == 'flux2' else '生成六视角金属度与粗糙度', steps=steps)
+        phase='color' if branch=='flux2' else 'material'
+        emit('sampling', phase=phase, device='cuda', step=0, message='生成六视角颜色贴图' if branch == 'flux2' else '生成六视角金属度与粗糙度', steps=steps)
         weights = comfy.utils.load_torch_file(str(adapter / branch / 'lora/dit_lora.safetensors'), safe_load=True)
         dm = model.model.diffusion_model
         shapes = {f'diffusion_model.single_blocks.{i}.linear1.weight': (block.linear1.out_features,)
@@ -129,7 +130,7 @@ def generate(request, image, output, emit):
         previous_hook=comfy.utils.PROGRESS_BAR_HOOK
         message='颜色贴图' if branch=='flux2' else '金属度与粗糙度'
         comfy.utils.set_progress_bar_global_hook(lambda current,total,preview,**kwargs:
-            emit('sampling',message=f'{message} · {current}/{total}',step=int(current),steps=int(total)))
+            emit('sampling',phase=phase,device='cuda',message=f'{message} · {current}/{total}',step=int(current),steps=int(total)))
         try:
             views, masks = sampling.sample(patched, vae, positive, None, prep, sample_resolution, steps, seed,
                                            guidance=1.0, attention=actual_attention, token_chunk=8192)
@@ -167,7 +168,7 @@ def generate(request, image, output, emit):
             'backbone_precision': 'int8_convrot' if int8 else 'fp8', 'quantized_weight_tensors': quantized_parameters,
             'text_encoder_device': text_device, 'text_encoder_seconds': text_seconds,
             'geometry_generated': False, 'texture_generated': True, 'inference_steps': steps,
-            'uv_policy': uv_policy,
+            'uv_policy': uv_policy, 'uv_runtime':uv_runtime,
             'uv_generation':uv_generation,
             'attention':actual_attention,'attention_fallback_reason':sparse_error,
             'resolution': resolution, 'mr_resolution': min(resolution, 1024), 'texture_size': texture_size,

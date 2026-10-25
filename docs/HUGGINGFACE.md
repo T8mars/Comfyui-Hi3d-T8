@@ -58,9 +58,15 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 For selected engines, download the corresponding directories from the table plus `extensions/manifest.json` and their dependencies. The workbench's Models page can also download only the required engine components from pinned original/public sources. Missing optional engines do not disable installed ones. Verify files in the workbench before inference.
 
+To use another drive or shared location, select its root in **Models and environment → Model directory** and use that same path with `hf download --local-dir`. Keep `hi3d/`, `dino/`, `clip/` and `extensions/` directly under the selected root. The idle switch takes effect without restarting; it does not move existing files. Relative paths resolve against the workbench root, and code updates preserve the saved setting.
+
+Existing core files at a newly selected location still require **Reverify all core models** before that location is reported ready.
+
 ## Program updates
 
 The standalone bundle checks stable GitHub Releases, downloads code updates and installs them on the next launch. Models, Python runtimes, configuration and history are preserved. Code updates do not download this entire model repository. Runtime-incompatible versions require a new complete package. [Update instructions](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.md).
+
+v0.4.5 adds UV fixes/cache, phase/device progress and optional native FlashAttention/Numba runtime wheels. **Model weights and this 95-file catalogue are unchanged.** Accelerator wheels are Python runtime dependencies, not extra models, and are not included in this model repository. Code updates preserve old environments and their SDPA/Torch fallbacks; the full package and optional setup commands are described in the [performance guide](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md).
 
 ## Validation and limits
 

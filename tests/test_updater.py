@@ -11,7 +11,7 @@ from hi3d_workbench import updater as update
 from hi3d_workbench.common import atomic_json
 
 
-def package(root, files=None, release='0.4.5'):
+def package(root, files=None, release='0.4.6'):
     files = files or {'hi3d_workbench/example.py': b'new program', 'docs/new.txt': b'new docs'}
     target = root / 'data/updates' / f'Hi3D-Workbench-update-{release}.zip'
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -159,8 +159,8 @@ def test_download_and_stage_from_official_release(tmp_path, monkeypatch):
     payload = archive.read_bytes()
     archive.unlink()
     (archive.parent / 'pending.json').unlink()
-    prefix = update.DOWNLOAD + 'v0.4.5/'
-    release = {'tag_name': 'v0.4.5', 'draft': False, 'prerelease': False, 'assets': [
+    prefix = update.DOWNLOAD + 'v0.4.6/'
+    release = {'tag_name': 'v0.4.6', 'draft': False, 'prerelease': False, 'assets': [
         {'name': 'update-manifest.json', 'browser_download_url': prefix + 'update-manifest.json'},
         {'name': archive.name, 'size': len(payload), 'digest': 'sha256:' + manifest['sha256'], 'browser_download_url': prefix + archive.name}]}
     def respond(request):

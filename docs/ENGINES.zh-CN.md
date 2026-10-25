@@ -26,10 +26,12 @@ ComfyUI 节点仍只复现 Hi3D。下列选择只加入独立工作台。建模�
 
 贴图器需要单一、不重叠的单位图集；退化、平铺、重复三角 UV 和累计面积超出图集的明显重叠会重展，任意局部重叠尚未做完整检测。已有错误法线的 GLB 不会自动修复；若错误法线参与了贴图条件生成，应从原始几何重新贴图。`tools/restore_shading_normals.py` 可针对有对应原始几何的结果修正法线，且验证位置、面、UV 和材质像素不变；这属于导出修正，不是重新生成贴图。
 
-TRELLIS 建模可同时保留原始生成的 `generated.glb` 和整理后的 `coarse.glb`。整理采用官方不透明物体导出的窄带表面重建方式，目标约 100 万面；细小开放结构可能改变，应对照原版。Hi3D 精修独立可选，会重建拓扑。
+TRELLIS 建模可同时保留原始生成的 `generated.glb` 和整理后的 `coarse.glb`。整理采用官方不透明物体导出的窄带表面重建方式，可选10万／30万／100万面预算，默认100万；细小开放结构可能改变，应对照原版。Hi3D 精修独立可选，会重建拓扑。
 
 当前实测与待验收项见[质量记录](../validation/quality-upgrade-progress.json)。对比使用原创狐狸、机械猫头鹰、探险宝箱和天文台参考图，固定种子并保存输出哈希。Hunyuan 2.1 的首个狐狸结果有与主体连接的大平面，猫头鹰没有复现此问题，不能直接认定它全面优于轻量版。TRELLIS 1024 改善了狐狸脸部和铠甲，背部毛发与尾巴仍有伪影。这些是有限样本，不是通用模型排行榜。
 
 实测设备为 Windows、RTX 5090 Laptop 24GB、64GB RAM。狐狸 1024 几何运行 378.718 秒，NVML 全设备显存峰值 13034.965MiB，包含驱动和桌面占用。约 100 万面的猫头鹰使用 1024 TRELLIS PBR 耗时 212.728 秒，PyTorch 分配／保留峰值分别为 11021.04／17892MiB。以上均不能作为最低显存要求；CPU 卸载也需要足够系统内存。
 
 原项目：[TRELLIS.2](https://github.com/microsoft/TRELLIS.2)、[Hunyuan3D 2.1](https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1)、[UltraTex](https://github.com/yiboz2001/UltraTex)、[UltraTex Windows 适配](https://github.com/visualbruno/ComfyUI-UltraTex)。Hunyuan Paint 使用官方相机、条件与烘焙代码，Windows 光栅适配使用 nvdiffrast，UV 空洞使用 OpenCV 修补，未启用上游可选 C++ 顶点修补。UltraTex 调用固定版本 Comfy 推理库，不启动 Comfy 服务或新增节点。许可见[第三方声明](../NOTICE.md)。
+
+从 v0.4.5 起，UV 默认使用 CuMesh GPU 聚类与 CPU 图集排布，经原索引／三角面角点校验保留重合硬边；随后按需回退到固定版本社区 GPU PEC、原拓扑分区 CPU Atlas，并报告原因。几何、法线与算法参数绑定的缓存避免重复展开。TRELLIS 生成几何整理另可选10万／30万／100万面预算，原始 generated.glb 保留；已有模型贴图不减面。注意力选项及实测范围见[性能说明](PERFORMANCE.zh-CN.md)。

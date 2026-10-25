@@ -1,15 +1,40 @@
 from __future__ import annotations
-import json
 import math
 import os
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import uuid
 from .common import ROOT, DATA, atomic_json, read_json, config, child_path
+from .events import iter_events
 
 WORKER_MODULES={'hi3d_workbench.worker','hi3d_workbench.pipeline_worker','hi3d_workbench.engines.run_stage'}
+
+def _finite_number(value):
+    try:return isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value)
+    except OverflowError:return False
+
+def _event_progress(event):
+    """Read observed work, never estimate overall completion or remaining time."""
+    if 'progress_current' in event or 'progress_total' in event:
+        current,total=event.get('progress_current'),event.get('progress_total')
+        unit=event.get('progress_unit','items')
+        if total is None and _finite_number(current) and current>=0:
+            if not isinstance(unit,str) or not unit or len(unit)>32:unit='items'
+            return {'current':current,'unit':unit}
+    else:
+        current,total=event.get('step'),event.get('num_inference_steps',event.get('steps'))
+        unit='steps'
+    if not (_finite_number(current) and _finite_number(total) and total>0 and 0<=current<=total):return {}
+    if not isinstance(unit,str) or not unit or len(unit)>32:unit='items'
+    return {'current':current,'total':total,'unit':unit}
+
+def _terminal_text(value):
+    # Worker messages may include uploaded filenames. Keep them on one console
+    # line and do not permit ANSI / terminal control sequences.
+    return ''.join(char if char.isprintable() else ' ' for char in str(value))[:500]
 
 def _worker_request(command):
     if not any(module in command for module in WORKER_MODULES):return None
@@ -51,6 +76,8 @@ class JobManager:
         self._dirty=set()
         self.recovery_errors=[]
         self._recovery_workers=[]
+        self._progress_writes={}
+        self._console_progress={}
 
     def _record_error(self,path,exc):
         message=f'任务 {path.parent.name} 的记录无法读取，已跳过历史条目：{exc}'
@@ -212,16 +239,78 @@ class JobManager:
                 raise RuntimeError('无法启动任务线程，请重试或查看系统资源') from exc
             return state
 
-    def _update(self,jid,**kw):
+    def _update(self,jid,_persist=True,**kw):
         with self.lock:
             state=self.get(jid)
-            state.update(kw,updated=time.time())
+            now=time.time()
+            if 'stage' in kw and kw['stage']!=state.get('stage'):
+                state.update(stage_started_at=now,phase_started_at=now,last_progress_at=now,progress={})
+            state.update(kw,updated=now)
             self._memory_states[jid]=state.copy()
-            try:atomic_json(self.root/jid/"state.json",state)
-            except (OSError,ValueError):
-                self._dirty.add(jid)
-                raise
-            else:self._dirty.discard(jid)
+            if _persist:
+                try:atomic_json(self.root/jid/"state.json",state)
+                except (OSError,ValueError):
+                    self._dirty.add(jid)
+                    raise
+                else:self._dirty.discard(jid)
+            self._show_progress(jid,state)
+
+    def _record_event(self,jid,event):
+        """Coalesce frequent callbacks while keeping the latest API state live."""
+        with self.lock:
+            state=self.get(jid)
+            now=time.time();monotonic=time.monotonic()
+            old=state.get('progress') or {}
+            phase=event.get('phase')
+            phase=phase if isinstance(phase,str) and phase else None
+            progress={'stage':event['stage'],**_event_progress(event)}
+            if isinstance(event.get('pipeline_stage'),str) and event['pipeline_stage'] in {'coarse','refine','texture'}:progress['pipeline_stage']=event['pipeline_stage']
+            if phase:progress['phase']=phase
+            for field in ('pass_index','num_passes'):
+                if _finite_number(event.get(field)) and event[field]>=0:progress[field]=event[field]
+            boundary=any(old.get(field)!=progress.get(field) for field in ('stage','phase','pass_index'))
+            # Legacy samplers announce a second pass with a total but no step.
+            # This is a phase boundary rather than permission to reuse 100%.
+            boundary=boundary or ('current' in old and 'current' not in progress and ('steps' in event or 'num_inference_steps' in event))
+            if isinstance(event.get('device'),str) and event['device'] in {'cpu','cuda'}:progress['device']=event['device']
+            elif not boundary and old.get('device') in {'cpu','cuda'}:progress['device']=old['device']
+            changed=boundary or any(old.get(key)!=progress.get(key) for key in ('current','total','unit','device')) or event.get('message')!=(state.get('event') or {}).get('message')
+            values={'stage':event['stage'],'event':event,'progress':progress,'last_event_at':now,
+                    'message':event.get('message',event['stage'])}
+            if boundary:values['phase_started_at']=now
+            if changed:values['last_progress_at']=now
+            finished='total' in progress and progress['current']==progress['total']
+            persist=boundary or finished or monotonic-self._progress_writes.get(jid,float('-inf'))>=.5
+            self._update(jid,_persist=persist,**values)
+            if persist:self._progress_writes[jid]=monotonic
+
+    def _show_progress(self,jid,state):
+        """Mirror meaningful job progress to the visible launcher console."""
+        progress=state.get('progress') or {}
+        identity=(state.get('state'),state.get('stage'),progress.get('phase'),progress.get('pass_index'))
+        previous=self._console_progress.get(jid)
+        now=time.monotonic()
+        number=(progress.get('current'),progress.get('total'),progress.get('unit'))
+        message=state.get('message','')
+        signature=(identity,number,message,progress.get('device'))
+        if previous and previous[2]==signature:return
+        finished=progress.get('total') is not None and progress.get('current')==progress['total']
+        if previous and previous[1]==identity and not finished and now-previous[0]<1:return
+        pieces=[f'[Hi3D {jid[:8]}]',str(state.get('stage') or state.get('state',''))]
+        if progress.get('phase'):pieces.append(str(progress['phase']))
+        if isinstance(progress.get('pass_index'),int):pieces.append(f'第 {progress["pass_index"]+1} 次采样')
+        if progress.get('device'):pieces.append('CPU' if progress['device']=='cpu' else 'CUDA / GPU')
+        if progress.get('total') is not None:
+            current,total=progress['current'],progress['total']
+            pieces.append(f'{current:g}%' if progress['unit']=='percent' and total==100 else f'{current:g}/{total:g} {progress["unit"]}')
+        elif progress.get('current') is not None:
+            pieces.append(f'已合并 {progress["current"]:g}' if progress['unit']=='merges' else f'已处理 {progress["current"]:g} {progress["unit"]}')
+        elapsed=max(0,time.time()-state.get('stage_started_at',state['created']))
+        pieces.extend((f'阶段 {elapsed:.0f}s',str(message)))
+        try:
+            if sys.stdout is not None:print(' · '.join(_terminal_text(piece) for piece in pieces),flush=True)
+        except (OSError,UnicodeError,ValueError):pass  # Closing a console must not corrupt a live job.
+        self._console_progress[jid]=(now,identity,signature)
 
     def _run(self,jid):
         folder=self.root/jid
@@ -247,13 +336,8 @@ class JobManager:
             with (folder/"worker.log").open("w",encoding="utf-8") as log:
                 for line in process.stdout:
                     log.write(line);log.flush()
-                    if line.startswith("HI3D_EVENT "):
-                        try:
-                            event=json.loads(line[len("HI3D_EVENT "):])
-                            if not isinstance(event,dict) or not isinstance(event.get('stage'),str):continue
-                            json.dumps(event,allow_nan=False)
-                        except (ValueError,TypeError):continue  # Preserve malformed output in the log without losing the worker.
-                        self._update(jid,stage=event["stage"],event=event,message=event.get("message",event["stage"]))
+                    for event in iter_events(line):
+                        self._record_event(jid,event)
             code=process.wait()
             if jid in self.cancelled:
                 self._update(jid,state="cancelled",stage="cancelled",message="已停止；输入和日志已保留")
@@ -312,6 +396,8 @@ class JobManager:
                     self.process_created=None
                     self.active=None
                     self.cancelled.discard(jid)
+                    self._progress_writes.pop(jid,None)
+                    self._console_progress.pop(jid,None)
                     if jid not in self._dirty:self._memory_states.pop(jid,None)
 
     def cancel(self,jid):

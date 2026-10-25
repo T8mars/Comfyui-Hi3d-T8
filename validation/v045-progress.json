@@ -1,0 +1,1313 @@
+{
+  "status": "passed",
+  "original_job": "fd848a45668541f489b454b3f59e049b",
+  "original_texture_uv_event": 1792926833.0034678,
+  "cancelled_state": {
+    "state": "cancelled",
+    "created": 1792926500.2374969,
+    "updated": 1792928214.8910682,
+    "stage": "cancelled"
+  },
+  "uv_wait_lower_bound_seconds": 1381.888,
+  "original_geometry_cuda": {
+    "seconds": 158.684,
+    "runtime": {
+      "torch": "2.8.0+cu128",
+      "cuda": "12.8",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ]
+    },
+    "faces": 973968
+  },
+  "not_claimed": [
+    "fresh browser interaction",
+    "minimum VRAM",
+    "universal speedup"
+  ],
+  "cpu_regression": {
+    "passed": 567,
+    "warnings": 1,
+    "seconds": 57.91
+  },
+  "uv_backends": [
+    {
+      "backend": "cumesh",
+      "run": 0,
+      "status": "passed",
+      "seconds": 65.15546870000253,
+      "policy": "native_CuMesh_topology_mapped_local_repair",
+      "faces": 973926,
+      "vertices": 968036,
+      "peak_allocated_mb": 61.72216796875,
+      "peak_reserved_mb": 78.0
+    },
+    {
+      "backend": "cumesh",
+      "run": 1,
+      "status": "passed",
+      "seconds": 1.2752196999936132,
+      "policy": "cached_native_CuMesh_topology_mapped_local_repair",
+      "faces": 973926,
+      "vertices": 968036,
+      "peak_allocated_mb": 0.0,
+      "peak_reserved_mb": 0.0
+    },
+    {
+      "backend": "community",
+      "run": 0,
+      "status": "passed",
+      "seconds": 162.41845670000475,
+      "policy": "community_GPU_PEC_original_indices",
+      "faces": 973926,
+      "vertices": 782738,
+      "peak_allocated_mb": 593.9169921875,
+      "peak_reserved_mb": 1152.0
+    },
+    {
+      "backend": "community",
+      "run": 1,
+      "status": "passed",
+      "seconds": 1.4374475000004168,
+      "policy": "cached_community_GPU_PEC_original_indices",
+      "faces": 973926,
+      "vertices": 782738,
+      "peak_allocated_mb": 8.125,
+      "peak_reserved_mb": 20.0
+    }
+  ],
+  "uv_glb_roundtrip": {
+    "status": "passed",
+    "removed_exact_zero_faces": 42,
+    "results": [
+      {
+        "backend": "cumesh",
+        "run": 0,
+        "faces": 973926,
+        "vertices": 968036,
+        "glb_bytes": 42665960,
+        "positions_f32_exact": true,
+        "normals_tolerance": 2e-06,
+        "full_oriented_faces_and_uv_guards": "passed"
+      },
+      {
+        "backend": "cumesh",
+        "run": 1,
+        "faces": 973926,
+        "vertices": 968036,
+        "glb_bytes": 42665960,
+        "positions_f32_exact": true,
+        "normals_tolerance": 2e-06,
+        "full_oriented_faces_and_uv_guards": "passed"
+      },
+      {
+        "backend": "community",
+        "run": 0,
+        "faces": 973926,
+        "vertices": 782738,
+        "glb_bytes": 36736388,
+        "positions_f32_exact": true,
+        "normals_tolerance": 2e-06,
+        "full_oriented_faces_and_uv_guards": "passed"
+      },
+      {
+        "backend": "community",
+        "run": 1,
+        "faces": 973926,
+        "vertices": 782738,
+        "glb_bytes": 36736388,
+        "positions_f32_exact": true,
+        "normals_tolerance": 2e-06,
+        "full_oriented_faces_and_uv_guards": "passed"
+      }
+    ]
+  },
+  "default_uv_order": [
+    "cumesh",
+    "community",
+    "bounded_cpu"
+  ],
+  "native_attention": {
+    "kernel_validation": "passed",
+    "fp16_bf16_head64_128": true,
+    "full_geometry_runs": [
+      {
+        "model": {
+          "repo": "microsoft/TRELLIS.2-4B",
+          "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+          "license": "MIT; external image encoder has its own license",
+          "files": [
+            "pipeline.json",
+            "README.md",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+          ],
+          "optional": true
+        },
+        "image_encoder": {
+          "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+          "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+          "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+          "upstream_identical": true,
+          "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+          "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+          "files": [
+            "config.json",
+            "model.safetensors",
+            "preprocessor_config.json",
+            "LICENSE.md",
+            "README.md"
+          ]
+        },
+        "engine": "trellis2",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "postprocessing": {
+          "enabled": true,
+          "raw_faces": 4635678,
+          "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+          "target_faces": 300000,
+          "seconds": 13.672
+        },
+        "raw_geometry_file": "raw-geometry.glb",
+        "pipeline_type": "512",
+        "requested_resolution": 512,
+        "actual_resolution": 512,
+        "vertices": 146609,
+        "faces": 299032,
+        "inference_steps": 12,
+        "attention": {
+          "requested": "sdpa",
+          "sparse": "sdpa",
+          "dense": "sdpa",
+          "device": "cuda"
+        },
+        "transform": {
+          "coordinate_system": "glTF Y-up",
+          "axis_mapping": "[x,z,-y]",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "seconds": 359.21127040000283,
+        "peak_allocated_mb": 3058.38134765625,
+        "peak_reserved_mb": 4986.0
+      },
+      {
+        "model": {
+          "repo": "microsoft/TRELLIS.2-4B",
+          "revision": "af44b45f2e35a493886929c6d786e563ec68364d",
+          "license": "MIT; external image encoder has its own license",
+          "files": [
+            "pipeline.json",
+            "README.md",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.json",
+            "ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+            "ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+            "ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors"
+          ],
+          "optional": true
+        },
+        "image_encoder": {
+          "repo": "camenduru/dinov3-vitl16-pretrain-lvd1689m",
+          "revision": "3c276edd87d6f6e569ff0c4400e086807d0f3881",
+          "upstream_repo": "facebook/dinov3-vitl16-pretrain-lvd1689m",
+          "upstream_revision": "ea8dc2863c51be0a264bab82070e3e8836b02d51",
+          "upstream_identical": true,
+          "expected_weight_sha256": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+          "license": "DINOv3 License; unchanged license in publicly published byte-identical mirror",
+          "files": [
+            "config.json",
+            "model.safetensors",
+            "preprocessor_config.json",
+            "LICENSE.md",
+            "README.md"
+          ]
+        },
+        "engine": "trellis2",
+        "geometry_generated": true,
+        "texture_generated": false,
+        "postprocessing": {
+          "enabled": true,
+          "raw_faces": 4637706,
+          "method": "official CuMesh opaque-asset narrow-band DC; band=1, project_back=0",
+          "target_faces": 300000,
+          "seconds": 6.97
+        },
+        "raw_geometry_file": "raw-geometry.glb",
+        "pipeline_type": "512",
+        "requested_resolution": 512,
+        "actual_resolution": 512,
+        "vertices": 146869,
+        "faces": 299470,
+        "inference_steps": 12,
+        "attention": {
+          "requested": "flash_attn",
+          "sparse": "flash_attn",
+          "dense": "sdpa",
+          "device": "cuda",
+          "probe": {
+            "status": "passed",
+            "dtypes": [
+              "float16",
+              "bfloat16"
+            ],
+            "head_dims": [
+              64,
+              128
+            ],
+            "device": "NVIDIA GeForce RTX 5090 Laptop GPU",
+            "capability": [
+              12,
+              0
+            ]
+          },
+          "version": "2.8.3",
+          "packed_calls": {
+            "flash_attn": 1260,
+            "sdpa": 0
+          }
+        },
+        "transform": {
+          "coordinate_system": "glTF Y-up",
+          "axis_mapping": "[x,z,-y]",
+          "unit_scale": "generator canonical; no absolute scale"
+        },
+        "seconds": 505.72939190000034,
+        "peak_allocated_mb": 3459.58837890625,
+        "peak_reserved_mb": 5400.0
+      }
+    ],
+    "whole_task_speedup_claimed": false
+  },
+  "hf_models": {
+    "schema": 1,
+    "repo": "t8star/Hi3d-Comfy",
+    "revision": "main",
+    "current_commit": "573acfb5c37b9f6ef6e2e78660d59ada338712b6",
+    "main_head_after_audit": "573acfb5c37b9f6ef6e2e78660d59ada338712b6",
+    "main_changed_during_audit": false,
+    "count": 95,
+    "totalbytes": 79269126760,
+    "allmatch": true,
+    "differences": [],
+    "lfs_sha256_files": 31,
+    "git_blob_sha1_files": 64,
+    "remote_repository_files": 115,
+    "unexpected_component_files": [],
+    "reference_catalogue": "data/model-publication-v044/model-catalogue.json",
+    "reference_catalogue_sha256": "e70d3b39975528a2ae08b476c30418116e8c77a62a3513941970c7f814c39106",
+    "validation": "Remote sizes and LFS SHA256 or Git blob SHA1 compared with published v0.4.4 catalogue. No local weight rehash, model download or upload.",
+    "recorded_utc": "2026-10-25T12:34:07.709061+00:00",
+    "files": [
+      {
+        "path": "hi3d/model_index.json",
+        "expected_bytes": 224,
+        "actual_bytes": 224,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "b63881777731bd5093112b934721202d01771065",
+        "actual_hash": "b63881777731bd5093112b934721202d01771065",
+        "match": true
+      },
+      {
+        "path": "hi3d/scheduler/scheduler_config.json",
+        "expected_bytes": 127,
+        "actual_bytes": 127,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "2a070592ea631dc2f158cf56ef0076cc87f2b872",
+        "actual_hash": "2a070592ea631dc2f158cf56ef0076cc87f2b872",
+        "match": true
+      },
+      {
+        "path": "hi3d/vae/config.json",
+        "expected_bytes": 131,
+        "actual_bytes": 131,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "c4f94b13cc30945292da5aac233405496a271dcc",
+        "actual_hash": "c4f94b13cc30945292da5aac233405496a271dcc",
+        "match": true
+      },
+      {
+        "path": "hi3d/vae/model.safetensors",
+        "expected_bytes": 376629712,
+        "actual_bytes": 376629712,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "605d207c77f8db0b33c567a5861252f0090cf3c3604dfda1cfee09e8f0b53f3e",
+        "actual_hash": "605d207c77f8db0b33c567a5861252f0090cf3c3604dfda1cfee09e8f0b53f3e",
+        "match": true
+      },
+      {
+        "path": "hi3d/transformer_512/config.json",
+        "expected_bytes": 1336,
+        "actual_bytes": 1336,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "47d2b9e97f8002913a47dbd58c55ee1ae6fa2cf5",
+        "actual_hash": "47d2b9e97f8002913a47dbd58c55ee1ae6fa2cf5",
+        "match": true
+      },
+      {
+        "path": "hi3d/transformer_512/model.safetensors",
+        "expected_bytes": 3675679280,
+        "actual_bytes": 3675679280,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "8ba88311dccf23463c6e10dd0d3bd5e0c5c35d1608c6f466413b6428b5ad8e56",
+        "actual_hash": "8ba88311dccf23463c6e10dd0d3bd5e0c5c35d1608c6f466413b6428b5ad8e56",
+        "match": true
+      },
+      {
+        "path": "hi3d/transformer_1024/config.json",
+        "expected_bytes": 1337,
+        "actual_bytes": 1337,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "daa180abc108fc26a5d60501d77b1118ae94a0f6",
+        "actual_hash": "daa180abc108fc26a5d60501d77b1118ae94a0f6",
+        "match": true
+      },
+      {
+        "path": "hi3d/transformer_1024/model.safetensors",
+        "expected_bytes": 3675679280,
+        "actual_bytes": 3675679280,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "a2ca5e44dde51cacecd59b42fceeb5f14e75d55e6dd047337752c4e6f281008c",
+        "actual_hash": "a2ca5e44dde51cacecd59b42fceeb5f14e75d55e6dd047337752c4e6f281008c",
+        "match": true
+      },
+      {
+        "path": "hi3d/AUTHORS",
+        "expected_bytes": 713,
+        "actual_bytes": 713,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "94be57617e3a9eca4c225a3b07be9b71b9726d11",
+        "actual_hash": "94be57617e3a9eca4c225a3b07be9b71b9726d11",
+        "match": true
+      },
+      {
+        "path": "hi3d/LICENSE",
+        "expected_bytes": 27470,
+        "actual_bytes": 27470,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "c1dd18a6714185099b3893a4aba16b8f5be15de0",
+        "actual_hash": "c1dd18a6714185099b3893a4aba16b8f5be15de0",
+        "match": true
+      },
+      {
+        "path": "hi3d/NOTICE",
+        "expected_bytes": 2157,
+        "actual_bytes": 2157,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "74d937fa449c019014e2de4960dc7ea61aa18b26",
+        "actual_hash": "74d937fa449c019014e2de4960dc7ea61aa18b26",
+        "match": true
+      },
+      {
+        "path": "hi3d/THIRD_PARTY_LICENSES.md",
+        "expected_bytes": 24344,
+        "actual_bytes": 24344,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "3839b2fc051b23382b9375ec50c67552b256d956",
+        "actual_hash": "3839b2fc051b23382b9375ec50c67552b256d956",
+        "match": true
+      },
+      {
+        "path": "dino/config.json",
+        "expected_bytes": 549,
+        "actual_bytes": 549,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "5def28dd2a0ecb2561a4649703f13c4dc595ee95",
+        "actual_hash": "5def28dd2a0ecb2561a4649703f13c4dc595ee95",
+        "match": true
+      },
+      {
+        "path": "dino/model.safetensors",
+        "expected_bytes": 1217522888,
+        "actual_bytes": 1217522888,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "399fba97a95f22c36834418bc69373364a99af3a1153da1c0fb31db567c92e23",
+        "actual_hash": "399fba97a95f22c36834418bc69373364a99af3a1153da1c0fb31db567c92e23",
+        "match": true
+      },
+      {
+        "path": "clip/config.json",
+        "expected_bytes": 4519,
+        "actual_bytes": 4519,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "2c19f6666e0e163c7954df66cb901353fcad088e",
+        "actual_hash": "2c19f6666e0e163c7954df66cb901353fcad088e",
+        "match": true
+      },
+      {
+        "path": "clip/model.safetensors",
+        "expected_bytes": 1710540580,
+        "actual_bytes": 1710540580,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "a2bf730a0c7debf160f7a6b50b3aaf3703e7e88ac73de7a314903141db026dcb",
+        "actual_hash": "a2bf730a0c7debf160f7a6b50b3aaf3703e7e88ac73de7a314903141db026dcb",
+        "match": true
+      },
+      {
+        "path": "extensions/background/u2netp.onnx",
+        "expected_bytes": 4574861,
+        "actual_bytes": 4574861,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+        "actual_hash": "309c8469258dda742793dce0ebea8e6dd393174f89934733ecc8b14c76f4ddd8",
+        "match": true
+      },
+      {
+        "path": "extensions/background/LICENSE.rembg.txt",
+        "expected_bytes": 1069,
+        "actual_bytes": 1069,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "efe94fb589c9801994f763754fad5c978fd39a14",
+        "actual_hash": "efe94fb589c9801994f763754fad5c978fd39a14",
+        "match": true
+      },
+      {
+        "path": "extensions/background/LICENSE.U2Net.txt",
+        "expected_bytes": 11357,
+        "actual_bytes": 11357,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+        "actual_hash": "261eeb9e9f8b2b4b0d119366dda99c6fd7d35c64",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse/hunyuan3d-dit-v2-mini-turbo/config.yaml",
+        "expected_bytes": 1664,
+        "actual_bytes": 1664,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "70a77756aaa5429626f4106e2cd882ca494221ab",
+        "actual_hash": "70a77756aaa5429626f4106e2cd882ca494221ab",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse/hunyuan3d-dit-v2-mini-turbo/model.fp16.safetensors",
+        "expected_bytes": 3822584202,
+        "actual_bytes": 3822584202,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "bdbcef30dd0149a281e17d5b5b1fdad1122c904e098a42f3100e04e03c247bc4",
+        "actual_hash": "bdbcef30dd0149a281e17d5b5b1fdad1122c904e098a42f3100e04e03c247bc4",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse/LICENSE",
+        "expected_bytes": 17828,
+        "actual_bytes": 17828,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "58e0779d576cb14caed1d443cf4d5785c2497fe1",
+        "actual_hash": "58e0779d576cb14caed1d443cf4d5785c2497fe1",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse/NOTICE",
+        "expected_bytes": 32064,
+        "actual_bytes": 32064,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "0e623667e16ed2034540ca9ace4ebc8b33865baf",
+        "actual_hash": "0e623667e16ed2034540ca9ace4ebc8b33865baf",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse/README.md",
+        "expected_bytes": 4319,
+        "actual_bytes": 4319,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "d7f5946d83c6752340e2c52a16b7fc40bcdca8d8",
+        "actual_hash": "d7f5946d83c6752340e2c52a16b7fc40bcdca8d8",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/texturing_pipeline.json",
+        "expected_bytes": 2965,
+        "actual_bytes": 2965,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f01be47debdfbb3183e8259e5c31e17d975abdd7",
+        "actual_hash": "f01be47debdfbb3183e8259e5c31e17d975abdd7",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/README.md",
+        "expected_bytes": 6417,
+        "actual_bytes": 6417,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "b1b0675bfca0ae82856ab3f7770b135d35be902c",
+        "actual_hash": "b1b0675bfca0ae82856ab3f7770b135d35be902c",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/shape_enc_next_dc_f16c32_fp16.json",
+        "expected_bytes": 653,
+        "actual_bytes": 653,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "4f2aed3c7057a7c7155058c9ccdcbd5fb2445e64",
+        "actual_hash": "4f2aed3c7057a7c7155058c9ccdcbd5fb2445e64",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/shape_enc_next_dc_f16c32_fp16.safetensors",
+        "expected_bytes": 708797208,
+        "actual_bytes": 708797208,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "f37c5ff5b983b68e9946060000f09bc131f3e84318a2c8b7430a81e4b4636c41",
+        "actual_hash": "f37c5ff5b983b68e9946060000f09bc131f3e84318a2c8b7430a81e4b4636c41",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/tex_dec_next_dc_f16c32_fp16.json",
+        "expected_bytes": 705,
+        "actual_bytes": 705,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "e17107bef522e2aded7b3bc22ef421b57e16e779",
+        "actual_hash": "e17107bef522e2aded7b3bc22ef421b57e16e779",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/tex_dec_next_dc_f16c32_fp16.safetensors",
+        "expected_bytes": 948458812,
+        "actual_bytes": 948458812,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "97ea69addea2ecd9312910f5f548234665eef51c088386180b7cd5b258645e3c",
+        "actual_hash": "97ea69addea2ecd9312910f5f548234665eef51c088386180b7cd5b258645e3c",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.json",
+        "expected_bytes": 458,
+        "actual_bytes": 458,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "b260bbc6cce80ccd7b61e32a40474225522b2043",
+        "actual_hash": "b260bbc6cce80ccd7b61e32a40474225522b2043",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/slat_flow_imgshape2tex_dit_1_3B_512_bf16.safetensors",
+        "expected_bytes": 2584672728,
+        "actual_bytes": 2584672728,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "8371aa1c5d13be79dcd5ddfd2cf3835e902e204dc34427169a1c702828e1a94d",
+        "actual_hash": "8371aa1c5d13be79dcd5ddfd2cf3835e902e204dc34427169a1c702828e1a94d",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.json",
+        "expected_bytes": 458,
+        "actual_bytes": 458,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "d949ce887c62645f6a927ee66bba2a0df56e383e",
+        "actual_hash": "d949ce887c62645f6a927ee66bba2a0df56e383e",
+        "match": true
+      },
+      {
+        "path": "extensions/texture/ckpts/slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors",
+        "expected_bytes": 2584672728,
+        "actual_bytes": 2584672728,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "580401269059a339b8318ab9ced459a13ba63391721c83a6c383198c29e77686",
+        "actual_hash": "580401269059a339b8318ab9ced459a13ba63391721c83a6c383198c29e77686",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_encoder/config.json",
+        "expected_bytes": 745,
+        "actual_bytes": 745,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "ab2a8b183fd4fd5213e9898a7f499c7c857b1a86",
+        "actual_hash": "ab2a8b183fd4fd5213e9898a7f499c7c857b1a86",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_encoder/model.safetensors",
+        "expected_bytes": 1212559808,
+        "actual_bytes": 1212559808,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+        "actual_hash": "dcb2e45127cccbf1601e5f42fef165eea275c8e5213197e8dcf3f48822718179",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_encoder/preprocessor_config.json",
+        "expected_bytes": 585,
+        "actual_bytes": 585,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "0126173c1ab7b75bbd9102e37de8a56ffe0a012b",
+        "actual_hash": "0126173c1ab7b75bbd9102e37de8a56ffe0a012b",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_encoder/LICENSE.md",
+        "expected_bytes": 7503,
+        "actual_bytes": 7503,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f531b1e6b5ab2318957bbf8ad1bda9f800a23e17",
+        "actual_hash": "f531b1e6b5ab2318957bbf8ad1bda9f800a23e17",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_encoder/README.md",
+        "expected_bytes": 14520,
+        "actual_bytes": 14520,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "fc1b2f193fe95afb9f236810dbea3c3b436399e6",
+        "actual_hash": "fc1b2f193fe95afb9f236810dbea3c3b436399e6",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_hunyuan21/hunyuan3d-dit-v2-1/config.yaml",
+        "expected_bytes": 2078,
+        "actual_bytes": 2078,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "695b7d5c6ba96a7f1f849430da23b21c682d8116",
+        "actual_hash": "695b7d5c6ba96a7f1f849430da23b21c682d8116",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_hunyuan21/hunyuan3d-dit-v2-1/model.fp16.ckpt",
+        "expected_bytes": 7366389768,
+        "actual_bytes": 7366389768,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "6b519fc7242f78e9b5f47ea4d55668fe3d944a2d27332f4ca68d29a6ff603f5e",
+        "actual_hash": "6b519fc7242f78e9b5f47ea4d55668fe3d944a2d27332f4ca68d29a6ff603f5e",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_hunyuan21/LICENSE",
+        "expected_bytes": 17915,
+        "actual_bytes": 17915,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "d875bf81e661c42846be26b83417ea31bfc4d3a7",
+        "actual_hash": "d875bf81e661c42846be26b83417ea31bfc4d3a7",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_hunyuan21/Notice.txt",
+        "expected_bytes": 16644,
+        "actual_bytes": 16644,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "bd3dea50102cdd5628a7a803c5d0c68a522a29ff",
+        "actual_hash": "bd3dea50102cdd5628a7a803c5d0c68a522a29ff",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_hunyuan21/README.md",
+        "expected_bytes": 3998,
+        "actual_bytes": 3998,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "cbae35b1bdbe05e418205b0421a0a04f5f76849f",
+        "actual_hash": "cbae35b1bdbe05e418205b0421a0a04f5f76849f",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/pipeline.json",
+        "expected_bytes": 4186,
+        "actual_bytes": 4186,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f5ec14c7f71b3d7f2cb0221c5f568a6871dc5e90",
+        "actual_hash": "f5ec14c7f71b3d7f2cb0221c5f568a6871dc5e90",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/README.md",
+        "expected_bytes": 6417,
+        "actual_bytes": 6417,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "b1b0675bfca0ae82856ab3f7770b135d35be902c",
+        "actual_hash": "b1b0675bfca0ae82856ab3f7770b135d35be902c",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/shape_dec_next_dc_f16c32_fp16.json",
+        "expected_bytes": 678,
+        "actual_bytes": 678,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "e46164e905de0e68328f5f4b1f128b8dac608d97",
+        "actual_hash": "e46164e905de0e68328f5f4b1f128b8dac608d97",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/shape_dec_next_dc_f16c32_fp16.safetensors",
+        "expected_bytes": 948490494,
+        "actual_bytes": 948490494,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "e3b718d3e43e4f8780e9a24ac6fff231811a67e3b058e336e10fe654c911d581",
+        "actual_hash": "e3b718d3e43e4f8780e9a24ac6fff231811a67e3b058e336e10fe654c911d581",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/ss_flow_img_dit_1_3B_64_bf16.json",
+        "expected_bytes": 467,
+        "actual_bytes": 467,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f71c87cda44a9a940fa3a2d250a0944d606d2245",
+        "actual_hash": "f71c87cda44a9a940fa3a2d250a0944d606d2245",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/ss_flow_img_dit_1_3B_64_bf16.safetensors",
+        "expected_bytes": 2584426920,
+        "actual_bytes": 2584426920,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+        "actual_hash": "ca01377c485bec418076d38ee80166d32dc776d744f2553b835cba1e97a7abf6",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.json",
+        "expected_bytes": 458,
+        "actual_bytes": 458,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "6e39aacbf7bd43d16d3dad35c95d43c0b17d6a4f",
+        "actual_hash": "6e39aacbf7bd43d16d3dad35c95d43c0b17d6a4f",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/slat_flow_img2shape_dit_1_3B_512_bf16.safetensors",
+        "expected_bytes": 2584574424,
+        "actual_bytes": 2584574424,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "ec5e0917ef9b7e25ad51dffc7d19687a42019871f94239f2fa7f86264c55b70f",
+        "actual_hash": "ec5e0917ef9b7e25ad51dffc7d19687a42019871f94239f2fa7f86264c55b70f",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.json",
+        "expected_bytes": 458,
+        "actual_bytes": 458,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "cfd8d761e89aad595e97ec0cfe4b8469c9053583",
+        "actual_hash": "cfd8d761e89aad595e97ec0cfe4b8469c9053583",
+        "match": true
+      },
+      {
+        "path": "extensions/coarse_trellis2/ckpts/slat_flow_img2shape_dit_1_3B_1024_bf16.safetensors",
+        "expected_bytes": 2584574424,
+        "actual_bytes": 2584574424,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "07cd0596f634c5adc1890023d16023afc5eed02fb84b22bb23aff5bf0030fbbd",
+        "actual_hash": "07cd0596f634c5adc1890023d16023afc5eed02fb84b22bb23aff5bf0030fbbd",
+        "match": true
+      },
+      {
+        "path": "extensions/trellis_structure/README.md",
+        "expected_bytes": 464,
+        "actual_bytes": 464,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "e2979a10b76f2cd9f2ea3f12d42f3c4e4d0b00bc",
+        "actual_hash": "e2979a10b76f2cd9f2ea3f12d42f3c4e4d0b00bc",
+        "match": true
+      },
+      {
+        "path": "extensions/trellis_structure/ckpts/ss_dec_conv3d_16l8_fp16.json",
+        "expected_bytes": 245,
+        "actual_bytes": 245,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "9f3affaf13ab29fe48105229da9fab72ea8de716",
+        "actual_hash": "9f3affaf13ab29fe48105229da9fab72ea8de716",
+        "match": true
+      },
+      {
+        "path": "extensions/trellis_structure/ckpts/ss_dec_conv3d_16l8_fp16.safetensors",
+        "expected_bytes": 147591972,
+        "actual_bytes": 147591972,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "1c76d4a40519aa2d711cc263a8404105231ac26db31d946bed48b84fee79009a",
+        "actual_hash": "1c76d4a40519aa2d711cc263a8404105231ac26db31d946bed48b84fee79009a",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/flux2/decoder.pt",
+        "expected_bytes": 99261764,
+        "actual_bytes": 99261764,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b",
+        "actual_hash": "981dc4c52481687c6da4e6211617615a2b2bcc33456e1953ee6c5478aa00025b",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/flux2/lora/dit_lora.safetensors",
+        "expected_bytes": 478172752,
+        "actual_bytes": 478172752,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c",
+        "actual_hash": "3b1915177a81bc2ab43f501355bf39113df0128e6cbc6fedf8b8621d5e06a01c",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/flux2_mr/lora/dit_lora.safetensors",
+        "expected_bytes": 478172752,
+        "actual_bytes": 478172752,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "13e94f5a30a789b1e3e76d8c96cbba5f52fb2f68411e56377f382e145da23fc1",
+        "actual_hash": "13e94f5a30a789b1e3e76d8c96cbba5f52fb2f68411e56377f382e145da23fc1",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/FLUX-NON-COMMERCIAL-LICENSE.md",
+        "expected_bytes": 18158,
+        "actual_bytes": 18158,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f6eb422412c4d98986fa3671bb46363894f099bb",
+        "actual_hash": "f6eb422412c4d98986fa3671bb46363894f099bb",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/LICENSE-UltraTex-MIT",
+        "expected_bytes": 1067,
+        "actual_bytes": 1067,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "739e7109b4d169ee9e6918265cdc8f49905ea52f",
+        "actual_hash": "739e7109b4d169ee9e6918265cdc8f49905ea52f",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_ultratex/README.md",
+        "expected_bytes": 2303,
+        "actual_bytes": 2303,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "5deb2902764292eeb1e7c06035614d872d33d806",
+        "actual_hash": "5deb2902764292eeb1e7c06035614d872d33d806",
+        "match": true
+      },
+      {
+        "path": "extensions/ultratex_backbone/flux-2-klein-base-9b-fp8.safetensors",
+        "expected_bytes": 9567278472,
+        "actual_bytes": 9567278472,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "a9f5028c24a7a96f4f45beb883aad287d9bccc246227a6803edc898ddda42cf4",
+        "actual_hash": "a9f5028c24a7a96f4f45beb883aad287d9bccc246227a6803edc898ddda42cf4",
+        "match": true
+      },
+      {
+        "path": "extensions/ultratex_text_encoder/split_files/text_encoders/qwen_3_8b_fp8mixed.safetensors",
+        "expected_bytes": 8664848742,
+        "actual_bytes": 8664848742,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "abad16806e0cbabc54e0325d6565847443fe396d5f0be38bb3cd3fe75a1201d6",
+        "actual_hash": "abad16806e0cbabc54e0325d6565847443fe396d5f0be38bb3cd3fe75a1201d6",
+        "match": true
+      },
+      {
+        "path": "extensions/ultratex_text_encoder/split_files/vae/flux2-vae.safetensors",
+        "expected_bytes": 336211292,
+        "actual_bytes": 336211292,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+        "actual_hash": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+        "match": true
+      },
+      {
+        "path": "extensions/ultratex_text_encoder/README.md",
+        "expected_bytes": 729,
+        "actual_bytes": 729,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "c1cc1dbe727f4301d90cf1f7a07ba4f20b44c4a5",
+        "actual_hash": "c1cc1dbe727f4301d90cf1f7a07ba4f20b44c4a5",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/LICENSE",
+        "expected_bytes": 17915,
+        "actual_bytes": 17915,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "d875bf81e661c42846be26b83417ea31bfc4d3a7",
+        "actual_hash": "d875bf81e661c42846be26b83417ea31bfc4d3a7",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/Notice.txt",
+        "expected_bytes": 16644,
+        "actual_bytes": 16644,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "bd3dea50102cdd5628a7a803c5d0c68a522a29ff",
+        "actual_hash": "bd3dea50102cdd5628a7a803c5d0c68a522a29ff",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/README.md",
+        "expected_bytes": 3998,
+        "actual_bytes": 3998,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "cbae35b1bdbe05e418205b0421a0a04f5f76849f",
+        "actual_hash": "cbae35b1bdbe05e418205b0421a0a04f5f76849f",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/README.md",
+        "expected_bytes": 1801,
+        "actual_bytes": 1801,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "ced35bb9c31a78fa7e619523e194df55c566ef1d",
+        "actual_hash": "ced35bb9c31a78fa7e619523e194df55c566ef1d",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/feature_extractor/preprocessor_config.json",
+        "expected_bytes": 342,
+        "actual_bytes": 342,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "5294955ff7801083f720b34b55d0f1f51313c5c5",
+        "actual_hash": "5294955ff7801083f720b34b55d0f1f51313c5c5",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/image_encoder/config.json",
+        "expected_bytes": 554,
+        "actual_bytes": 554,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "6153857c58f01c747d472126a36318a03c76ee19",
+        "actual_hash": "6153857c58f01c747d472126a36318a03c76ee19",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/image_encoder/model.safetensors",
+        "expected_bytes": 1264217240,
+        "actual_bytes": 1264217240,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "ae616c24393dd1854372b0639e5541666f7521cbe219669255e865cb7f89466a",
+        "actual_hash": "ae616c24393dd1854372b0639e5541666f7521cbe219669255e865cb7f89466a",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/model_index.json",
+        "expected_bytes": 617,
+        "actual_bytes": 617,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "22173e8300baa3e99943c7e8c3dfbb9cd1fb2606",
+        "actual_hash": "22173e8300baa3e99943c7e8c3dfbb9cd1fb2606",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/scheduler/scheduler_config.json",
+        "expected_bytes": 387,
+        "actual_bytes": 387,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "e2cca4b978fc3b95f8431fec292c2c289d8e1515",
+        "actual_hash": "e2cca4b978fc3b95f8431fec292c2c289d8e1515",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/text_encoder/config.json",
+        "expected_bytes": 613,
+        "actual_bytes": 613,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f9ac7c0b3b341525cd1b65e1a715128fee97b25c",
+        "actual_hash": "f9ac7c0b3b341525cd1b65e1a715128fee97b25c",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/text_encoder/pytorch_model.bin",
+        "expected_bytes": 1361671895,
+        "actual_bytes": 1361671895,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "c3e254d7b61353497ea0be2c4013df4ea8f739ee88cffa0ba58cd085459ed565",
+        "actual_hash": "c3e254d7b61353497ea0be2c4013df4ea8f739ee88cffa0ba58cd085459ed565",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/tokenizer/merges.txt",
+        "expected_bytes": 524619,
+        "actual_bytes": 524619,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "76e821f1b6f0a9709293c3b6b51ed90980b3166b",
+        "actual_hash": "76e821f1b6f0a9709293c3b6b51ed90980b3166b",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/tokenizer/special_tokens_map.json",
+        "expected_bytes": 460,
+        "actual_bytes": 460,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "ae0c5be6f35217e51c4c000fd325d8de0294e99c",
+        "actual_hash": "ae0c5be6f35217e51c4c000fd325d8de0294e99c",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/tokenizer/tokenizer_config.json",
+        "expected_bytes": 807,
+        "actual_bytes": 807,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "65d055d1103982d6ba7cf1c5c876a9413077daf5",
+        "actual_hash": "65d055d1103982d6ba7cf1c5c876a9413077daf5",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/tokenizer/vocab.json",
+        "expected_bytes": 1059962,
+        "actual_bytes": 1059962,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "469be27c5c010538f845f518c4f5e8574c78f7c8",
+        "actual_hash": "469be27c5c010538f845f518c4f5e8574c78f7c8",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/unet/attn_processor.py",
+        "expected_bytes": 35104,
+        "actual_bytes": 35104,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "37ebde0f6f30230351f757e050e3b86fd8a06402",
+        "actual_hash": "37ebde0f6f30230351f757e050e3b86fd8a06402",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/unet/config.json",
+        "expected_bytes": 911,
+        "actual_bytes": 911,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "0fa07f924dabbf7517dc62af845cd31573bc09e3",
+        "actual_hash": "0fa07f924dabbf7517dc62af845cd31573bc09e3",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/unet/diffusion_pytorch_model.bin",
+        "expected_bytes": 3925293863,
+        "actual_bytes": 3925293863,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "675a1b5cd0098b2002637c443946529c03c5cd54427f40245263350feb3dd5b8",
+        "actual_hash": "675a1b5cd0098b2002637c443946529c03c5cd54427f40245263350feb3dd5b8",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/unet/model.py",
+        "expected_bytes": 25514,
+        "actual_bytes": 25514,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "f98ca7e73a5fdc59d6fc1afb0b2f1f6eb75be169",
+        "actual_hash": "f98ca7e73a5fdc59d6fc1afb0b2f1f6eb75be169",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/unet/modules.py",
+        "expected_bytes": 45181,
+        "actual_bytes": 45181,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "55f0404a452ecd9d7bc20d84303c151c67d8bf8f",
+        "actual_hash": "55f0404a452ecd9d7bc20d84303c151c67d8bf8f",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/vae/config.json",
+        "expected_bytes": 553,
+        "actual_bytes": 553,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "9421ac5a7caf02657fa559cffe7c73a47572cd64",
+        "actual_hash": "9421ac5a7caf02657fa559cffe7c73a47572cd64",
+        "match": true
+      },
+      {
+        "path": "extensions/texture_hunyuan21/hunyuan3d-paintpbr-v2-1/vae/diffusion_pytorch_model.bin",
+        "expected_bytes": 334707217,
+        "actual_bytes": 334707217,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "1b4889b6b1d4ce7ae320a02dedaeff1780ad77d415ea0d744b476155c6377ddc",
+        "actual_hash": "1b4889b6b1d4ce7ae320a02dedaeff1780ad77d415ea0d744b476155c6377ddc",
+        "match": true
+      },
+      {
+        "path": "extensions/paint_dino/README.md",
+        "expected_bytes": 3033,
+        "actual_bytes": 3033,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "c31309adc935207373bdc847276bc085ef92a8c1",
+        "actual_hash": "c31309adc935207373bdc847276bc085ef92a8c1",
+        "match": true
+      },
+      {
+        "path": "extensions/paint_dino/config.json",
+        "expected_bytes": 548,
+        "actual_bytes": 548,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "5f6d78927e4738cc844e868a5150753239927ef7",
+        "actual_hash": "5f6d78927e4738cc844e868a5150753239927ef7",
+        "match": true
+      },
+      {
+        "path": "extensions/paint_dino/model.safetensors",
+        "expected_bytes": 4546005432,
+        "actual_bytes": 4546005432,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "917d3c470db999d32a312f8542149be91c7cbac61ee8fb4b67ae3d82b79ce21f",
+        "actual_hash": "917d3c470db999d32a312f8542149be91c7cbac61ee8fb4b67ae3d82b79ce21f",
+        "match": true
+      },
+      {
+        "path": "extensions/paint_dino/preprocessor_config.json",
+        "expected_bytes": 436,
+        "actual_bytes": 436,
+        "algorithm": "git-blob-sha1",
+        "expected_hash": "ff5b47c2edcd1d3556d63c01a65d93b58b9efce1",
+        "actual_hash": "ff5b47c2edcd1d3556d63c01a65d93b58b9efce1",
+        "match": true
+      },
+      {
+        "path": "extensions/paint_upscaler/RealESRGAN_x4plus.pth",
+        "expected_bytes": 67040989,
+        "actual_bytes": 67040989,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+        "actual_hash": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+        "match": true
+      },
+      {
+        "path": "extensions/ultratex_backbone_int8/flux2Klein9BINT8_9bBase.safetensors",
+        "expected_bytes": 9405841780,
+        "actual_bytes": 9405841780,
+        "algorithm": "sha256-lfs",
+        "expected_hash": "a81250a88150df3c79d0175f5d04a1cc57de6fa79ea2852385e3bf7fc4c5ea65",
+        "actual_hash": "a81250a88150df3c79d0175f5d04a1cc57de6fa79ea2852385e3bf7fc4c5ea65",
+        "match": true
+      }
+    ]
+  },
+  "pbr_job": "8bd7abce9d5f4717b551ab0d62c7262f",
+  "scope": "Local application validation; publication is verified separately after release CI",
+  "pbr_full": {
+    "job": "8bd7abce9d5f4717b551ab0d62c7262f",
+    "status": "succeeded",
+    "http_queue_to_success_seconds": 780.828,
+    "pipeline_report_seconds": 766.36,
+    "stage_seconds": 745.608,
+    "uv_seconds": 69.358,
+    "sampling_steps": 12,
+    "sampler_seconds": 45.613514,
+    "texture_resolution": 1024,
+    "texture_size": 4096,
+    "gpu_utilization_max_percent": 100,
+    "native_packed_calls": 720,
+    "packed_sdpa_fallback_calls": 0,
+    "glb_validation": {
+      "status": "passed",
+      "faces": 973926,
+      "vertices": 968401,
+      "removed_exact_zero_faces": 42,
+      "position_max_abs_error": 0.0,
+      "normal_max_abs_error": 2.9802190049110777e-08,
+      "uv_max_abs_error": 2.9802322387695312e-08,
+      "full_oriented_faces_and_uv_guards": "passed",
+      "color_std_rgb": [
+        22.099519930287315,
+        16.031729641857538,
+        13.686113693137719
+      ],
+      "mr_std": [
+        0.0,
+        8.412875724209625,
+        4.793362394754788
+      ],
+      "material": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      }
+    },
+    "actual_blender_render": {
+      "views": [
+        "front",
+        "quarter",
+        "back"
+      ],
+      "environment": "Poly Haven studio_small_09",
+      "engine": "Cycles CPU",
+      "samples": 24,
+      "visual_inspection": "passed for front/quarter/back; bounded example, not universal quality rating"
+    },
+    "export_80mm_y_embedded_material": "passed",
+    "observer_timing_note": "CPU voxel/inpaint device markers were corrected after this full-size run; the next real custom-root job verifies those markers."
+  },
+  "custom_root_pbr": {
+    "job": "8bbef56ce55b41989b3fc89b4dd7e1fa",
+    "status": "succeeded",
+    "http_seconds": 192.625,
+    "stage_seconds": 182.962,
+    "faces": 1280,
+    "resolution": 512,
+    "steps": 4,
+    "texture_size": 1024,
+    "allocated_peak_mb": 3078.08,
+    "reserved_peak_mb": 3272,
+    "native_packed_calls": 240,
+    "packed_sdpa_fallback_calls": 0,
+    "validation": {
+      "status": "passed",
+      "real_model_root": "Chinese/space custom test root; model directories are NTFS junctions to original weights",
+      "fresh_worker_paths": "passed",
+      "busy_switch_409": "passed",
+      "default_restored": true,
+      "encoding_cpu_cuda_transitions": "passed",
+      "actual_inpaint_counters": [
+        0,
+        1,
+        1,
+        2,
+        2,
+        3,
+        3,
+        4
+      ],
+      "material": {
+        "texture_generated": true,
+        "uv": true,
+        "embedded": true,
+        "images": 2,
+        "materials": 1,
+        "primitives": 1,
+        "channels": [
+          "base_color",
+          "metallic",
+          "roughness"
+        ]
+      },
+      "health": {
+        "version": "0.4.5",
+        "models_ready": true,
+        "engines": {
+          "ready": 7,
+          "total": 7
+        },
+        "model_path": {
+          "models_dir": "",
+          "resolved_path": "E:\\Hi3D-Workbench\\models",
+          "default_path": "E:\\Hi3D-Workbench\\models",
+          "extensions_path": "E:\\Hi3D-Workbench\\models\\extensions",
+          "is_default": true,
+          "exists": true,
+          "restart_required": false,
+          "busy": false,
+          "busy_reason": null
+        }
+      }
+    },
+    "purpose": "functional regression on a different workload, not a speed comparison or minimum VRAM claim"
+  },
+  "browser_interaction": {
+    "status": "unavailable",
+    "reason": "Browser is not available: iab",
+    "http_and_js_tests_are_not_browser_interaction": true
+  },
+  "runtime_packages": {
+    "flash_attention": "2.8.3",
+    "numba": "0.61.2",
+    "llvmlite": "0.44.0",
+    "torch": "2.8.0+cu128",
+    "numpy": "1.26.4",
+    "pip_check": "passed",
+    "torch_numpy_changed": false
+  }
+}

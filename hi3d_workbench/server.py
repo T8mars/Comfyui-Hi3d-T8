@@ -11,13 +11,13 @@ import uuid
 import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
-from contextlib import asynccontextmanager, contextmanager
+from contextlib import asynccontextmanager, contextmanager, ExitStack
 from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictStr
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 from starlette.concurrency import run_in_threadpool
 from PIL import Image, ImageOps
@@ -25,7 +25,7 @@ from .common import ROOT, DATA, MODELS, config, atomic_json, read_json, child_pa
 from .geometry import load_mesh, inspect_mesh, export_mesh
 from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
-from . import models, pipeline_models, updater, lifecycle
+from . import common, models, pipeline_models, updater, lifecycle
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -37,6 +37,7 @@ DIAGNOSTIC_TIMEOUT=180
 PROBE_WORKERS={}
 PROBE_WORKERS_LOCK=threading.Lock()
 PIPELINE_MODELS_LOCK=threading.Lock()
+MODEL_PATH_LOCK=threading.RLock()
 JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
 
 @contextmanager
@@ -162,7 +163,82 @@ def health(request: Request):
     try:diagnostics=read_json(DATA/'diagnostics.json')
     except (OSError,ValueError) as exc:diagnostics={'error':f'诊断记录无法读取，请重新运行 GPU 检查：{exc}','kernel_probe':'not_run'}
     address=request.scope.get('server')
-    return {"models":models.status(),"pipeline_models":pipeline_models.status(),"pipeline_model_checking":PIPELINE_MODELS_LOCK.locked(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":errors,"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers+probe_workers,"diagnostics":diagnostics,"port":address[1] if address else config()["port"],"version":VERSION}
+    with MODEL_PATH_LOCK:
+        return {"models":models.status(),"pipeline_models":pipeline_models.status(),"model_path":model_path(),"pipeline_model_checking":PIPELINE_MODELS_LOCK.locked(),"active":manager.active,"operation":operation,"model_checking":VERIFY_LOCK.locked(),"verification_error":verification_error,"recovery_errors":errors,"recovery_blocked":blocked,"recovery_workers":manager.recovery_workers+probe_workers,"diagnostics":diagnostics,"port":address[1] if address else config()["port"],"version":VERSION}
+
+def _model_path_busy_reason(*, include_local_locks=True):
+    if manager.active:
+        return '已有任务运行，请先等待或停止该任务'
+    if operation or (include_local_locks and GPU_OPERATION.locked()):
+        return '正在提交任务、下载或检查 GPU，请稍候'
+    if manager.recovery_blocked or probe_recovery_workers():
+        return '仍有残留工作或诊断进程运行，请等待该进程退出'
+    if include_local_locks:
+        if VERIFY_LOCK.locked():return '正在校验 Hi3D 模型，请稍候'
+        if models.LOCK.locked():return '正在下载 Hi3D 模型，请稍候'
+        if PIPELINE_MODELS_LOCK.locked() or pipeline_models._LOCK.locked():
+            return '扩展模型正在下载或校验，请稍候'
+        if models._download_lock_held():return '模型下载或校验进程仍在运行，请稍候'
+        if pipeline_models.status().get('download',{}).get('state')=='downloading':
+            return '扩展模型下载或校验进程仍在运行，请稍候'
+    return None
+
+@app.get('/api/model-path')
+def model_path():
+    with MODEL_PATH_LOCK:
+        value=config().get('models_dir') or ''
+        reason=_model_path_busy_reason()
+        return {'models_dir':value,'resolved_path':str(MODELS),
+                'default_path':str(common.DEFAULT_MODELS),
+                'extensions_path':str(pipeline_models.MODEL_ROOT),
+                'is_default':MODELS.resolve()==common.DEFAULT_MODELS.resolve(),
+                'exists':MODELS.is_dir(),'restart_required':False,
+                'busy':reason is not None,'busy_reason':reason}
+
+class ModelPathInput(BaseModel):
+    models_dir:StrictStr | None=Field(default='',max_length=4096)
+
+@app.post('/api/model-path')
+def save_model_path(body:ModelPathInput):
+    """Commit one idle weight root; no worker or existing weight is modified."""
+    global MODELS, verification_error
+    value=(body.models_dir or '').strip()
+    target=common.resolve_model_dir(value)
+    if not GPU_OPERATION.acquire(blocking=False):
+        raise HTTPException(409,'正在提交任务、下载或检查 GPU，请稍候再修改模型目录')
+    try:
+        # The same order as submission (GPU -> manager) excludes a queued job
+        # until its worker has been assigned the new persisted configuration.
+        with manager.lock, ExitStack() as guards:
+            reason=_model_path_busy_reason(include_local_locks=False)
+            if reason:raise HTTPException(409,reason)
+            for lock in (VERIFY_LOCK,PIPELINE_MODELS_LOCK,models.LOCK,pipeline_models._LOCK):
+                if not lock.acquire(blocking=False):
+                    raise HTTPException(409,'模型正在下载或校验，请稍候再修改模型目录')
+                guards.callback(lock.release)
+            # Hold actual CLI locks on both the old and selected directories.
+            # Nonexistent roots stay nonexistent until a download is requested.
+            from filelock import FileLock, Timeout
+            roots={MODELS.resolve(),pipeline_models.MODEL_ROOT.resolve(),target,(target/'extensions').resolve()}
+            for root in sorted(roots,key=str):
+                if not root.is_dir():continue
+                lock=FileLock(str(root/'.download.lock'),thread_local=False)
+                try:lock.acquire(timeout=0)
+                except Timeout:
+                    raise HTTPException(409,'所选或当前目录有模型下载/校验进程运行，请稍候') from None
+                guards.callback(lock.release)
+            with MODEL_PATH_LOCK:
+                cfg=read_json(ROOT/'config.local.json',{})
+                if not isinstance(cfg,dict):raise ValueError('config.local.json 必须为 JSON 对象')
+                cfg['models_dir']=value
+                atomic_json(ROOT/'config.local.json',cfg)
+                common.MODELS=MODELS=target
+                models.set_model_root(target)
+                pipeline_models.set_model_root(target)
+                verification_error=None
+    finally:
+        GPU_OPERATION.release()
+    return model_path()
 
 @app.post("/api/diagnostics")
 def diagnose():
@@ -358,6 +434,8 @@ class JobInput(BaseModel):
     geometry_resolution:int | None=None
     geometry_steps:int | None=Field(None,ge=1,le=100)
     geometry_cleanup:bool=True
+    geometry_target_faces:int=1000000
+    pipeline_attention:str='auto'
     texture_engine:str='trellis2'
     texture_steps:int | None=Field(None,ge=1,le=100)
     texture_resolution:int | None=None
@@ -372,7 +450,9 @@ class JobInput(BaseModel):
 @app.post("/api/jobs")
 def create_job(body:JobInput):
     from .engine_catalog import engine, is_ready
-    if body.resolution not in {512,1024,1536} or body.attention not in {"flash","sdpa"}:raise HTTPException(400,"无效推理配置")
+    if (body.resolution not in {512,1024,1536} or body.attention not in {"flash","sdpa"}
+            or body.pipeline_attention not in {'auto','flash_attn','sdpa'}
+            or body.geometry_target_faces not in {100000,300000,1000000}):raise HTTPException(400,"无效推理配置")
     try:
         geometry_choice=engine('coarse',body.geometry_engine)
         texture_choice=engine('texture',body.texture_engine)

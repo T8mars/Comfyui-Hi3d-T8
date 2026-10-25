@@ -12,6 +12,7 @@ import traceback
 from pathlib import Path
 
 from .common import ROOT, atomic_json, config, digest, read_json
+from .events import EVENT_MARKER, event_spans
 from .worker import emit
 
 
@@ -34,14 +35,23 @@ def run_child(command, request_path, directory, stage):
             for line in process.stdout:
                 log.write(line)
                 log.flush()
-                if line.startswith('HI3D_EVENT '):
-                    try:
-                        event=json.loads(line[len('HI3D_EVENT '):])
-                        if event.get('stage')=='complete':
-                            event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
-                            line='HI3D_EVENT '+json.dumps(event,ensure_ascii=False)+'\n'
-                    except (ValueError,AttributeError):pass
-                print(line, end='', flush=True)
+                spans=list(event_spans(line))
+                if not spans:
+                    print(line,end='',flush=True)
+                    continue
+                cursor=0
+                for start,end,event in spans:
+                    display=line[cursor:start]
+                    if display:print(display,end='' if display.endswith('\n') else '\n',flush=True)
+                    # Keep real events on independent lines. Forwarding the
+                    # original mixed line too would make Jobs apply it twice.
+                    event.setdefault('pipeline_stage',stage)
+                    if event['stage']=='complete':
+                        event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
+                    print(EVENT_MARKER+json.dumps(event,ensure_ascii=False,allow_nan=False),flush=True)
+                    cursor=end
+                tail=line[cursor:]
+                if tail.strip():print(tail,end='' if tail.endswith('\n') else '\n',flush=True)
         code = process.wait()
         if code:
             try:
@@ -89,8 +99,12 @@ def run(request_path):
                    'engine': req.get('geometry_engine','hunyuan_mini') if stage == 'coarse' else req.get('texture_engine','trellis2'),
                    'geometry_steps': req.get('geometry_steps',50), 'texture_steps': req.get('texture_steps',12),
                    'geometry_cleanup': req.get('geometry_cleanup',True),
+                   'pipeline_attention': req.get('pipeline_attention','auto'),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}
+        # Face budgets apply to generated geometry only. Existing mesh
+        # texturing must never inherit a simplification request.
+        if stage == 'coarse':payload['target_faces']=req.get('geometry_target_faces',1000000)
         if source_mesh:
             payload['mesh_path'] = str(source_mesh)
         stage_request = stage_dir / 'request.json'

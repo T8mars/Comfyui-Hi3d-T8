@@ -13,7 +13,7 @@ from huggingface_hub import HfApi, CommitOperationAdd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from hi3d_workbench.common import atomic_json, VERSION
+from hi3d_workbench.common import atomic_json, VERSION, MODELS
 from hi3d_workbench.pipeline_models import SPECS
 
 REPO = 't8star/Hi3d-Comfy'
@@ -45,9 +45,9 @@ def main():
     api = HfApi()
     assert api.whoami()['name'] == 't8star', 'Unexpected Hugging Face identity'
     groups, catalogue = {}, {}
-    manifests = [('core', ROOT / 'models/manifest.json', ROOT / 'models', '')]
+    manifests = [('core', MODELS / 'manifest.json', MODELS, '')]
     if args.include_extensions:
-        manifests.append(('extensions', ROOT / 'models/extensions/manifest.json', ROOT / 'models/extensions', 'extensions/'))
+        manifests.append(('extensions', MODELS / 'extensions/manifest.json', MODELS / 'extensions', 'extensions/'))
     output = args.output
     output.mkdir(parents=True, exist_ok=True)
     for kind, manifest_path, base, prefix in manifests:
@@ -83,7 +83,7 @@ def main():
     atomic_json(output / 'model-catalogue.json', {'schema': 1, 'files': catalogue})
     groups['catalogue'] = [('model-catalogue.json', output / 'model-catalogue.json', {})]
     licenses = [(f'licenses/{p.name}', p, {}) for p in (ROOT / 'licenses').iterdir() if p.is_file()]
-    licenses += [('LICENSE', ROOT / 'models/hi3d/LICENSE', {}), ('NOTICE', ROOT / 'models/hi3d/NOTICE', {})]
+    licenses += [('LICENSE', MODELS / 'hi3d/LICENSE', {}), ('NOTICE', MODELS / 'hi3d/NOTICE', {})]
     if not args.models_only:
         licenses += [('README.md', ROOT / 'docs/HUGGINGFACE.md', {}),
                      ('README.zh-CN.md', ROOT / 'docs/HUGGINGFACE.zh-CN.md', {})]

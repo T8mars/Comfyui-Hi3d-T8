@@ -13,13 +13,22 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from .common import ROOT, atomic_json
+from .common import ROOT, MODELS, atomic_json
 from .engine_catalog import BASELINE_COMPONENTS, ENGINES, engine_status, required_components
 
-MODEL_ROOT = ROOT / "models" / "extensions"
+MODEL_ROOT = MODELS / "extensions"
 _LOCK = threading.Lock()
 _STATE = {"state": "idle", "message": "扩展模型尚未下载"}
 _STATE_PATH = None
+
+def set_model_root(root):
+    """Switch idle model state without touching existing model directories."""
+    global MODEL_ROOT, _STATE_PATH
+    MODEL_ROOT=Path(root) / 'extensions'
+    _STATE_PATH=None
+    _STATE.clear()
+    _STATE.update(state='idle',message='扩展模型尚未下载')
+
 SPECS = {
     "background": {
         "repo": "danielgatis/rembg (U2Netp ONNX release)",
@@ -384,7 +393,8 @@ def status(model_root: str | Path | None = None) -> dict:
     runtime_root = executable.parent.parent if executable.parent.name.lower() in {"scripts", "bin"} else executable.parent
     runtime = _read(runtime_root / "pipeline-runtime.json")
     runtime_ready = executable.is_file() and runtime.get("ready") is True
-    download_state = {**_STATE, **_read(root / "download-state.json")}
+    local_state = _STATE if _STATE_PATH is None or Path(_STATE_PATH).parent.resolve() == root.resolve() else {}
+    download_state = {"state":"idle", "message":"扩展模型尚未下载", **local_state, **_read(root / "download-state.json")}
     if root.is_dir():
         from filelock import FileLock, Timeout
         probe = FileLock(str(root / ".download.lock"))

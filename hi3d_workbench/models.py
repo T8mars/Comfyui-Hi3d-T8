@@ -9,7 +9,7 @@ import stat
 from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
-from .common import MODELS, DATA, MODEL_REVISION, atomic_json, read_json, digest, config
+from .common import MODELS, DEFAULT_MODELS, DATA, MODEL_REVISION, atomic_json, read_json, digest, config
 
 SPECS = {
     "hi3d": {"repo": "hi3d-official/Hi3Dv1.0", "revision": MODEL_REVISION,
@@ -150,6 +150,8 @@ def _download_lock_held():
 def _download_status(errors=None):
     local_errors=[]
     stored=_read_model_state(DATA/'model-download.json','download',local_errors)
+    if not _state_matches_root(stored):
+        stored={}
     value={**STATE,**stored}
     if local_errors:
         value.update(state='interrupted',message='下载状态记录损坏，可重新下载；完整文件仍须通过校验')
@@ -162,6 +164,22 @@ def _download_status(errors=None):
         # after our probe. Its real lock, rather than an old JSON state, wins.
         value={**value,'state':'interrupted','message':'上次下载已中断，可重新下载；完整分片会继续复用'}
     return value
+
+def _state_matches_root(value):
+    recorded=value.get('model_root')
+    if recorded is not None:
+        return recorded == str(MODELS.resolve())
+    # Old bundles recorded no root. Keep their default-directory metadata,
+    # but do not carry it into a newly selected custom directory.
+    return not config().get('models_dir') or MODELS.resolve() == DEFAULT_MODELS.resolve()
+
+def set_model_root(root):
+    """Called only while the server owns all model-operation guards."""
+    global MODELS, FILE_LOCK
+    MODELS=Path(root)
+    FILE_LOCK=None
+    STATE.clear()
+    STATE.update(state='idle',message='模型仅包含 Hi3D 及其必需的图像编码器',model_root=str(MODELS.resolve()))
 
 def ranged_download(repo, revision, name, destination, size, expected):
     """Resumable bounded HTTP ranges. Validate every range and final LFS hash."""
@@ -235,7 +253,7 @@ def status():
         missing = [n for n in spec['files'] if snapshot['files'][n] is None]
         entries = manifest.get("components", {}).get(key, {})
         metadata_errors=_metadata_errors(entries,spec)
-        checked=verification.get('components',{}).get(key,{}) if verification.get('schema')==1 else {}
+        checked=verification.get('components',{}).get(key,{}) if verification.get('schema')==1 and _state_matches_root(verification) else {}
         current=checked.get('snapshot')==snapshot
         verified=current and checked.get('ok') is True and not missing and not metadata_errors
         state='verified' if verified else ('failed' if current else 'required')
@@ -251,7 +269,7 @@ def status():
                            'errors':checked.get('errors',[]) if current else []}
     download_state=_download_status(state_errors)
     if state_errors and download_state['state']!='downloading':download_state['message']+='；'+ '；'.join(state_errors)
-    return {"components": components, "ready": all(x["present"] and x["verified"] for x in components.values()) and download_state['state']!='downloading', "download": download_state,'state_errors':state_errors}
+    return {"components": components, "ready": all(x["present"] and x["verified"] for x in components.values()) and download_state['state']!='downloading', "download": download_state,'state_errors':state_errors,'model_root':str(MODELS)}
 
 def download_all():
     global FILE_LOCK
@@ -270,7 +288,7 @@ def download_all():
         raise
     try:
         STATE.clear()
-        STATE.update(state='downloading',message='开始下载并校验 Hi3D 与必需图像编码器')
+        STATE.update(state='downloading',message='开始下载并校验 Hi3D 与必需图像编码器',model_root=str(MODELS.resolve()))
         _backup_invalid_state(DATA/'model-download.json','download')
         atomic_json(DATA/'model-download.json',STATE.copy())
     except Exception:
@@ -357,7 +375,7 @@ def verify_all():
             failures.extend(name for name in spec['files'] if name not in failures)
         checked[key]={'snapshot':before,'ok':not failures,'errors':failures}
         errors.extend(f'{key}/{name}' for name in failures)
-    result = {'schema':1,"ok": not errors, "errors": errors, "time": time.time(),'components':checked}
+    result = {'schema':1,"ok": not errors, "errors": errors, "time": time.time(),'components':checked,'model_root':str(MODELS.resolve())}
     _backup_invalid_state(DATA/'model-verification.json','verification')
     atomic_json(DATA / "model-verification.json", result)
     return result

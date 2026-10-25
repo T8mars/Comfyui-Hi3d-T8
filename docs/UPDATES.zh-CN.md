@@ -26,6 +26,12 @@ v0.4.1 起，独立整合包默认检查本项目的正式 GitHub Release。空�
 
 ## 模型下载
 
+v0.4.5 起，「模型与运行环境 → 模型目录」显示当前绝对目录与已保存配置。可输入绝对路径，或相对工作台根目录的路径，支持中文和空格。空闲时保存立即生效，无需重启；任务、下载、校验、诊断或残留进程恢复未完成时禁止切换，请求被拒绝时保留原目录。
+
+模型根目录内放 `hi3d/`、`dino/`、`clip/` 和可选的 `extensions/`。不存在的目录也可先保存，下载需要时才创建。切换和恢复默认都不会移动或删除已有模型；「恢复默认」选择工作台下的 `models/`。设置保存为 `config.local.json` 的 `models_dir`，代码更新保留。相对路径随工作台搬迁；绝对外部路径在搬包后仍需存在。推理前请在选定目录准备并校验模型。
+
+新目录即使已有核心文件，也需点击「重新完整校验」，通过后才显示就绪；保存目录本身不代表文件已验证。
+
 [t8star/Hi3d-Comfy](https://huggingface.co/t8star/Hi3d-Comfy) 提供共用 Hi3D 核心与独立工作台的扩展组件。ComfyUI 只需要核心；建模和贴图所需扩展按选择下载。软件更新不触发全量模型下载，也不改变固定权重版本。
 
 从工作台根目录下载核心：
@@ -41,3 +47,5 @@ hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
 完整目录与许可见模型仓库双语 README；UltraTex 的 FLUX.2 Klein 9B 底座适用非商业许可。
+
+v0.4.5 的可选加速依赖可单独补装，不更换运行时 ABI：`runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` 安装固定版本原生 Flash，改为 `--uv-only` 安装 Numba 排布加速。代码更新保留 SDPA／Torch 回退，不静默安装这些依赖。导入验证与实际 GPU、模型效果、首次 JIT 耗时分别记录。

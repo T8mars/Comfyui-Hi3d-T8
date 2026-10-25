@@ -26,6 +26,12 @@ A release requiring different Python, CUDA or third-party dependencies will requ
 
 ## Model downloads
 
+From v0.4.5, **Models and environment → Model directory** shows the active absolute root and the saved path. Enter an absolute directory or a path relative to the workbench root; Chinese characters and spaces are supported. Save applies immediately while idle, with no restart. Running tasks, downloads, verification, diagnostics and unresolved worker recovery block a switch. The existing path is retained if a request is rejected.
+
+The root contains `hi3d/`, `dino/`, `clip/` and optional `extensions/`. An absent directory can be saved and is created when a download needs it. Switching or restoring the default never moves or deletes existing models; **Restore default** selects the workbench's `models/`. The setting is stored as `models_dir` in `config.local.json` and survives code updates. Relative paths relocate with the workbench; an absolute external path must still be available after moving the bundle. Prepare and verify models at the selected location before inference.
+
+Even if core files already exist at the new root, use **Reverify all core models** before expecting a ready status. Saving a directory does not certify its file contents.
+
 [t8star/Hi3d-Comfy](https://huggingface.co/t8star/Hi3d-Comfy) hosts the shared Hi3D core and standalone extension models. ComfyUI needs only the core; standalone geometry/PBR dependencies depend on the selected engine. Code updates do not download all models or change pinned model revisions.
 
 From the workbench root, download core files only:
@@ -41,3 +47,5 @@ hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
 See the model repository's bilingual README for directories and licenses. UltraTex's FLUX.2 Klein 9B base uses a non-commercial license.
+
+v0.4.5 optional accelerators can be installed separately without changing the runtime ABI: `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only` for the pinned native Flash wheel, or `--uv-only` for the pinned Numba packer. Code updates retain SDPA/Torch fallbacks and never silently install these dependencies. GPU probes, numerical/model checks and first-use JIT timing are recorded separately from package import validation.

@@ -393,7 +393,7 @@ def test_native_clustered_unwrap_keeps_hard_edge_normals_without_whole_mesh_atla
     # The native xatlas result may introduce additional UV seam vertices.
     vmap=compact_faces.ravel()
     uv_faces=np.arange(len(vmap)).reshape(-1,3)
-    uv=np.tile([[.1,.1],[.2,.1],[.1,.2]],(len(uv_faces),1))
+    uv=np.concatenate([np.array([[.01,.01],[.08,.01],[.01,.08]]) + [i%4*.2,i//4*.2] for i in range(len(uv_faces))])
     class Tensor:
         def __init__(self,value):self.value=np.asarray(value)
         def cuda(self):return self
@@ -409,6 +409,8 @@ def test_native_clustered_unwrap_keeps_hard_edge_normals_without_whole_mesh_atla
     def forbidden_atlas():raise AssertionError('A few hard edges must not select unclustered whole-mesh xatlas')
     monkeypatch.setitem(sys.modules,'torch',SimpleNamespace(from_numpy=Tensor,cuda=SimpleNamespace(empty_cache=lambda:None)))
     monkeypatch.setitem(sys.modules,'cumesh',SimpleNamespace(CuMesh=Native,Atlas=forbidden_atlas))
+    from hi3d_workbench.engines import native_uv
+    monkeypatch.setattr(native_uv,'unwrap',lambda handler,**kw:handler.uv_unwrap(return_vmaps=True))
     result,policy=ensure_uv(source)
     expected=permutation[vmap]
     assert policy=='native_CuMesh_topology_mapped'

@@ -20,13 +20,21 @@
 
 ### Windows 整合包启动与关闭
 
-**v0.4.4 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
+**v0.4.5 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
 
 制作全模型包时，`tools/build_release.py` 需同时使用 `--include-models --include-pipeline --all-engines`。INT8 底座采用 tsolful 发布并固定哈希的社区量化 **Base 9B**，不是蒸馏版或 KV 版；保留原始 FLUX 非商业许可，本项目不重新量化。不同 GPU 上 INT8 不保证比 FP8 更省显存或更快，应以实际报告为准。
 
 双击 **Hi3D-Workbench.exe** 或 **Start-Workbench.cmd**，保留启动窗口查看日志。按 **Ctrl+C**、关闭启动窗口、点击网页的**关闭工作台**，或运行 **Stop-Workbench.cmd**，均可停止服务；**只关闭浏览器页面不会退出服务**。EXE 统一管理服务和推理子进程，关闭时释放其工作进程；启动失败时保留错误信息。重复双击会打开本目录已运行的工作台，不重复启动，也不会关闭其他目录的服务。
 
 独立的 `Hi3D-Workbench-launcher-<版本>.zip` 仅包含小型 Windows 启动器和启停脚本，**不含 Python 或模型**。先安装对应代码更新，再把启动器解压到 `Start-Workbench.cmd` 同级目录。缺少 EXE 时，启动脚本可调用 `scripts/Build-Launcher.ps1`，使用 Windows 自带的 .NET Framework 4 编译器生成；源码随仓库提供，EXE 未做数字签名。新版完整版直接附带。工作台侧栏与页尾提供作者社媒、教程及资源入口。
+
+## 进度与加速
+
+终端和网页显示当前环节、阶段耗时、真实计数／采样步数、距上次有效进展时间，以及明确报告的 CPU／CUDA 执行位置。UV 排布、文件与模型加载可能主要占用 CPU 或磁盘；这些环节显卡空闲不等于模型推理退回 CPU。
+
+TRELLIS.2 的稀疏注意力可选**自动／原生 FlashAttention／兼容 SDPA**，与 Hi3D 设置独立。自动模式先运行真实 CUDA packed 内核探针，通过才使用原生 Flash；缺少或不兼容时记录具体原因并使用 SDPA。UltraTex 保留其训练时的稀疏注意力。新 UV 优先使用 CuMesh GPU 聚类与 CPU 图集排布，经原索引／法线校验后缓存；固定版本的社区 GPU 算法与分区 CPU 路径按需回退；已有可用 UV 继续保留。生成的 TRELLIS 几何另可选 **10 万／30 万／100 万**面预算，原始几何另存；已有模型贴图不会减面。
+
+代码自动更新保留 Python 环境。旧完整版若要补装可选的 Windows cp312／Torch 2.8 cu128 Flash 轮子，在整合包根目录运行 `runtime/python.exe tools/setup_pipeline_runtime.py --runtime runtime-pipeline --attention-only`。固定 SHA256 校验后以无依赖模式安装，不升级 Torch；其他环境继续使用 SDPA。同一命令改为 `--uv-only` 可补装可选 CPU UV 排布加速（Numba 0.61.2／llvmlite 0.44.0），保留现有 NumPy／Torch；第一次使用含 JIT 编译。实测及限制见[性能说明](docs/PERFORMANCE.zh-CN.md)。
 
 ## ComfyUI
 
@@ -59,6 +67,8 @@ hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d
 
 以上只下载 Hi3D 核心。下载全部建模／贴图扩展请去掉 `--include`，全量约 79.3GB；目录和按需下载说明见[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)。目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`，扩展位于 `models/extensions/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
 
+**自定义模型目录：**在「模型与运行环境 → 模型目录」选择根目录，例如 `E:/AI-Models/Hi3D`，也可填相对工作台根目录的路径。目录内放 `hi3d/`、`dino/`、`clip/` 和可选的 `extensions/`。空闲时保存立即生效，无需重启；「恢复默认」回到 `models/`。程序不会自动移动模型，代码更新保留该设置。即使已有核心文件，也需点击「重新完整校验」，通过后才显示就绪。
+
 <details>
 <summary>实际贴图样例</summary>
 
@@ -72,7 +82,7 @@ hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d
 
 Windows 版双击 **Start-Workbench.cmd**，打开 `http://127.0.0.1:8378`，可脱离 ComfyUI 使用。工作台提供三个入口：图片→基础模型→可选 Hi3D 精修→PBR；参考图＋已有模型→PBR；参考图＋粗模→Hi3D，可选继续贴图。图片模式默认**基础模型＋PBR**，Hi3D 按需勾选：同图卡通对照中，跳过精修的嘴部更干净。各阶段保留模型、日志和报告。建模与贴图引擎独立选择，可在“模型”页按需下载。上传的自包含 GLB 保留材质和可用的单材质 UV；历史结果可在同视角、HDR 灯光与曝光下左右对比。选择建议见[引擎与质量记录](docs/ENGINES.zh-CN.md)。带材质结果使用自包含 **GLB**；**STL/PLY 只包含几何**。
 
-v0.4.4 全模型离线包包含两套隔离运行时、Hi3D 核心及全部 14 个扩展组件，Hunyuan 2.1、Hunyuan Paint、UltraTex FP8／INT8 ConvRot 均包含在内，准确清单见 `bundle-manifest.json`。旧基础包可在“模型”页补齐；所选引擎未就绪时会明确提示。节点包和源码包只含代码，源码部署需另行准备环境与权重。
+v0.4.5 全模型离线包包含两套隔离运行时、Hi3D 核心及全部 14 个扩展组件，Hunyuan 2.1、Hunyuan Paint、UltraTex FP8／INT8 ConvRot 均包含在内，准确清单见 `bundle-manifest.json`。旧基础包可在“模型”页补齐；所选引擎未就绪时会明确提示。节点包和源码包只含代码，源码部署需另行准备环境与权重。
 
 提供三个起点：**轻量**为 Mini Turbo 256＋TRELLIS PBR 512／2K；**均衡**为 TRELLIS 几何 512＋PBR 1024／4K；**细节**为 TRELLIS 几何 1024＋UltraTex INT8 ConvRot 1024／4K。UltraTex 的 FLUX.2 Klein 9B 底座适用**非商业许可**。调大输出贴图尺寸不会补出生成中缺失的细节。详见[引擎选择](docs/ENGINES.zh-CN.md)和[工作台说明](docs/WORKBENCH.zh-CN.md)。
 
@@ -92,13 +102,13 @@ Linux Hi3D 精修可执行 `bash scripts/setup-linux.sh`，再运行 `.venv/bin/
 
 实测设备为 **Windows / RTX 5090 Laptop 24GB / 64GB RAM**。本轮多引擎推理、独立运行时检查及待验收项见 [VALIDATION.md](VALIDATION.md)；此前 ComfyUI 512 和独立工作台 512/1024/1536 精修实测保留为历史证据。自动化测试、HTTP 推理与浏览器操作分别记录。尚未验证更小显存设备；张量分配峰值不能作为最低显存要求。
 
-Windows 使用明确标识的 **SDPA 兼容适配**，与官方 Linux FlashAttention 环境有区别。Hi3D 会归一化尺寸并重建拓扑；不保证结果封闭、可打印或比粗模更准确，导出前应对比检查。
+Windows Hi3D 使用明确标识的 **SDPA 兼容适配**；工作台 TRELLIS.2 可独立选择已验证的原生 FlashAttention 轮子，与官方 Linux 环境仍有区别。Hi3D 会归一化尺寸并重建拓扑；不保证结果封闭、可打印或比粗模更准确，导出前应对比检查。
 
 随包 TRELLIS Windows 扩展要求 **CUDA 计算能力≥8.6**，因此该阶段不支持 RTX 20 系列或 A100（8.0）。通过架构检查不代表显存足够或该型号已经验收。
 
 ## 许可与署名
 
-原创集成代码使用 [MIT](LICENSE)；UltraTex 在独立工作台运行时内另使用 GPL-3.0 的 Comfy 推理库与 **FLUX 非商业许可**底座，分别保留其许可；Hi3D 代码与权重使用 **Hi3D Open License v1.0** 并保留原始声明，编码器与运行时分别遵循各自许可。本项目为社区集成，详见 [NOTICE.md](NOTICE.md)。[Powered by Hi3D 1.0](https://www.hi3d.ai/)。
+原创集成代码使用 [MIT](LICENSE)；派生的社区 GPU UV 适配文件保留 [GPL-3.0](licenses/ComfyUI-GPL-3.0.txt)；UltraTex 在独立工作台运行时内另使用 GPL-3.0 的 Comfy 推理库与 **FLUX 非商业许可**底座，分别保留其许可；Hi3D 代码与权重使用 **Hi3D Open License v1.0** 并保留原始声明，编码器与运行时分别遵循各自许可。本项目为社区集成，详见 [NOTICE.md](NOTICE.md)。[Powered by Hi3D 1.0](https://www.hi3d.ai/)。
 
 ## T8star
 

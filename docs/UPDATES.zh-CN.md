@@ -34,7 +34,7 @@ v0.4.1 起，独立整合包默认检查本项目的正式 GitHub Release。空�
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-下载全部核心与扩展（约 69.9GB，另留运行环境和任务空间）：
+下载全部核心与扩展（约 79.3GB，另留运行环境和任务空间）：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models

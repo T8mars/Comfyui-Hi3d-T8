@@ -34,8 +34,9 @@ def main():
     parser.add_argument('--texture-size',type=int,default=2048)
     parser.add_argument('--geometry-engine',choices=['hunyuan_mini','hunyuan21','trellis2'])
     parser.add_argument('--geometry-resolution',type=int)
-    parser.add_argument('--texture-engine',choices=['trellis2','hunyuan21','ultratex'])
+    parser.add_argument('--texture-engine',choices=['trellis2','hunyuan21','ultratex','ultratex_int8'])
     parser.add_argument('--texture-resolution',type=int)
+    parser.add_argument('--texture-steps',type=int)
     parser.add_argument('--seed',type=int,default=0)
     parser.add_argument('--height-axis',choices=['X','Y','Z'],default='Y')
     parser.add_argument('--output',type=Path,required=True)
@@ -66,7 +67,7 @@ def main():
         body={'mode':args.mode,'image':image,'mesh':mesh,'refine_geometry':not args.no_refine,
               'generate_texture':not args.no_texture,'background':args.background,'resolution':512,
               'steps':25,'seed':args.seed,'offload':True,'attention':'sdpa','texture_size':args.texture_size}
-        for key in ('geometry_engine','geometry_resolution','texture_engine','texture_resolution'):
+        for key in ('geometry_engine','geometry_resolution','texture_engine','texture_resolution','texture_steps'):
             if getattr(args,key) is not None:body[key]=getattr(args,key)
         evidence['request']=body
         job=api('/api/jobs',body);jid=job['id'];evidence['job_id']=jid

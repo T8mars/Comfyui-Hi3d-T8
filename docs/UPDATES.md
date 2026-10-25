@@ -34,7 +34,7 @@ From the workbench root, download core files only:
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-Download every core and extension component (about 69.9GB, plus runtime and working space):
+Download every core and extension component (about 79.3GB, plus runtime and working space):
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models

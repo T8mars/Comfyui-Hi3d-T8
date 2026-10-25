@@ -9,13 +9,14 @@ let workbenchStopped = false;
 const activeStates = new Set(['running', 'queued', 'cancelling']);
 const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加载本地模型', conditioning:'正在处理参考图片', foreground:'正在处理图片背景', voxelizing:'正在准备粗模型', sampling:'正在生成几何细节', decoding:'正在解码几何', extracting:'正在提取网格', postprocessing:'正在整理几何', exporting:'正在保存结果', complete:'任务完成，可以预览导出', failed:'任务失败，已有阶段文件与日志已保留', cancelled:'任务已停止', interrupted:'任务已中断'};
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
+Object.assign(stageLabels, {initializing:'初始化推理运行时', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', baking:'烘焙 PBR 材质'});
 const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
 const modelVersions = ['textured','refined','coarse','generated'];
 const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
 const qualityPresets = {
   light: {geometry:'hunyuan_mini',geometryResolution:256,geometrySteps:5,texture:'trellis2',textureResolution:512,textureSteps:12,textureSize:2048},
   balanced: {geometry:'trellis2',geometryResolution:512,geometrySteps:12,texture:'trellis2',textureResolution:1024,textureSteps:12,textureSize:4096},
-  detail: {geometry:'trellis2',geometryResolution:1024,geometrySteps:12,texture:'ultratex',textureResolution:1024,textureSteps:25,textureSize:4096}
+  detail: {geometry:'trellis2',geometryResolution:1024,geometrySteps:12,texture:'ultratex_int8',textureResolution:1024,textureSteps:25,textureSize:4096}
 };
 function needsMesh(mode = selectedMode) { return mode !== 'image_to_asset'; }
 function wantsRefine(options = null) { return options ? (options.mode || 'refine') === 'refine' || options.mode === 'image_to_asset' && options.refine_geometry === true : selectedMode === 'refine' || selectedMode === 'image_to_asset' && $('#refine-geometry').checked; }
@@ -628,7 +629,7 @@ function renderHealth() {
   const componentCards = $('#pipeline-component-cards'); componentCards.replaceChildren();
   for (const [key,component] of Object.entries(pipeline?.components || {})) {
     const card = document.createElement('div'); card.className = 'model-card';
-    const title = document.createElement('h3'); title.textContent = {background:'自动前景处理',coarse:'Hunyuan mini 权重',texture:'TRELLIS.2 贴图权重',texture_encoder:'DINOv3 图像编码器',coarse_hunyuan21:'Hunyuan3D 2.1 几何权重',coarse_trellis2:'TRELLIS.2 几何权重',trellis_structure:'TRELLIS 空间结构解码器',texture_ultratex:'UltraTex 颜色 / 材质适配器',ultratex_backbone:'UltraTex 9B 非商用底座',ultratex_text_encoder:'UltraTex 图像解码器与文本编码器'}[key] || key;
+    const title = document.createElement('h3'); title.textContent = {background:'自动前景处理',coarse:'Hunyuan mini 权重',texture:'TRELLIS.2 贴图权重',texture_encoder:'DINOv3 图像编码器',coarse_hunyuan21:'Hunyuan3D 2.1 几何权重',coarse_trellis2:'TRELLIS.2 几何权重',trellis_structure:'TRELLIS 空间结构解码器',texture_ultratex:'UltraTex 颜色 / 材质适配器',ultratex_backbone:'UltraTex FP8 Base 9B 底座',ultratex_backbone_int8:'UltraTex INT8 ConvRot Base 9B 底座',ultratex_text_encoder:'UltraTex 图像解码器与文本编码器'}[key] || key;
     const repo = document.createElement('small'); repo.textContent = component.repo || '';
     const license = document.createElement('p'); license.className = 'hint'; license.textContent = component.license || '许可见组件目录';
     const state = document.createElement('div'); state.className = 'model-state';
@@ -637,7 +638,8 @@ function renderHealth() {
   }
   if (!pipeline) pipelineCards.textContent = '当前服务未提供扩展组件状态，请更新并重启完整工作台。Hi3D 几何精修仍可单独使用。';
   $('#pipeline-download-state').textContent = pipeline?.download?.message || '扩展组件尚无下载任务。';
-  $('#pipeline-runtime-state').textContent = pipeline?.runtime?.ready ? '✓ 扩展运行环境就绪。各阶段依次运行，所需组件按任务选择。' : `扩展运行环境尚未就绪。${pipeline?.runtime?.message || pipeline?.runtime?.error || '请完成扩展组件安装后重新检查。'}`;
+  const coverage = pipeline?.engine_coverage;
+  $('#pipeline-runtime-state').textContent = pipeline?.runtime?.ready ? `✓ 扩展运行环境就绪。${coverage ? '引擎已就绪 '+coverage.ready+' / '+coverage.total+'。' : ''}各阶段依次运行，所需组件按任务选择。` : `扩展运行环境尚未就绪。${pipeline?.runtime?.message || pipeline?.runtime?.error || '请完成扩展组件安装后重新检查。'}`;
   syncEngines();
   if (health.diagnostics && pending !== 'diagnose') $('#diagnostics').textContent = JSON.stringify(health.diagnostics, null, 2);
   availability();
@@ -715,7 +717,7 @@ $('#shutdown-workbench').onclick = async () => {
 for (const [id, kind, action] of [['download-models','download',async () => { const result = await post('/api/models/download'); toast(result.started ? '开始下载 Hi3D 与必需编码器，请在此查看进度。' : '已有下载进程，请等待完成。'); }],['verify-models','verify',async () => { const result = await post('/api/models/verify'); toast(result.ok ? '全部模型文件 SHA256 校验通过。' : '校验未通过：'+result.errors.join('，')); }],['diagnose','diagnose',async () => { $('#diagnostics').textContent = '正在检查 GPU 基础内核，首次编译可能需要几分钟…'; const result = await post('/api/diagnostics'); $('#diagnostics').textContent = JSON.stringify(result,null,2); toast(result.kernel_probe === 'passed' ? 'GPU 基础内核检查通过，可以尝试精修。' : 'GPU 检查发现问题，请查看诊断详情。'); }]]) {
   $('#'+id).onclick = async () => { if ($('#'+id).disabled) return; pending = kind; availability(); try { await action(); await refresh(); } catch (error) { showError(error); } finally { pending = null; availability(); } };
 }
-for (const [id,selection] of [['download-pipeline-all','all'],['download-pipeline-coarse','coarse'],['download-pipeline-texture','texture']]) {
+for (const [id,selection] of [['download-pipeline-complete','complete'],['download-pipeline-all','all'],['download-pipeline-coarse','coarse'],['download-pipeline-texture','texture']]) {
   $('#'+id).onclick = async () => {
     if ($('#'+id).disabled) return; pending = 'pipeline-download'; availability();
     try { const result = await post('/api/pipeline/models/download',{selection}); toast(result.started === false ? '已有下载任务，请查看组件状态。' : '扩展组件下载请求已提交，请在此查看进度。'); await refresh(); }

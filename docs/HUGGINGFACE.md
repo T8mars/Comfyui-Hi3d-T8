@@ -35,9 +35,10 @@ tags:
 | `extensions/texture/`, `extensions/texture_encoder/` | TRELLIS.2 PBR and DINOv3 encoder | MIT / DINOv3 License |
 | `extensions/texture_hunyuan21/`, `extensions/paint_dino/`, `extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1, DINOv2 Giant and Real-ESRGAN | Tencent / Apache-2.0 / BSD-3-Clause |
 | `extensions/texture_ultratex/`, `extensions/ultratex_backbone/`, `extensions/ultratex_text_encoder/` | UltraTex adapters/decoder, FLUX.2 Klein 9B fp8, Qwen3 and VAE | MIT / FLUX Non-Commercial / Apache-2.0 |
+| `extensions/ultratex_backbone_int8/` | tsolful Klein Base 9B INT8 ConvRot, pinned CivitAI version 3080042/file 2959286 | Original FLUX Non-Commercial |
 | `extensions/background/` | Optional CPU U2Netp foreground extraction | MIT / Apache-2.0 |
 
-`manifest.json` records the shared core. `extensions/manifest.json` records 13 extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **94 model/config/license artifacts (69.9GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists.
+`manifest.json` records the shared core. `extensions/manifest.json` records 14 extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **95 model/config/license artifacts (79.3GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
 
 ## Download
 
@@ -49,7 +50,7 @@ Core only, sufficient for the Hi3D ComfyUI integration:
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-All core and extension files (about 69.9GB; allow additional runtime and working space):
+All core and extension files (about 79.3GB; allow additional runtime and working space):
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models

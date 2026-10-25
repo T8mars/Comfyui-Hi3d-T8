@@ -1,0 +1,116 @@
+{
+  "version": "0.4.4",
+  "date": "2026-10-25",
+  "real_inference": true,
+  "passed": true,
+  "unit_tests": {
+    "tests": "328",
+    "failures": "0",
+    "errors": "0",
+    "time": "74.781"
+  },
+  "model_components": {
+    "extensions": 14,
+    "all_ready": true,
+    "engine_choices": 7
+  },
+  "checkpoint": {
+    "source": "https://civitai.com/models/2738890?modelVersionId=3080042",
+    "bytes": 9405841780,
+    "sha256": "a81250a88150df3c79d0175f5d04a1cc57de6fa79ea2852385e3bf7fc4c5ea65",
+    "license": "FLUX Non-Commercial"
+  },
+  "request": {
+    "mode": "texture",
+    "texture_engine": "ultratex_int8",
+    "texture_resolution": 1024,
+    "texture_steps": 25,
+    "texture_size": 4096,
+    "offload": true,
+    "seed": 20261025
+  },
+  "inference": {
+    "status": "succeeded",
+    "engine": "ultratex_int8",
+    "backbone_precision": "int8_convrot",
+    "quantized_weight_tensors": 114,
+    "seconds": 511.034,
+    "text_encoder_device": "cuda:0",
+    "text_encoder_seconds": 72.502,
+    "attention": "ultratex_sparse",
+    "peak_allocated_mb": 11629.45,
+    "peak_reserved_mb": 13790.0,
+    "runtime": {
+      "torch": "2.8.0+cu128",
+      "cuda": "12.8",
+      "gpu": "NVIDIA GeForce RTX 5090 Laptop GPU",
+      "capability": [
+        12,
+        0
+      ]
+    },
+    "faces": 961648,
+    "vertices": 692173,
+    "uv_policy": "generate_uv"
+  },
+  "output_sha256": "d38d864b395050e8a43d8f95b41872a7fa0c0bd16052785d6598aadd659c7faa",
+  "materials": {
+    "texture_generated": true,
+    "uv": true,
+    "embedded": true,
+    "images": 2,
+    "materials": 1,
+    "primitives": 1,
+    "channels": [
+      "base_color",
+      "metallic",
+      "roughness"
+    ]
+  },
+  "export_80mm": {
+    "height_m": 0.07999999999999999,
+    "materials": {
+      "texture_generated": true,
+      "uv": true,
+      "embedded": true,
+      "images": 2,
+      "materials": 1,
+      "primitives": 1,
+      "channels": [
+        "base_color",
+        "metallic",
+        "roughness"
+      ]
+    }
+  },
+  "visual_review": {
+    "views": [
+      "front",
+      "quarter",
+      "back"
+    ],
+    "renderer": "Blender Cycles CPU, neutral world + three area lights",
+    "images": {
+      "front": "5fd0b3960f5530008dde2f59f0d27b7377c923cc51f468090a32b2b821ca7252",
+      "quarter": "2aef3bcbd4790490fb716e7db053c0cb95c51f4bfd4a8a235eaf56d77d14e6c0",
+      "back": "674d1a88f753c901f6f5d275bbd77f1e4df09124202740d1396990f21f8563bd"
+    },
+    "finding": "Reference colors and main details are present on the actual embedded-PBR GLB. Upper surfaces have strong specular highlights; material estimates and unseen surfaces remain model-dependent."
+  },
+  "limits": [
+    "Tested only on Windows RTX 5090 Laptop 24GB, 64GB RAM; no minimum-VRAM claim.",
+    "Input coarse geometry is not watertight; texturing does not repair topology or establish printability.",
+    "Browser interaction was not tested in this turn; HTTP inference, exports and static JS checks were tested.",
+    "The first CPU-text-encoder diagnostic was deliberately cancelled; this receipt records the subsequent successful CUDA-encoding run."
+  ],
+  "huggingface": {
+    "repo": "t8star/Hi3d-Comfy",
+    "commit": "573acfb5c37b9f6ef6e2e78660d59ada338712b6",
+    "previous_commit": "f9dd4f5130920d194f22e4bdc08412a1ddee3fe9",
+    "verified_model_files": 95,
+    "model_bytes": 79269126760,
+    "new_checkpoint_sha256": "a81250a88150df3c79d0175f5d04a1cc57de6fa79ea2852385e3bf7fc4c5ea65",
+    "all_remote_model_hashes_match": true,
+    "completed": true
+  }
+}

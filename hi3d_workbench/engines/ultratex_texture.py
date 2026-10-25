@@ -6,6 +6,7 @@ their original sources and licenses are distributed by the runtime installer.
 from __future__ import annotations
 
 import gc
+import time
 from pathlib import Path
 
 
@@ -18,11 +19,14 @@ def generate(request, image, output, emit):
     source_dir('comfy_core')
     source_dir('ultratex_bridge')
     import comfy.cli_args
+    selected_engine = request.get('engine', 'ultratex')
+    int8 = selected_engine == 'ultratex_int8'
     # The pinned workbench uses cu128; use the library's standard offload
     # path rather than CUDA-13-only dynamic allocation kernels.
     comfy.cli_args.args.disable_dynamic_vram = True
     comfy.cli_args.args.lowvram = bool(request.get('offload', True))
     comfy.cli_args.args.highvram = not bool(request.get('offload', True))
+    if int8:comfy.cli_args.args.enable_triton_backend = True
     import comfy.sd
     import comfy.utils
     import comfy.model_management as mm
@@ -34,7 +38,8 @@ def generate(request, image, output, emit):
 
     root = Path(request.get('model_root') or MODEL_ROOT)
     adapter = root / 'texture_ultratex'
-    backbone = root / 'ultratex_backbone' / 'flux-2-klein-base-9b-fp8.safetensors'
+    backbone_component = 'ultratex_backbone_int8' if int8 else 'ultratex_backbone'
+    backbone = root / backbone_component / SPECS[backbone_component]['files'][0]
     encoding = root / 'ultratex_text_encoder' / 'split_files'
     resolution = int(request.get('resolution', 1024))
     texture_size = int(request.get('texture_size', 2048))
@@ -56,9 +61,22 @@ def generate(request, image, output, emit):
     prep = preparation.run_prep(mesh, np.asarray(image.convert('RGBA')), min(resolution, 1024),
                                 texture_size, uv_mode, 'fit_front_silhouette')
     emit('loading', message='加载 FLUX.2 Klein 9B 与 UltraTex 前景解码器')
-    clip = comfy.sd.load_clip([str(encoding / 'text_encoders/qwen_3_8b_fp8mixed.safetensors')],
-                              clip_type=comfy.sd.CLIPType.FLUX2)
+    text_checkpoint = encoding / 'text_encoders/qwen_3_8b_fp8mixed.safetensors'
+    text_options = {}
+    device = mm.get_torch_device()
+    # LOW_VRAM otherwise puts Qwen entirely on CPU, even on a mostly empty
+    # 24 GB card. Encode on CUDA only with generous weight/activation headroom,
+    # then unload it before loading the diffusion backbone. Small cards retain
+    # the conservative CPU path.
+    if mm.get_free_memory(device) >= text_checkpoint.stat().st_size * 1.5 + 2 * 1024**3:
+        text_options = {'load_device': device, 'offload_device': mm.text_encoder_offload_device()}
+    text_started = time.perf_counter()
+    clip = comfy.sd.load_clip([str(text_checkpoint)], clip_type=comfy.sd.CLIPType.FLUX2,
+                              model_options=text_options)
+    text_device = str(clip.patcher.load_device)
+    emit('encoding_reference', message=f'编码参考条件（{text_device}）')
     positive = clip.encode_from_tokens_scheduled(clip.tokenize(''))
+    text_seconds = round(time.perf_counter() - text_started, 3)
     capture_peak()
     del clip
     mm.unload_all_models()
@@ -87,6 +105,11 @@ def generate(request, image, output, emit):
         raise RuntimeError('UltraTex FLUX.2 Klein 9B 底座无法加载')
     if sampling.model_family(model) != 'flux2':
         raise RuntimeError('UltraTex 9B LoRA 需要 FLUX.2 Klein 9B base 底座')
+    quantized_parameters = 0
+    if int8:
+        from comfy.quant_ops import QuantizedTensor
+        quantized_parameters = sum(isinstance(value, QuantizedTensor) for value in model.model.diffusion_model.parameters())
+        if not quantized_parameters:raise RuntimeError('INT8 ConvRot 底座没有按原生量化格式加载，已停止贴图')
 
     def predict(branch, sample_resolution):
         emit('sampling', message='生成六视角颜色贴图' if branch == 'flux2' else '生成六视角金属度与粗糙度', steps=steps)
@@ -140,7 +163,9 @@ def generate(request, image, output, emit):
     result = bake.textured_mesh(prep, albedo_image, orm_image)
     emit('exporting', message='导出嵌入式 PBR 材质 GLB')
     result.export(output)
-    return {'model': SPECS['texture_ultratex'], 'engine': 'ultratex', 'backbone': SPECS['ultratex_backbone'],
+    return {'model': SPECS['texture_ultratex'], 'engine': selected_engine, 'backbone': SPECS[backbone_component],
+            'backbone_precision': 'int8_convrot' if int8 else 'fp8', 'quantized_weight_tensors': quantized_parameters,
+            'text_encoder_device': text_device, 'text_encoder_seconds': text_seconds,
             'geometry_generated': False, 'texture_generated': True, 'inference_steps': steps,
             'uv_policy': uv_policy,
             'uv_generation':uv_generation,

@@ -11,6 +11,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from hi3d_workbench.common import VERSION
+from hi3d_workbench.engine_catalog import covers_all_engines
 DIST=ROOT/'dist'
 ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','Update-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
 
@@ -140,8 +141,9 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
     from hi3d_workbench.common import atomic_json
     atomic_json(out/'bundle-manifest.json',{'version':VERSION,'pipeline_runtime':include_pipeline,
         'models_included':include_models,'extension_components':selected if include_models else [],
+        'full_engine_coverage':bool(include_models and include_pipeline and covers_all_engines(selected)),
         'extra_engine_selections':list(pipeline_engines),
-        'optional_engines':'Other supported engines can be downloaded separately in the workbench.'})
+        'optional_engines':'All supported engine dependencies are included.' if include_models and covers_all_engines(selected) else 'Other supported engines can be downloaded separately in the workbench.'})
     # No input images, jobs or personal paths included.
     return out
 
@@ -156,7 +158,11 @@ def manifest(dist=None):
     (dist/'SHA256.json').write_text(json.dumps(values,indent=2),encoding='utf-8')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
+    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--all-engines',action='store_true');p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
+    if args.all_engines:
+        if not args.include_models or not args.include_pipeline:p.error('--all-engines requires --include-models --include-pipeline')
+        from hi3d_workbench.engine_catalog import all_engine_selections
+        args.pipeline_engines=list(dict.fromkeys(args.pipeline_engines+all_engine_selections()))
     if args.portable_base:
         print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root))
     else:

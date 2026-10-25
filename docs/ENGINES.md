@@ -11,13 +11,14 @@ The ComfyUI package remains Hi3D-only. All choices below belong to the separate 
 | Geometry | TRELLIS.2 | 512 / 1024 cascade | Detailed image-conditioned geometry; optional surface reconstruction |
 | Texture | TRELLIS.2 PBR | 512 / 1024 | Mesh-conditioned color, metallic and roughness |
 | Texture | Hunyuan3D-Paint 2.1 | 512 / 1024 | Six-view PBR generation and baking |
-| Texture | UltraTex, FLUX.2 Klein 9B | 1024 / 2048 albedo; MR up to 1024 | Six-view color and material generation; FLUX Non-Commercial base |
+| Texture | UltraTex, FP8 Base 9B | 1024 / 2048 albedo; MR up to 1024 | Original eight-bit floating-point base; FLUX Non-Commercial |
+| Texture | UltraTex, INT8 ConvRot Base 9B | 1024 / 2048 albedo; MR up to 1024 | Pinned tsolful Base quantization, native `int8_tensorwise`; not distilled/KV |
 
 Output atlases can be 1024, 2048 or 4096. Atlas size and generation resolution control different stages: a 4K atlas does not turn a low-resolution prediction into 4K detail. More steps or larger models are not an automatic quality improvement.
 
 Three starting presets are available: light uses Mini Turbo 256 + TRELLIS PBR 512 / 2K; balanced uses TRELLIS geometry 512 + PBR 1024 / 4K; detail uses TRELLIS geometry 1024 + UltraTex 1024 / 4K. UltraTex 2048 albedo is an optional higher-cost setting, with MR capped at 1024 and a Non-Commercial base license. Hunyuan 2.1 geometry and Paint remain independent alternatives. These are starting settings, not a universal quality ranking; select a painter by comparing the same geometry under the same lighting.
 
-Open **Models** to download an engine's pinned dependencies. Missing optional models do not disable installed engines. The previously validated v0.4.0 Windows package includes Hi3D core, Mini Turbo, TRELLIS.2 geometry/PBR, DINOv3 and CPU U2Netp. Hunyuan 2.1 geometry/Paint and UltraTex weights are optional downloads; `bundle-manifest.json` records the exact included components. Weights remain unmodified. UltraTex's fp8 base is the original upstream fp8 release, not a quantization made by this project.
+Open **Models** to download an engine's pinned dependencies or complete all engines. Missing optional models do not disable installed engines. The v0.4.0 baseline package only included the basic combination. The v0.4.4 complete configuration includes Hi3D core and all 14 extension components, covering three geometry and four texture choices; `bundle-manifest.json` records the exact contents. Model files total about 79.3 GB, excluding Python and runtime dependencies. UltraTex's FP8 and INT8 ConvRot bases come from the original FP8 release and [tsolful's Base 9B quantization](https://civitai.com/models/2738890?modelVersionId=3080042) respectively; neither was quantized by this project. Both use eight-bit formats: INT8 is not guaranteed to use less VRAM or run faster than FP8.
 
 Use **Existing model texturing** with exactly the same GLB and reference image to compare painters. A usable single-material UV layout is preserved; ambiguous multi-material layouts are rebuilt. The texture report records the input mesh hash. History comparisons identify when only the image matches and the geometry differs. Inspect front, back, seams and at least two lighting environments before selecting a result. Lighting and exposure controls only change the preview.
 

@@ -13,7 +13,7 @@ from huggingface_hub import HfApi, CommitOperationAdd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from hi3d_workbench.common import atomic_json
+from hi3d_workbench.common import atomic_json, VERSION
 from hi3d_workbench.pipeline_models import SPECS
 
 REPO = 't8star/Hi3d-Comfy'
@@ -40,6 +40,7 @@ def main():
     parser.add_argument('--include-extensions', action='store_true')
     parser.add_argument('--models-only', action='store_true')
     parser.add_argument('--preupload', action='store_true', help='Preupload missing weights concurrently before per-component commits')
+    parser.add_argument('--output',type=Path,default=ROOT/'data'/('model-publication-v'+VERSION.replace('.','')))
     args = parser.parse_args()
     api = HfApi()
     assert api.whoami()['name'] == 't8star', 'Unexpected Hugging Face identity'
@@ -47,7 +48,7 @@ def main():
     manifests = [('core', ROOT / 'models/manifest.json', ROOT / 'models', '')]
     if args.include_extensions:
         manifests.append(('extensions', ROOT / 'models/extensions/manifest.json', ROOT / 'models/extensions', 'extensions/'))
-    output = ROOT / 'data/model-publication-v041'
+    output = args.output
     output.mkdir(parents=True, exist_ok=True)
     for kind, manifest_path, base, prefix in manifests:
         original = json.loads(manifest_path.read_text(encoding='utf-8'))

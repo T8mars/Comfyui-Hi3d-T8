@@ -20,6 +20,10 @@
 
 ### Windows 整合包启动与关闭
 
+**v0.4.4 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
+
+制作全模型包时，`tools/build_release.py` 需同时使用 `--include-models --include-pipeline --all-engines`。INT8 底座采用 tsolful 发布并固定哈希的社区量化 **Base 9B**，不是蒸馏版或 KV 版；保留原始 FLUX 非商业许可，本项目不重新量化。不同 GPU 上 INT8 不保证比 FP8 更省显存或更快，应以实际报告为准。
+
 双击 **Hi3D-Workbench.exe** 或 **Start-Workbench.cmd**，保留启动窗口查看日志。按 **Ctrl+C**、关闭启动窗口、点击网页的**关闭工作台**，或运行 **Stop-Workbench.cmd**，均可停止服务；**只关闭浏览器页面不会退出服务**。EXE 统一管理服务和推理子进程，关闭时释放其工作进程；启动失败时保留错误信息。重复双击会打开本目录已运行的工作台，不重复启动，也不会关闭其他目录的服务。
 
 独立的 `Hi3D-Workbench-launcher-<版本>.zip` 仅包含小型 Windows 启动器和启停脚本，**不含 Python 或模型**。先安装对应代码更新，再把启动器解压到 `Start-Workbench.cmd` 同级目录。缺少 EXE 时，启动脚本可调用 `scripts/Build-Launcher.ps1`，使用 Windows 自带的 .NET Framework 4 编译器生成；源码随仓库提供，EXE 未做数字签名。新版完整版直接附带。工作台侧栏与页尾提供作者社媒、教程及资源入口。
@@ -53,7 +57,7 @@
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-以上只下载 Hi3D 核心。下载全部建模／贴图扩展请去掉 `--include`，全量约 69.9GB；目录和按需下载说明见[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)。目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`，扩展位于 `models/extensions/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
+以上只下载 Hi3D 核心。下载全部建模／贴图扩展请去掉 `--include`，全量约 79.3GB；目录和按需下载说明见[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)。目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`，扩展位于 `models/extensions/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
 
 <details>
 <summary>实际贴图样例</summary>
@@ -68,9 +72,9 @@ hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d
 
 Windows 版双击 **Start-Workbench.cmd**，打开 `http://127.0.0.1:8378`，可脱离 ComfyUI 使用。工作台提供三个入口：图片→基础模型→可选 Hi3D 精修→PBR；参考图＋已有模型→PBR；参考图＋粗模→Hi3D，可选继续贴图。图片模式默认**基础模型＋PBR**，Hi3D 按需勾选：同图卡通对照中，跳过精修的嘴部更干净。各阶段保留模型、日志和报告。建模与贴图引擎独立选择，可在“模型”页按需下载。上传的自包含 GLB 保留材质和可用的单材质 UV；历史结果可在同视角、HDR 灯光与曝光下左右对比。选择建议见[引擎与质量记录](docs/ENGINES.zh-CN.md)。带材质结果使用自包含 **GLB**；**STL/PLY 只包含几何**。
 
-此前验收的 v0.4.0 Windows 离线包包含两套隔离运行时，以及 **Hi3D 核心、Mini Turbo、TRELLIS.2 几何／PBR、DINOv3 和 CPU U2Netp**；六个扩展组件的准确清单见 `bundle-manifest.json`。该历史包的 **Hunyuan3D 2.1、Hunyuan Paint 和 UltraTex 权重需在“模型”页另行下载**；新版完整版以作者提供的随包清单为准。所选引擎未就绪时会明确提示，不会自动替换。节点包和源码包只含代码，源码部署需另行准备环境与权重。
+v0.4.4 全模型离线包包含两套隔离运行时、Hi3D 核心及全部 14 个扩展组件，Hunyuan 2.1、Hunyuan Paint、UltraTex FP8／INT8 ConvRot 均包含在内，准确清单见 `bundle-manifest.json`。旧基础包可在“模型”页补齐；所选引擎未就绪时会明确提示。节点包和源码包只含代码，源码部署需另行准备环境与权重。
 
-提供三个起点：**轻量**为 Mini Turbo 256＋TRELLIS PBR 512／2K；**均衡**为 TRELLIS 几何 512＋PBR 1024／4K；**细节**为 TRELLIS 几何 1024＋UltraTex 1024／4K，需先下载其可选依赖。UltraTex 的 FLUX.2 Klein 9B 底座适用**非商业许可**。调大输出贴图尺寸不会补出生成中缺失的细节。详见[引擎选择](docs/ENGINES.zh-CN.md)和[工作台说明](docs/WORKBENCH.zh-CN.md)。
+提供三个起点：**轻量**为 Mini Turbo 256＋TRELLIS PBR 512／2K；**均衡**为 TRELLIS 几何 512＋PBR 1024／4K；**细节**为 TRELLIS 几何 1024＋UltraTex INT8 ConvRot 1024／4K。UltraTex 的 FLUX.2 Klein 9B 底座适用**非商业许可**。调大输出贴图尺寸不会补出生成中缺失的细节。详见[引擎选择](docs/ENGINES.zh-CN.md)和[工作台说明](docs/WORKBENCH.zh-CN.md)。
 
 Windows 源码安装使用 Python 3.10 和独立环境：
 

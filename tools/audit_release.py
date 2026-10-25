@@ -62,7 +62,7 @@ def verify_nodes(z,source_root=None):
 def verify_bundle(bundle,components,runtime):
     """A declaration must describe the exact installed model dependency closure."""
     from hi3d_workbench.pipeline_models import selection_components
-    from hi3d_workbench.engine_catalog import engine
+    from hi3d_workbench.engine_catalog import engine, covers_all_engines
     assert bundle.get('version')==VERSION,'发行清单版本错误'
     assert bundle.get('models_included') is True,'完整包未声明模型'
     assert bundle.get('pipeline_runtime') is True and runtime.get('ready') is True,'发行清单扩展运行时不匹配'
@@ -76,6 +76,8 @@ def verify_bundle(bundle,components,runtime):
     declared=bundle.get('extension_components',[])
     assert len(declared)==len(set(declared)),'发行清单包含重复组件'
     assert set(declared)==set(components)==expected,'发行清单组件与引擎依赖或实际文件不匹配'
+    if 'full_engine_coverage' in bundle:
+        assert bundle['full_engine_coverage'] is covers_all_engines(declared),'发行清单完整引擎覆盖声明错误'
     return {'declared_components':sorted(expected),'engine_dependency_closure':'passed'}
 
 def audit(release,archive_dir=None):

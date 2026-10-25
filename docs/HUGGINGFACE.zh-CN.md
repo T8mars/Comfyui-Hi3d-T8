@@ -18,9 +18,10 @@
 | `extensions/texture/`、`extensions/texture_encoder/` | TRELLIS.2 PBR 与 DINOv3 编码器 | MIT／DINOv3 License |
 | `extensions/texture_hunyuan21/`、`extensions/paint_dino/`、`extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1、DINOv2 Giant、Real-ESRGAN | 腾讯／Apache-2.0／BSD-3-Clause |
 | `extensions/texture_ultratex/`、`extensions/ultratex_backbone/`、`extensions/ultratex_text_encoder/` | UltraTex 适配器与解码器、FLUX.2 Klein 9B fp8、Qwen3 与 VAE | MIT／FLUX 非商业／Apache-2.0 |
+| `extensions/ultratex_backbone_int8/` | tsolful 的 Klein Base 9B INT8 ConvRot；固定 CivitAI 版本 3080042／文件 2959286 | 原始 FLUX 非商业许可 |
 | `extensions/background/` | 可选 CPU U2Netp 抠图 | MIT／Apache-2.0 |
 
-`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 13 个扩展组件及来源版本；`model-catalogue.json` 列出全部 **94 个权重／配置／许可文件，合计约 69.9GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。
+`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 14 个扩展组件及来源版本；`model-catalogue.json` 列出全部 **95 个权重／配置／许可文件，合计约 79.3GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
 
 ## 下载方式
 
@@ -32,7 +33,7 @@
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-下载全部核心与扩展（约 69.9GB，另留运行环境和任务空间）：
+下载全部核心与扩展（约 79.3GB，另留运行环境和任务空间）：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models

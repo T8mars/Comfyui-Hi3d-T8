@@ -74,7 +74,25 @@ def test_optional_missing_models_never_invalidate_baseline(tiny_extensions, monk
 def test_engine_downloads_only_include_declared_dependencies():
     assert pipeline_models.selection_components('engine:coarse:hunyuan21') == ['background','coarse_hunyuan21']
     assert pipeline_models.selection_components('engine:texture:ultratex') == ['background','texture_ultratex','ultratex_backbone','ultratex_text_encoder']
+    assert pipeline_models.selection_components('engine:texture:ultratex_int8') == ['background','texture_ultratex','ultratex_backbone_int8','ultratex_text_encoder']
     with pytest.raises(ValueError):pipeline_models.selection_components('engine:coarse:unknown')
+
+
+def test_complete_bundle_covers_every_registered_engine_and_component():
+    from hi3d_workbench.engine_catalog import all_engine_selections,covers_all_engines
+    components={component for selection in all_engine_selections() for component in pipeline_models.selection_components(selection)}
+    assert components==set(pipeline_models.SPECS)
+    assert set(pipeline_models.selection_components('complete'))==components
+    assert covers_all_engines(components)
+    assert not covers_all_engines({'background','coarse','texture','texture_encoder'})
+    assert not covers_all_engines(components-{'ultratex_backbone_int8'})
+
+
+def test_int8_texture_routes_to_ultratex_with_original_engine_identity(monkeypatch,tmp_path):
+    from hi3d_workbench.engines import run_stage,ultratex_texture
+    monkeypatch.setattr(ultratex_texture,'generate',lambda request,*args:{'engine':request['engine']})
+    for choice in ('ultratex','ultratex_int8'):
+        assert run_stage.texture({'engine':choice},None,tmp_path/'result.glb',lambda *a,**k:None)=={'engine':choice}
 
 
 def test_comparison_records_include_only_existing_models_and_input_identity(client):
@@ -439,6 +457,8 @@ def test_release_bundle_declarations_require_the_exact_engine_dependency_closure
         'extension_components':list(components),'extra_engine_selections':['engine:coarse:trellis2']}
     state={'ready':True,'features':['trellis_geometry']}
     assert verify_bundle(bundle,components,state)['declared_components']==sorted(components)
+    with pytest.raises(AssertionError,match='覆盖声明'):
+        verify_bundle({**bundle,'full_engine_coverage':True},components,state)
     with pytest.raises(AssertionError,match='组件'):
         verify_bundle(bundle,baseline,state)
     with pytest.raises(AssertionError,match='版本'):

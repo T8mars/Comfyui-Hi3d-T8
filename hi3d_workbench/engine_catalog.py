@@ -38,9 +38,16 @@ ENGINES = {
             'resolutions': [512, 1024], 'default_resolution': 512, 'default_steps': 15,
         },
         'ultratex': {
-            'name': 'UltraTex · FLUX.2 Klein 9B',
+            'name': 'UltraTex · FP8 Base 9B',
             'description': '多视角颜色与金属度/粗糙度生成；FLUX 底座适用非商业许可。',
             'components': ['texture_ultratex', 'ultratex_backbone', 'ultratex_text_encoder'],
+            'runtime_feature': 'ultratex',
+            'resolutions': [1024, 2048], 'default_resolution': 1024, 'default_steps': 25,
+        },
+        'ultratex_int8': {
+            'name': 'UltraTex · INT8 ConvRot Base 9B',
+            'description': 'Base 9B 的 INT8 ConvRot 量化；保留原始 UltraTex 适配器。显存与速度以实际设备报告为准。',
+            'components': ['texture_ultratex', 'ultratex_backbone_int8', 'ultratex_text_encoder'],
             'runtime_feature': 'ultratex',
             'resolutions': [1024, 2048], 'default_resolution': 1024, 'default_steps': 25,
         },
@@ -48,6 +55,15 @@ ENGINES = {
 }
 
 DEFAULT_ENGINES = {'coarse': 'hunyuan_mini', 'texture': 'trellis2'}
+
+
+def all_engine_selections():
+    return [f'engine:{stage}:{name}' for stage, choices in ENGINES.items() for name in choices]
+
+
+def covers_all_engines(components):
+    present=set(components)
+    return all(set(choice['components']).issubset(present) for choices in ENGINES.values() for choice in choices.values())
 
 
 def engine(stage: str, name: str | None = None) -> dict:

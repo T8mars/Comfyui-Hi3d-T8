@@ -119,7 +119,9 @@ def test_extension_verify_reports_wrong_pinned_provenance(tiny_extensions, field
 def test_ready_extensions_do_not_claim_they_have_never_been_downloaded(tiny_extensions, monkeypatch):
     monkeypatch.setattr(pipeline_models, '_STATE', {'state': 'idle', 'message': '扩展模型尚未下载'})
     state = pipeline_models.status()
-    assert state['ready'] and state['download']['message'] == '扩展模型已就绪'
+    assert state['ready'] and '默认扩展组件已就绪' in state['download']['message']
+    assert not state['all_engines_ready']
+    assert state['engine_coverage']['ready'] < state['engine_coverage']['total']
     for state_name in ('failed', 'interrupted', 'complete'):
         common.atomic_json(tiny_extensions / 'download-state.json', {'state': state_name, 'message': 'keep diagnostic'})
         state = pipeline_models.status()

@@ -159,7 +159,7 @@ def coarse(request, image, output, emit_fn):
 def texture(request, image, output, emit_fn):
     choice = engine('texture', request.get('engine'))
     if choice['id'] != 'trellis2':
-        if choice['id'] == 'ultratex':
+        if choice['id'] in {'ultratex', 'ultratex_int8'}:
             from .ultratex_texture import generate
         else:
             from .hunyuan_texture import generate

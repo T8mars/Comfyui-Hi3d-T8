@@ -108,6 +108,19 @@ SPECS = {
         "files": ["flux-2-klein-base-9b-fp8.safetensors"],
         "optional": True,
     },
+    "ultratex_backbone_int8": {
+        "repo": "CivitAI:tsolful/Flux-2-Klein-9B-INT8",
+        "revision": "model-version-3080042-file-2959286",
+        "license": "FLUX Non-Commercial License; original base license bundled with texture_ultratex",
+        "source_url": "https://civitai.com/models/2738890?modelVersionId=3080042",
+        "precision": "INT8 ConvRot; native int8_tensorwise; Base 9B, not distilled/KV",
+        "files": ["flux2Klein9BINT8_9bBase.safetensors"],
+        "artifacts": {"flux2Klein9BINT8_9bBase.safetensors": {
+            "url": "https://civitai.com/api/download/models/3080042?fileId=2959286",
+            "bytes": 9405841780,
+            "sha256": "a81250a88150df3c79d0175f5d04a1cc57de6fa79ea2852385e3bf7fc4c5ea65"}},
+        "optional": True,
+    },
     "ultratex_text_encoder": {
         "repo": "Comfy-Org/flux2-klein-9B",
         "revision": "3f62d9d8ae1fec33c6e91453d5c712855b096b55",
@@ -177,6 +190,40 @@ def _hash(path: Path, git_blob: bool = False) -> str:
         for block in iter(lambda: stream.read(8 * 1024 * 1024), b""):
             h.update(block)
     return h.hexdigest()
+
+
+def _download_artifact(artifact, destination, progress=None):
+    """Bounded-memory public download; never forwards Hub credentials."""
+    import requests
+    destination=Path(destination)
+    destination.parent.mkdir(parents=True,exist_ok=True)
+    temporary=destination.with_name(destination.name+'.tmp')
+    size=artifact['bytes']
+    begin=temporary.stat().st_size if temporary.exists() and temporary.stat().st_size<size else 0
+    headers={'Range':f'bytes={begin}-'} if begin else {}
+    with requests.get(artifact['url'],headers=headers,stream=True,timeout=(20,120)) as response:
+        response.raise_for_status()
+        if response.status_code!=206:begin=0
+        elif not response.headers.get('Content-Range','').startswith(f'bytes {begin}-') or not response.headers.get('Content-Range','').endswith(f'/{size}'):
+            raise ValueError('模型下载区间与固定文件大小不一致')
+        digest=hashlib.sha256()
+        if begin:
+            with temporary.open('rb') as previous:
+                for block in iter(lambda:previous.read(8*1024*1024),b''):digest.update(block)
+        received=begin
+        with temporary.open('ab' if begin else 'wb') as stream:
+            for block in response.iter_content(4*1024*1024):
+                received+=len(block)
+                if received>size:raise ValueError('模型下载超过固定文件大小')
+                stream.write(block);digest.update(block)
+                if progress:progress(received)
+            stream.flush();os.fsync(stream.fileno())
+    if received!=size:raise ValueError('模型下载未完成，可重试下载')
+    if digest.hexdigest()!=artifact['sha256']:
+        temporary.unlink(missing_ok=True)
+        raise ValueError('模型组件 SHA256 校验失败')
+    os.replace(temporary,destination)
+    return destination
 
 
 def _signature(path: Path):
@@ -350,18 +397,25 @@ def status(model_root: str | Path | None = None) -> dict:
             if download_state.get("state") == "downloading":
                 download_state.update(state="interrupted", message="扩展下载已中断，可恢复已校验分片")
     ready = runtime_ready and all(x["ready"] for x in components.values() if not x.get('optional'))
+    choices = engine_status(components, {**runtime, 'ready': runtime_ready})
+    flattened = [choice for group in choices.values() for choice in group.values()]
+    coverage = {'ready': sum(choice['ready'] for choice in flattened), 'total': len(flattened)}
     if ready and download_state.get("state") == "idle" and download_state.get("message") == "扩展模型尚未下载":
-        download_state["message"] = "扩展模型已就绪"
+        download_state["message"] = "全部扩展引擎已就绪" if coverage['ready'] == coverage['total'] else "默认扩展组件已就绪；其他引擎按需准备"
     return {"ready": ready,
             "background_ready": components["background"]["ready"],
             "coarse_ready": runtime_ready and components["coarse"]["ready"],
             "texture_ready": runtime_ready and components["texture"]["ready"] and components["texture_encoder"]["ready"],
             "components": components, "runtime": {**runtime, "ready": runtime_ready, "python": str(executable)},
-            "engines": engine_status(components, {**runtime, 'ready': runtime_ready}),
+            "engines": choices, "engine_coverage": coverage,
+            "all_engines_ready": coverage['ready'] == coverage['total'],
             "download": download_state, "model_root": str(root), "errors": errors}
 
 
 def selection_components(selection: str) -> list[str]:
+    if selection == 'complete':
+        from .engine_catalog import all_engine_selections
+        return list(dict.fromkeys(key for choice in all_engine_selections() for key in selection_components(choice)))
     groups = {"all": [key for key, spec in SPECS.items() if not spec.get('optional')],
               "coarse": ["background", "coarse"], "texture": ["background", "texture", "texture_encoder"],
               "background": ["background"], "encoder": ["texture_encoder"]}
@@ -397,7 +451,7 @@ def download(selection: str = "all", model_root: str | Path | None = None, progr
                     info = HfApi().model_info(spec["repo"], revision=spec["revision"], files_metadata=True)
                     remote = {x.rfilename: x for x in info.siblings}
                 entry = {"repo": spec["repo"], "revision": spec["revision"], "license": spec["license"], "files": {}}
-                for field in ("upstream_repo", "upstream_revision", "upstream_identical", "expected_weight_sha256"):
+                for field in ("upstream_repo", "upstream_revision", "upstream_identical", "expected_weight_sha256", "source_url", "precision"):
                     if field in spec:
                         entry[field] = spec[field]
                 if "upstream_repo" in spec:
@@ -420,20 +474,18 @@ def download(selection: str = "all", model_root: str | Path | None = None, progr
                         progress_callback(dict(_STATE))
                     if "artifacts" in spec:
                         from types import SimpleNamespace
-                        import requests
                         artifact = spec["artifacts"][name]
                         meta = SimpleNamespace(size=artifact["bytes"], lfs=SimpleNamespace(sha256=artifact["sha256"]))
                         path = root / key / name
                         if not path.is_file() or _hash(path) != artifact["sha256"]:
-                            response = requests.get(artifact["url"], timeout=(20, 120))
-                            response.raise_for_status()
-                            path.parent.mkdir(parents=True, exist_ok=True)
-                            temp = path.with_name(path.name + ".tmp")
-                            temp.write_bytes(response.content)
-                            if _hash(temp) != artifact["sha256"]:
-                                temp.unlink(missing_ok=True)
-                                raise ValueError(f"背景组件校验失败: {name}")
-                            os.replace(temp, path)
+                            last_progress=[time.monotonic()]
+                            def artifact_progress(received):
+                                _STATE['file_bytes']=received
+                                if time.monotonic()-last_progress[0]>=1:
+                                    atomic_json(_STATE_PATH,_STATE)
+                                    if progress_callback:progress_callback(dict(_STATE))
+                                    last_progress[0]=time.monotonic()
+                            _download_artifact(artifact,path,artifact_progress)
                     else:
                         meta = remote[name]
                         pinned_hash = spec.get('expected_file_hashes', {}).get(name)

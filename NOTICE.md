@@ -22,6 +22,8 @@ UltraTex by Yibo Zhang et al. (MIT) is integrated through the pinned visualbruno
 
 Preview lighting uses the unmodified Poly Haven studio_small_08 and studio_small_09 HDR environments under CC0. Source URLs and content hashes are retained in hi3d_workbench/web/environments/sources.json. These are lighting assets, not generated 3D models.
 
+The optional UltraTex INT8 ConvRot Base 9B checkpoint is the community quantization published by tsolful at https://civitai.com/models/2738890?modelVersionId=3080042 (file 2959286). It is distributed unchanged with a pinned SHA256 and retains the original FLUX Non-Commercial License, included with the UltraTex adapter component. It is not the distilled or KV checkpoint and was not quantized by this project. The FP8 base remains a separate option.
+
 The additional Windows runtime uses an integration SDPA compatibility adapter for packed sparse attention. It does not replace model weights and is not the official Linux FlashAttention environment. Runtime/source/package versions and component licenses must accompany a full-chain distribution. Real inference and memory validation for the new pipeline are tracked separately in roadmap.md.
 
 Windows runtime distributions include CPython, PyTorch, Triton Windows, spconv/cumm, Transformers, Accelerate, NumPy, SciPy, trimesh and other Python dependencies. Their package license files remain in the runtime. Exact installed versions are recorded in runtime-packages.txt. Python's LICENSE is retained in the runtime directory.

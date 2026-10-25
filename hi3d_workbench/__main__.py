@@ -2,7 +2,7 @@ import argparse
 import os
 import sys
 import threading
-from .common import config
+from .common import ROOT, VERSION, config, resolve_model_dir
 
 def main():
     parser=argparse.ArgumentParser(description="Hi3D local workbench")
@@ -16,6 +16,10 @@ def main():
     result=console_control.existing(args.port,stop=args.stop,open_browser=args.open and not args.stop)
     if result is not None:return result
     from . import updater
+    print(f'[启动] Hi3D 工作台 v{VERSION}', flush=True)
+    print(f'[启动] 工作台目录：{ROOT}', flush=True)
+    print(f'[启动] 模型目录：{resolve_model_dir(config().get("models_dir"))}', flush=True)
+    print('[启动] 正在检查程序更新并初始化服务…', flush=True)
     try:
         if updater.apply_on_start():
             os.execv(sys.executable, [sys.executable, '-m', 'hi3d_workbench', *sys.argv[1:]])
@@ -25,7 +29,8 @@ def main():
         print(f'Code update was not installed; using existing program: {exc}', flush=True)
     lifecycle.shutdown.clear()
     lifecycle.managed=True
-    if args.open:threading.Thread(target=console_control.open_when_ready,args=(args.port,),daemon=True).start()
+    print(f'[启动] 访问地址：http://127.0.0.1:{args.port}/ （服务就绪后可用）', flush=True)
+    threading.Thread(target=console_control.report_when_ready,args=(args.port,args.open),daemon=True).start()
     import uvicorn
     server=uvicorn.Server(uvicorn.Config("hi3d_workbench.server:app",host="127.0.0.1",port=args.port,access_log=False))
     def stop_requested():

@@ -22,6 +22,7 @@ internal static class WorkbenchLauncher
     // Waiting for that old process alone would close the job and kill the server.
     private const string Bootstrap = @"
 import signal, subprocess, sys
+print('[启动] 正在检查已下载的程序更新…', flush=True)
 from hi3d_workbench import updater
 try:
     updater.apply_on_start()
@@ -88,7 +89,24 @@ raise SystemExit(subprocess.call([sys.executable, '-u', '-m', 'hi3d_workbench', 
     private static extern bool SetConsoleCtrlHandler(Handler callback, bool add);
     [DllImport("kernel32.dll")]
     private static extern bool GenerateConsoleCtrlEvent(uint signal, uint group);
+    [DllImport("kernel32.dll")]
+    private static extern IntPtr GetCurrentProcess();
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern IntPtr GetStdHandle(int kind);
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool DuplicateHandle(IntPtr sourceProcess, IntPtr source, IntPtr targetProcess,
+        out IntPtr target, uint access, bool inherit, uint options);
     private static void Check(bool ok) { if (!ok) throw new Win32Exception(Marshal.GetLastWin32Error()); }
+
+    private static IntPtr InheritableStandardHandle(int kind)
+    {
+        IntPtr source = GetStdHandle(kind);
+        if (source == IntPtr.Zero || source == new IntPtr(-1))
+            throw new IOException("启动窗口没有可用的标准输入/输出，请从正常控制台启动。");
+        IntPtr copy;
+        Check(DuplicateHandle(GetCurrentProcess(), source, GetCurrentProcess(), out copy, 0, true, 2));
+        return copy;
+    }
 
     private static bool OnControl(uint signal)
     {
@@ -134,10 +152,12 @@ raise SystemExit(subprocess.call([sys.executable, '-u', '-m', 'hi3d_workbench', 
             Directory.SetCurrentDirectory(root);
             Console.WriteLine("Hi3D 本地 3D 工作台 · By T8star\n");
             Console.WriteLine("此窗口是工作台服务，请保持打开。\n关闭方式：Ctrl+C / 关闭此窗口 / 网页中的“关闭工作台”。\n只关闭浏览器页面不会停止服务。\n");
+            Console.WriteLine("[启动] 工作台目录：" + root);
             string python = null;
             foreach (string name in new[] { @"runtime\python.exe", @".appenv\Scripts\python.exe", @".venv\Scripts\python.exe" })
                 if (File.Exists(Path.Combine(root, name))) { python = Path.Combine(root, name); break; }
             if (python == null) throw new FileNotFoundException("没有找到 Python 环境。请使用完整版整合包，或先按 README 安装运行环境。");
+            Console.WriteLine("[启动] Python 环境：" + python);
             foreach (string name in new[] { "PYTHONHOME", "PYTHONPATH", "CUDA_PATH", "CUDA_HOME", "HI3D_WORKBENCH_ROOT" })
                 Environment.SetEnvironmentVariable(name, null);
             Environment.SetEnvironmentVariable("PYTHONIOENCODING", "utf-8");
@@ -153,8 +173,23 @@ raise SystemExit(subprocess.call([sys.executable, '-u', '-m', 'hi3d_workbench', 
             foreach (string arg in args) command.Append(" ").Append(Quote(arg));
             var startup = new StartupInfo(); startup.Size = Marshal.SizeOf(startup);
             ProcessInfo child;
-            Check(CreateProcess(python, command, IntPtr.Zero, IntPtr.Zero, false,
-                0x00000004 | 0x00000200, IntPtr.Zero, root, ref startup, out child));
+            // Console attachment alone does not give Python usable standard
+            // handles. Explicitly inherit copies so startup errors and live
+            // inference progress reach this window (or redirected log files).
+            try
+            {
+                startup.Input = InheritableStandardHandle(-10);
+                startup.Output = InheritableStandardHandle(-11);
+                startup.Error = InheritableStandardHandle(-12);
+                startup.Flags = 0x100; // STARTF_USESTDHANDLES
+                Check(CreateProcess(python, command, IntPtr.Zero, IntPtr.Zero, true,
+                    0x00000004 | 0x00000200, IntPtr.Zero, root, ref startup, out child));
+            }
+            finally
+            {
+                foreach (IntPtr handle in new[] { startup.Input, startup.Output, startup.Error })
+                    if (handle != IntPtr.Zero) CloseHandle(handle);
+            }
             processHandle = child.Process;
             try
             {

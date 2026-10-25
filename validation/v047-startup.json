@@ -1,0 +1,22 @@
+{
+  "version": "0.4.7",
+  "scope": "Windows standalone launcher and startup reporting; no inference algorithm changes",
+  "regression": {"passed": 571, "seconds": 73.53, "warnings": 1},
+  "old_launcher_output_loss_reproduced": true,
+  "real_windows_launcher": {
+    "stdout_and_stderr_forwarding": "passed",
+    "descendant_cleanup": ["kill_launcher", "close_window", "ctrl_c", "worker_exit"]
+  },
+  "real_embedded_python_startup": {
+    "chain": "EXE -> Python bootstrap -> fresh Python HTTP server",
+    "python_version": "3.10",
+    "stdout_and_stderr": "passed",
+    "http_ready_before_ready_message": "passed",
+    "url_and_model_root": "passed",
+    "authenticated_shutdown": "passed",
+    "user_models_untouched": true
+  },
+  "startup_unit_checks": ["no_browser_readiness", "browser_open_failure", "slow_initialization", "same_directory_identity"],
+  "live_browser_visual_check": "not_run; console output and HTTP checked directly",
+  "upgrade": "Install matching code update and launcher ZIP; code-only updater excludes EXE"
+}

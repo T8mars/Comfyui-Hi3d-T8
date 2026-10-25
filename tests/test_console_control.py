@@ -46,6 +46,45 @@ def test_browser_waits_for_same_directory(monkeypatch):
     assert lifecycle.instance_id(Path('a')) != lifecycle.instance_id(Path('b'))
 
 
+def test_ready_address_prints_without_browser(monkeypatch, capsys):
+    monkeypatch.setattr(lifecycle, 'shutdown', threading.Event())
+    monkeypatch.setattr(control, 'request', lambda port: {'instance_id': lifecycle.instance_id()})
+    monkeypatch.setattr(control.webbrowser, 'open', lambda url: (_ for _ in ()).throw(AssertionError('browser disabled')))
+    control.report_when_ready(9123)
+    output = capsys.readouterr().out
+    assert '[就绪]' in output and 'http://127.0.0.1:9123/' in output and '[运行]' in output
+
+
+def test_failed_browser_reports_manual_address(monkeypatch, capsys):
+    monkeypatch.setattr(lifecycle, 'shutdown', threading.Event())
+    monkeypatch.setattr(control, 'request', lambda port: {'instance_id': lifecycle.instance_id()})
+    def fail(url):raise control.webbrowser.Error('no browser')
+    monkeypatch.setattr(control.webbrowser, 'open', fail)
+    control.report_when_ready(9123, open_browser=True)
+    output = capsys.readouterr().out
+    assert '[就绪]' in output and '未能自动打开' in output and 'http://127.0.0.1:9123/' in output
+
+
+def test_slow_start_reports_wait_then_ready_for_correct_instance(monkeypatch, capsys):
+    monkeypatch.setattr(lifecycle, 'shutdown', threading.Event())
+    times = iter([0, 6, 12])
+    monkeypatch.setattr(control.time, 'monotonic', lambda: next(times))
+    class Stop:
+        def is_set(self):return False
+        def wait(self, timeout):pass
+    monkeypatch.setattr(lifecycle, 'shutdown', Stop())
+    responses = iter([{'instance_id':'wrong-directory'}, OSError('not ready'), {'instance_id':lifecycle.instance_id()}])
+    def request(port):
+        item = next(responses)
+        if isinstance(item, Exception):raise item
+        return item
+    monkeypatch.setattr(control, 'request', request)
+    control.report_when_ready(9123, deadline=10)
+    output = capsys.readouterr().out
+    assert '已等待 6 秒' in output and '初始化耗时较长' in output
+    assert output.count('[就绪]') == 1
+
+
 def test_shutdown_requires_token_and_managed_server(monkeypatch):
     from hi3d_workbench import server
     stop = threading.Event()
@@ -86,6 +125,12 @@ def test_real_console_duplicate_wrong_directory_and_shutdown(tmp_path):
                     if process.poll() is not None or time.monotonic() > deadline:raise
                     time.sleep(.2)
             assert session['can_shutdown'] and session['instance_id'] == lifecycle.instance_id(root)
+            deadline = time.monotonic()+5
+            while '[就绪]' not in (tmp_path/'server.log').read_text(encoding='utf-8'):
+                if time.monotonic()>deadline:raise AssertionError('HTTP is ready but no console readiness message')
+                time.sleep(.1)
+            messages = (tmp_path/'server.log').read_text(encoding='utf-8')
+            assert str(root/'models') in messages and f'http://127.0.0.1:{port}/' in messages
             html = get('/')
             for domain in ('space.bilibili.com/385085361', 'youtube.com/@T8star-Aix/',
                            'api.seedance.nz/sign-up?aff=5f4w', 'www.openzhenzhen.com',

@@ -45,12 +45,37 @@ def existing(port, stop=False, open_browser=False):
         return 1
 
 
-def open_when_ready(port, deadline=90):
-    end = time.monotonic() + deadline
-    while time.monotonic() < end and not lifecycle.shutdown.is_set():
+def report_when_ready(port, open_browser=False, deadline=90, report_interval=5):
+    """Report actual HTTP readiness even when browser opening is disabled.
+
+    Long initial imports must not leave an apparently stalled console. The
+    deadline changes the message, not the running server or its initialization.
+    """
+    started = time.monotonic()
+    next_report = started + report_interval
+    while not lifecycle.shutdown.is_set():
         try:
             if request(port).get('instance_id') == lifecycle.instance_id():
-                webbrowser.open(f'http://127.0.0.1:{port}/')
+                address = f'http://127.0.0.1:{port}/'
+                print(f'\n[就绪] 工作台已启动：{address}', flush=True)
+                if open_browser:
+                    try:opened = webbrowser.open(address)
+                    except (OSError, webbrowser.Error):opened = False
+                    if opened:
+                        print('[浏览器] 已发送打开请求；页面未出现时请手动打开上面的地址。', flush=True)
+                    else:
+                        print('[浏览器] 未能自动打开，请手动打开上面的地址。', flush=True)
+                print('[运行] 等待任务；任务进度将在此窗口与网页中显示。', flush=True)
                 return
         except (OSError, ValueError):pass
+        now = time.monotonic()
+        if now >= next_report:
+            elapsed = int(now - started)
+            detail = '初始化耗时较长，请查看上方日志；服务尚未就绪' if elapsed >= deadline else '正在初始化服务，尚未就绪'
+            print(f'[启动] {detail}（已等待 {elapsed} 秒）', flush=True)
+            next_report = now + report_interval
         lifecycle.shutdown.wait(.5)
+
+
+def open_when_ready(port, deadline=90):
+    report_when_ready(port, open_browser=True, deadline=deadline)

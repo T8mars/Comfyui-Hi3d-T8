@@ -32,6 +32,8 @@ def launcher(tmp_path):
     stub.write_text('''using System; using System.IO; using System.Diagnostics; using System.Threading;
 class FakeWorker {
  static void Main(string[] args) {
+  Console.WriteLine("WORKER_STDOUT_VISIBLE"); Console.Out.Flush();
+  Console.Error.WriteLine("WORKER_STDERR_VISIBLE"); Console.Error.Flush();
   if (args.Length > 0 && args[0] == "leaf") { Thread.Sleep(Timeout.Infinite); return; }
   Console.CancelKeyPress += delegate(object sender, ConsoleCancelEventArgs e) {
    File.WriteAllText("stopped.txt", e.SpecialKey.ToString()); Environment.Exit(0);
@@ -48,6 +50,26 @@ class FakeWorker {
     subprocess.run([str(compiler), '/nologo', '/target:exe', '/platform:x64',
                     '/out:'+str(runtime/'python.exe'), str(stub)], check=True, capture_output=True)
     return root
+
+
+def test_launcher_forwards_worker_stdout_and_stderr(launcher):
+    # Exercise the actual CreateProcess boundary; a standalone Python/HTTP test
+    # cannot detect missing inherited handles in the native launcher.
+    info = subprocess.STARTUPINFO(); info.dwFlags |= subprocess.STARTF_USESHOWWINDOW; info.wShowWindow = 0
+    stdout_path, stderr_path = launcher/'stdout.log', launcher/'stderr.log'
+    with stdout_path.open('wb') as out, stderr_path.open('wb') as err:
+        process = subprocess.Popen([str(launcher/'Hi3D-Workbench.exe')], cwd=launcher,
+                                   stdout=out, stderr=err, stdin=subprocess.DEVNULL,
+                                   creationflags=subprocess.CREATE_NEW_CONSOLE, startupinfo=info)
+        try:
+            wait_until(lambda: (launcher/'leaf.pid').exists())
+            wait_until(lambda: b'WORKER_STDOUT_VISIBLE' in stdout_path.read_bytes()
+                       and b'WORKER_STDERR_VISIBLE' in stderr_path.read_bytes(), timeout=3)
+        finally:
+            process.kill()
+            process.wait(timeout=10)
+        for name in ('worker.pid','leaf.pid'):
+            wait_until(lambda name=name: not psutil.pid_exists(int((launcher/name).read_text())))
 
 
 def start(root):

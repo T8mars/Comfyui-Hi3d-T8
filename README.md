@@ -26,6 +26,8 @@ Builders must use `--include-models --include-pipeline --all-engines` with `tool
 
 Double-click **Hi3D-Workbench.exe** or **Start-Workbench.cmd** and keep its console open to view logs. Stop with **Ctrl+C**, the console window's **X**, the webpage's **Close workbench** button, or **Stop-Workbench.cmd**. Closing only the browser leaves the service running. The EXE owns the server and its inference subprocesses, so closing it also releases its workers. Startup errors remain visible. A second launch reuses the same directory's service; it never stops another bundle sharing the port.
 
+**v0.4.7 launcher fix:** existing bundles need both the code update and the matching launcher ZIP to restore Python logs. Startup displays the model directory, URL and confirmed readiness; slow initialization keeps reporting its status.
+
 The separate `Hi3D-Workbench-launcher-<version>.zip` contains a small Windows launcher and start/stop scripts, **not Python or models**. Apply the matching code update first, then extract the launcher beside `Start-Workbench.cmd`. A missing launcher can also be built by `scripts/Build-Launcher.ps1` using Windows' .NET Framework 4 compiler. Launcher source is included; the executable is unsigned. New complete bundles include it already. Community links are available in the workbench sidebar and footer.
 
 ## Progress and acceleration

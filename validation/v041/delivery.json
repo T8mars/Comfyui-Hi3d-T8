@@ -1,0 +1,79 @@
+{
+  "version": "0.4.1",
+  "github": {
+    "release": "https://github.com/T8mars/Comfyui-Hi3d-T8/releases/tag/v0.4.1",
+    "workflow_run": "https://github.com/T8mars/Comfyui-Hi3d-T8/actions/runs/40164883085",
+    "workflow_conclusion": "success",
+    "archives": {
+      "Hi3D-Workbench-update-0.4.1.zip": {
+        "bytes": 10318232,
+        "sha256": "5b53948f6de8155b1ef1eb717b5713af4a2cbc2f92d115a69627eec246abe5a3",
+        "files": 317,
+        "weights_and_python_absent": true,
+        "crc_passed": true
+      },
+      "ComfyUI-Hi3D-nodes-0.4.1.zip": {
+        "bytes": 164482,
+        "sha256": "d7cb5ad03d87a2daa49d644afa2f9229d7dacf1f1a4607f826ca67ecab4d7b3f",
+        "files": 12,
+        "weights_and_python_absent": true,
+        "crc_passed": true
+      },
+      "Hi3D-Workbench-source-0.4.1.zip": {
+        "bytes": 10318232,
+        "sha256": "d2c7adec2f74d9dacc46fdf6512be154016d30e7ae0beb335bac8665fa33a5ef",
+        "files": 317,
+        "weights_and_python_absent": true,
+        "crc_passed": true
+      }
+    },
+    "registry": {
+      "version": "0.4.1",
+      "install_http": 200,
+      "cdn_http": 200,
+      "status": "NodeVersionStatusPending",
+      "code_matches_tag": true,
+      "visual_canvas_nodes": 5,
+      "visual_canvas_links": 6
+    }
+  },
+  "tag_commit": "f4203b85b0459244be94c0aed47c379bae978b68",
+  "huggingface": {
+    "repo": "t8star/Hi3d-Comfy",
+    "commit": "f9dd4f5130920d194f22e4bdc08412a1ddee3fe9",
+    "model_files": 94,
+    "bytes": 69863284980,
+    "all_remote_model_hashes_match": true,
+    "bilingual_readmes_verified": true
+  },
+  "public_update_install": {
+    "real_public_github_download": true,
+    "from": "0.4.0",
+    "to": "0.4.1",
+    "archive_sha256": "5b53948f6de8155b1ef1eb717b5713af4a2cbc2f92d115a69627eec246abe5a3",
+    "all_installed_file_hashes_match": true,
+    "models_runtimes_history_preserved": true,
+    "new_gpu_inference": false
+  },
+  "portable_update": {
+    "from": "0.4.0",
+    "to": "0.4.1",
+    "real_portable_install": true,
+    "code_files_verified": 317,
+    "runtime_and_model_files_preserved": 48122,
+    "representative_hashes_preserved": {
+      "runtime/python.exe": "3cce33d75d6fdae4e004d0bdf149320b3147482a9caf370079dcb9c191a1b260",
+      "runtime-pipeline/python.exe": "ceabb31054d429f57cb3825775677eeaf0db35fdabbc5ff6aef661c037154b00",
+      "models/manifest.json": "b5806ff4c9992beb694555c8629964d809b223020f8efcbe1db3251c361a2258",
+      "models/extensions/manifest.json": "d71462b5bea803f24b5535c3fb41c720e9d45bdffeb2edc29b92f072d1434310",
+      "config.local.json": "19aa75e4ce9c07c6ca816f50533ef703136901050c42ba357991a33c8dc2cddf"
+    },
+    "new_gpu_inference": false
+  },
+  "regression": {
+    "windows_passed": 313,
+    "linux_updater_passed": 36
+  },
+  "complete_bundle": "Provided separately by T8star; GitHub contains no weights or Python runtimes",
+  "new_gpu_inference": false
+}

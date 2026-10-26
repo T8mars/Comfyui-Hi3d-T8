@@ -1,4 +1,4 @@
-"""Sequential workbench supervisor. No changes to the ComfyUI bridge worker."""
+"""Sequential workbench supervisor; independent from the native ComfyUI nodes."""
 from __future__ import annotations
 
 import argparse
@@ -16,6 +16,7 @@ from .events import EVENT_MARKER, event_spans
 from .worker import emit
 
 _engine_session=None
+_stage_prefetch=None
 
 
 def close_engine_session():
@@ -66,6 +67,7 @@ def run_child(command, request_path, directory, stage):
                     # Keep real events on independent lines. Forwarding the
                     # original mixed line too would make Jobs apply it twice.
                     event.setdefault('pipeline_stage',stage)
+                    if _stage_prefetch is not None:_stage_prefetch.observe(stage,event)
                     if event['stage']=='complete':
                         event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
                     print(EVENT_MARKER+json.dumps(event,ensure_ascii=False,allow_nan=False),flush=True)
@@ -95,6 +97,33 @@ def run_child(command, request_path, directory, stage):
 
 def run(request_path):
     from . import pipeline_models
+    from .stage_prefetch import StagePrefetch
+    global _stage_prefetch
+    if _stage_prefetch is not None:raise RuntimeError('Pipeline supervisor must run jobs sequentially')
+    request_path=Path(request_path).resolve()
+    coordinator=StagePrefetch(read_json(request_path),pipeline_models.MODEL_ROOT.parent)
+    _stage_prefetch=coordinator
+    succeeded=False
+    try:
+        result=_run(request_path);succeeded=True
+        return result
+    finally:
+        try:coordinator.close()
+        finally:_stage_prefetch=None
+        details=coordinator.status()
+        try:
+            atomic_json(request_path.parent/'prefetch.json',details)
+            if succeeded:
+                report=read_json(request_path.parent/'report.json')
+                if isinstance(report,dict) and report.get('status')=='succeeded':
+                    report['stage_prefetch']=details
+                    atomic_json(request_path.parent/'report.json',report)
+        except (OSError,ValueError) as error:
+            print('[HI3D] Could not save optional prefetch statistics: '+str(error),flush=True)
+
+
+def _run(request_path):
+    from . import pipeline_models
     from .asset_pipeline import inspect_textured_glb, inspect_asset_geometry
     from .geometry import inspect_mesh, load_mesh
 
@@ -123,6 +152,7 @@ def run(request_path):
                    'geometry_cleanup': req.get('geometry_cleanup',True),
                    'pipeline_attention': req.get('pipeline_attention','auto'),
                    'model_policy': req.get('model_policy','runtime'),
+                   'weight_transfer': req.get('weight_transfer'),
                    'voxel_backend': req.get('voxel_backend','auto'), 'encoding_cache': req.get('encoding_cache',True),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}

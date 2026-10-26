@@ -8,7 +8,7 @@
 
 原生节点在 ComfyUI 自身 Python 内直接推理，无需启动工作台。上传图片和粗模后精修，使用相同原始核心权重；旧桥接画布需替换为新版示例。
 
-**工作台 v0.5.0 沿用全部现有模型权重。** `runtime-wheels/v0.4.9/` 是可选 Windows CUDA 加速代码组件，由工作台固定哈希安装，不属于模型权重或 Python 发行环境，随附上游 MIT 许可与修改说明。
+**工作台 v0.5.1 沿用全部现有模型权重。** `runtime-wheels/v0.4.9/` 是可选 Windows CUDA 加速代码组件，由工作台固定哈希安装，不属于模型权重或 Python 发行环境，随附上游 MIT 许可与修改说明。
 
 ## 包含哪些模型
 
@@ -27,11 +27,13 @@
 
 `manifest.json` 记录共用核心；`extensions/manifest.json` 记录 14 个扩展组件及来源版本；`model-catalogue.json` 列出全部 **95 个权重／配置／许可文件，合计约 79.3GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
 
+**2026-10-26 重新核对：**本地 95 个文件与清单、抱脸文件哈希一致，没有待补传或替换的模型权重。运行时加速轮子单独统计，不计入模型清单。
+
 ## 下载方式
 
 原生 ComfyUI 默认放在 `ComfyUI/models/Hi3D/`，独立工作台放在其 `models/`。两者可指定同一现有权重根目录，下面命令的 `models` 可替换为目标目录。
 
-仅下载 Hi3D 核心，供 ComfyUI 精修使用：
+仅下载 Hi3D 核心（10.66GB），供独立 ComfyUI 节点精修使用：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
@@ -43,7 +45,27 @@ hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d
 hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
-按需下载时，选择上表对应目录、`extensions/manifest.json` 及配套依赖。工作台的「模型」页也可从固定版本的上游或公开分发源只下载所需引擎。缺少可选模型不影响已安装的引擎；使用前在工作台中校验。
+按需下载时，请取齐所选引擎**同一行的全部目录**：
+
+| 工作台引擎 | `extensions/` 下需要的目录 | 下载大小 |
+|---|---|---:|
+| Hunyuan3D-2mini Turbo 建模 | `coarse` | 3.82GB |
+| Hunyuan3D 2.1 建模 | `coarse_hunyuan21` | 7.37GB |
+| TRELLIS.2 建模 | `coarse_trellis2`、`trellis_structure`、`texture_encoder` | 10.06GB |
+| TRELLIS.2 PBR | `texture`、`texture_encoder` | 8.04GB |
+| Hunyuan3D-Paint 2.1 | `texture_hunyuan21`、`paint_dino`、`paint_upscaler` | 11.50GB |
+| UltraTex FP8 | `texture_ultratex`、`ultratex_backbone`、`ultratex_text_encoder` | 19.62GB |
+| UltraTex INT8 ConvRot | `texture_ultratex`、`ultratex_backbone_int8`、`ultratex_text_encoder` | 19.46GB |
+
+采用十进制 GB，包含每行所需的共享依赖，不含 Python、临时空间或可选加速包。共享目录只下载一次，不能将各行体积直接相加作为完整包大小。工作台中 Hi3D 精修可选，启用时才需额外下载核心。自动抠图另需 `extensions/background/`，约 4.6MB。
+
+例如同时使用 TRELLIS.2 建模与 PBR，下载其共享编码器及全部依赖：
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "extensions/manifest.json" "extensions/coarse_trellis2/*" "extensions/trellis_structure/*" "extensions/texture/*" "extensions/texture_encoder/*" "licenses/*"
+```
+
+工作台的「模型」页也可从固定版本的上游或公开分发源只下载所需引擎。缺少可选模型不影响已安装的引擎；使用前在工作台中校验。
 
 使用其他磁盘或共享目录时，在「模型与运行环境 → 模型目录」选择根目录，并将 `hf download --local-dir` 指向同一路径。所选目录内直接放置 `hi3d/`、`dino/`、`clip/`、`extensions/`。空闲切换立即生效，无需重启，不会移动原有文件；相对路径按工作台根目录解析，代码更新保留配置。
 
@@ -53,7 +75,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 
 独立整合包检查正式 GitHub Release，下载代码更新后在下次启动安装，保留模型、Python、配置和历史任务。程序更新不会下载整个模型仓库；需要更换运行环境的版本会提示获取作者提供的新版完整版。[更新说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.zh-CN.md)。
 
-v0.4.6 增加 UV 修复／缓存、阶段与 CPU／GPU 进度，以及可选原生 FlashAttention／Numba 运行时轮子。**模型权重与这份95文件清单没有变化。** 加速轮子属于 Python 环境依赖，不是新增模型，不放在本模型仓库。程序更新保留旧环境及 SDPA／Torch 回退；新版完整版与补装命令见[性能说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md)。
+加速包属于代码，不是模型权重。可选 `hi3d-voxel-cuda` 轮子位于 `runtime-wheels/v0.4.9/`，由工作台固定哈希、按兼容环境单独安装；FlashAttention 与 Numba／llvmlite 从安装器固定的外部来源获取。保留 SDPA 和官方 CPU 体素化路径，模型仓库不包含 Python 环境。补装方式见[性能说明](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md)。
 
 ## 验证与限制
 

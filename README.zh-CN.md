@@ -26,11 +26,13 @@ flowchart LR
 
 ### Windows 整合包启动与关闭
 
-**v0.5.0 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。
+**v0.5.1 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。[按需下载与各引擎大小](https://huggingface.co/t8star/Hi3d-Comfy/blob/main/README.zh-CN.md#下载)。
 
 制作全模型包时，`tools/build_release.py` 需同时使用 `--include-models --include-pipeline --all-engines`。INT8 底座采用 tsolful 发布并固定哈希的社区量化 **Base 9B**，不是蒸馏版或 KV 版；保留原始 FLUX 非商业许可，本项目不重新量化。不同 GPU 上 INT8 不保证比 FP8 更省显存或更快，应以实际报告为准。
 
 **v0.5.0 性能优化：**默认按阶段释放权重、保留推理运行时，另可选「常驻内存复用」或「任务后退出」。增加有内存保护的权重顺序预读、保留原精度的参数加载、同网格表面编码缓存，以及原算法的并行 PBR 补边。可选独立 CUDA 组件加速 TRELLIS.2 贴图体素化；显存不足或不兼容时自动回退官方 CPU。权重与采样设置保持，GPU 浮点计算不承诺逐位一致。详见[性能说明](docs/PERFORMANCE.zh-CN.md)。
+
+**v0.5.1 加载优化：**TRELLIS.2 使用合计 32 MiB 锁页暂存的有界异步显存搬运，并可在下一阶段准备／UV 期间预读其权重。模型、精度和 ComfyUI 独立 Hi3D 范围保持不变；测量范围与回退条件见性能说明。
 
 双击 **Hi3D-Workbench.exe** 或 **Start-Workbench.cmd**，保留启动窗口查看日志。按 **Ctrl+C**、关闭启动窗口、点击网页的**关闭工作台**，或运行 **Stop-Workbench.cmd**，均可停止服务；**只关闭浏览器页面不会退出服务**。EXE 统一管理服务和推理子进程，关闭时释放其工作进程；启动失败时保留错误信息。重复双击会打开本目录已运行的工作台，不重复启动，也不会关闭其他目录的服务。
 

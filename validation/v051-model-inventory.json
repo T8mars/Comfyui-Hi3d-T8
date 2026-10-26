@@ -1,0 +1,16 @@
+{
+  "checked_utc": "2026-10-26T07:42:49.097327+00:00",
+  "repository": "t8star/Hi3d-Comfy",
+  "remote_commit": "709202fb0158e298995c6f5c3f4e64df8b7f0795",
+  "core_components": 3,
+  "extension_components": 14,
+  "verified_files": 95,
+  "total_bytes": 79269126760,
+  "all_local_hashes_match_manifest": true,
+  "all_remote_hashes_match_local": true,
+  "mismatches": [],
+  "uncatalogued_local_weights": [],
+  "remote_catalogue_extra": [],
+  "card_commit": "832f22399c9301758f9d63cc038ec4d8813927f3",
+  "local_bundle_correction": "Restored two original Paint image-encoder files declared by the installed manifest, using verified same-volume hardlinks"
+}

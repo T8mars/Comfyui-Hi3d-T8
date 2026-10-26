@@ -4,7 +4,7 @@
 
 **By T8star** — Hi3D V1.0 geometry refinement for ComfyUI, with a separate local 3D workbench.
 
-The **ComfyUI nodes** refine a **reference image + coarse mesh of the same object** using the official Hi3D model. Their inputs, outputs and canvas workflow remain geometry-only. The **standalone workbench v0.4** also generates geometry from one image, offers multiple geometry/PBR engines, and compares saved results under shared lighting. See [validated scope](roadmap.md).
+The **ComfyUI nodes** refine a **reference image + coarse mesh of the same object** using the official Hi3D model. Their inputs, outputs and canvas workflow remain geometry-only. The **standalone workbench** also generates geometry from one image, offers multiple geometry/PBR engines, and compares saved results under shared lighting. See [validated scope](roadmap.md).
 
 [Models](https://huggingface.co/t8star/Hi3d-Comfy) · [Canvas workflow](examples/Hi3D-Refine.json) · [Validation](VALIDATION.md) · [Upstream Hi3D](https://github.com/hi3d-official/Hi3Dv1.0)
 
@@ -26,7 +26,7 @@ From v0.4.1, standalone bundles check and download code updates while idle, veri
 
 ### Launch and close the Windows bundle
 
-**Complete model bundles (v0.5.0):** three geometry choices and four texture entries, including separate UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B options. Full coverage needs 14 extension components plus the Hi3D core, approximately 79.3 GB of model/config files. A baseline-only package is not a complete multi-engine bundle. **Models → Complete all engines** prepares every registered dependency; the page reports ready/total engine counts. A complete package declares `full_engine_coverage: true` in `bundle-manifest.json`.
+**Complete model bundles (v0.5.1):** three geometry choices and four texture entries, including separate UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B options. Full coverage needs 14 extension components plus the Hi3D core, approximately 79.3 GB of model/config files. A baseline-only package is not a complete multi-engine bundle. **Models → Complete all engines** prepares every registered dependency; the page reports ready/total engine counts. A complete package declares `full_engine_coverage: true` in `bundle-manifest.json`. [Selective downloads and per-engine sizes](https://huggingface.co/t8star/Hi3d-Comfy#download).
 
 Builders must use `--include-models --include-pipeline --all-engines` with `tools/build_release.py`. The INT8 checkpoint is tsolful's pinned community quantization of **Base 9B**, not distilled/KV Klein; its original FLUX non-commercial license remains applicable. This project does not re-quantize it. INT8 is not guaranteed to use less VRAM or run faster than FP8 on every GPU.
 
@@ -37,6 +37,8 @@ Double-click **Hi3D-Workbench.exe** or **Start-Workbench.cmd** and keep its cons
 The separate `Hi3D-Workbench-launcher-<version>.zip` contains a small Windows launcher and start/stop scripts, **not Python or models**. Apply the matching code update first, then extract the launcher beside `Start-Workbench.cmd`. A missing launcher can also be built by `scripts/Build-Launcher.ps1` using Windows' .NET Framework 4 compiler. Launcher source is included; the executable is unsigned. New complete bundles include it already. Community links are available in the workbench sidebar and footer.
 
 ## Progress and acceleration
+
+v0.5.1 adds bounded asynchronous TRELLIS.2 weight uploads using 32 MiB of host staging buffers, plus next-stage file read-ahead during preparation/UV work. Weights, precision and the independent Hi3D-only ComfyUI scope are unchanged. [Measurements and limits](docs/PERFORMANCE.md).
 
 The workbench console and webpage show the active phase, its elapsed time, real counters/steps, time since meaningful progress, and the explicitly reported CPU/CUDA device. UV packing and file/model loading may use the CPU or disk; low GPU usage during those phases does not mean inference fell back to CPU.
 

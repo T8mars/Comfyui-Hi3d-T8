@@ -2,6 +2,19 @@
 
 **English** | [简体中文](PERFORMANCE.zh-CN.md)
 
+## v0.5.1 weight transfer and stage read-ahead
+
+On-demand TRELLIS.2 loading now alternates two 16 MiB pinned host slabs between CPU staging and asynchronous copies on a private CUDA stream. Each slab is fenced before reuse, and all copies finish before model execution or error propagation. Original dtypes, computed buffers and RNG states are retained. Small/unsupported tensors, explicit conversion arguments and memory guards use ordinary transfers. Host pin-allocation failures fall back before model mutation; CUDA execution errors are propagated. Progress counts completed bytes, with separate CPU staging and total transfer timings.
+
+Between stages, one 8 MiB reader can warm the selected successor's weights during preparation/UV work. Its file budget is at most 8 GiB and is reduced by available-memory reserves. It yields at the next buffer boundary when primary model loading begins. This warms the OS file cache without constructing models or reserving extra GPU weights. Cancellation, failure and job completion close the reader; the report records read bytes and handoff reasons.
+
+All 640 state tensors of an actual 1.3B checkpoint matched exactly, with unchanged CPU/CUDA RNG. Ordinary transfers took 3.801/1.484/1.825 seconds; chunked transfers took 0.923/0.887/1.382 seconds. The first ordinary sample was colder; these are scoped observations, not a universal multiplier. Real CUDA checks also cover mixed dtypes, integer/boolean/nonpersistent buffers, tied parameters, noncontiguous fallback, pin-allocation failure and an exception after copies were queued.
+
+These changes apply to standalone-workbench TRELLIS.2 loading; the independent ComfyUI Hi3D scope is unchanged. For diagnostics, set `HI3D_WEIGHT_TRANSFER=off` or `HI3D_STAGE_PREFETCH=off` before launch. See the [PyTorch pinned-memory and asynchronous-copy guide](https://docs.pytorch.org/tutorials/intermediate/pinmem_nonblock.html).
+
+
+The matching million-face/4K full runs, alternating disabled/enabled/enabled/disabled, took **201.719/158.000/160.969/163.422 seconds**. All raw geometry bytes matched. The persistent interpreter, unflushed OS/UV caches and nondeterministic mesh cleanup prevent a universal speed claim. With one fixed cleaned mesh and shape-encoding cache, geometry, UV, normals and both 4K texture arrays were exactly equal across transfer modes. The second fixed-mesh task hit the encoding cache, so its duration is not a transfer-only comparison. Four GLBs passed validation; two full outputs passed CPU/HDR three-view rendering. See [v0.5.1 evidence](../validation/v051-loading.json).
+
 ## v0.5.0 implementation and validation
 
 The default **release phase weights, keep runtime ready** policy retains the interpreters, not the model weights. **Resident** adds a bounded CPU LRU; **exit after task** releases the runtime too. Unload, cancellation, failure and workbench shutdown retain owned-process cleanup. GPU offloading is a separate setting.

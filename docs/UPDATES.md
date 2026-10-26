@@ -57,3 +57,5 @@ v0.4.8 adds on-demand loading and optional bounded CPU residency to TRELLIS.2, w
 v0.5.0 code updates retain your current runtime and weights. The new default keeps only the interpreter between tasks, releases weights per phase, and supports a separate bounded resident mode. Shape encodings are reused only after mesh/model/backend validation. Install the optional CUDA voxel converter using the workbench button or `--voxel-only`; it is hash-pinned and never changes Torch or `o_voxel`. Missing/outdated or unsupported add-ons use the official CPU converter in automatic mode.
 
 ComfyUI nodes update separately through Manager, Git or the complete node ZIP. Workbench overlays update the workbench and preserve compatibility with the existing updater; they do not install standalone node packages. v0.5.0 replaces bridge canvases with native Hi3D model loading and mesh upload, without a workbench service.
+
+v0.5.1 adds bounded asynchronous weight uploads and next-stage file read-ahead in the workbench. It requires no new weights, Python packages or launcher binary. Existing SDPA/CPU fallbacks, model paths and user data are retained.

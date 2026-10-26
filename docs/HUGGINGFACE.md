@@ -25,7 +25,7 @@ tags:
 
 Native nodes infer directly inside ComfyUI's own Python, without a workbench service. Upload the reference and coarse mesh to refine with the same original core weights. Replace legacy bridge canvases with the new example.
 
-**Workbench v0.5.0 retains all existing model weights.** The optional Windows CUDA converter is code in `runtime-wheels/v0.4.9/`, installed separately by the workbench with a pinned hash; it is not a checkpoint or a Python distribution. The GPU converter keeps the upstream MIT notices.
+**Workbench v0.5.1 retains all existing model weights.** The optional Windows CUDA converter is code in `runtime-wheels/v0.4.9/`, installed separately by the workbench with a pinned hash; it is not a checkpoint or a Python distribution. The GPU converter keeps the upstream MIT notices.
 
 ## Included models
 
@@ -44,11 +44,13 @@ Native nodes infer directly inside ComfyUI's own Python, without a workbench ser
 
 `manifest.json` records the shared core. `extensions/manifest.json` records 14 extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **95 model/config/license artifacts (79.3GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
 
+**Inventory checked on 2026-10-26:** all 95 local files match their manifests and this repository's hashes; no missing or changed checkpoints require uploading. Runtime wheels are counted separately from the model catalogue.
+
 ## Download
 
 For native ComfyUI, use `ComfyUI/models/Hi3D/`. For the workbench, use its `models/` directory. The same core weights can also be selected through a custom model root. Replace `models` below with the desired target.
 
-Core only, sufficient for the Hi3D ComfyUI integration:
+Core only (10.66GB), sufficient for the independent Hi3D ComfyUI nodes:
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
@@ -60,7 +62,27 @@ All core and extension files (about 79.3GB; allow additional runtime and working
 hf download t8star/Hi3d-Comfy --local-dir models
 ```
 
-For selected engines, download the corresponding directories from the table plus `extensions/manifest.json` and their dependencies. The workbench's Models page can also download only the required engine components from pinned original/public sources. Missing optional engines do not disable installed ones. Verify files in the workbench before inference.
+Download the **complete component set in one row** for each workbench engine you need:
+
+| Workbench selection | Directories under `extensions/` | Download size |
+|---|---|---:|
+| Hunyuan3D-2mini Turbo geometry | `coarse` | 3.82GB |
+| Hunyuan3D 2.1 geometry | `coarse_hunyuan21` | 7.37GB |
+| TRELLIS.2 geometry | `coarse_trellis2`, `trellis_structure`, `texture_encoder` | 10.06GB |
+| TRELLIS.2 PBR | `texture`, `texture_encoder` | 8.04GB |
+| Hunyuan3D-Paint 2.1 | `texture_hunyuan21`, `paint_dino`, `paint_upscaler` | 11.50GB |
+| UltraTex FP8 | `texture_ultratex`, `ultratex_backbone`, `ultratex_text_encoder` | 19.62GB |
+| UltraTex INT8 ConvRot | `texture_ultratex`, `ultratex_backbone_int8`, `ultratex_text_encoder` | 19.46GB |
+
+Sizes use decimal GB, include each row's shared dependencies, and exclude Python, temporary files and optional accelerators. Shared directories download once, so do not add all rows to estimate the full repository. Hi3D refinement is optional in the workbench; add the core only if you enable it. Background removal adds `extensions/background/` (about 4.6MB).
+
+For example, TRELLIS.2 geometry **and** PBR, with their shared encoder:
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "extensions/manifest.json" "extensions/coarse_trellis2/*" "extensions/trellis_structure/*" "extensions/texture/*" "extensions/texture_encoder/*" "licenses/*"
+```
+
+The workbench's Models page can also download only the required engine components from pinned original/public sources. Missing optional engines do not disable installed ones. Verify files in the workbench before inference.
 
 To use another drive or shared location, select its root in **Models and environment → Model directory** and use that same path with `hf download --local-dir`. Keep `hi3d/`, `dino/`, `clip/` and `extensions/` directly under the selected root. The idle switch takes effect without restarting; it does not move existing files. Relative paths resolve against the workbench root, and code updates preserve the saved setting.
 
@@ -70,7 +92,7 @@ Existing core files at a newly selected location still require **Reverify all co
 
 The standalone bundle checks stable GitHub Releases, downloads code updates and installs them on the next launch. Models, Python runtimes, configuration and history are preserved. Code updates do not download this entire model repository. Runtime-incompatible versions require a new complete package. [Update instructions](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/UPDATES.md).
 
-v0.4.6 adds UV fixes/cache, phase/device progress and optional native FlashAttention/Numba runtime wheels. **Model weights and this 95-file catalogue are unchanged.** Accelerator wheels are Python runtime dependencies, not extra models, and are not included in this model repository. Code updates preserve old environments and their SDPA/Torch fallbacks; the full package and optional setup commands are described in the [performance guide](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md).
+Acceleration packages are code, not model weights. The optional, hash-pinned `hi3d-voxel-cuda` wheel is stored under `runtime-wheels/v0.4.9/`; the workbench installs the compatible build separately. FlashAttention and Numba/llvmlite are obtained from the external sources pinned by the installer. SDPA and the official CPU converter remain available. Models never include a bundled Python environment. See the [performance guide](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/PERFORMANCE.md).
 
 ## Validation and limits
 

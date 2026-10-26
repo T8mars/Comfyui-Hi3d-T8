@@ -176,7 +176,7 @@ def fast_checkpoint(models, original, path, *, progress=None, **kwargs):
 
 
 class LazyModel:
-    def __init__(self, label, key, factory, emit, *, paths=(), next_paths=()):
+    def __init__(self, label, key, factory, emit, *, paths=(), next_paths=(), transfer_mode=None):
         object.__setattr__(self,'_label',label)
         object.__setattr__(self,'_key',key)
         object.__setattr__(self,'_factory',factory)
@@ -186,6 +186,7 @@ class LazyModel:
         object.__setattr__(self,'_settings',{})
         object.__setattr__(self,'_paths',tuple(paths))
         object.__setattr__(self,'_next_paths',tuple(next_paths))
+        object.__setattr__(self,'_transfer_mode',transfer_mode)
 
     def prefetch_next(self):
         from .checkpoint_io import READ_AHEAD
@@ -207,7 +208,8 @@ class LazyModel:
                 CACHE.loads+=1
             for name,setting in self._settings.items():setattr(value,name,setting)
             if self._device!='cpu':
-                with normal_weight_tensors():value.to(self._device)
+                from .weight_transfer import move
+                with normal_weight_tensors():move(value,self._device,emit=self._emit,label=self._label,mode=self._transfer_mode)
             object.__setattr__(self,'_value',value)
             self._emit('loading',phase='model_cache' if hit else 'model_read',device=self._device if self._device in {'cpu','cuda'} else 'cuda',
                 message=f'{self._label} {"显存权重已就绪" if self._device != "cpu" else "CPU 参数已绑定；使用前继续上传显存"}（{time.perf_counter()-started:.1f} 秒）',model_cache_hit=hit,
@@ -231,15 +233,8 @@ class LazyModel:
     def to(self,device,*args,**kwargs):
         object.__setattr__(self,'_device',str(device))
         if self._value is not None:
-            started=time.perf_counter()
-            self._emit('loading',phase='model_transfer',device='cuda' if str(device).startswith('cuda') else 'cpu',
-                       message=f'{self._label}：{"上传显存" if str(device).startswith("cuda") else "移回内存"}')
-            with normal_weight_tensors():self._value.to(device,*args,**kwargs)
-            # Tensor .to is synchronous here. This timing includes any mapped
-            # weight page-in and can no longer vanish behind "model ready".
-            self._emit('loading',phase='model_transfer',device='cuda' if str(device).startswith('cuda') else 'cpu',
-                       model_transfer_seconds=round(time.perf_counter()-started,3),
-                       message=f'{self._label}：权重搬运完成（{time.perf_counter()-started:.1f} 秒）')
+            from .weight_transfer import move
+            with normal_weight_tensors():move(self._value,device,*args,emit=self._emit,label=self._label,mode=self._transfer_mode,**kwargs)
         return self
     def cuda(self):return self.to('cuda')
     def cpu(self):
@@ -311,7 +306,7 @@ def deferred_models(models, expected, image_module, request, emit):
         label=labels.get(identity,Path(path).name)
         next_path=expected.get(successors.get(label,''))
         value=LazyModel(label,key,lambda:fast_checkpoint(models,original,path,progress=emit,**kwargs),emit,
-            paths=[str(path)+'.safetensors'],next_paths=[str(next_path)+'.safetensors'] if next_path else [])
+            paths=[str(path)+'.safetensors'],next_paths=[str(next_path)+'.safetensors'] if next_path else [],transfer_mode=request.get('weight_transfer'))
         proxies.append(value)
         ACTIVE.append(value)
         return value
@@ -320,7 +315,7 @@ def deferred_models(models, expected, image_module, request, emit):
         key=('encoder',fingerprint(path,encoder=True))
         next_path=expected.get('sparse_structure_flow_model',expected.get('shape_slat_encoder'))
         value=LazyModel('DINOv3 图像编码器',key,lambda:encoder(*args,**kwargs),emit,
-            paths=sorted(Path(path).glob('*.safetensors')),next_paths=[str(next_path)+'.safetensors'] if next_path else [])
+            paths=sorted(Path(path).glob('*.safetensors')),next_paths=[str(next_path)+'.safetensors'] if next_path else [],transfer_mode=request.get('weight_transfer'))
         proxies.append(value)
         ACTIVE.append(value)
         return value

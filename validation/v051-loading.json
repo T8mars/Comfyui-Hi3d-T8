@@ -1,0 +1,973 @@
+{
+  "version": "0.5.1",
+  "hardware": "Windows;RTX5090 Laptop24GB;64GB RAM",
+  "torch": "2.8.0+cu128",
+  "parameters": {
+    "geometry_resolution": 512,
+    "geometry_steps": 12,
+    "geometry_face_budget": 1000000,
+    "texture_resolution": 1024,
+    "texture_steps": 12,
+    "texture_size": 4096,
+    "seed": 0,
+    "offload": true,
+    "model_policy": "runtime",
+    "encoding_cache": false
+  },
+  "full_runs": [
+    {
+      "case": "control-first",
+      "wall_seconds": 201.719,
+      "peak_sum_process_rss_MiB": 11059.9,
+      "raw_geometry_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+      "pipeline_seconds": 193.63,
+      "stage_prefetch": {
+        "enabled": false,
+        "records": [],
+        "scope": "OS file-cache warming only; model loading and CUDA transfer remain on demand"
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 67.16,
+          "faces": 972164,
+          "vertices": 461269,
+          "peak_allocated_mb": 3058.78,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 5,
+            "evictions": 0
+          },
+          "uv_runtime": null
+        },
+        {
+          "stage": "texture",
+          "seconds": 121.671,
+          "faces": 972050,
+          "vertices": 964740,
+          "peak_allocated_mb": 16515.82,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 9,
+            "evictions": 0
+          },
+          "uv_runtime": {
+            "seconds": 39.551,
+            "policy": "native_CuMesh_topology_mapped_local_repair",
+            "phases": [
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 0.136
+              },
+              {
+                "phase": "uv_segment",
+                "device": "cuda",
+                "seconds": 4.584
+              },
+              {
+                "phase": "uv_extract",
+                "device": "cpu",
+                "seconds": 6.846
+              },
+              {
+                "phase": "uv_charts",
+                "device": "cpu",
+                "seconds": 3.628
+              },
+              {
+                "phase": "uv_pack",
+                "device": "cpu",
+                "seconds": 10.526
+              },
+              {
+                "phase": "uv_assemble",
+                "device": "cpu",
+                "seconds": 0.083
+              },
+              {
+                "phase": "uv_restore",
+                "device": "cpu",
+                "seconds": 5.68
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.818
+              },
+              {
+                "phase": "uv_repair",
+                "device": "cpu",
+                "seconds": 4.254
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.779
+              }
+            ],
+            "details": {
+              "removed_degenerate_faces": 114,
+              "packing_backend": "xatlas",
+              "uv_diagnostics": {
+                "backend": "CuMesh",
+                "faces": 972050,
+                "texture_size": 4096,
+                "padding": 4,
+                "postpack_zero_faces": 144,
+                "postpack_duplicate_faces": 143
+              },
+              "local_uv_repaired_faces": 144,
+              "uv_repair": {
+                "repaired_faces": 144,
+                "repair_budget": 4096,
+                "repair_passes": 1,
+                "minimum_height_adjusted_faces": 130,
+                "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+                "repaired_zero_uv_faces": 144,
+                "repaired_duplicate_uv_faces": 143,
+                "source_coincident_face_occurrences": 2787,
+                "source_double_sided_coincident_pairs": 2787,
+                "repaired_coincident_uv_faces": 0,
+                "repaired_unrelated_uv_collisions": 143,
+                "original_atlas_side": 4096.0,
+                "final_atlas_side": 4112.0,
+                "atlas_linear_scale": 0.9961089494163424
+              },
+              "uv_backend": "native_CuMesh_topology_mapped_local_repair"
+            },
+            "fallback_reasons": []
+          }
+        }
+      ]
+    },
+    {
+      "case": "optimized-first",
+      "wall_seconds": 158.0,
+      "peak_sum_process_rss_MiB": 11286.67,
+      "raw_geometry_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+      "pipeline_seconds": 152.71,
+      "stage_prefetch": {
+        "enabled": true,
+        "records": [
+          {
+            "from": "coarse",
+            "to": "texture",
+            "files": [
+              {
+                "path": "extensions\\texture_encoder\\model.safetensors",
+                "bytes": 1212559808,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\shape_enc_next_dc_f16c32_fp16.safetensors",
+                "bytes": 708797208,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors",
+                "bytes": 2584672728,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\tex_dec_next_dc_f16c32_fp16.safetensors",
+                "bytes": 948458812,
+                "complete": true
+              }
+            ],
+            "planned_files": 4,
+            "bytes": 5454488556,
+            "buffer_bytes": 8388608,
+            "stopped_for_model_loading": true,
+            "seconds": 5.1433
+          }
+        ],
+        "scope": "OS file-cache warming only; model loading and CUDA transfer remain on demand"
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 31.287,
+          "faces": 971570,
+          "vertices": 461045,
+          "peak_allocated_mb": 3472.64,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 14,
+            "evictions": 0
+          },
+          "uv_runtime": null
+        },
+        {
+          "stage": "texture",
+          "seconds": 115.956,
+          "faces": 971456,
+          "vertices": 961756,
+          "peak_allocated_mb": 16521.38,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 18,
+            "evictions": 0
+          },
+          "uv_runtime": {
+            "seconds": 40.655,
+            "policy": "native_CuMesh_topology_mapped_local_repair",
+            "phases": [
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 0.118
+              },
+              {
+                "phase": "uv_segment",
+                "device": "cuda",
+                "seconds": 5.356
+              },
+              {
+                "phase": "uv_extract",
+                "device": "cpu",
+                "seconds": 7.652
+              },
+              {
+                "phase": "uv_charts",
+                "device": "cpu",
+                "seconds": 3.721
+              },
+              {
+                "phase": "uv_pack",
+                "device": "cpu",
+                "seconds": 11.453
+              },
+              {
+                "phase": "uv_assemble",
+                "device": "cpu",
+                "seconds": 0.09
+              },
+              {
+                "phase": "uv_restore",
+                "device": "cpu",
+                "seconds": 5.141
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.796
+              },
+              {
+                "phase": "uv_repair",
+                "device": "cpu",
+                "seconds": 3.749
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.383
+              }
+            ],
+            "details": {
+              "removed_degenerate_faces": 114,
+              "packing_backend": "xatlas",
+              "uv_diagnostics": {
+                "backend": "CuMesh",
+                "faces": 971456,
+                "texture_size": 4096,
+                "padding": 4,
+                "postpack_zero_faces": 175,
+                "postpack_duplicate_faces": 174
+              },
+              "local_uv_repaired_faces": 175,
+              "uv_repair": {
+                "repaired_faces": 175,
+                "repair_budget": 4096,
+                "repair_passes": 1,
+                "minimum_height_adjusted_faces": 148,
+                "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+                "repaired_zero_uv_faces": 175,
+                "repaired_duplicate_uv_faces": 174,
+                "source_coincident_face_occurrences": 2843,
+                "source_double_sided_coincident_pairs": 2842,
+                "repaired_coincident_uv_faces": 0,
+                "repaired_unrelated_uv_collisions": 174,
+                "original_atlas_side": 4096.0,
+                "final_atlas_side": 4114.0,
+                "atlas_linear_scale": 0.9956246961594555
+              },
+              "uv_backend": "native_CuMesh_topology_mapped_local_repair"
+            },
+            "fallback_reasons": []
+          }
+        }
+      ]
+    },
+    {
+      "case": "optimized-repeat",
+      "wall_seconds": 160.969,
+      "peak_sum_process_rss_MiB": 11704.05,
+      "raw_geometry_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+      "pipeline_seconds": 153.14,
+      "stage_prefetch": {
+        "enabled": true,
+        "records": [
+          {
+            "from": "coarse",
+            "to": "texture",
+            "files": [
+              {
+                "path": "extensions\\texture_encoder\\model.safetensors",
+                "bytes": 1212559808,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\shape_enc_next_dc_f16c32_fp16.safetensors",
+                "bytes": 708797208,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\slat_flow_imgshape2tex_dit_1_3B_1024_bf16.safetensors",
+                "bytes": 2584672728,
+                "complete": true
+              },
+              {
+                "path": "extensions\\texture\\ckpts\\tex_dec_next_dc_f16c32_fp16.safetensors",
+                "bytes": 948458812,
+                "complete": true
+              }
+            ],
+            "planned_files": 4,
+            "bytes": 5454488556,
+            "buffer_bytes": 8388608,
+            "stopped_for_model_loading": true,
+            "seconds": 3.5856
+          }
+        ],
+        "scope": "OS file-cache warming only; model loading and CUDA transfer remain on demand"
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 34.695,
+          "faces": 971326,
+          "vertices": 461002,
+          "peak_allocated_mb": 3472.64,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 23,
+            "evictions": 0
+          },
+          "uv_runtime": null
+        },
+        {
+          "stage": "texture",
+          "seconds": 114.085,
+          "faces": 971210,
+          "vertices": 960082,
+          "peak_allocated_mb": 16517.23,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 27,
+            "evictions": 0
+          },
+          "uv_runtime": {
+            "seconds": 39.504,
+            "policy": "native_CuMesh_topology_mapped_local_repair",
+            "phases": [
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 0.104
+              },
+              {
+                "phase": "uv_segment",
+                "device": "cuda",
+                "seconds": 4.797
+              },
+              {
+                "phase": "uv_extract",
+                "device": "cpu",
+                "seconds": 6.367
+              },
+              {
+                "phase": "uv_charts",
+                "device": "cpu",
+                "seconds": 3.864
+              },
+              {
+                "phase": "uv_pack",
+                "device": "cpu",
+                "seconds": 11.616
+              },
+              {
+                "phase": "uv_assemble",
+                "device": "cpu",
+                "seconds": 0.077
+              },
+              {
+                "phase": "uv_restore",
+                "device": "cpu",
+                "seconds": 5.512
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.519
+              },
+              {
+                "phase": "uv_repair",
+                "device": "cpu",
+                "seconds": 3.619
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.854
+              }
+            ],
+            "details": {
+              "removed_degenerate_faces": 116,
+              "packing_backend": "xatlas",
+              "uv_diagnostics": {
+                "backend": "CuMesh",
+                "faces": 971210,
+                "texture_size": 4096,
+                "padding": 4,
+                "postpack_zero_faces": 141,
+                "postpack_duplicate_faces": 140
+              },
+              "local_uv_repaired_faces": 141,
+              "uv_repair": {
+                "repaired_faces": 141,
+                "repair_budget": 4096,
+                "repair_passes": 1,
+                "minimum_height_adjusted_faces": 119,
+                "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+                "repaired_zero_uv_faces": 141,
+                "repaired_duplicate_uv_faces": 140,
+                "source_coincident_face_occurrences": 2815,
+                "source_double_sided_coincident_pairs": 2814,
+                "repaired_coincident_uv_faces": 0,
+                "repaired_unrelated_uv_collisions": 140,
+                "original_atlas_side": 4096.0,
+                "final_atlas_side": 4114.0,
+                "atlas_linear_scale": 0.9956246961594555
+              },
+              "uv_backend": "native_CuMesh_topology_mapped_local_repair"
+            },
+            "fallback_reasons": []
+          }
+        }
+      ]
+    },
+    {
+      "case": "control-repeat",
+      "wall_seconds": 163.422,
+      "peak_sum_process_rss_MiB": 12924.62,
+      "raw_geometry_sha256": "4a6869371611923cea131d3e3add9ea5611e499dcd92ce484f295a309f4974be",
+      "pipeline_seconds": 156.48,
+      "stage_prefetch": {
+        "enabled": false,
+        "records": [],
+        "scope": "OS file-cache warming only; model loading and CUDA transfer remain on demand"
+      },
+      "stages": [
+        {
+          "stage": "coarse",
+          "seconds": 35.57,
+          "faces": 972548,
+          "vertices": 461550,
+          "peak_allocated_mb": 3471.05,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 32,
+            "evictions": 0
+          },
+          "uv_runtime": null
+        },
+        {
+          "stage": "texture",
+          "seconds": 117.266,
+          "faces": 972434,
+          "vertices": 961283,
+          "peak_allocated_mb": 16522.59,
+          "model_loading": {
+            "scope": "runtime_session_cumulative",
+            "policy": "runtime",
+            "entries": 0,
+            "bytes": 0,
+            "hits": 0,
+            "loads": 36,
+            "evictions": 0
+          },
+          "uv_runtime": {
+            "seconds": 39.502,
+            "policy": "native_CuMesh_topology_mapped_local_repair",
+            "phases": [
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 0.097
+              },
+              {
+                "phase": "uv_segment",
+                "device": "cuda",
+                "seconds": 4.866
+              },
+              {
+                "phase": "uv_extract",
+                "device": "cpu",
+                "seconds": 6.984
+              },
+              {
+                "phase": "uv_charts",
+                "device": "cpu",
+                "seconds": 3.831
+              },
+              {
+                "phase": "uv_pack",
+                "device": "cpu",
+                "seconds": 11.369
+              },
+              {
+                "phase": "uv_assemble",
+                "device": "cpu",
+                "seconds": 0.107
+              },
+              {
+                "phase": "uv_restore",
+                "device": "cpu",
+                "seconds": 6.064
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.312
+              },
+              {
+                "phase": "uv_repair",
+                "device": "cpu",
+                "seconds": 3.066
+              },
+              {
+                "phase": "uv_validate",
+                "device": "cpu",
+                "seconds": 1.59
+              }
+            ],
+            "details": {
+              "removed_degenerate_faces": 114,
+              "packing_backend": "xatlas",
+              "uv_diagnostics": {
+                "backend": "CuMesh",
+                "faces": 972434,
+                "texture_size": 4096,
+                "padding": 4,
+                "postpack_zero_faces": 142,
+                "postpack_duplicate_faces": 141
+              },
+              "local_uv_repaired_faces": 142,
+              "uv_repair": {
+                "repaired_faces": 142,
+                "repair_budget": 4096,
+                "repair_passes": 1,
+                "minimum_height_adjusted_faces": 125,
+                "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+                "repaired_zero_uv_faces": 142,
+                "repaired_duplicate_uv_faces": 141,
+                "source_coincident_face_occurrences": 2721,
+                "source_double_sided_coincident_pairs": 2720,
+                "repaired_coincident_uv_faces": 0,
+                "repaired_unrelated_uv_collisions": 141,
+                "original_atlas_side": 4096.0,
+                "final_atlas_side": 4114.0,
+                "atlas_linear_scale": 0.9956246961594555
+              },
+              "uv_backend": "native_CuMesh_topology_mapped_local_repair"
+            },
+            "fallback_reasons": []
+          }
+        }
+      ]
+    }
+  ],
+  "full_limitations": [
+    "Persistent interpreter; OS/UV caches were not flushed",
+    "GPU mesh cleanup produced different processed meshes/UV layouts despite identical raw geometry",
+    "Full-run material images therefore need not match; these timings do not isolate transfer speed or establish a universal multiplier"
+  ],
+  "actual_checkpoint_transfer": {
+    "torch": "2.8.0+cu128",
+    "hardware": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "cache_scope": "warm process; OS caches not flushed; alternating order",
+    "rows": [
+      {
+        "repeat": 0,
+        "mode": "off",
+        "seconds": 3.800773900002241,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：权重搬运完成（3.8 秒）",
+          "transfer_backend": "standard",
+          "model_transfer_seconds": 3.8007,
+          "transfer_reason": "disabled, non-CUDA, or explicit conversion arguments"
+        },
+        "peak_allocated_MiB": 2528.29736328125
+      },
+      {
+        "repeat": 1,
+        "mode": "on",
+        "seconds": 0.9228681999957189,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：显存权重已就绪（0.9 秒）",
+          "transfer_backend": "pinned_chunks",
+          "model_transfer_seconds": 0.9222,
+          "model_staging_seconds": 0.4901,
+          "transfer_chunks": 703,
+          "pinned_bytes": 33554432,
+          "progress_current": 2619654272,
+          "progress_total": 2619654272,
+          "progress_unit": "bytes"
+        },
+        "peak_allocated_MiB": 2528.2978515625
+      },
+      {
+        "repeat": 2,
+        "mode": "on",
+        "seconds": 0.8866175999864936,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：显存权重已就绪（0.9 秒）",
+          "transfer_backend": "pinned_chunks",
+          "model_transfer_seconds": 0.8862,
+          "model_staging_seconds": 0.4769,
+          "transfer_chunks": 703,
+          "pinned_bytes": 33554432,
+          "progress_current": 2619654272,
+          "progress_total": 2619654272,
+          "progress_unit": "bytes"
+        },
+        "peak_allocated_MiB": 2528.2978515625
+      },
+      {
+        "repeat": 3,
+        "mode": "off",
+        "seconds": 1.4844513999996707,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：权重搬运完成（1.5 秒）",
+          "transfer_backend": "standard",
+          "model_transfer_seconds": 1.4844,
+          "transfer_reason": "disabled, non-CUDA, or explicit conversion arguments"
+        },
+        "peak_allocated_MiB": 2528.2978515625
+      },
+      {
+        "repeat": 4,
+        "mode": "off",
+        "seconds": 1.8253263999940827,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：权重搬运完成（1.8 秒）",
+          "transfer_backend": "standard",
+          "model_transfer_seconds": 1.8252,
+          "transfer_reason": "disabled, non-CUDA, or explicit conversion arguments"
+        },
+        "peak_allocated_MiB": 2528.2978515625
+      },
+      {
+        "repeat": 5,
+        "mode": "on",
+        "seconds": 1.3818870999966748,
+        "state_tensors_exact": 640,
+        "rng": "unchanged",
+        "last_event": {
+          "phase": "model_transfer",
+          "device": "cuda",
+          "message": "1.3B actual checkpoint：显存权重已就绪（1.4 秒）",
+          "transfer_backend": "pinned_chunks",
+          "model_transfer_seconds": 1.3815,
+          "model_staging_seconds": 0.4446,
+          "transfer_chunks": 703,
+          "pinned_bytes": 33554432,
+          "progress_current": 2619654272,
+          "progress_total": 2619654272,
+          "progress_unit": "bytes"
+        },
+        "peak_allocated_MiB": 2528.2978515625
+      }
+    ]
+  },
+  "real_cuda_lifetime_checks": {
+    "torch": "2.8.0+cu128",
+    "rows": [
+      {
+        "case": "mixed/tied/nonpersistent",
+        "tensors": "exact",
+        "alias": "preserved",
+        "backend": "pinned_chunks"
+      },
+      {
+        "case": "noncontiguous",
+        "tensors": "exact",
+        "alias": "preserved",
+        "backend": "standard"
+      },
+      {
+        "case": "caller default device CUDA",
+        "host_slabs": "explicit CPU pinned memory",
+        "tensor": "exact",
+        "backend": "pinned_chunks"
+      },
+      {
+        "case": "_apply failure after enqueue",
+        "exception": "propagated",
+        "pending_copy": "fenced before host buffer reuse",
+        "tensor": "exact"
+      },
+      {
+        "case": "host pin allocation failure",
+        "backend": "standard",
+        "model_device": "cuda"
+      }
+    ]
+  },
+  "fixed_material_quality": {
+    "vertices": {
+      "shape": [
+        961283,
+        3
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    },
+    "faces": {
+      "shape": [
+        972434,
+        3
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    },
+    "normals": {
+      "shape": [
+        961283,
+        3
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    },
+    "uv": {
+      "shape": [
+        961283,
+        2
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    },
+    "baseColor": {
+      "shape": [
+        4096,
+        4096,
+        4
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    },
+    "metallicRoughness": {
+      "shape": [
+        4096,
+        4096,
+        3
+      ],
+      "exact": true,
+      "max_abs_difference": 0.0
+    }
+  },
+  "fixed_material_scope": "Same cleaned mesh, reference image, seed and shape-encoding cache. All geometry/UV/normals and both4096 textures exactly equal. Timing is not a transfer A/B because only the second run hit the encoding cache.",
+  "gltf": [
+    {
+      "case": "control-first",
+      "errors": 0,
+      "warnings": 0,
+      "messages": [
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/POSITION"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/TEXCOORD_0"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/NORMAL"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/indices"
+        }
+      ]
+    },
+    {
+      "case": "optimized-first",
+      "errors": 0,
+      "warnings": 0,
+      "messages": [
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/POSITION"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/TEXCOORD_0"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/NORMAL"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/indices"
+        }
+      ]
+    },
+    {
+      "case": "optimized-repeat",
+      "errors": 0,
+      "warnings": 0,
+      "messages": [
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/POSITION"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/TEXCOORD_0"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/NORMAL"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/indices"
+        }
+      ]
+    },
+    {
+      "case": "control-repeat",
+      "errors": 0,
+      "warnings": 0,
+      "messages": [
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/POSITION"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/TEXCOORD_0"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/attributes/NORMAL"
+        },
+        {
+          "code": "BUFFER_VIEW_TARGET_MISSING",
+          "message": "bufferView.target should be set for vertex or index data.",
+          "severity": 3,
+          "pointer": "/meshes/0/primitives/0/indices"
+        }
+      ]
+    }
+  ],
+  "render": {
+    "views": [
+      "front",
+      "quarter",
+      "back"
+    ],
+    "blender": "4.5.14LTS",
+    "engine": "Cycles CPU",
+    "samples": 24,
+    "HDR": "studio_small_09.hdr",
+    "visual_inspection": "all six images inspected; exported PBR materials loaded; full-run material differences retained as a limitation"
+  },
+  "regression": {
+    "passed": 643,
+    "seconds": 111.99,
+    "warning": "one Starlette/AnyIO deprecation"
+  },
+  "native_comfyui": "Hi3D source, node implementations and canvas unchanged; no additional engines added"
+}

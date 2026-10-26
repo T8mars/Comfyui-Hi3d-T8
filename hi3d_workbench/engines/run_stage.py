@@ -402,6 +402,8 @@ def run_request(request_path, stage):
             raise ValueError('贴图步数应为1至100的整数')
         if request.get("texture_size", 2048) not in {1024, 2048, 4096}:
             raise ValueError("贴图尺寸应为1024、2048或4096")
+        if request.get('weight_transfer') is not None and request['weight_transfer'] not in {'auto','on','off'}:
+            raise ValueError('无效权重搬运模式')
         os.environ["HF_HUB_OFFLINE"] = "1"
         os.environ["TRANSFORMERS_OFFLINE"] = "1"
         if os.name != "nt":

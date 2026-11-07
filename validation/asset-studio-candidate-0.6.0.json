@@ -6,14 +6,26 @@
   "scope": "Recorded local backend and serialized-artifact evidence; not final visual, browser or distribution acceptance.",
   "device": "NVIDIA GeForce RTX 5090 Laptop GPU 24GB",
   "regression": {
-    "tests": 270,
+    "tests": 272,
     "failures": 0,
-    "junit_sha256": "67a746b7e99513980e38597306b51bead237a47a2b9d18dd6db17a79bc25a3d9"
+    "junit_sha256": "42c0c4f760943264914e59ff8dd27351d3390bb2fe257b782daec311b5176925"
   },
   "repository_regression": {
     "tests": 844,
     "failures": 0,
-    "junit_sha256": "900c17d55d7dfb7bdc98221372891c1a30f4a60002c0fe1f8c8d73cfeb87085c"
+    "junit_sha256": "900c17d55d7dfb7bdc98221372891c1a30f4a60002c0fe1f8c8d73cfeb87085c",
+    "source_commit": "8576bd0de0e9393bea5ff5a9afe59251717768b6",
+    "scope": "previous checkpoint; subsequent preview-only fix covered by current targeted regression"
+  },
+  "preview_bone_tracking": {
+    "tests": 6,
+    "failures": 0,
+    "junit_sha256": "be84fb7c149743767e6fd6e9e88039c8d38cd4e5da5520abc4dccc47a5eed52d",
+    "web_source_sha256": "f4dccd3a650eea0d1460ea77a77c6a2b2c0542edd98905f2648898f0d53ac8d9",
+    "shipped_three_core_sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20",
+    "scope": "actual Three.js parent/child bone, world transforms and line updates through production handlers; GLTF scene swap stubbed; not WebGL or browser playback",
+    "comparison_node_tracking": "passed",
+    "pending_joint_edits_retained": true
   },
   "git_checkout_bytes": {
     "tests": 1,
@@ -28,7 +40,7 @@
     }
   },
   "result_handlers": {
-    "web_source_sha256": "32a15752ac7b704056091d728498721887ce69ac5ef20ab8b0c947d87a8e2129",
+    "web_source_sha256": "f4dccd3a650eea0d1460ea77a77c6a2b2c0542edd98905f2648898f0d53ac8d9",
     "actual_failed_job_http_to_handler_downloads_verified": true,
     "candidate_static_bytes_match": true,
     "http_download_hashes_and_zip_crc": "passed",

@@ -42,7 +42,8 @@
 
 ### 当前实施进展（未完成交付）
 
-- 本轮全仓库回归 844 项通过，JUnit 为 `candidate-060-all-tests-v8.xml`。另对本轮新增的 Git 字节保留规则做真实 `core.autocrlf=true` 暂存／提交／克隆测试，1 项通过（`git-checkout-bytes-v8.xml`，不与覆盖重叠的组合回归相加）。`.gitattributes` 固定保留上游许可、Three.js 及原生适配器源码的原始字节，避免 Windows 换行转换使固定哈希失效；不格式化或删改上游许可。网页与复杂资产效果仍待验收。
+- 修复原模对比返回后骨骼线不再跟随动画的问题：返回成品时重新关联新 GLTF 场景节点，保留未保存的关节位置，并恢复对比按钮及编辑控件状态。新增回归使用随包 Three.js 的实际父子骨骼、世界坐标与骨骼线，不用假矩阵代替变换；场景加载仍为测试替身，不宣称完成 WebGL 或浏览器播放验收。相关 6 项页面回归通过（`studio-preview-regression-v10.xml`），更新后的组合回归 272 项通过（`candidate-060-regression-v10.xml`）。真实失败任务的下载链与候选包静态 JS 重新核对通过，记录为 `studio-results-http-v10/validation.json`。
+- 检查点 `8576bd0` 的全仓库回归 844 项通过，JUnit 为 `candidate-060-all-tests-v8.xml`。另对新增的 Git 字节保留规则做真实 `core.autocrlf=true` 暂存／提交／克隆测试，1 项通过（`git-checkout-bytes-v8.xml`，不与覆盖重叠的组合回归相加）。`.gitattributes` 固定保留上游许可、Three.js 及原生适配器源码的原始字节，避免 Windows 换行转换使固定哈希失效；不格式化或删改上游许可。网页与复杂资产效果仍待验收。
 - 修复资产页三处状态问题：失败／取消后下载区隐藏已保存文件、选择新输入后旧任务轮询重新切回成品、旧日志延迟返回覆盖当前任务。下载链接现按实际发布文件显示，不等待三维预览；模型列表和预览信息的过期响应也会忽略。新增 5 项实际页面处理函数回归，更新后的组合回归 270 项通过（`candidate-060-regression-v8.xml`）。真实旧失败任务的 HTTP 数据已经过当前 JS 处理函数生成下载链接，原拆件 GLB／ZIP 下载、哈希与 ZIP CRC 核对通过，候选包静态 JS 与源码一致（`studio-results-http-v8/validation.json`）。这是处理函数与 HTTP 验证，完整浏览器操作仍待验收。
 - 补测发现并修复 X-Part 新生成网格在 GLB float32 坐标下顶点重合的问题。旧失败网格共有 1089162 面；精确合并 1 个重合顶点、移除 2 个坍缩面后，1089160 个有效有向三角面全部保留，仍闭合且朝向一致。已用这份原失败几何在候选包私有 GPU UV 环境重放并独立回读全部面，UV 退化／重复为 0；不是仅以另一次随机生成成功代替复现。证据为 `failed-generated-uv-replay-v1/validation.json`，UV 成品 SHA256 `8fd1bacc7b9d37a5bf2d5afe7d701f23ff7e1899abb5803e0e08d96422b0628e`。处理只适用于 AI 新生成部件，不删改上传原模与原分割。
 - P3-SAM → 修正两部件 → X-Part 默认 512／50 步／引导 7.5 → GPU UV／2K 材质转移 → ZIP 的真实 HTTP 链已完成：1280→1899524 面、342.078 秒、Torch 分配峰值 13329.07MiB，两件均闭合且边界边为 0。输入是数学合成凹凸球（沿用文件名 `sculpted-vase.glb`），没有原贴图，因此只作为基础几何补全与后端流程证据，不作为彩色材质或复杂角色质量验收。成品 SHA256 `d4b6887615a425f04a7e8c9692dc2053db3891c3775411b2dc191bdcf187d213`，记录为 `vase-parts-http-v2/validation.json`。

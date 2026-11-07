@@ -143,7 +143,8 @@ $('play').onclick=()=>{if(activeClip){if(!playing&&activeClip.time>=activeClip.g
 $('timeline').oninput=()=>{if(mixer){playing=false;resetMotionCarrier();activeClip.enabled=true;activeClip.paused=false;mixer.setTime(+$('timeline').value);activeClip.paused=true;$('time').textContent=(+$('timeline').value).toFixed(2)+' s';$('play').textContent='播放';}};
 $('wireframe').onclick=()=>{wireframe=!wireframe;$('wireframe').classList.toggle('active',wireframe);model?.traverse(object=>{if(object.isMesh)for(const material of [].concat(object.material))material.wireframe=wireframe;});};
 $('bones').onclick=()=>{showBones=!showBones;boneGroup.visible=showBones&&!comparing;$('bones').classList.toggle('active',showBones);};
-$('compare').onclick=async()=>{comparing=!comparing;loadedUrl=null;$('compare').classList.toggle('active',comparing);await showModel(comparing?sourceUrl:resultUrl||sourceUrl,false);};
+function setComparing(value){comparing=value;$('compare').classList.toggle('active',value);$('compare').textContent=value?'返回加工结果':'查看原模型';boneGroup.visible=showBones&&!value;}
+$('compare').onclick=async()=>{setComparing(!comparing);loadedUrl=null;availability();const shown=await showModel(comparing?sourceUrl:resultUrl||sourceUrl,false);if(shown&&!comparing)drawBones(sourceInfo?.bones||[]);availability();};
 $('reset-camera').onclick=resetCamera;
 function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.1);if(!root.classList.contains('active'))return;resize();orbit.update();if(mixer&&playing){mixer.update(dt);$('timeline').value=String(activeClip.time);$('time').textContent=activeClip.time.toFixed(2)+' s';}updateAnimatedBones();renderer.render(scene,camera);}
 animate();
@@ -154,7 +155,7 @@ function drawBones(bones){
   const span=model?new THREE.Box3().setFromObject(model).getSize(new THREE.Vector3()).length():1;
   for(const bone of bones){
     const marker=new THREE.Mesh(new THREE.SphereGeometry(Math.max(span*.006,.0001),10,8),new THREE.MeshBasicMaterial({color:0xc72e76,depthTest:false,transparent:true,opacity:.9}));
-    marker.position.fromArray(bone.position);marker.userData.boneIndex=bone.index;marker.renderOrder=10;boneGroup.add(marker);boneMarkers[bone.index]=marker;
+    marker.position.fromArray(boneEdits.get(bone.index)?.position||bone.position);marker.userData.boneIndex=bone.index;marker.renderOrder=10;boneGroup.add(marker);boneMarkers[bone.index]=marker;
     for(const [object,association] of gltf?.parser?.associations||[])if(association.nodes===bone.node&&object.isObject3D){boneTargets[bone.index]=object;break;}
     $('bone-select').append(new Option(bone.name,String(bone.index)));
   }
@@ -271,13 +272,13 @@ $('add-pose').onclick=()=>{if(!boneMarkers.length){message('当前模型没有�
 
 async function refreshSources(selected=null){const revision=selectionRevision,previous=selected||$('source').value;const values=await api('/api/studio/sources');if(revision!==selectionRevision)return;$('source').replaceChildren(new Option('选择一个模型',''),...values.map(row=>new Option(row.name,row.value)));$('source').value=values.some(row=>row.value===previous)?previous:'';availability();}
 async function sourceChanged(){
-  const revision=++selectionRevision,source=$('source').value;++sourceRevision;
+  const revision=++selectionRevision,source=$('source').value;++sourceRevision;setComparing(false);
   if(currentJob&&!activeStates.has(currentJob.state)){
     currentJob=null;$('progress-box').hidden=true;$('downloads').replaceChildren();
     $('result-summary').textContent='已选择新模型，加工记录中的原成品仍可打开。';$('log').textContent='尚未运行。';
   }
   sourceInfo=null;partAttachments.clear();renderAttachments();if(!source){disposeModel();loadedUrl=null;sourceUrl=null;resultUrl=null;busy=false;drawBones([]);renderParts(null);availability();return;}busy=true;availability();
-  try{const info=await api('/api/studio/source?source='+encodeURIComponent(source));if(revision!==selectionRevision)return;sourceInfo=info;sourceUrl=info.url;resultUrl=null;partEdits=[];boneEdits.clear();constraints=[];renderConstraints();comparing=false;loadedUrl=null;const shown=await showModel(sourceUrl);if(revision!==selectionRevision)return;if(!shown){disposeModel();loadedUrl=null;}drawBones(info.bones);renderParts(info.parts);renderMapping();editCount();$('source-info').textContent=`${info.faces.toLocaleString()} 三角面 · ${info.materials} 材质 · ${info.bones.length} 关节`;}
+  try{const info=await api('/api/studio/source?source='+encodeURIComponent(source));if(revision!==selectionRevision)return;sourceInfo=info;sourceUrl=info.url;resultUrl=null;partEdits=[];boneEdits.clear();constraints=[];renderConstraints();loadedUrl=null;const shown=await showModel(sourceUrl);if(revision!==selectionRevision)return;if(!shown){disposeModel();loadedUrl=null;}drawBones(info.bones);renderParts(info.parts);renderMapping();editCount();$('source-info').textContent=`${info.faces.toLocaleString()} 三角面 · ${info.materials} 材质 · ${info.bones.length} 关节`;}
   catch(error){if(revision===selectionRevision)message(error.message,true);}finally{if(revision===selectionRevision){busy=false;availability();}}
 }
 $('source').onchange=sourceChanged;$('refresh-sources').onclick=()=>refreshSources().catch(error=>message(error.message,true));
@@ -333,7 +334,7 @@ async function renderJob(job){
     try{
       const key=`job:${job.id}:output.glb`,url=`/api/jobs/${job.id}/files/output.glb`;
       const info=await api('/api/studio/source?source='+encodeURIComponent(key));if(currentJob?.id!==job.id||selection!==selectionRevision)return;
-      comparing=false;const rendered=await showModel(url);if(currentJob?.id!==job.id||selection!==selectionRevision)return;
+      setComparing(false);const rendered=await showModel(url);if(currentJob?.id!==job.id||selection!==selectionRevision)return;
       if(rendered){sourceInfo=info;resultUrl=url;sourceUrl=`/api/jobs/${job.id}/files/coarse.glb`;
         partEdits=[];boneEdits.clear();partAttachments.clear();editCount();await refreshSources(key);
         if(currentJob?.id!==job.id||selection!==selectionRevision)return;drawBones(info.bones);renderParts(info.parts);renderMapping();}

@@ -33,6 +33,7 @@ const availability=()=>{},message=()=>{},renderAttachments=()=>{},disposeModel=(
 let api=async()=>{throw new Error('Unexpected API call');};
 let fetch=async()=>({ok:true,text:async()=>''});
 const showModel=async url=>{models.push(url);loadedUrl=url;return true;};
+const setComparing=value=>{comparing=value;};
 function job(id,state,available_files=[]){return {id,state,available_files,created:1,updated:2,
   message:state,options:{action:'complete_parts'},report:{input_faces:12,output_faces:24}};}
 """ + source + '\n' + checks, encoding='utf-8')

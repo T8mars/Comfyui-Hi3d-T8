@@ -8,6 +8,8 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 [Models](https://huggingface.co/t8star/Hi3d-Comfy) · [Canvas workflow](examples/Hi3D-Refine.json) · [Validation](VALIDATION.md) · [Upstream Hi3D](https://github.com/hi3d-official/Hi3Dv1.0)
 
+Asset processing and single-character animation are under development: [scope, operation and limits](docs/ASSET_STUDIO.md). Final acceptance and a complete bundle for these backends are still pending; they are not additional ComfyUI nodes.
+
 ```mermaid
 flowchart LR
   A[Hi3D Model Loader] --> D[Hi3D Refine]

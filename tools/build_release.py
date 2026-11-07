@@ -2,6 +2,7 @@
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -13,7 +14,7 @@ sys.path.insert(0,str(ROOT))
 from hi3d_workbench.common import VERSION, MODELS
 from hi3d_workbench.engine_catalog import covers_all_engines
 DIST=ROOT/'dist'
-ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','hi3d_native','web','scripts','examples','tools','tests','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','Update-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
+ALLOWED=['docs','validation','samples/sculpted-vase.glb','samples/sculpted-vase.png','samples/README.md','licenses','LICENSE','hi3d_workbench','hi3d_native','web','scripts','examples','tools','tests','runtime_requirements','__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','Update-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','VALIDATION.md','upstream-source-manifest.json','config.example.json']
 
 def files(root):
     return [p for p in root.rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix.lower() not in {'.pyc','.nbi','.nbc'}]
@@ -91,13 +92,14 @@ def pipeline_runtime(out):
     return target
 
 
-def copy_model_components(source, target, keys):
+def copy_model_components(source, target, keys, progress=None):
     """Bundle only catalogued components from a possibly shared model folder."""
     from hi3d_workbench.common import atomic_json
     source, target = Path(source), Path(target)
     manifest = json.loads((source/'manifest.json').read_text(encoding='utf-8'))
     selected = {}
     for key in keys:
+        if progress:progress('Copying model component: '+str(key))
         if Path(key).name != key or key in {'.', '..'}:
             raise ValueError('Invalid model component name')
         component = manifest['components'][key]
@@ -111,8 +113,36 @@ def copy_model_components(source, target, keys):
         selected[key] = component
     atomic_json(target/'manifest.json', {'components':selected})
 
-def portable(base,include_models,name,include_pipeline=False,pipeline_engines=(),dist=None):
+
+def verify_copied_models(out,include_pipeline=False,include_studio=False,progress=None):
+    """Hash copied bytes in the bundle, then check receipts across its runtimes."""
+    out=Path(out).resolve();progress=progress or (lambda message:None)
+    env={key:value for key,value in os.environ.items()
+         if not key.startswith('HI3D_') and key not in {'PYTHONHOME','PYTHONPATH'}}
+    env['HI3D_WORKBENCH_ROOT']=str(out)
+    commands=[('core','runtime',False)]
+    if include_pipeline:commands += [('pipeline','runtime',False),('pipeline','runtime-pipeline',True)]
+    if include_studio:commands += [('studio','runtime-assets',False),('studio','runtime',True)]
+    for phase,runtime,check_only in commands:
+        progress(('Checking copied receipts: ' if check_only else 'Hashing copied model bytes: ')+phase+' / '+runtime)
+        command=[str(out/runtime/'python.exe'),'-u',str(out/'tools/verify_portable_models.py'),
+                 '--root',str(out),'--phase',phase]
+        if check_only:command.append('--check-only')
+        subprocess.run(command,cwd=out,env=env,check=True)
+
+def portable(base,include_models,name,include_pipeline=False,pipeline_engines=(),dist=None,include_studio=False,progress=None):
+    progress=progress or (lambda message:None)
     if Path(name).name!=name:raise ValueError('发行目录名称不能包含路径')
+    if include_studio and not include_pipeline:raise ValueError('资产加工环境需要 --include-pipeline')
+    if include_studio:
+        progress('Validating asset runtime, source, notices and real execution evidence')
+        from tools.package_studio_runtime import validate as validate_studio_runtime
+        # Fail before creating or filling a release directory.
+        validate_studio_runtime(ROOT/'runtime-assets',ROOT/'runtime-assets')
+        if include_models:
+            from hi3d_workbench.studio.models import status as studio_status
+            if any(not value['ready'] for value in studio_status()['components'].values()):
+                raise RuntimeError('资产加工模型尚未全部校验，不能生成完整离线包')
     selected=[]
     if include_pipeline:
         from hi3d_workbench.pipeline_models import selection_components
@@ -120,9 +150,11 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
             [key for choice in pipeline_engines for key in selection_components(choice)]))
     elif pipeline_engines:raise ValueError('Engine selections require --include-pipeline')
     if include_models:
+        progress('Verifying Hi3D model bytes before copying')
         from hi3d_workbench.models import verify_all
         if not verify_all()['ok']:raise SystemExit('模型尚未完成完整校验，不能生成完整离线包')
         if include_pipeline:
+            progress('Verifying selected pipeline model bytes before copying')
             from hi3d_workbench.pipeline_models import verify
             state=verify()
             if not state['ready'] or any(not state['components'][key]['ready'] for key in selected):
@@ -132,6 +164,7 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
     out=parent/name
     if out.exists():raise SystemExit('发行目录已存在，不覆盖现有发行版')
     out.mkdir()
+    progress('Writing application source and server runtime')
     with zipfile.ZipFile(build_source(parent)) as z:z.extractall(out)
     runtime=out/'runtime';runtime.mkdir()
     for f in base.iterdir():
@@ -154,19 +187,31 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
                     '-OutputDirectory',str(out)],check=True,cwd=ROOT)
     shutil.copy2(out/'Start-Workbench.cmd',out/'启动工作台.cmd')
     shutil.copy2(out/'Stop-Workbench.cmd',out/'停止工作台.cmd')
-    if include_pipeline:pipeline_runtime(out)
+    if include_pipeline:
+        progress('Copying the private pipeline runtime')
+        pipeline_runtime(out)
+    if include_studio:
+        progress('Copying the verified private asset runtime')
+        from tools.package_studio_runtime import package as package_studio_runtime
+        package_studio_runtime(ROOT/'runtime-assets',out/'runtime-pipeline',out/'runtime-assets')
     if include_models:
         from hi3d_workbench.models import SPECS as CORE_SPECS
-        copy_model_components(MODELS,out/'models',CORE_SPECS)
+        copy_model_components(MODELS,out/'models',CORE_SPECS,progress)
         if include_pipeline:
-            copy_model_components(MODELS/'extensions',out/'models/extensions',selected)
+            copy_model_components(MODELS/'extensions',out/'models/extensions',selected,progress)
+        if include_studio:
+            from hi3d_workbench.studio.models import CATALOG
+            copy_model_components(MODELS/'studio',out/'models/studio',CATALOG,progress)
+        verify_copied_models(out,include_pipeline,include_studio,progress)
     from hi3d_workbench.common import atomic_json
-    atomic_json(out/'bundle-manifest.json',{'version':VERSION,'pipeline_runtime':include_pipeline,
+    atomic_json(out/'bundle-manifest.json',{'version':VERSION,'acceptance':'pending','pipeline_runtime':include_pipeline,'asset_studio_runtime':include_studio,
         'models_included':include_models,'extension_components':selected if include_models else [],
         'full_engine_coverage':bool(include_models and include_pipeline and covers_all_engines(selected)),
         'extra_engine_selections':list(pipeline_engines),
+        'studio_components':list(CATALOG) if include_studio and include_models else [],
         'optional_engines':'All supported engine dependencies are included.' if include_models and covers_all_engines(selected) else 'Other supported engines can be downloaded separately in the workbench.'})
     # No input images, jobs or personal paths included.
+    progress('Full candidate directory built; relocation and final acceptance remain separate')
     return out
 
 def manifest(dist=None):
@@ -180,13 +225,17 @@ def manifest(dist=None):
     (dist/'SHA256.json').write_text(json.dumps(values,indent=2),encoding='utf-8')
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--all-engines',action='store_true');p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
+    from hi3d_workbench.common import configure_stdio
+    configure_stdio()
+    p=argparse.ArgumentParser();p.add_argument('--portable-base',type=Path);p.add_argument('--include-models',action='store_true');p.add_argument('--include-pipeline',action='store_true');p.add_argument('--include-studio',action='store_true');p.add_argument('--pipeline-engines',nargs='*',default=[]);p.add_argument('--all-engines',action='store_true');p.add_argument('--dist-root',type=Path,default=DIST);p.add_argument('--name',default=f'Hi3D-Workbench-Windows-{VERSION}');args=p.parse_args()
     if args.all_engines:
         if not args.include_models or not args.include_pipeline:p.error('--all-engines requires --include-models --include-pipeline')
         from hi3d_workbench.engine_catalog import all_engine_selections
         args.pipeline_engines=list(dict.fromkeys(args.pipeline_engines+all_engine_selections()))
+    if args.include_studio and (not args.include_pipeline or not args.portable_base):p.error('--include-studio requires --portable-base and --include-pipeline')
     if args.portable_base:
-        print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root))
+        print(portable(args.portable_base,args.include_models,args.name,args.include_pipeline,args.pipeline_engines,args.dist_root,args.include_studio,
+                       progress=lambda message:print('[build] '+message,flush=True)))
     else:
         source=build_source(args.dist_root)
         print(source)

@@ -1,6 +1,8 @@
 .venv/
 .appenv/
 .pipelineenv/
+runtime-assets/
+.studioenv/
 upstream/
 /models/
 data/

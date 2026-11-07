@@ -1,0 +1,100 @@
+<div class="studio-layout">
+  <aside class="controls studio-controls">
+    <div class="section-label"><span class="number">01</span><h2>选择模型</h2><button id="studio-refresh-sources" class="text-button">刷新</button></div>
+    <label class="drop mesh-drop" id="studio-mesh-drop"><input id="studio-mesh-file" type="file" accept=".glb,.ply,.stl"><span class="upload-symbol">◇</span><b>上传或拖入模型</b><small>GLB 保留材质与已有骨架</small></label>
+    <label class="field">上传模型 / 历史结果<select id="studio-source"><option value="">选择一个模型</option></select></label>
+    <p id="studio-source-info" class="hint">可以直接使用建模、贴图或上次加工的结果。</p>
+    <div class="section-label settings-title"><span class="number">02</span><h2>加工方式</h2></div>
+    <label class="field">操作<select id="studio-action">
+      <optgroup label="网格优化"><option value="simplify">保材质减面</option><option value="retopology">四边面重拓扑 + 材质转移</option></optgroup>
+      <optgroup label="智能拆件"><option value="segment">AI 自动拆件</option><option value="edit_parts">保存部件修正</option><option value="complete_parts">AI 补全部件内部结构</option></optgroup>
+      <optgroup label="角色绑定"><option value="rig">自动骨骼与蒙皮</option><option value="edit_rig">保存关节修正</option><option value="attach_parts">部件固定到骨骼</option></optgroup>
+      <optgroup label="单人动画"><option value="retarget">导入动作与重定向</option><option value="motion">AI 文本生成动作</option></optgroup>
+    </select></label>
+    <div data-studio-actions="simplify">
+      <label class="field">面数控制<select id="studio-budget-mode"><option value="count">目标三角面数</option><option value="ratio">保留比例</option></select></label>
+      <label class="field" id="studio-count-field">目标三角面数<input id="studio-target-faces" type="number" value="30000" min="4" max="5000000" step="1000"></label>
+      <label class="field" id="studio-ratio-field" hidden>保留比例（%）<input id="studio-ratio" type="number" value="30" min="0.1" max="100" step="0.1"></label>
+      <label class="field">优先策略<select id="studio-priority"><option value="quality">保护形状与接缝</option><option value="count">尽量达到目标面数</option></select></label>
+      <label class="field">最大误差（模型尺寸 %）<input id="studio-max-error" type="number" value="1" min="0" max="100" step="0.1"></label>
+      <p class="hint">低面数会影响轮廓。保护策略可能保留更多三角面，结果会显示实际面数。</p>
+    </div>
+    <div data-studio-actions="retopology" hidden>
+      <label class="field">重拓扑引擎<select id="studio-retopology-engine"><option value="autoremesher">AutoRemesher</option><option value="quadriflow">QuadriFlow · Blender</option></select></label>
+      <label class="field">目标四边面数<input id="studio-target-quads" type="number" value="15000" min="100" max="1000000" step="1000"></label>
+      <div id="studio-autoremesher-options"><div class="field-row"><label class="field">锐边角度<input id="studio-sharp-angle" type="number" value="60" min="0" max="180"></label><label class="field">密度自适应<input id="studio-adaptivity" type="number" value="1" min="0" max="2" step="0.1"></label></div><label class="field">边长倍率<input id="studio-edge-scaling" type="number" value="1" min="1" max="4" step="0.1"></label></div>
+      <label id="studio-quadriflow-options" class="check-field" hidden><input id="studio-preserve-sharp" type="checkbox">保留锐边</label>
+      <label class="field">表面处理<select id="studio-retopology-surface"><option value="original">保留原表面</option><option value="solid">融合重叠表面 · 会闭合开口</option></select></label>
+      <p class="hint">面数为近似目标。重新生成 UV 并转移 PBR；复杂毛发和相交网格需检查材质及孔洞。融合表面可能连接相邻结构、损失薄片。GLB 用于彩色导出，OBJ 保留四边面；含骨骼模型之后需重新绑定，原文件保留。</p>
+    </div>
+    <div data-studio-actions="segment" hidden>
+      <label class="field">拆件采样点数<select id="studio-segment-points"><option value="50000">5 万 · 较轻</option><option value="100000" selected>10 万 · 标准</option><option value="200000">20 万 · 较细</option></select></label>
+      <label class="field">部件搜索密度<select id="studio-segment-prompts"><option value="100">快速预览</option><option value="200">均衡</option><option value="400" selected>精细 · 上游默认密度</option></select></label>
+      <p class="hint">拆件后可在预览中点选、隐藏、合并、重命名或修正局部面归属。</p>
+    </div>
+    <div data-studio-actions="edit_parts complete_parts" hidden><p class="hint">先选择一次拆件任务的 output.glb。补全会重新生成部件形状，新增内部表面需要后续贴图和打印检查。</p></div>
+    <div data-studio-actions="complete_parts" hidden>
+      <label class="field">形状引导强度<input id="studio-part-guidance" type="number" value="7.5" min="1" max="15" step="0.5"></label>
+      <div class="field-row"><label class="field">采样步数<input id="studio-part-steps" type="number" value="50" min="10" max="100"></label><label class="field">几何精度<select id="studio-part-resolution"><option value="256">256 · 标准</option><option value="512" selected>512 · 精细</option></select></label></div>
+      <p class="hint">引导强度用于保留输入外形，过高可能产生细碎结构。所有部件会先检查外形，再转移贴图。</p>
+    </div>
+    <div data-studio-actions="retopology complete_parts" hidden>
+      <label class="field">材质转移<select id="studio-material-projection"><option value="nearest">最近表面</option><option value="cage">从外侧沿法线投射 · 多层表面可尝试</option></select></label>
+      <label class="field">转移贴图分辨率<select id="studio-texture-size"><option value="1024">1K</option><option value="2048" selected>2K</option><option value="4096">4K</option></select></label>
+      <label class="field">UV 展开<select id="studio-uv-backend"><option value="auto">自动 · 推荐</option><option value="gpu">GPU · 适合高面数</option><option value="cpu">CPU · 较慢</option></select></label>
+      <p class="hint">自动模式优先用 GPU 处理高面数网格。展开失败会保留几何和日志，可调整贴图分辨率或展开方式后重试。</p>
+    </div>
+    <div data-studio-actions="rig" hidden>
+      <label class="field">绑定引擎<select id="studio-rig-engine"><option value="skintokens">SkinTokens · 质量优先</option><option value="unirig">UniRig · 较低显存</option></select></label>
+      <label class="toggle"><input id="studio-use-skeleton" type="checkbox"><span><b>使用模型已有骨架</b><small>保留关节结构，重新计算蒙皮权重</small></span></label>
+      <label class="toggle"><input id="studio-release-contacts" type="checkbox"><span><b>修正四肢与衣物的粘连</b><small>人形角色可尝试；保护肩髋附近的混合权重，保留原面与贴图，分离处可能开放。原绑定结果另存。</small></span></label>
+      <p class="hint">人体和人形卡通优先。请在弯曲与动作预览中检查肩肘、膝盖和衣物权重。</p>
+    </div>
+    <div data-studio-actions="edit_rig" hidden><p class="hint">在预览中选择关节，拖动坐标轴修正位置后保存。需要重新计算权重时，再选择“使用模型已有骨架”。</p></div>
+    <div data-studio-actions="attach_parts" hidden>
+      <label class="field">部件<select id="studio-attach-part" disabled></select></label>
+      <label class="field">固定到骨骼<select id="studio-attach-bone" disabled></select></label>
+      <label class="toggle"><input id="studio-attach-ground" type="checkbox"><span><b>动作时避免附件穿地</b><small>增加独立附件关节，在后续动作中向上转动避开地面；不会模拟布料或场景碰撞。</small></span></label>
+      <button id="studio-add-attachment" type="button" disabled>添加 / 更新绑定</button>
+      <div id="studio-attachment-list"></div>
+      <p class="hint">先拆件或用部件笔刷分离区域，再绑定骨架。适合尾巴、盔甲和配件；选定部件会完整跟随一个关节，不再多关节弯曲。原始绑定文件保留。</p>
+    </div>
+    <div data-studio-actions="retarget" hidden>
+      <label class="field">动作文件<input id="studio-motion-file" type="file" accept=".bvh,.fbx,.glb"></label>
+      <p id="studio-motion-name" class="hint">支持 BVH、FBX 和带动作的 GLB。</p>
+      <label class="field">来源骨架<select id="studio-motion-armature" disabled><option value="">上传动作后识别</option></select></label>
+      <label class="field">动作片段<select id="studio-motion-source-clip" disabled><option value="0">上传动作后识别</option></select></label>
+      <label class="field">BVH 上方向<select id="studio-motion-up"><option value="Y">Y 轴向上</option><option value="Z">Z 轴向上</option></select><small class="hint">FBX／GLB 使用文件内的坐标信息。</small></label>
+    </div>
+    <div data-studio-actions="motion" hidden>
+      <label class="field">动作描述<textarea id="studio-prompt" rows="4" maxlength="2000">A person performs a controlled punch and returns to a fighting stance.</textarea></label>
+      <label class="field">动作预设<select id="studio-motion-preset"><option value="punch">出拳</option><option value="kick">踢腿</option><option value="dodge">闪避</option><option value="walk">行走</option><option value="run">跑步</option><option value="wave">挥手</option></select></label>
+      <p class="hint">动作预设会填入示例描述与种子，可自行修改。先检查角色绑定，再预览完整动作。</p>
+      <div class="field-row"><label class="field">时长（秒）<input id="studio-duration" type="number" min="0.5" max="10" step="0.5" value="4"></label><label class="field">随机种子<input id="studio-seed" type="number" min="0" max="4294967295" value="23"></label></div>
+      <label class="field">文本编码设备<select id="studio-text-device"><option value="cpu">CPU · 节省显存</option><option value="cuda">GPU · 更快编码</option></select></label>
+      <details><summary>关键姿态与路径约束</summary><div id="studio-constraints"></div><button id="studio-add-waypoint" type="button">添加路径点</button><button id="studio-add-pose" type="button">使用当前骨骼姿态</button><p class="hint">路径点以模型场景坐标输入；关键姿态来自当前预览的骨骼位置，约束身体主骨骼。手指使用放松姿态，暂不支持精细手势控制。</p></details>
+    </div>
+    <div data-studio-actions="retarget motion" hidden>
+      <div class="field-row"><label class="field">播放速度<input id="studio-speed" type="number" value="1" min="0.1" max="4" step="0.1"></label><label class="field">根运动<select id="studio-root-motion"><option value="original">保留位移</option><option value="in_place">原地播放</option></select></label></div>
+      <label class="toggle"><input id="studio-loop" type="checkbox"><span><b>循环动作</b></span></label>
+      <label class="toggle"><input id="studio-foot-lock" type="checkbox" checked><span><b>脚部接触修正</b><small>按实际鞋底修正接触和穿地，保留腾空；不提供全身碰撞。</small></span></label>
+      <details><summary>骨骼映射与静止姿态</summary><label class="field">目标手臂校准姿态<select id="studio-rest-pose"><option value="auto">按来源静止姿态校准</option><option value="T">T 姿态</option><option value="A">A 姿态</option></select></label><label class="field">位移比例<input id="studio-motion-scale" type="number" min="0.000001" max="1000" step="0.01" placeholder="留空：按腿长自动换算"></label><div id="studio-mapping"></div><p class="hint">左列为来源动作骨骼，右列为目标角色骨骼。可手动修正对应关系；动物骨架不能直接套用人体动作。</p></details>
+    </div>
+    <p id="studio-readiness" class="hint" role="status">正在检查组件…</p>
+    <button id="studio-run" class="primary full" disabled>开始加工 →</button>
+    <div class="button-row"><button id="studio-download">准备所需模型</button><button id="studio-verify">校验</button></div>
+    <p id="studio-model-message" class="hint"></p>
+  </aside>
+  <div class="studio-stage">
+    <div class="studio-toolbar"><div><h2>模型与动作预览</h2><p id="studio-view-info" class="hint">拖动旋转、滚轮缩放；点选部件或骨骼。</p></div><div class="button-row"><button id="studio-wireframe">线框</button><button id="studio-bones">骨骼</button><button id="studio-compare">查看原模型</button><button id="studio-reset-camera">重置视角</button></div></div>
+    <div id="studio-viewport" tabindex="0" aria-label="资产模型与骨骼编辑预览"><div id="studio-view-empty">选择模型后显示三维预览</div></div>
+    <div class="studio-playback"><button id="studio-play" disabled>播放</button><select id="studio-clip" aria-label="动画片段" disabled></select><input id="studio-timeline" type="range" min="0" max="1" step="0.001" value="0" aria-label="动画时间" disabled><span id="studio-time">0.00 s</span></div>
+    <div class="progress-area" id="studio-progress-box" hidden><div><b id="studio-progress-label">正在处理</b><span id="studio-elapsed"></span></div><progress id="studio-progress" hidden></progress><p id="studio-progress-detail" class="hint"></p><button id="studio-cancel" class="danger">停止当前任务</button></div>
+    <div class="studio-editor-grid">
+      <div class="report-box"><h2>部件</h2><div id="studio-parts-list"><p class="hint">自动拆件后可编辑部件。</p></div><div class="button-row"><button id="studio-add-part" disabled>新建部件</button><button id="studio-merge-parts" disabled>合并选中部件</button><button id="studio-paint-faces" disabled>球形笔刷修正</button></div><label class="field">修正到部件<select id="studio-paint-target" disabled></select></label><label class="field">笔刷半径 · 模型尺寸百分比<input id="studio-brush-radius" type="number" min="0" max="20" step="0.5" value="3"><small class="hint">球形区域会选中背面的面；设为 0 可逐面修正。新建部件后可将局部区域分离出来。</small></label><p id="studio-part-edit-count" class="hint"></p></div>
+      <div class="report-box"><h2>骨骼</h2><select id="studio-bone-select" aria-label="选择关节" disabled></select><div class="field-row studio-joint-fields"><label class="field">X<input id="studio-bone-x" type="number" step="0.001" disabled></label><label class="field">Y<input id="studio-bone-y" type="number" step="0.001" disabled></label><label class="field">Z<input id="studio-bone-z" type="number" step="0.001" disabled></label></div><p id="studio-bone-info" class="hint">绑定后显示骨架；拖动坐标轴调整关节位置。</p></div>
+    </div>
+    <div class="report-box"><div class="box-title"><h2>加工结果</h2><div id="studio-downloads" class="button-row"></div></div><p id="studio-result-summary" class="hint">完成后显示实际面数、部件、骨架和动作报告。</p><details><summary>运行日志</summary><pre id="studio-log">尚未运行。</pre></details></div>
+    <div class="report-box"><div class="box-title"><h2>加工记录</h2><button id="studio-refresh-history">刷新</button></div><div id="studio-history"></div></div>
+  </div>
+</div>

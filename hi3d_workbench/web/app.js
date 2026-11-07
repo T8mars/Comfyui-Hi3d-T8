@@ -13,7 +13,7 @@ const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
 Object.assign(stageLabels, {starting:'启动阶段', initializing:'初始化推理运行时', background:'处理参考图背景', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', unwrapping:'展开 UV', uv:'展开 UV', baking:'烘焙 PBR 材质'});
 Object.assign(stageLabels,{releasing:'释放或缓存本阶段模型'});
-const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修'};
+const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修',studio:'资产加工'};
 const modelVersions = ['textured','refined','coarse','generated'];
 const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
 const qualityPresets = {
@@ -127,7 +127,7 @@ function page(name) {
     el.classList.toggle('active', el.dataset.page === name);
     el.setAttribute('aria-current', el.dataset.page === name ? 'page' : 'false');
   });
-  const text = {workspace:['从一张图片，开始 3D 创作。','图片建模、Hi3D 几何精修与 PBR 贴图，在本地逐阶段完成，保留中间结果。'],history:['每一次尝试，都保留下来。','打开旧任务查看阶段结果，或复用输入继续调整。'],models:['准备好环境，再安心创作。','按流程分别准备 Hi3D 核心、图片建模与 PBR 贴图组件。']};
+  const text = {workspace:['从一张图片，开始 3D 创作。','图片建模、Hi3D 几何精修与 PBR 贴图，在本地逐阶段完成，保留中间结果。'],studio:['让模型成为可用的资产。','优化面数、智能拆件、角色绑定与单人动画，保留每一次加工结果。'],history:['每一次尝试，都保留下来。','打开旧任务查看阶段结果，或复用输入继续调整。'],models:['准备好环境，再安心创作。','按流程分别准备 Hi3D 核心、图片建模与 PBR 贴图组件。']};
   $('#page-title').textContent = text[name][0]; $('#page-subtitle').textContent = text[name][1];
   updateDock();
   if (name === 'history') void history();
@@ -677,9 +677,9 @@ async function loadArtifacts(job, selectedEpoch) {
   if (condition) { $('#conditioning').src = `/api/jobs/${job.id}/files/${condition}`; $('#conditioning').hidden = false; }
   else { $('#conditioning').hidden = true; $('#conditioning').removeAttribute('src'); }
   if (!files.includes('worker.log')) { $('#log').textContent = '日志文件缺失或尚未生成。'; return; }
-  if (logsKey === key) return;
+  if (logsKey === key && !activeStates.has(job.state)) return;
   try {
-    const text = await api(`/api/jobs/${job.id}/files/worker.log`, {responseType:'text',timeoutMs:10000});
+    const text = await api(`/api/jobs/${job.id}/log`, {responseType:'text',timeoutMs:10000});
     if (epoch === selectedEpoch && currentJob?.id === job.id) { $('#log').textContent = text.slice(-24000) || '任务日志暂时为空。'; logsKey = key; }
   } catch (error) {
     const detail = error.network ? '本次日志请求中断或超时' : error.message.replace(/[。.!！]+$/u,'');
@@ -690,6 +690,7 @@ async function openJob(id) {
   if (pending) return; pending = 'opening'; const selectedEpoch = ++epoch; availability();
   try {
     const job = await api('/api/jobs/'+id); if (epoch !== selectedEpoch) return;
+    if (job.options?.mode === 'studio') { page('studio'); window.dispatchEvent(new CustomEvent('hi3d:studio-job',{detail:job})); return; }
     renderJob(job); page('workspace'); await loadArtifacts(job, selectedEpoch);
   } catch (error) { showError(error); } finally { pending = null; availability(); }
 }
@@ -793,6 +794,7 @@ async function refresh() {
   if (session) { token = session.token; sessionReady = true; $('#shutdown-workbench').disabled = !session.can_shutdown; if (!sessionDefaultsApplied && !currentJob) $('#attention').value = session.default_attention || 'flash'; sessionDefaultsApplied = true; document.querySelectorAll('.app-version').forEach(el => { el.textContent = session.version; }); }
   const pathRevision = modelPathRevision;
   health = await api('/api/health'); if (workbenchStopped) return; online = true; renderHealth(pathRevision);
+  window.dispatchEvent(new CustomEvent('hi3d:health',{detail:health}));
   if (!health.model_path && !modelPath && !modelPathUnsupported) await refreshModelPath();
   if (Date.now() - lastUpdateRefresh > 15000) { lastUpdateRefresh = Date.now(); void refreshUpdates(); }
 }
@@ -832,7 +834,10 @@ async function tick() {
       if (epoch === selectedEpoch && currentJob?.id === id) { renderJob(job); await loadArtifacts(job, selectedEpoch); }
     } else if (health.active && !pending && !inputImage && !inputMesh) {
       const job = await api('/api/jobs/'+health.active);
-      if (epoch === selectedEpoch && !currentJob && !pending) { renderJob(job); await loadArtifacts(job, selectedEpoch); }
+      if (epoch === selectedEpoch && !currentJob && !pending) {
+        if(job.options?.mode==='studio'){window.dispatchEvent(new CustomEvent('hi3d:studio-job',{detail:job}));}
+        else {renderJob(job); await loadArtifacts(job, selectedEpoch);}
+      }
     }
   } catch (error) {
     if (error.network) unavailable(error);

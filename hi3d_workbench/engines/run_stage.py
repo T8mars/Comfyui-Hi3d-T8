@@ -474,6 +474,8 @@ def run_request(request_path, stage):
 
 
 def main():
+    from ..common import configure_stdio
+    configure_stdio()
     parser=argparse.ArgumentParser()
     parser.add_argument('--request',type=Path,required=True)
     parser.add_argument('--stage',choices=['coarse','texture'])

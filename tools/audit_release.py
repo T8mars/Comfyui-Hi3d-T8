@@ -39,7 +39,7 @@ def verify_owned(z,prefix='',source_root=None):
     for name in ['hi3d_workbench/jobs.py','hi3d_workbench/server.py','hi3d_workbench/common.py','hi3d_workbench/web/app.js']:
         assert (root/name).is_file(),f'校验源码不完整：{name}'
     paths=[]
-    for directory in ['hi3d_workbench','hi3d_native','web','scripts','examples','tools','tests','docs','licenses']:
+    for directory in ['hi3d_workbench','hi3d_native','web','scripts','examples','tools','tests','docs','licenses','runtime_requirements']:
         paths.extend(p for p in (root/directory).rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix!='.pyc')
     for name in ['__init__.py','comfy_nodes.py','requirements.txt','requirements-worker-windows.txt','requirements-pipeline-windows.txt','roadmap.md','pyproject.toml','Start-Workbench.cmd','README.md','README.zh-CN.md','NOTICE.md','LICENSE','config.example.json','upstream-source-manifest.json','VALIDATION.md']:
         if (root/name).is_file():paths.append(root/name)

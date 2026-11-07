@@ -1,0 +1,460 @@
+{
+  "p3sam": {
+    "repo": "tencent/Hunyuan3D-Part",
+    "revision": "677174466c53571e8bacd5050dff5948734a1a4d",
+    "license": "Tencent Hunyuan 3D-Part Community License",
+    "gated": false,
+    "files": [
+      {
+        "name": "LICENSE.txt",
+        "size": 17015,
+        "hash": "1006d367c07a96c41ee9cdcaab694294626dc55d",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "NOTICE.txt",
+        "size": 16676,
+        "hash": "6014d07606ba016c62e765f474cc56546efc5663",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "README.md",
+        "size": 2920,
+        "hash": "40531117115e07417dc0a3a5876040f0e2ea40ed",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "p3sam/config.json",
+        "size": 134,
+        "hash": "89ba9f514208cf45fcc8966c9c01fe71ed72787d",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "p3sam/p3sam.safetensors",
+        "size": 450968044,
+        "hash": "eb76550cfbe06f154c6e9b17167ccfc28222bb4a216ec7b12ac2bf7d762de38c",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "parts_full": {
+    "repo": "tencent/Hunyuan3D-Part",
+    "revision": "677174466c53571e8bacd5050dff5948734a1a4d",
+    "license": "Tencent Hunyuan 3D-Part Community License",
+    "gated": false,
+    "files": [
+      {
+        "name": "LICENSE.txt",
+        "size": 17015,
+        "hash": "1006d367c07a96c41ee9cdcaab694294626dc55d",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "NOTICE.txt",
+        "size": 16676,
+        "hash": "6014d07606ba016c62e765f474cc56546efc5663",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "README.md",
+        "size": 2920,
+        "hash": "40531117115e07417dc0a3a5876040f0e2ea40ed",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "conditioner/conditioner.safetensors",
+        "size": 1755920004,
+        "hash": "730518ae5f2b6af51db12137ed0dc0ac791ee04d927cf8e4f2043db9c8218251",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "conditioner/config.json",
+        "size": 2423,
+        "hash": "454774d1eeafed0eb6a842db95062c2c581ac0fa",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.json",
+        "size": 41,
+        "hash": "004995c8b257bc797b1a9e56132f6c7448019333",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "model/config.json",
+        "size": 856,
+        "hash": "dead29b8f15263a065ca075c949cf83fce685a85",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "model/model.safetensors",
+        "size": 6630571584,
+        "hash": "4ca47998e1357432302d7de0ec85f7e4076b8e64037935f033b881e2fd9973e0",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "scheduler/config.json",
+        "size": 146,
+        "hash": "de15338345a1395263b48e93c34a9e8b72edad11",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "shapevae/config.json",
+        "size": 612,
+        "hash": "07d55a0d72212e7680bd1f99ab2c9404791b2546",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "shapevae/shapevae.safetensors",
+        "size": 655539474,
+        "hash": "3d46179a603c529c42ce8c1eac6d56667700b1f16626e4bc5bc319c99a4f3b88",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "sonata": {
+    "repo": "facebook/sonata",
+    "revision": "df99897472c09f91ba9288da0a034aacffc0b010",
+    "license": "Apache-2.0",
+    "gated": false,
+    "files": [
+      {
+        "name": "README.md",
+        "size": 320,
+        "hash": "23bb8239b30ad636a1b592db0346c4753dc5325d",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.json",
+        "size": 1026,
+        "hash": "f80d197584d3775d700fe064ca21b4cc38f35c2a",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "sonata.pth",
+        "size": 434008287,
+        "hash": "c5ced5acdae30d1c469713398073a866e25e6e414e23feed5dc025373657ac50",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "skintokens": {
+    "repo": "VAST-AI/SkinTokens",
+    "revision": "79736cad0fd84de384d5eede659b4ebd24effe33",
+    "license": "MIT",
+    "gated": false,
+    "files": [
+      {
+        "name": "README.md",
+        "size": 7400,
+        "hash": "2e618ff007360ce14584be05b5e29bfd798e60dd",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "experiments/articulation_xl_quantization_256_token_4/grpo_1400.ckpt",
+        "size": 1131603979,
+        "hash": "f4e4706a11cfb520cdde65156a0358545e4fbf8f36237aca01ea5e79d5cb5692",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "experiments/skin_vae_2_10_32768/last.ckpt",
+        "size": 487311745,
+        "hash": "4843f49e58afff88345806b94ca82e6cc9d8def6e7432e2853c677b154de0ed4",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "unirig": {
+    "repo": "VAST-AI/UniRig",
+    "revision": "36842e2b5947e9e60f89275b83208c8e74071c63",
+    "license": "MIT",
+    "gated": false,
+    "files": [
+      {
+        "name": "README.md",
+        "size": 2947,
+        "hash": "950561d4fed87c0ce279a516a6f08ef61682087d",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "skeleton/articulation-xl_quantization_256/model.ckpt",
+        "size": 1439617174,
+        "hash": "d8cf9b42d56e7bc316d293597ecf8c4c39a8631cdd44a261ecf388242fabd0f4",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "skin/articulation-xl/model.ckpt",
+        "size": 4375464854,
+        "hash": "9d40cf42fb9d4c10d8b373d9f4f557c6fbbc5ebacae7ae6b3dce5a0d8a18bc33",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "qwen_rig_config": {
+    "repo": "Qwen/Qwen3-0.6B",
+    "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+    "license": "Apache-2.0",
+    "gated": false,
+    "files": [
+      {
+        "name": "LICENSE",
+        "size": 11343,
+        "hash": "6634c8cc3133b3848ec74b9f275acaaa1ea618ab",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "README.md",
+        "size": 13965,
+        "hash": "a50b19e76f5274f9ec99f5a5d99873dca5bff25e",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.json",
+        "size": 726,
+        "hash": "f5c3703b78ae2a478ae15b247e9f855e0ce2107b",
+        "algorithm": "git-sha1"
+      }
+    ]
+  },
+  "kimodo": {
+    "repo": "nvidia/Kimodo-SOMA-RP-v1.2",
+    "revision": "0e3c89024d896064b6851201373f7834784a386b",
+    "license": "NVIDIA Open Model License",
+    "gated": false,
+    "files": [
+      {
+        "name": "LICENSE",
+        "size": 10229,
+        "hash": "8b5083f79b8856267b2fb16581ebc72e967b2e82",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "README.md",
+        "size": 13003,
+        "hash": "19c2baf2c8411e8cb0f1f24e62eebecaaa70d8c6",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.yaml",
+        "size": 675,
+        "hash": "c5df4c0c90077de686eac56f953c928804b9f177",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "model.safetensors",
+        "size": 1133177724,
+        "hash": "fdcef624140a12c0a4840192ce0b75cafb4e73228a893da3864b4a990d3e919e",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/body/mean.npy",
+        "size": 3040,
+        "hash": "d42f35f8bb7ef52fdec66ae29c5cf590bd038f4f1aabd2d560d1d0f78663ed6f",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/body/std.npy",
+        "size": 3040,
+        "hash": "965bbad497726ef4e6c46b519827e2cbcb29f974214b25718d20a725b82279ed",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/global_root/mean.npy",
+        "size": 168,
+        "hash": "6c110980f9a0386e57a8c186f8eac7f55dc05bade92f44c4b391450ada598da1",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/global_root/std.npy",
+        "size": 168,
+        "hash": "fb15aeed7143f5f0754611f0acf5fa5f55d1f6492a49c23e490fc62f7bf11fb0",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/local_root/mean.npy",
+        "size": 160,
+        "hash": "4c36e8e33d6d51e6c8206ac796a52b7b3a4da7f0dc49ebdbb4f130178e3e9d31",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "stats/motion/local_root/std.npy",
+        "size": 160,
+        "hash": "5f57b41f51ced7832cffa81702f6e04d8694e16475c184baec6c8be0e98c8dba",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "text_adapter": {
+    "repo": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp",
+    "revision": "31474e395ada192e8ed1586db6be79fb3b70c9c0",
+    "license": "Llama 3 Community License",
+    "gated": false,
+    "files": [
+      {
+        "name": "README.md",
+        "size": 3315,
+        "hash": "a5fe1b40358baba7d5bcdc237e0cda36730b28ff",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "adapter_config.json",
+        "size": 794,
+        "hash": "620ba03108b7ecc5ca38c0683803479b2994bbb2",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "adapter_model.safetensors",
+        "size": 167829552,
+        "hash": "de9c8736618a13173c6a1623cdef1b75e86c69317f1073ae82cd516ac36a632d",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "attn_mask_utils.py",
+        "size": 11132,
+        "hash": "e0f7550534478fc6cb3e102607272278b7b6f80b",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.json",
+        "size": 781,
+        "hash": "39f55d1c23baaafa017440d54e8a99fcb62f2500",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "modeling_llama_encoder.py",
+        "size": 2856,
+        "hash": "e7453066ba90199def366746b8bb0d573a0838c4",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "special_tokens_map.json",
+        "size": 335,
+        "hash": "04829afa78a2d2df203ac846968db37269b01f7f",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "tokenizer.json",
+        "size": 9085671,
+        "hash": "b32575ff2e452db7c5ce3b1319f3257a49b1d38c",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "tokenizer_config.json",
+        "size": 51042,
+        "hash": "2fad33212371de0544cc49647a81029f79b4894b",
+        "algorithm": "git-sha1"
+      }
+    ]
+  },
+  "text_adapter_supervised": {
+    "repo": "McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised",
+    "revision": "baa8ebf04a1c2500e61288e7dad65e8ae42601a7",
+    "license": "Llama 3 Community License",
+    "gated": false,
+    "files": [
+      {
+        "name": "README.md",
+        "size": 62702,
+        "hash": "e7791b78b9ad87f11fe2223c191079705c4cd413",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "adapter_config.json",
+        "size": 794,
+        "hash": "3c1e7117dae8e9be1f773b670ed6fa8cc1dc82ed",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "adapter_model.safetensors",
+        "size": 167829552,
+        "hash": "53f8f94ebdf396667ba99dd96e78203edae27bbcdbd1cf5f12b611e1d916b225",
+        "algorithm": "sha256"
+      }
+    ]
+  },
+  "text_base": {
+    "repo": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "revision": "8afb486c1db24fe5011ec46dfbe5b5dccdb575c2",
+    "license": "Llama 3 Community License",
+    "gated": true,
+    "files": [
+      {
+        "name": "LICENSE",
+        "size": 7801,
+        "hash": "4c763399690c7fec642231350756e4ee9184b5ce",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "README.md",
+        "size": 38854,
+        "hash": "671db9596dbd5ba6ee039d914b4915d509fc54a5",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "USE_POLICY.md",
+        "size": 4696,
+        "hash": "6f8e5f6e3243c92046a133c92eb62b1ed7975a0b",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "config.json",
+        "size": 654,
+        "hash": "31553d63b8f18df5d6d440860751533ada3759e4",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "generation_config.json",
+        "size": 187,
+        "hash": "8675015d20a4b12ee2ee0197a0937beba318122a",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "model-00001-of-00004.safetensors",
+        "size": 4976698672,
+        "hash": "d8cf9c4d0dd972e1a2131bfe656235ee98221679711a3beef6d46dadf0f20b5c",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "model-00002-of-00004.safetensors",
+        "size": 4999802720,
+        "hash": "8d4782b4a69ef03845159ce1a15e272aadaaf134dc138d68f616098e8531729c",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "model-00003-of-00004.safetensors",
+        "size": 4915916176,
+        "hash": "3acdd690e65c24f42a24581b8467af98bd3ca357444580f8012aacd2bd607921",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "model-00004-of-00004.safetensors",
+        "size": 1168138808,
+        "hash": "67e9ad31c8c32abf3a55ee7fc7217b3ecb35fd3c74d98a5bd233e0e4d6964f46",
+        "algorithm": "sha256"
+      },
+      {
+        "name": "model.safetensors.index.json",
+        "size": 23950,
+        "hash": "0fd8120f1c6acddc268ebc2583058efaf699a771",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "special_tokens_map.json",
+        "size": 73,
+        "hash": "d8cd5076496dbe4be2320312abc10adc43097b81",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "tokenizer.json",
+        "size": 9085698,
+        "hash": "b197f72effb9d5ed16ee0f5663e11e4cfac2ba62",
+        "algorithm": "git-sha1"
+      },
+      {
+        "name": "tokenizer_config.json",
+        "size": 50977,
+        "hash": "1bfd1146b7bde6168de7bb673bfe0acaea6e684c",
+        "algorithm": "git-sha1"
+      }
+    ]
+  }
+}

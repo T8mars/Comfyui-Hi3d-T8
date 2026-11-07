@@ -143,6 +143,8 @@ def run(request_path):
     emit("complete",report=report)
 
 def main():
+    from .common import configure_stdio
+    configure_stdio()
     p=argparse.ArgumentParser()
     p.add_argument("--request",type=Path)
     p.add_argument("--diagnose",action="store_true")

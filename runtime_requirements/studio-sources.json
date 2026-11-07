@@ -1,0 +1,3184 @@
+{
+  "schema": 1,
+  "source": "GitHub Git trees at the fixed source revisions; git-blob SHA1 verifies exact source bytes",
+  "components": {
+    "parts": {
+      "upstream": "https://github.com/Tencent-Hunyuan/Hunyuan3D-Part",
+      "revision": "e96be065375438962375b55326416291342958a7",
+      "tree_sha": "e96be065375438962375b55326416291342958a7",
+      "files": {
+        "LICENSE": {
+          "sha1": "c84ff57080b68568d21565e10a48ac39caa20486",
+          "bytes": 17015,
+          "mode": "100644"
+        },
+        "NOTICE": {
+          "sha1": "6014d07606ba016c62e765f474cc56546efc5663",
+          "bytes": 16676,
+          "mode": "100644"
+        },
+        "P3-SAM/.gitignore": {
+          "sha1": "dd471ef2535ee6a5e331965dfdd3039797529151",
+          "bytes": 4776,
+          "mode": "100755"
+        },
+        "P3-SAM/README.md": {
+          "sha1": "5d4d9556ce1c87deba30dc0bebbc12c5c9a81c9f",
+          "bytes": 3954,
+          "mode": "100755"
+        },
+        "P3-SAM/demo/app.py": {
+          "sha1": "ac1e42b2100b67e3c3b134248c0d51d4e2fb3f21",
+          "bytes": 15761,
+          "mode": "100755"
+        },
+        "P3-SAM/demo/assets/1.glb": {
+          "sha1": "fd801a9d2f09561a1b3621395949aa5b7f9fd10e",
+          "bytes": 29140044,
+          "mode": "100644"
+        },
+        "P3-SAM/demo/assets/2.glb": {
+          "sha1": "6fddf20a71f26a35e0f0295eb6c4be9944db7b04",
+          "bytes": 8529600,
+          "mode": "100644"
+        },
+        "P3-SAM/demo/assets/3.glb": {
+          "sha1": "dd8e0c5910da3f89a94648517658e1af7b1a85ad",
+          "bytes": 30475016,
+          "mode": "100644"
+        },
+        "P3-SAM/demo/assets/4.glb": {
+          "sha1": "95e2c190a0d3f4198ec455de478ed88cb93493a7",
+          "bytes": 29621968,
+          "mode": "100644"
+        },
+        "P3-SAM/demo/auto_mask.py": {
+          "sha1": "45ff254d3b99f755ea98701f9ca699682eb50a4a",
+          "bytes": 52915,
+          "mode": "100755"
+        },
+        "P3-SAM/demo/auto_mask_no_postprocess.py": {
+          "sha1": "e67fad539a14b396817801c46e5544c8a4b38d5e",
+          "bytes": 34040,
+          "mode": "100644"
+        },
+        "P3-SAM/demo/gradio_demo.py": {
+          "sha1": "5c0dd2efc1c59d6d8b41b727eaa8484bf5182541",
+          "bytes": 2739,
+          "mode": "100644"
+        },
+        "P3-SAM/images/HYpart-fullpip.jpg": {
+          "sha1": "dbfd05e3fa18e9e2fb393465dd2d158039f4f89e",
+          "bytes": 470523,
+          "mode": "100644"
+        },
+        "P3-SAM/images/app.gif": {
+          "sha1": "36bb8cd602fd218141c4ec0acd392d57b3b88b35",
+          "bytes": 3587124,
+          "mode": "100644"
+        },
+        "P3-SAM/images/auto_seg.gif": {
+          "sha1": "8c086494581068d02751034ac28aec8594d82a43",
+          "bytes": 2411935,
+          "mode": "100644"
+        },
+        "P3-SAM/images/teaser.jpg": {
+          "sha1": "ad6d701c5c84d3e0b25df2c5bb3582548d3b691e",
+          "bytes": 1283140,
+          "mode": "100644"
+        },
+        "P3-SAM/model.py": {
+          "sha1": "15d64d108cf68db53b8352848a0f136b4273445d",
+          "bytes": 6116,
+          "mode": "100644"
+        },
+        "P3-SAM/utils/chamfer3D/chamfer3D.cu": {
+          "sha1": "d5b886dff11733be30519247d1fdb784818bff4a",
+          "bytes": 5947,
+          "mode": "100644"
+        },
+        "P3-SAM/utils/chamfer3D/chamfer_cuda.cpp": {
+          "sha1": "28098210dcd1e428077d0bcae11a22abe8116d09",
+          "bytes": 1171,
+          "mode": "100644"
+        },
+        "P3-SAM/utils/chamfer3D/dist_chamfer_3D.py": {
+          "sha1": "de26d2c29e24330af6fa0193bebe5fce5ffef527",
+          "bytes": 2757,
+          "mode": "100644"
+        },
+        "P3-SAM/utils/chamfer3D/setup.py": {
+          "sha1": "9a23aadadde026eb8c3db68a43d63086f6be856a",
+          "bytes": 398,
+          "mode": "100644"
+        },
+        "README.md": {
+          "sha1": "0494427911bd8d7b6ab01656cadc4260a2d49342",
+          "bytes": 3061,
+          "mode": "100755"
+        },
+        "XPart/.gitignore": {
+          "sha1": "96a3f20a5638b67c737539d47bc6cd498f793fdf",
+          "bytes": 3857,
+          "mode": "100755"
+        },
+        "XPart/README.md": {
+          "sha1": "5da31ff7e49d962fa2cc9dbde885dc1ac5b58a13",
+          "bytes": 2624,
+          "mode": "100755"
+        },
+        "XPart/assets/teaser.jpg": {
+          "sha1": "c903dd461575eb12b13e0d0eb3137695feb23b4b",
+          "bytes": 1394409,
+          "mode": "100644"
+        },
+        "XPart/data/000.glb": {
+          "sha1": "c78ff7cc3077e4e34e0ef151d0caba4187f17b71",
+          "bytes": 9000484,
+          "mode": "100755"
+        },
+        "XPart/data/001.glb": {
+          "sha1": "7a64f02c01f6e2df94e1a5c338cf6c044060d861",
+          "bytes": 9000676,
+          "mode": "100644"
+        },
+        "XPart/data/002.glb": {
+          "sha1": "480490a1919d77a023a14f737b81f4515cba472e",
+          "bytes": 8999812,
+          "mode": "100644"
+        },
+        "XPart/data/003.glb": {
+          "sha1": "948ae7b8be67fde5f18165658b8366e6c38fd9d4",
+          "bytes": 9000880,
+          "mode": "100644"
+        },
+        "XPart/data/004.glb": {
+          "sha1": "212aee60c913f6ccc5df90c4938cb489fb0c3832",
+          "bytes": 9000796,
+          "mode": "100644"
+        },
+        "XPart/demo.py": {
+          "sha1": "6c58ff1691743cae754b6a77b3e5eb57cd23eb53",
+          "bytes": 3169,
+          "mode": "100755"
+        },
+        "XPart/gradio_demo.py": {
+          "sha1": "ceb15a21efbebf04f070b46f2b5809874474d17a",
+          "bytes": 4002,
+          "mode": "100644"
+        },
+        "XPart/partgen/bbox_estimator/auto_mask_api.py": {
+          "sha1": "bdfe7dd3d9cc00c38eb67a20686fee76ac244f3c",
+          "bytes": 50974,
+          "mode": "100755"
+        },
+        "XPart/partgen/config/infer.yaml": {
+          "sha1": "e93b0d583d809de50f31eb4cfdaf7213b128f514",
+          "bytes": 3564,
+          "mode": "100755"
+        },
+        "XPart/partgen/config/sonata.json": {
+          "sha1": "3070793d6f38ac68aeba9e27f6b64989fcd51df3",
+          "bytes": 738,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/__init__.py": {
+          "sha1": "91c43c3ea1e46c0dabf41492e586f63b035d5b6c",
+          "bytes": 1285,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/attention_blocks.py": {
+          "sha1": "cf11b3201a3420ea2799c0c089239bc06008d494",
+          "bytes": 26692,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/attention_processors.py": {
+          "sha1": "2f24054e84137ab40f584a5e0111cb50fc93fd99",
+          "bytes": 1452,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/model.py": {
+          "sha1": "ae47c3aa731fbf88b49ee2b0018e54185253835a",
+          "bytes": 15937,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/surface_extractors.py": {
+          "sha1": "8282aa2dc4e7b2b18b5605edf5dea7f32880e696",
+          "bytes": 7074,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/autoencoders/volume_decoders.py": {
+          "sha1": "8c9dc3a5d7ecd3acdec5d418b6be5a92a2dba731",
+          "bytes": 4476,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/conditioner/condioner_release.py": {
+          "sha1": "edb569cc2ae75cdeb67c8758a79e15f2f9368587",
+          "bytes": 6763,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/conditioner/part_encoders.py": {
+          "sha1": "cd41761059141407801fd144c653ac15596f409f",
+          "bytes": 3557,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/conditioner/sonata_extractor.py": {
+          "sha1": "e09cc00a2a8f7928e5bb75caa16b35d361b75bf8",
+          "bytes": 10921,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/schedulers.py": {
+          "sha1": "25d6adf44ca4e4cff283025586b378b9027a157a",
+          "bytes": 13086,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/transport/__init__.py": {
+          "sha1": "71164eaf5c447f9fc7bf3bc6ab4e8d6e0c67a05c",
+          "bytes": 3462,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/transport/integrators.py": {
+          "sha1": "e2e011492ce8d7acc296df9bfe57d45ae01893e7",
+          "bytes": 4810,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/transport/path.py": {
+          "sha1": "9c867929e9c570a5465c6bfd337cce27b0447041",
+          "bytes": 8325,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/transport/transport.py": {
+          "sha1": "ea566fd1ca6d845097939f8c43e279d9000982ba",
+          "bytes": 16681,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/diffusion/transport/utils.py": {
+          "sha1": "5830aab015f9186c3e02d462af7580cfb223cfae",
+          "bytes": 2025,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/moe_layers.py": {
+          "sha1": "1be757249101ee2fda4988cd1bbf44d8fffc6d6d",
+          "bytes": 7800,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/partformer_dit.py": {
+          "sha1": "3fef8403f5c66a101954f39bf6c9f7459f96771d",
+          "bytes": 26482,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/__init__.py": {
+          "sha1": "ba273918b811a926b395b4cac40463e22b2c1081",
+          "bytes": 932,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/data.py": {
+          "sha1": "43ad271965d99f3ae5fa9453feddb7bfb6ae3356",
+          "bytes": 2786,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/model.py": {
+          "sha1": "9219844f2ab40fdfbb0829bf5687867d9a858b36",
+          "bytes": 31387,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/module.py": {
+          "sha1": "7fe25c28c82d82276c15a9dffcc127512c108e26",
+          "bytes": 3724,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/registry.py": {
+          "sha1": "f91d1b804bdc2f919abdc7df94da6f3b5db804fb",
+          "bytes": 11657,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/serialization/__init__.py": {
+          "sha1": "46e6c72e9657bb6ccdfd90f3387973ee9b658eb7",
+          "bytes": 138,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/serialization/default.py": {
+          "sha1": "73346305d321770706796f7bec302a10c038540d",
+          "bytes": 2766,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/serialization/hilbert.py": {
+          "sha1": "a6f0de1006b35a469ca87936c707702371064349",
+          "bytes": 10565,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/serialization/z_order.py": {
+          "sha1": "f45f6a39219ba0d6c945c2e588649c3376410e15",
+          "bytes": 5115,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/structure.py": {
+          "sha1": "a462955758b620577881be5c5fd5f8f48e7c290e",
+          "bytes": 6585,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/transform.py": {
+          "sha1": "e9d4c6612dabddec50536983a7ff7eea185a815c",
+          "bytes": 51556,
+          "mode": "100755"
+        },
+        "XPart/partgen/models/sonata/utils.py": {
+          "sha1": "e268d443f57918a96f1bc97aecab2220e86a352e",
+          "bytes": 1906,
+          "mode": "100755"
+        },
+        "XPart/partgen/partformer_pipeline.py": {
+          "sha1": "79c346e90c6f78128796b3e29ae58b1066f3eb9d",
+          "bytes": 28278,
+          "mode": "100755"
+        },
+        "XPart/partgen/utils/mesh_utils.py": {
+          "sha1": "315f122c822607aef3117259c0eb2cf2b42d4140",
+          "bytes": 28288,
+          "mode": "100755"
+        },
+        "XPart/partgen/utils/misc.py": {
+          "sha1": "0fbff0d3267455fc6231b43e02f0e60e452e0c0f",
+          "bytes": 6427,
+          "mode": "100755"
+        },
+        "XPart/requirements.txt": {
+          "sha1": "302f6a37177cfee0c8ce4dffbe5c28b0ebe0c219",
+          "bytes": 418,
+          "mode": "100755"
+        }
+      }
+    },
+    "skintokens": {
+      "upstream": "https://github.com/VAST-AI-Research/SkinTokens",
+      "revision": "273b691d35989d71cd17ff2895fdc735097b92d1",
+      "tree_sha": "273b691d35989d71cd17ff2895fdc735097b92d1",
+      "files": {
+        ".gitignore": {
+          "sha1": "fadb81d3f299f71f9c4588d6c0611dfd5399e6fd",
+          "bytes": 967,
+          "mode": "100755"
+        },
+        "LICENSE": {
+          "sha1": "484d9bbef8720dc2797444a18c972a4e6245a07e",
+          "bytes": 1073,
+          "mode": "100755"
+        },
+        "README.md": {
+          "sha1": "7b9d14a47adcc29d6bc99367e6d7780980ddd055",
+          "bytes": 8735,
+          "mode": "100755"
+        },
+        "assets/compare-skin.jpg": {
+          "sha1": "8f8bccd4c0d0b91b222e121b38665a0c17ae2011",
+          "bytes": 315916,
+          "mode": "100755"
+        },
+        "assets/skintokens-teaser.png": {
+          "sha1": "f51c06e286565b987060dd785d3b2bf80b68f2e2",
+          "bytes": 7502397,
+          "mode": "100755"
+        },
+        "bpy_server.py": {
+          "sha1": "c22455ca1d27ca554b067592e75ea87c3eb17b6b",
+          "bytes": 99,
+          "mode": "100755"
+        },
+        "configs/skeleton/mixamo.yaml": {
+          "sha1": "6271e7b9f59eec59ae08ce77138d1a054be382c8",
+          "bytes": 1511,
+          "mode": "100755"
+        },
+        "configs/skeleton/vroid.yaml": {
+          "sha1": "1d6f066e78686d4f3e7d9f50dae8b9ab73922aa9",
+          "bytes": 1117,
+          "mode": "100755"
+        },
+        "demo.py": {
+          "sha1": "a2cb3a2bc6380428ff16b74592049a2f3fb18402",
+          "bytes": 12977,
+          "mode": "100755"
+        },
+        "download.py": {
+          "sha1": "8091bc370ab204f972cce09a6670ec04c72217de",
+          "bytes": 1784,
+          "mode": "100755"
+        },
+        "examples/giraffe.glb": {
+          "sha1": "24d5a8cebe36ce780c494ff37d380b352d5d7e0c",
+          "bytes": 6310044,
+          "mode": "100755"
+        },
+        "requirements.txt": {
+          "sha1": "46fde139cbbc6746e332bee77cbc23cb905b9790",
+          "bytes": 180,
+          "mode": "100755"
+        },
+        "src/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/data/augment.py": {
+          "sha1": "0909d5dfb01b5c40a0213987c92b6052bdbf6e89",
+          "bytes": 25209,
+          "mode": "100755"
+        },
+        "src/data/datapath.py": {
+          "sha1": "268123aa11032cdf0ca25ebbc7bf3d933e5c4199",
+          "bytes": 12622,
+          "mode": "100755"
+        },
+        "src/data/dataset.py": {
+          "sha1": "6d8de18b42738811cf678a601136d20f8599ab1c",
+          "bytes": 11870,
+          "mode": "100755"
+        },
+        "src/data/order.py": {
+          "sha1": "2bde3911fe4fd758f3c3fc57c544c1ab9e1e49b3",
+          "bytes": 4765,
+          "mode": "100755"
+        },
+        "src/data/sampler.py": {
+          "sha1": "ef7bc0d8fccd2bd4e0b2bd13887c1c96b2caa6dc",
+          "bytes": 7148,
+          "mode": "100755"
+        },
+        "src/data/spec.py": {
+          "sha1": "3719d80052549e8d4aef3e77dab5dca8f741a73f",
+          "bytes": 536,
+          "mode": "100755"
+        },
+        "src/data/transform.py": {
+          "sha1": "3601d755766932490a584aa495848402950a0e19",
+          "bytes": 2563,
+          "mode": "100755"
+        },
+        "src/data/vertex_group.py": {
+          "sha1": "04c0c174fcff5f1eadf451e7b11016304f6f1a88",
+          "bytes": 8928,
+          "mode": "100755"
+        },
+        "src/model/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/__init__.py": {
+          "sha1": "40a96afc6ff09d58a702b76e3f7dd412fe975e26",
+          "bytes": 24,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/get_model.py": {
+          "sha1": "4247b93ccb89c31dd8a08a731bc2b4c4a722dd9b",
+          "bytes": 1032,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/__init__.py": {
+          "sha1": "40a96afc6ff09d58a702b76e3f7dd412fe975e26",
+          "bytes": 24,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/modules/__init__.py": {
+          "sha1": "0729b49eadf964584d3524d9c0f6adec3f04a6a9",
+          "bytes": 60,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/modules/checkpoint.py": {
+          "sha1": "c54807df8ceded8c30a9a2f2a6586228f3d59817",
+          "bytes": 2512,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/modules/distributions.py": {
+          "sha1": "cf1cdcd53f1eb534b55d92ae1bd0b9854f6b890c",
+          "bytes": 3204,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/modules/embedder.py": {
+          "sha1": "223de828f44903a3ce96b59d1cc5621e0989b535",
+          "bytes": 7411,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/modules/transformer_blocks.py": {
+          "sha1": "ba3ecffd0fd3e05708a9c9cc29b7ff45591a9daf",
+          "bytes": 10358,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/tsal/__init__.py": {
+          "sha1": "40a96afc6ff09d58a702b76e3f7dd412fe975e26",
+          "bytes": 24,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/tsal/loss.py": {
+          "sha1": "a49fbacf64799505078fd43664fc944bddf34a42",
+          "bytes": 19884,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/tsal/sal_perceiver.py": {
+          "sha1": "ded43f16368ea0b4df43de45db60c300efa05286",
+          "bytes": 25289,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/models/tsal/tsal_base.py": {
+          "sha1": "0b39830f5d45c7e87ece1c24b940a2dea6074431",
+          "bytes": 3036,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/utils/__init__.py": {
+          "sha1": "76d2dd39781034eaa33293a2243ebee3b3c982c6",
+          "bytes": 106,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/utils/eval.py": {
+          "sha1": "954b9ae2643c8adb6c9af6141ede2b38a329db22",
+          "bytes": 214,
+          "mode": "100755"
+        },
+        "src/model/michelangelo/utils/misc.py": {
+          "sha1": "2174de332726546011e0e7bb2df422342b96975c",
+          "bytes": 7610,
+          "mode": "100755"
+        },
+        "src/model/parse_encoder.py": {
+          "sha1": "00c37098665a08b1fe1d9a9f19a1ebe444c303e8",
+          "bytes": 1053,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/attention_processor.py": {
+          "sha1": "b28b8997c9811972fa9915a6edcdfab0535a85bd",
+          "bytes": 10835,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/FSQ.py": {
+          "sha1": "9f7bcf0e670071a04a19495ea8efa7d3ead0a1fe",
+          "bytes": 6806,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/SimVQ.py": {
+          "sha1": "4e23d3f721d77b7945876a21678ecfdf318eb129",
+          "bytes": 8014,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/__init__.py": {
+          "sha1": "93f59dd8fea38fe9a245e1f5eced949c9221fe16",
+          "bytes": 49,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/autoencoder_kl_tripo2.py": {
+          "sha1": "fa21d6f80e38f91cb02a555ef668117918c568b6",
+          "bytes": 9226,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/get_model.py": {
+          "sha1": "6661546b671ab243ffda9d8a7642ebdebfc619c1",
+          "bytes": 670,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/miche_transformer_blocks.py": {
+          "sha1": "97874e6bcff125d8af3b4b1c413ecc523dfc19b0",
+          "bytes": 12823,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/skin_fsq_cvae_model.py": {
+          "sha1": "6b66d9e9486d261f0a5d67f795bbe60499fb26e3",
+          "bytes": 11210,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/autoencoders/vae.py": {
+          "sha1": "0e53eada49dd0cbca365829411ef78e0cbec711e",
+          "bytes": 2647,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/embeddings.py": {
+          "sha1": "cd253932239850792f53b2b8c7bfd126bbcc26ce",
+          "bytes": 4116,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/transformers/__init__.py": {
+          "sha1": "3a61dd3419b5cc0844e061e583b172c5ad5454f0",
+          "bytes": 1455,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/transformers/modeling_outputs.py": {
+          "sha1": "0928fa0ca39275a85f8b7fa49c68af745d4c74c5",
+          "bytes": 123,
+          "mode": "100755"
+        },
+        "src/model/skin_vae/transformers/tripo2_transformer.py": {
+          "sha1": "55fd8cf093a9d5c9fccb3494964ee91062d32f32",
+          "bytes": 26776,
+          "mode": "100755"
+        },
+        "src/model/skin_vae_model.py": {
+          "sha1": "a2b4e88b6997883ce5861333bb498dc9593ff80d",
+          "bytes": 8636,
+          "mode": "100755"
+        },
+        "src/model/spec.py": {
+          "sha1": "fbb0e932f5dcfdb45351b63fad325018d62f84b0",
+          "bytes": 11513,
+          "mode": "100755"
+        },
+        "src/model/tokenrig.py": {
+          "sha1": "ab35e3fb8dd850737cba7d1782f03c75846971be",
+          "bytes": 26960,
+          "mode": "100755"
+        },
+        "src/model/utils.py": {
+          "sha1": "8dec6ec71822ef1f46bb5fbb2e4170d8be00f736",
+          "bytes": 3889,
+          "mode": "100755"
+        },
+        "src/rig_package/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/rig_package/info/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/rig_package/info/asset.py": {
+          "sha1": "0eb4a3387433b48715a892126ff55cb82a57f9da",
+          "bytes": 31199,
+          "mode": "100755"
+        },
+        "src/rig_package/info/voxel.py": {
+          "sha1": "6b509998d9caab95f5b2e0dbe30819fce0dd6a43",
+          "bytes": 2732,
+          "mode": "100755"
+        },
+        "src/rig_package/parser/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/rig_package/parser/abstract.py": {
+          "sha1": "fce33a4f1333708421f125fd763d9e09a9ef4970",
+          "bytes": 412,
+          "mode": "100755"
+        },
+        "src/rig_package/parser/bpy.py": {
+          "sha1": "fc33b8c66fff4eccbd60bc04f9c0a223e87ceec5",
+          "bytes": 32134,
+          "mode": "100755"
+        },
+        "src/rig_package/utils.py": {
+          "sha1": "80a89f9fa5c3a3e2a6ef0646071ff638e640f3d1",
+          "bytes": 12156,
+          "mode": "100755"
+        },
+        "src/server/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/server/bpy_server.py": {
+          "sha1": "913eac27ebdc49ca7ca583d9c41eb5997e6c5a9f",
+          "bytes": 2995,
+          "mode": "100755"
+        },
+        "src/server/spec.py": {
+          "sha1": "f2ca6d72eb17b346e23f24038216eb103f370fb3",
+          "bytes": 2578,
+          "mode": "100755"
+        },
+        "src/tokenizer/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100755"
+        },
+        "src/tokenizer/parse.py": {
+          "sha1": "c07d958d14fc904022351b0288eeed9d85c2baca",
+          "bytes": 405,
+          "mode": "100755"
+        },
+        "src/tokenizer/spec.py": {
+          "sha1": "d4cc653519937bb98d6059d765686e2ea53b89dc",
+          "bytes": 7707,
+          "mode": "100755"
+        },
+        "src/tokenizer/tokenizer_part.py": {
+          "sha1": "5e91e3c37be61653dec2be3263bfd2b53f90e5fc",
+          "bytes": 14845,
+          "mode": "100755"
+        }
+      }
+    },
+    "unirig": {
+      "upstream": "https://github.com/VAST-AI-Research/UniRig",
+      "revision": "6793c6640ff01c8fb389f3993434124bb43d2933",
+      "tree_sha": "6793c6640ff01c8fb389f3993434124bb43d2933",
+      "files": {
+        ".gitattributes": {
+          "sha1": "520ec4e3434c3d3ba2d43125fe86933ec680c3ba",
+          "bytes": 255,
+          "mode": "100644"
+        },
+        ".gitignore": {
+          "sha1": "474041aa2dbf654480297bd340b6e5fb3a57d24b",
+          "bytes": 617,
+          "mode": "100644"
+        },
+        "LICENSE": {
+          "sha1": "a20d482774136ee1858d92964e896031598902b4",
+          "bytes": 1124,
+          "mode": "100644"
+        },
+        "README.md": {
+          "sha1": "3ae2962ab8109b119228ea40e9cd013c33b9e38e",
+          "bytes": 21054,
+          "mode": "100644"
+        },
+        "assets/doc/ar_training.png": {
+          "sha1": "b198c51cae819bdf377189f2433339f741ac0196",
+          "bytes": 94201,
+          "mode": "100644"
+        },
+        "assets/doc/devil.gif": {
+          "sha1": "4ab78f81727c420865dc5f5418452fb8a56701ba",
+          "bytes": 1831961,
+          "mode": "100644"
+        },
+        "assets/doc/dragon.gif": {
+          "sha1": "54a73baba4a5de76205e469b1f1b3de49e505b6c",
+          "bytes": 1922869,
+          "mode": "100644"
+        },
+        "assets/doc/rabbit.gif": {
+          "sha1": "5a7f2b3cc7b25dfe5360095461c00c0faeb1e980",
+          "bytes": 732336,
+          "mode": "100644"
+        },
+        "assets/doc/unirig_teaser.png": {
+          "sha1": "617c34c0e1248d6baf3c186185a633d288d6b121",
+          "bytes": 12417252,
+          "mode": "100644"
+        },
+        "blender/add-on-vrm-v2.20.77_modified.zip": {
+          "sha1": "147fafc4679ba6b738fd636a67f44b4f8c3f3679",
+          "bytes": 1331571,
+          "mode": "100644"
+        },
+        "configs/data/quick_inference.yaml": {
+          "sha1": "25f988646a99d0cdf97a72cb1ae0a7e66d98caa6",
+          "bytes": 435,
+          "mode": "100644"
+        },
+        "configs/data/rignet.yaml": {
+          "sha1": "6769562019f6423a14d10f763e3b27befa347d16",
+          "bytes": 706,
+          "mode": "100644"
+        },
+        "configs/data/rignet_bs2.yaml": {
+          "sha1": "fed22d7c3bbc213095194eeac5540f045b6b2015",
+          "bytes": 703,
+          "mode": "100644"
+        },
+        "configs/model/unirig_ar_350m_1024_81920_float32.yaml": {
+          "sha1": "7b5a83e17433bd6c9b655cd72d3c05f935a3c48a",
+          "bytes": 669,
+          "mode": "100644"
+        },
+        "configs/model/unirig_rignet.yaml": {
+          "sha1": "e573af98b2514555c2792530c107e5247e9e7438",
+          "bytes": 608,
+          "mode": "100644"
+        },
+        "configs/model/unirig_skin.yaml": {
+          "sha1": "e13e1bb6e7388538af0e9b0e975ee4ad72f3ca3e",
+          "bytes": 1071,
+          "mode": "100644"
+        },
+        "configs/skeleton/mixamo.yaml": {
+          "sha1": "6271e7b9f59eec59ae08ce77138d1a054be382c8",
+          "bytes": 1511,
+          "mode": "100644"
+        },
+        "configs/skeleton/vroid.yaml": {
+          "sha1": "1d6f066e78686d4f3e7d9f50dae8b9ab73922aa9",
+          "bytes": 1117,
+          "mode": "100644"
+        },
+        "configs/system/ar_inference_articulationxl.yaml": {
+          "sha1": "87fab782cf9dd5a6970e579d1f170c0bcc67b9ba",
+          "bytes": 284,
+          "mode": "100644"
+        },
+        "configs/system/ar_train_rignet.yaml": {
+          "sha1": "695d5b207ad4c1800be7906110e6b7d1443319da",
+          "bytes": 177,
+          "mode": "100644"
+        },
+        "configs/system/ar_validate_rignet.yaml": {
+          "sha1": "7b049cb4534a4dab8691c396cb80d6b1face5325",
+          "bytes": 143,
+          "mode": "100644"
+        },
+        "configs/system/skin.yaml": {
+          "sha1": "782de0e970ece5cfb4fbdaf3078eb2af60ab70cb",
+          "bytes": 89,
+          "mode": "100644"
+        },
+        "configs/task/quick_inference_skeleton_articulationxl_ar_256.yaml": {
+          "sha1": "7477b9c107cb95070510745a8544e894809b57e7",
+          "bytes": 731,
+          "mode": "100644"
+        },
+        "configs/task/quick_inference_unirig_skin.yaml": {
+          "sha1": "c0797ef545edf5995610f2b8698340222b709f10",
+          "bytes": 638,
+          "mode": "100644"
+        },
+        "configs/task/train_rignet_ar.yaml": {
+          "sha1": "5c0da23e7d15ac8c156e4cb608ee451dd303ea89",
+          "bytes": 990,
+          "mode": "100644"
+        },
+        "configs/task/train_rignet_skin.yaml": {
+          "sha1": "d5653b696bfd39d84b8f41724b08605078f8cfd9",
+          "bytes": 1144,
+          "mode": "100644"
+        },
+        "configs/task/validate_rignet.yaml": {
+          "sha1": "e2b2647ace717d911a3e75ef6798095f173dc66c",
+          "bytes": 359,
+          "mode": "100644"
+        },
+        "configs/tokenizer/tokenizer_parts_articulationxl_256.yaml": {
+          "sha1": "570b810058053fdb9212977518310e1fae4719e0",
+          "bytes": 319,
+          "mode": "100644"
+        },
+        "configs/tokenizer/tokenizer_rignet.yaml": {
+          "sha1": "36bb3fe153f929f62a187fb6072bf56622eb4010",
+          "bytes": 257,
+          "mode": "100644"
+        },
+        "configs/transform/inference_ar_transform.yaml": {
+          "sha1": "e2ca90f588c5325c5e8a2c42868d7980910131be",
+          "bytes": 845,
+          "mode": "100644"
+        },
+        "configs/transform/inference_skin_transform.yaml": {
+          "sha1": "6371b5e7bce576f7ac528446e30927b495e3c290",
+          "bytes": 904,
+          "mode": "100644"
+        },
+        "configs/transform/train_rignet_ar_transform.yaml": {
+          "sha1": "74b0178b98020be326717b58078588902f240009",
+          "bytes": 1519,
+          "mode": "100644"
+        },
+        "configs/transform/train_rignet_skin_transform.yaml": {
+          "sha1": "c913065a6794d2f849e456cbb197f07a93dad005",
+          "bytes": 2296,
+          "mode": "100644"
+        },
+        "configs/transform/train_rignet_transform.yaml": {
+          "sha1": "5fdb30fa1bf57b6df68e396277259e7f2d8a8f97",
+          "bytes": 644,
+          "mode": "100644"
+        },
+        "datalist/rignet_test.txt": {
+          "sha1": "b64b5b162ab1f044646dc494ba0a165fd9b70ed6",
+          "bytes": 3347,
+          "mode": "100644"
+        },
+        "examples/bird.glb": {
+          "sha1": "c82417b3c66e411ac5b7b26926b5a2329167df60",
+          "bytes": 132,
+          "mode": "100644"
+        },
+        "examples/giraffe.glb": {
+          "sha1": "9cec09a7ea93692b61033b9de5f3f7bcab4c790c",
+          "bytes": 132,
+          "mode": "100644"
+        },
+        "examples/skeleton/bird.fbx": {
+          "sha1": "88404658817a7c0251a949ed6a2519447f027e0c",
+          "bytes": 401084,
+          "mode": "100644"
+        },
+        "examples/skeleton/giraffe.fbx": {
+          "sha1": "acf9bd4aaf831df359e7f32815345dc765ca1870",
+          "bytes": 759180,
+          "mode": "100644"
+        },
+        "examples/skeleton/tira.fbx": {
+          "sha1": "64cd4fc05c8bc6036f2beca3cdcaaa977a08c2d3",
+          "bytes": 1694668,
+          "mode": "100644"
+        },
+        "examples/skeleton/tripo_carrot.fbx": {
+          "sha1": "cb2432d99eb77c55b0e5206f80e48a9f8b6fa3c2",
+          "bytes": 1879420,
+          "mode": "100644"
+        },
+        "examples/tira.glb": {
+          "sha1": "961966ed74868fcaa26aa397cf31dfc82efa7af0",
+          "bytes": 133,
+          "mode": "100644"
+        },
+        "examples/tripo_carrot.glb": {
+          "sha1": "9e334e2549a3576d2996fc468d7a8a337a1eca03",
+          "bytes": 132,
+          "mode": "100644"
+        },
+        "launch/inference/extract.sh": {
+          "sha1": "42bd86d77504943b42acc2d4db5be30dd6979149",
+          "bytes": 1560,
+          "mode": "100644"
+        },
+        "launch/inference/generate_skeleton.sh": {
+          "sha1": "e448d92810f5fab4bf5118cd5ef0803ec7b7f711",
+          "bytes": 1901,
+          "mode": "100644"
+        },
+        "launch/inference/generate_skin.sh": {
+          "sha1": "2d9ed30325967d918d1fd4ec1a963dc4b81c99e3",
+          "bytes": 1937,
+          "mode": "100644"
+        },
+        "launch/inference/merge.sh": {
+          "sha1": "3c79db955bc7168a05543f5de7912c279a14fbb7",
+          "bytes": 615,
+          "mode": "100644"
+        },
+        "launch/preprocess.sh": {
+          "sha1": "c66b15cd1164e5ca9ca3f53fc383432bd3da542e",
+          "bytes": 1009,
+          "mode": "100644"
+        },
+        "requirements.txt": {
+          "sha1": "62bc2aaca794e2dbac8ea2ed3d23b9795f07a695",
+          "bytes": 174,
+          "mode": "100644"
+        },
+        "run.py": {
+          "sha1": "ba04598280b55b10f84f7f8c3e5927e805585ad4",
+          "bytes": 11225,
+          "mode": "100644"
+        },
+        "src/data/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/data/asset.py": {
+          "sha1": "96725124fbd010c7b102594f28bd14a4f05462e8",
+          "bytes": 15199,
+          "mode": "100644"
+        },
+        "src/data/augment.py": {
+          "sha1": "9d4179a913c4adce1974926ea736e53b356e1ac6",
+          "bytes": 27231,
+          "mode": "100644"
+        },
+        "src/data/datapath.py": {
+          "sha1": "18c9e6ebc1a23569a6ded4462b8b3d2d812b7a88",
+          "bytes": 5766,
+          "mode": "100644"
+        },
+        "src/data/dataset.py": {
+          "sha1": "cf182fa2156811f95040ad19ee74e9e34fb331a6",
+          "bytes": 10906,
+          "mode": "100644"
+        },
+        "src/data/exporter.py": {
+          "sha1": "c84ff5f2ce1e76fcceab813552a523b41f6207a6",
+          "bytes": 18511,
+          "mode": "100644"
+        },
+        "src/data/extract.py": {
+          "sha1": "1be7799fc3286ed961380875429726a606993e07",
+          "bytes": 20260,
+          "mode": "100644"
+        },
+        "src/data/log.py": {
+          "sha1": "fcf3d211728aa5548de7eb240cdd914ed01a593c",
+          "bytes": 1421,
+          "mode": "100644"
+        },
+        "src/data/order.py": {
+          "sha1": "a33deeed9ae177d6991e7444f31650e4902c7ab5",
+          "bytes": 3892,
+          "mode": "100644"
+        },
+        "src/data/raw_data.py": {
+          "sha1": "7ca8964f26abfe3b5fb509dde7e46ef366eb43d3",
+          "bytes": 9644,
+          "mode": "100644"
+        },
+        "src/data/sampler.py": {
+          "sha1": "919bb14a514747b45afd16eaa9481f7c4798dccb",
+          "bytes": 6621,
+          "mode": "100644"
+        },
+        "src/data/spec.py": {
+          "sha1": "9331427e1edd1ef69ad87f9b65a29ca0bb71f9f8",
+          "bytes": 437,
+          "mode": "100644"
+        },
+        "src/data/tail.py": {
+          "sha1": "813074fbeaf56f7eca8a8a95c5b1f4879ecfe637",
+          "bytes": 1418,
+          "mode": "100644"
+        },
+        "src/data/transform.py": {
+          "sha1": "018124f17e1758d41062200ecaccf02a5fbbb6ae",
+          "bytes": 4025,
+          "mode": "100644"
+        },
+        "src/data/utils.py": {
+          "sha1": "aec48872ce4332d02017f4ffaf3ee8e7aad6348e",
+          "bytes": 10158,
+          "mode": "100644"
+        },
+        "src/data/vertex_group.py": {
+          "sha1": "9dffbd947d85dbf2ab234ae1114f0691acf9b235",
+          "bytes": 23056,
+          "mode": "100644"
+        },
+        "src/inference/download.py": {
+          "sha1": "eb3d9b0c4193ca21c89121186c7338467cab496f",
+          "bytes": 741,
+          "mode": "100644"
+        },
+        "src/inference/get_list.py": {
+          "sha1": "3286e91a6ae6da60085e4326e1313ef6bd09c37d",
+          "bytes": 704,
+          "mode": "100644"
+        },
+        "src/inference/merge.py": {
+          "sha1": "ebab0d9db0ad2c398b1fe3c72a59e0139d941250",
+          "bytes": 20367,
+          "mode": "100644"
+        },
+        "src/model/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/LICENSE": {
+          "sha1": "e72bfddabc15be5718a7cc061ac10e47741d8219",
+          "bytes": 35148,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/__init__.py": {
+          "sha1": "16d324c6fbb109889666d97ec8aaf96dffbb802b",
+          "bytes": 905,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/get_model.py": {
+          "sha1": "5b4c5197b2d438c32a2b487ea9b87303bc2dd0b6",
+          "bytes": 1939,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/__init__.py": {
+          "sha1": "16d324c6fbb109889666d97ec8aaf96dffbb802b",
+          "bytes": 905,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/modules/__init__.py": {
+          "sha1": "deb22f87c60542124ec634ddcecc36c9699e5207",
+          "bytes": 942,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/modules/checkpoint.py": {
+          "sha1": "ab5d51f05e5c7b2818fb8cd0e207bfa2f260415f",
+          "bytes": 3940,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/modules/embedder.py": {
+          "sha1": "6fd01d55c79cb5bf3e357f2ac5bb45d465884195",
+          "bytes": 8293,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/modules/transformer_blocks.py": {
+          "sha1": "4df460c7dac0ae68dd675b5504e0bfeeee2e6026",
+          "bytes": 10348,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/tsal/__init__.py": {
+          "sha1": "8d3779a628a7c29f7c0177a252a3b41ef3d6c82c",
+          "bytes": 906,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/tsal/sal_perceiver.py": {
+          "sha1": "3300fd07c5207cd2fae713942ec154e5d4ff9325",
+          "bytes": 20973,
+          "mode": "100644"
+        },
+        "src/model/michelangelo/models/tsal/tsal_base.py": {
+          "sha1": "c785fe23df80a59ead9f165b7f209fe9721b95d5",
+          "bytes": 3918,
+          "mode": "100644"
+        },
+        "src/model/parse.py": {
+          "sha1": "be065d388725f5876d6c4ace8a47fe1aec379bb1",
+          "bytes": 410,
+          "mode": "100644"
+        },
+        "src/model/parse_encoder.py": {
+          "sha1": "8d51f0f63ced6bc924ccf1ece871e6905d04da8b",
+          "bytes": 1109,
+          "mode": "100644"
+        },
+        "src/model/pointcept/LICENSE": {
+          "sha1": "9293bb11a97a3da9232d22db6cc3005e8df219a7",
+          "bytes": 1065,
+          "mode": "100644"
+        },
+        "src/model/pointcept/README.md": {
+          "sha1": "7585d78c428e3a0b9e593dde0c2b1a958c545d9d",
+          "bytes": 63,
+          "mode": "100644"
+        },
+        "src/model/pointcept/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/__init__.py": {
+          "sha1": "3e6d08bd5d43f12670958df4687791b5b073d815",
+          "bytes": 143,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/builder.py": {
+          "sha1": "5b01c6defba0a8afc7f835184744dc7f6356fb82",
+          "bytes": 162,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/dataset_render_16views.py": {
+          "sha1": "4ed6e7ff1c929b4ad4884a76b7b89177e321afc6",
+          "bytes": 17941,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/sampart3d_util.py": {
+          "sha1": "0e11a17ca59027a3750c1ccaa2c9f07a3f73fcab",
+          "bytes": 5360,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/transform.py": {
+          "sha1": "ecb11b80fc28ad592e453cb69df23669f413aaa4",
+          "bytes": 44458,
+          "mode": "100644"
+        },
+        "src/model/pointcept/datasets/utils.py": {
+          "sha1": "2d24e17bf619306adf14f6746530829502b8e546",
+          "bytes": 1854,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/defaults.py": {
+          "sha1": "832bbcac47851c7ee033b63f3374022dea5e49dc",
+          "bytes": 5282,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/eval.py": {
+          "sha1": "c5ebea23c91df213d90d0113987bd13597f08230",
+          "bytes": 17071,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/hooks/__init__.py": {
+          "sha1": "8434169b30ac1563d5f60fa8fd89c61979c20568",
+          "bytes": 134,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/hooks/builder.py": {
+          "sha1": "834258b8f03c5451569a11cd3eaf299f9234fae8",
+          "bytes": 199,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/hooks/default.py": {
+          "sha1": "0ccd1f0fd3bd34215274c65b92e6a0755166d313",
+          "bytes": 417,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/hooks/evaluator.py": {
+          "sha1": "a9b06ef6c553ae291e1a87c4a31ed56859a1a83c",
+          "bytes": 27137,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/hooks/misc.py": {
+          "sha1": "995e3646bc24abbfd2af40678f239306d5da6181",
+          "bytes": 16884,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/launch.py": {
+          "sha1": "e2592dabbbc1a398e03ab73e3ace2de9f51fb3a9",
+          "bytes": 4012,
+          "mode": "100644"
+        },
+        "src/model/pointcept/engines/train.py": {
+          "sha1": "66964b7774eafa64714806b3988abaa775de403f",
+          "bytes": 21020,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/PTv3Object.py": {
+          "sha1": "5006353c34bb95b1c266e420d960a9c288b2ade4",
+          "bytes": 23148,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/__init__.py": {
+          "sha1": "f7027e601f513c17e2e5c36a6491e928dbfe4b1a",
+          "bytes": 49,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/modules.py": {
+          "sha1": "2fb77634cf5f54759ee301d6cffb966ca0076396",
+          "bytes": 2978,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/__init__.py": {
+          "sha1": "66e6bc0f62993abb3625a9598f54e7775aeb0008",
+          "bytes": 182,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/checkpoint.py": {
+          "sha1": "09b6d307ccf5b6d79135eec9274c9c8a8c29432e",
+          "bytes": 1862,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/misc.py": {
+          "sha1": "fb1b282f480f23cba30644edf35477a9358d0e11",
+          "bytes": 700,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/serialization/__init__.py": {
+          "sha1": "058c5e1001c76d9c7014bf0bbb824eec4f54f476",
+          "bytes": 129,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/serialization/default.py": {
+          "sha1": "15898b55625fc0e1125db9b713e900892f04176c",
+          "bytes": 2006,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/serialization/hilbert.py": {
+          "sha1": "79356577e12179a35341af9b430a1ba8e238b832",
+          "bytes": 9763,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/serialization/z_order.py": {
+          "sha1": "b0237c87c48c32d07fe96d9ecc72d91e1c464099",
+          "bytes": 3818,
+          "mode": "100644"
+        },
+        "src/model/pointcept/models/utils/structure.py": {
+          "sha1": "afef3d7dbe2c3118e67d8eaa4a7e2e5198cb6a5e",
+          "bytes": 8895,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/cache.py": {
+          "sha1": "a32f06c644b835925d165bca7060f8b185cf9c54",
+          "bytes": 1603,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/comm.py": {
+          "sha1": "69e29e7c690fe0500d3d9a84b6a8749e2f4f4655",
+          "bytes": 5830,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/config.py": {
+          "sha1": "0388caf896a88189ff8497cca5ac71b1bd37034f",
+          "bytes": 26130,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/env.py": {
+          "sha1": "653f007dde5c4a7564e732da88dd47e7d37adf97",
+          "bytes": 755,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/events.py": {
+          "sha1": "d2db40895bce751e2d69482578d460f187cb8d0e",
+          "bytes": 20276,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/logger.py": {
+          "sha1": "ddaf2c5a765c9f1325737c3cbc73e1169f13cdd4",
+          "bytes": 5771,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/misc.py": {
+          "sha1": "d890275ac26e1ac23c88e33d00065050a2230bac",
+          "bytes": 5029,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/optimizer.py": {
+          "sha1": "dc2a3fe00a7e7ac3751926568d6112a964e13930",
+          "bytes": 2383,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/path.py": {
+          "sha1": "ce98fa5fd0dfbf6e1d61e833ecc35fea4ab2782b",
+          "bytes": 3412,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/registry.py": {
+          "sha1": "7ac308a87d38ff61da14d6b4d5c73b4c68c15a58",
+          "bytes": 10951,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/scheduler.py": {
+          "sha1": "3e2e29fdde2e2668c023af36afdb89e73fb9ce53",
+          "bytes": 3967,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/timer.py": {
+          "sha1": "3de4a16e33c43fe61ea3088f82216fd62eb6e959",
+          "bytes": 2019,
+          "mode": "100644"
+        },
+        "src/model/pointcept/utils/visualization.py": {
+          "sha1": "7a010dd8289f60119d1bfbccdff65edb908e24f6",
+          "bytes": 2516,
+          "mode": "100644"
+        },
+        "src/model/spec.py": {
+          "sha1": "a0201e9f779c802dfbe9ccb957f3e3925aca15cc",
+          "bytes": 5261,
+          "mode": "100644"
+        },
+        "src/model/unirig_ar.py": {
+          "sha1": "14a90d88f188b6e90c8a5da9cdad13f2752b6637",
+          "bytes": 8390,
+          "mode": "100644"
+        },
+        "src/model/unirig_skin.py": {
+          "sha1": "bade11564d871413ceae73abdbefd50376615d0d",
+          "bytes": 23520,
+          "mode": "100644"
+        },
+        "src/system/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/system/ar.py": {
+          "sha1": "3c5a2711330439c6386243284ac3016de0048d4e",
+          "bytes": 16381,
+          "mode": "100644"
+        },
+        "src/system/metrics.py": {
+          "sha1": "ad3b925fdbafe0d3e1ad1de5f6270d849615f5cb",
+          "bytes": 3111,
+          "mode": "100644"
+        },
+        "src/system/optimizer.py": {
+          "sha1": "9d1651b66b8f6e38ce104616c142eb59c63357d7",
+          "bytes": 441,
+          "mode": "100644"
+        },
+        "src/system/parse.py": {
+          "sha1": "114cc2d16b60420ad63ce0a36fcb2ec3f574a51f",
+          "bytes": 849,
+          "mode": "100644"
+        },
+        "src/system/scheduler.py": {
+          "sha1": "ec9144cc3380a52c155f35e7c0967e7e34a43d07",
+          "bytes": 486,
+          "mode": "100644"
+        },
+        "src/system/skin.py": {
+          "sha1": "71e0245147428b1493bfa8434dd5e374b605b441",
+          "bytes": 15713,
+          "mode": "100644"
+        },
+        "src/tokenizer/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "src/tokenizer/parse.py": {
+          "sha1": "9b24558a8e07139c81cd9fcf920b75a904e2c5ef",
+          "bytes": 349,
+          "mode": "100644"
+        },
+        "src/tokenizer/spec.py": {
+          "sha1": "1c9e943fa42ff84e78f1aeb42723e5d873c79964",
+          "bytes": 9793,
+          "mode": "100644"
+        },
+        "src/tokenizer/tokenizer_part.py": {
+          "sha1": "69c138dd4ddb6b67a40a2103ced19309df0e472e",
+          "bytes": 13518,
+          "mode": "100644"
+        }
+      }
+    },
+    "kimodo": {
+      "upstream": "https://github.com/nv-tlabs/kimodo",
+      "revision": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+      "tree_sha": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+      "files": {
+        ".gitignore": {
+          "sha1": "41a4d8632a4f66926cd956a98143e0b828f21a8e",
+          "bytes": 2083,
+          "mode": "100644"
+        },
+        ".pre-commit-config.yaml": {
+          "sha1": "5d4716f284b0ddbcb85badeb22c6eb9df01d0f30",
+          "bytes": 1285,
+          "mode": "100644"
+        },
+        "ATTRIBUTIONS.MD": {
+          "sha1": "ca10ff22ca65d441acfbceea3638894c69f7f909",
+          "bytes": 2754,
+          "mode": "100644"
+        },
+        "CHANGELOG.md": {
+          "sha1": "67643e337e77428256bed1e16ff7bf7eda770bca",
+          "bytes": 6945,
+          "mode": "100644"
+        },
+        "CONTRIBUTING.MD": {
+          "sha1": "35273ec12718a756c2756ffea799caa2f2b1673b",
+          "bytes": 2298,
+          "mode": "100644"
+        },
+        "Dockerfile": {
+          "sha1": "077a4116c58f9d5692d63e3b4179a325ae1e827a",
+          "bytes": 1950,
+          "mode": "100644"
+        },
+        "LICENSE": {
+          "sha1": "e048a61796b130714fac0dffe9a3c2a1faf9521d",
+          "bytes": 11387,
+          "mode": "100644"
+        },
+        "MANIFEST.in": {
+          "sha1": "2f75e520d25313cb4426662d907160bad9458d78",
+          "bytes": 240,
+          "mode": "100644"
+        },
+        "MotionCorrection/.gitignore": {
+          "sha1": "02744d122b35df207557c1c0a0332af84c7dce2f",
+          "bytes": 857,
+          "mode": "100644"
+        },
+        "MotionCorrection/CMakeLists.txt": {
+          "sha1": "0770898afe2c149d3cadc149f88ce38dc6756532",
+          "bytes": 3001,
+          "mode": "100644"
+        },
+        "MotionCorrection/MANIFEST.in": {
+          "sha1": "4328751fd823876a0fbbd947b1de83a5aa6ccd78",
+          "bytes": 121,
+          "mode": "100644"
+        },
+        "MotionCorrection/README.md": {
+          "sha1": "051a1b4ee5ebc24ffe5d63f4a6c0d912a45d8125",
+          "bytes": 884,
+          "mode": "100644"
+        },
+        "MotionCorrection/python/motion_correction/__init__.py": {
+          "sha1": "571d705108db0bba53f667a193ccb5a15ab69d95",
+          "bytes": 34,
+          "mode": "100644"
+        },
+        "MotionCorrection/python/motion_correction/motion_postprocess.py": {
+          "sha1": "eb6270a5091a2fc214e977e132dd05065bae9640",
+          "bytes": 4014,
+          "mode": "100644"
+        },
+        "MotionCorrection/run_test.py": {
+          "sha1": "1e1032602b923b1e5c48c0971c3ee1bb91ffa7b2",
+          "bytes": 2779,
+          "mode": "100644"
+        },
+        "MotionCorrection/setup.py": {
+          "sha1": "d1d01ccb3d7b550e6a4c0eb58b7c8792f47f763f",
+          "bytes": 4487,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/InverseKinematics.cpp": {
+          "sha1": "21eb186b8f099281e2d764f27f39636444857c8d",
+          "bytes": 6884,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/InverseKinematics.h": {
+          "sha1": "bf70b4815faebf3afea33310b3cd07047eb55be5",
+          "bytes": 790,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/TrajectoryCorrector.cpp": {
+          "sha1": "eaf8799de7cb896ca4c9ad3c083d0d5d0e673327",
+          "bytes": 14889,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/TrajectoryCorrector.h": {
+          "sha1": "9e0a4fb74a386caace0e0bcd542795180c8b795b",
+          "bytes": 1683,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/Utility.cpp": {
+          "sha1": "ce7f6453770c5a832942ef4e345cabfdfa0641e7",
+          "bytes": 46388,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/AnimProcessing/Utility.h": {
+          "sha1": "9eefbb18c93d2b83c20cf2e66f4e2ab24332c289",
+          "bytes": 1489,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/BindingsPython.cpp": {
+          "sha1": "fa0993e26fc239d00a3e3871453c3d1cce84ed78",
+          "bytes": 13676,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Compiler.h": {
+          "sha1": "851f934400b241baccb0d2b81a73cc1a228c7b28",
+          "bytes": 712,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Debug.h": {
+          "sha1": "fc3499d1ba20d23aed651a54641906f68f99d859",
+          "bytes": 390,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Constants.h": {
+          "sha1": "4717cd5ae04977f97bc4e6de5dd4796cb5b804f6",
+          "bytes": 1181,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Matrix.cpp": {
+          "sha1": "7c069271d1445315972a7255a67af3eef3547a74",
+          "bytes": 9971,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Matrix.h": {
+          "sha1": "3e0a3d62e11b625588aef489ae976a2da2b97a02",
+          "bytes": 5306,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Matrix.inl": {
+          "sha1": "3c616529b8ea3c2a1c1135dc06fa76222fecf057",
+          "bytes": 26947,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Quaternion.cpp": {
+          "sha1": "230dfc7e466714949caab4e8472a5d820cd2ae56",
+          "bytes": 642,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Quaternion.h": {
+          "sha1": "9ca72f3d8bdf7be30bda44b6302160a5377df287",
+          "bytes": 5522,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Quaternion.inl": {
+          "sha1": "fe5aa9e692d5fa4c1f286b4b9058e557b4273cb8",
+          "bytes": 18924,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/SIMD.h": {
+          "sha1": "dfc1ced6d5f39871efcc9caf024293d8609e2825",
+          "bytes": 4986,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Scalar.h": {
+          "sha1": "425b759a3416832c3a14fb28bd85c3a4964a3525",
+          "bytes": 5939,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Transform.cpp": {
+          "sha1": "9216ddfe3b01c94265ecf2a22e6a3fb41531a7f0",
+          "bytes": 464,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Transform.h": {
+          "sha1": "2ee49a5017c8a00c2e24ad6b61fdf89d9e13d718",
+          "bytes": 7849,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Transform.inl": {
+          "sha1": "0e81b096f5f190fe014d73d347675e69ff9058ec",
+          "bytes": 16618,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Types.cpp": {
+          "sha1": "4d539ebc1298bef1f2a23b2708cce54e38be94c7",
+          "bytes": 1710,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Types.h": {
+          "sha1": "d16b2ce10d609deba2be8dfd9c7e99e36928fa05",
+          "bytes": 36144,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Vector.cpp": {
+          "sha1": "965adc9aa5ea3ed588c26347c338535b5e263815",
+          "bytes": 4173,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Vector.h": {
+          "sha1": "4d19bea3b6c215aa20ba636e5347b45a36812c8c",
+          "bytes": 15419,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Math/Vector.inl": {
+          "sha1": "14e4169b3b68cc3be40f42ddfcc466f90fd80e7e",
+          "bytes": 74225,
+          "mode": "100644"
+        },
+        "MotionCorrection/src/cpp/Platform.h": {
+          "sha1": "b8569c609f1c6806a06c12c9d5310a670a0cc6f8",
+          "bytes": 1363,
+          "mode": "100644"
+        },
+        "README.md": {
+          "sha1": "4bf3cfae41f66ae131626282aaea018be40cab83",
+          "bytes": 21544,
+          "mode": "100644"
+        },
+        "assets/banner.png": {
+          "sha1": "47a0b54f3176839cb79e426fa09c5d72a326d5c3",
+          "bytes": 60233,
+          "mode": "100644"
+        },
+        "assets/demo_screenshot.png": {
+          "sha1": "4773e3eab713c19cdc2ec8f1a80133865674b8d9",
+          "bytes": 469052,
+          "mode": "100644"
+        },
+        "assets/gmr_results.gif": {
+          "sha1": "247d88e7e8d79574800048cf61672136ca5b078b",
+          "bytes": 1855914,
+          "mode": "100644"
+        },
+        "assets/mujoco_result.gif": {
+          "sha1": "f143e389871d3c90132ca9c8fc60120287ce0198",
+          "bytes": 1854599,
+          "mode": "100644"
+        },
+        "assets/protomotions_results.gif": {
+          "sha1": "24378c826e1d3a9e49516c6d39b25e2707a44cca",
+          "bytes": 3881892,
+          "mode": "100644"
+        },
+        "assets/sonic_kimodo_demo.gif": {
+          "sha1": "daf9af0c1905ad9fd1a3df22b1aaef74d5e1b3cb",
+          "bytes": 1811888,
+          "mode": "100644"
+        },
+        "assets/teaser.gif": {
+          "sha1": "3e24d7abfc18998c14fa577b7c90c9fa07341e60",
+          "bytes": 3853319,
+          "mode": "100644"
+        },
+        "benchmark/create_benchmark.py": {
+          "sha1": "d287eadb76e75e7239058b5e9492926036076ccb",
+          "bytes": 10942,
+          "mode": "100644"
+        },
+        "benchmark/embed_folder.py": {
+          "sha1": "ff49d26d4107b77cf155b8f830420efc5393c9fe",
+          "bytes": 5622,
+          "mode": "100644"
+        },
+        "benchmark/evaluate_folder.py": {
+          "sha1": "c77f231d44657777d28c331d36b6483a0c16bc98",
+          "bytes": 13637,
+          "mode": "100644"
+        },
+        "benchmark/generate_eval.py": {
+          "sha1": "e37ef1c81259176a3dd49f109e4c2374ec71ac27",
+          "bytes": 15591,
+          "mode": "100644"
+        },
+        "benchmark/parse_folder.py": {
+          "sha1": "3cf24d72a4558af3d2980c5da2c99e82197d2403",
+          "bytes": 26967,
+          "mode": "100644"
+        },
+        "docker-compose.yaml": {
+          "sha1": "f34b1ed3dd27ee167bfb103671a39247227ed00c",
+          "bytes": 2723,
+          "mode": "100644"
+        },
+        "docker_requirements.in": {
+          "sha1": "3d8dd88324885e47bc664263caf055a2a456c8d9",
+          "bytes": 1084,
+          "mode": "100644"
+        },
+        "docker_requirements.txt": {
+          "sha1": "77a677fa18c6f1d239f93248187eac1735c2760a",
+          "bytes": 6865,
+          "mode": "100644"
+        },
+        "docs/.gitattributes": {
+          "sha1": "f5f7069a4309c21c065d50f9ffc610e9806000b2",
+          "bytes": 66,
+          "mode": "100644"
+        },
+        "docs/Makefile": {
+          "sha1": "f07f60c328bbad4d563776af62f62fbc0e7cf6d8",
+          "bytes": 541,
+          "mode": "100644"
+        },
+        "docs/README.md": {
+          "sha1": "f21230a384c18d11b0e7a9372584bfee8eb5626d",
+          "bytes": 496,
+          "mode": "100644"
+        },
+        "docs/make.bat": {
+          "sha1": "66a55a9e8abeedd53f52906be7c00e100d199370",
+          "bytes": 276,
+          "mode": "100644"
+        },
+        "docs/requirements.txt": {
+          "sha1": "4d735dd9305f19eeb5bc7153d001fc8f570e00c0",
+          "bytes": 81,
+          "mode": "100644"
+        },
+        "docs/source/_static/arch.png": {
+          "sha1": "fe575f2e7f95d82877505cb211dd74b969e62dd4",
+          "bytes": 260729,
+          "mode": "100644"
+        },
+        "docs/source/_static/constraints.png": {
+          "sha1": "56825db4f74429143efa4d2ac9234d23d3b6bd87",
+          "bytes": 825850,
+          "mode": "100644"
+        },
+        "docs/source/_static/custom.css": {
+          "sha1": "a6cc028387e69a0f487de9ff25cdbb3a0910a591",
+          "bytes": 1265,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/constraints_panel.png": {
+          "sha1": "7f81db13848e325d6a7c5182383aff24a5eba1b8",
+          "bytes": 17018,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/editing_mode.png": {
+          "sha1": "4257ae085bd265f9a888e432f3ae8194d4a00920",
+          "bytes": 346099,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/examples_panel.png": {
+          "sha1": "08fa3bf4c6156d3f21fa5b028dbcccf3c601ceeb",
+          "bytes": 27169,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/exports_panel.png": {
+          "sha1": "5a6c1941048320f539cd895a62c912d177e9be1c",
+          "bytes": 16116,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/generate_panel.png": {
+          "sha1": "fe0bc75ac081ddc38f680eefd698a9b70a3afb7f",
+          "bytes": 34376,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/model_selection.png": {
+          "sha1": "991d8d2b0eb460f519ceb7b252eb50250d7704d1",
+          "bytes": 16990,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/panel.png": {
+          "sha1": "9a55cd6f56b34879b92d7eef43adc8dc67f0d266",
+          "bytes": 46955,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/timeline.png": {
+          "sha1": "aa621573ceb16eb8e140b36a720d2aa1a7cd9f9e",
+          "bytes": 42011,
+          "mode": "100644"
+        },
+        "docs/source/_static/demo/viewer.png": {
+          "sha1": "23167ff24d27b1e6c4c4564d8a6f3e8974f1e375",
+          "bytes": 349903,
+          "mode": "100644"
+        },
+        "docs/source/_static/hero-placeholder.svg": {
+          "sha1": "53458bc6032c892c0080958aad8b9cc6af3618d8",
+          "bytes": 532,
+          "mode": "100644"
+        },
+        "docs/source/_static/logo-placeholder.svg": {
+          "sha1": "8c300944572b52223908289b0e890ac52676b344",
+          "bytes": 256,
+          "mode": "100644"
+        },
+        "docs/source/_static/overview.png": {
+          "sha1": "4773e3eab713c19cdc2ec8f1a80133865674b8d9",
+          "bytes": 469052,
+          "mode": "100644"
+        },
+        "docs/source/_static/skeletons/g1.png": {
+          "sha1": "8b7f3282cd96027abe71a81cc9fb1fb3ddaeb203",
+          "bytes": 372457,
+          "mode": "100644"
+        },
+        "docs/source/_static/skeletons/skeletons.png": {
+          "sha1": "ad825c3488b611300e8d0053aae764e434c9e711",
+          "bytes": 941748,
+          "mode": "100644"
+        },
+        "docs/source/_static/skeletons/smplx.png": {
+          "sha1": "7583cc205fdfac5ce4870c2b2ee83a82371dd37f",
+          "bytes": 370494,
+          "mode": "100644"
+        },
+        "docs/source/_static/skeletons/soma.png": {
+          "sha1": "1693cf1d7acdb9dbcf24d36d864e565db4bc613f",
+          "bytes": 398997,
+          "mode": "100644"
+        },
+        "docs/source/_static/skeletons/soma_skels.png": {
+          "sha1": "a8675d94ef3c787f8ce0de9447b8ac1dba03fdfc",
+          "bytes": 827795,
+          "mode": "100644"
+        },
+        "docs/source/_static/smoothed_root.png": {
+          "sha1": "41bc73e0e3f299edceb832e5015bbd998a0cd0bb",
+          "bytes": 277752,
+          "mode": "100644"
+        },
+        "docs/source/_templates/apidoc/module.rst.jinja": {
+          "sha1": "f831f68ef1f40fbd286ed536cc742aae64396075",
+          "bytes": 447,
+          "mode": "100644"
+        },
+        "docs/source/_templates/apidoc/package.rst.jinja": {
+          "sha1": "3a2d513f1efd6eac8ad46252e94f445a6dc05a38",
+          "bytes": 1414,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.demo.rst": {
+          "sha1": "b8c3b7c502e27044e45f916bc3e8cb00876bcd57",
+          "bytes": 1220,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.exports.rst": {
+          "sha1": "e7d5b8261a57ef3e4f39bc0eedb0c3b997fa93d3",
+          "bytes": 1165,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.metrics.rst": {
+          "sha1": "81153bf7294d6b60334b70fe3f37c94f6ee199c8",
+          "bytes": 810,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.model.llm2vec.models.rst": {
+          "sha1": "886f24d37eea24dbfe3e564f6a096115675fc629",
+          "bytes": 869,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.model.llm2vec.rst": {
+          "sha1": "94be3aa429b0bb1d317eb0f6988378cee5f84965",
+          "bytes": 665,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.model.rst": {
+          "sha1": "a5e57dffce12586789dc890e9bbc5eee13082a11",
+          "bytes": 1977,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.motion_rep.reps.rst": {
+          "sha1": "3d6746ef6acd78b2ec48ebe83c1e3d737237f93c",
+          "bytes": 797,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.motion_rep.rst": {
+          "sha1": "a7c1b1a176c6e9c1e4909dbf826d5f84b589841b",
+          "bytes": 1145,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.rst": {
+          "sha1": "32392ddad287bd76804b9c102bdf9003981baf3c",
+          "bytes": 1288,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.scripts.rst": {
+          "sha1": "a88121896f315575755181733b9be4136ce0b478",
+          "bytes": 1261,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.skeleton.rst": {
+          "sha1": "0398979c108b5a1bc874da579c2a3854b4f2d88d",
+          "bytes": 1151,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/kimodo.viz.rst": {
+          "sha1": "f840339369957a3b4ff7303407c6b5ef14db3c20",
+          "bytes": 1668,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/_generated/modules.rst": {
+          "sha1": "51a526e47cbf6cabb352030d51b2ad29671623b6",
+          "bytes": 55,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/constraints.rst": {
+          "sha1": "3251d3c31d78e38401aa0c70e61d73052d8f59db",
+          "bytes": 153,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/exports.rst": {
+          "sha1": "9402063923de17529bb8bd7c5d1e83d0c4a01913",
+          "bytes": 329,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/index.rst": {
+          "sha1": "eed22e00f38e65d4a5313a24257e84fd23610011",
+          "bytes": 251,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/model.rst": {
+          "sha1": "eacc8d616cac9f0fb80f3d0317664e56c6bf811d",
+          "bytes": 757,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/motion_rep.rst": {
+          "sha1": "3d06fac6641eb856ab3166f0f97850fc3159bb6e",
+          "bytes": 1020,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/post-processing.rst": {
+          "sha1": "00485886adae0aca6dacc815be8f604969c3fe3d",
+          "bytes": 140,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/utilities.rst": {
+          "sha1": "96f3f6bcb977b41d97343d63cb23cba37378a266",
+          "bytes": 323,
+          "mode": "100644"
+        },
+        "docs/source/api_reference/viz.rst": {
+          "sha1": "9a74f37705b1782f6c81d3fbadcea9f5719ffe5e",
+          "bytes": 363,
+          "mode": "100644"
+        },
+        "docs/source/benchmark/introduction.md": {
+          "sha1": "1799bf91c0fae135dfa610a79fcc27b384a549cd",
+          "bytes": 9684,
+          "mode": "100644"
+        },
+        "docs/source/benchmark/metrics.md": {
+          "sha1": "0193b2f22eb9ee2ee9742b85dcd30a3569dbb669",
+          "bytes": 13494,
+          "mode": "100644"
+        },
+        "docs/source/benchmark/pipeline.md": {
+          "sha1": "43b9d2b6e361a4d2bda371c45514ceb51264c523",
+          "bytes": 12721,
+          "mode": "100644"
+        },
+        "docs/source/benchmark/results.md": {
+          "sha1": "6cab6b24ff225cc657846ac29f0c6b278520c9b2",
+          "bytes": 14038,
+          "mode": "100644"
+        },
+        "docs/source/conf.py": {
+          "sha1": "5676d59aa38c4de85b5835e7bb01395ad290ba08",
+          "bytes": 4603,
+          "mode": "100644"
+        },
+        "docs/source/getting_started/installation.md": {
+          "sha1": "ab6a961dd147f41fe7fe38edcaef7f18349a2b83",
+          "bytes": 3080,
+          "mode": "100644"
+        },
+        "docs/source/getting_started/installation_docker.md": {
+          "sha1": "6f2f54dc2d79364024ebf9a441e00ee7fac69da8",
+          "bytes": 2199,
+          "mode": "100644"
+        },
+        "docs/source/getting_started/installation_smpl.md": {
+          "sha1": "7ef0424017694803fc8a4f63bd618e1a25e760e2",
+          "bytes": 1266,
+          "mode": "100644"
+        },
+        "docs/source/getting_started/installation_virtual_env.md": {
+          "sha1": "7045a414b0a82d38769436af1c221deb7d6ce5c8",
+          "bytes": 1738,
+          "mode": "100644"
+        },
+        "docs/source/getting_started/quick_start.md": {
+          "sha1": "1ce202b1e1d38c28241011d06852287d0fdc4bd0",
+          "bytes": 8131,
+          "mode": "100644"
+        },
+        "docs/source/index.md": {
+          "sha1": "cdbc6fd7db921cdfbd2726c292e864d7ce3cc940",
+          "bytes": 2571,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/constraints.md": {
+          "sha1": "3c570fbc3e8ff616bb8c4b14b76777a2cb2a350c",
+          "bytes": 1632,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/examples.md": {
+          "sha1": "d3ad1e18087e8409a32b5bbbf4d356bd8f07994a",
+          "bytes": 1246,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/export_results.md": {
+          "sha1": "ff5e1bea4dcab43b9b03eb9a611e7b6d2876088e",
+          "bytes": 1447,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/generation.md": {
+          "sha1": "dd9b5c7222c9d6c7b2b7c2fc67624e903f722f9c",
+          "bytes": 1206,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/index.md": {
+          "sha1": "879fdaf7531a23439c6a934105f7c3da108e5bc8",
+          "bytes": 1947,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/launching.md": {
+          "sha1": "48e40cb6ab67e30fb8a3136d5542f9318a00f217",
+          "bytes": 2412,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/model_selection.md": {
+          "sha1": "2d765ebd98fa5680c74d1aab649162ec19352c1a",
+          "bytes": 600,
+          "mode": "100644"
+        },
+        "docs/source/interactive_demo/ui_overview.md": {
+          "sha1": "ac6741aca921432f710bfb77149c157cf1072faf",
+          "bytes": 2147,
+          "mode": "100644"
+        },
+        "docs/source/key_concepts/constraints.md": {
+          "sha1": "f1930fb6ac19230a313346176b60b78bb16b7e3f",
+          "bytes": 3443,
+          "mode": "100644"
+        },
+        "docs/source/key_concepts/limitations.md": {
+          "sha1": "5632b7e7bbc4d72b3361d072164bd6a3815e1da9",
+          "bytes": 3979,
+          "mode": "100644"
+        },
+        "docs/source/key_concepts/model.md": {
+          "sha1": "979a97850e167e1e7cecfb3a685ff32b243f560a",
+          "bytes": 2262,
+          "mode": "100644"
+        },
+        "docs/source/key_concepts/motion_representation.md": {
+          "sha1": "7070afc1a3711d250a19e2a6bde8fcd6fbf665f1",
+          "bytes": 1863,
+          "mode": "100644"
+        },
+        "docs/source/key_concepts/skeleton.md": {
+          "sha1": "1b1443a7a522239c75f3946685a1ee5c5e20f75e",
+          "bytes": 3233,
+          "mode": "100644"
+        },
+        "docs/source/project_info.md": {
+          "sha1": "aad8f839bc444d55b498deaaab04088483a4d6d2",
+          "bytes": 1207,
+          "mode": "100644"
+        },
+        "docs/source/project_structure.md": {
+          "sha1": "76ed5695de36a4e1bf6b62e632d56fe9b9a112a8",
+          "bytes": 7230,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/cli.md": {
+          "sha1": "b65813a9a2016579ca1b35fa7f0274879897078b",
+          "bytes": 8630,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/configuration.md": {
+          "sha1": "edb5d894407783b2a4fa3a327f6fa17767832c59",
+          "bytes": 1554,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/constraints.md": {
+          "sha1": "ce3040fc0fb6b85fa1685c6ca3600960f4850462",
+          "bytes": 5989,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/motion_convert.md": {
+          "sha1": "1358e233311258c3fce1a68a8a54d35900e3191e",
+          "bytes": 4733,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/output_formats.md": {
+          "sha1": "39c11ad86333c412cdef8c486b48a78ef10941a1",
+          "bytes": 4312,
+          "mode": "100644"
+        },
+        "docs/source/user_guide/seed_dataset.md": {
+          "sha1": "58de9cb03e45532fb5adb8ab395f35b19ed94355",
+          "bytes": 3261,
+          "mode": "100644"
+        },
+        "kimodo/__init__.py": {
+          "sha1": "ed1fbe045195bcbb460c57abed1c87665eb50974",
+          "bytes": 357,
+          "mode": "100644"
+        },
+        "kimodo/assets.py": {
+          "sha1": "91facad0faed373c9ed1ad4667980cf19788b093",
+          "bytes": 603,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/01_single_text_prompt/meta.json": {
+          "sha1": "b55876632e72217a2b19d7d6cc7b47aa9d170aea",
+          "bytes": 255,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/01_single_text_prompt/motion.npz": {
+          "sha1": "64c40c15a41db27a1653e2ea733e2b7e7483d51d",
+          "bytes": 246198,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/02_multi_text_ee_constraint/constraints.json": {
+          "sha1": "38dcfcc17edd4fb7c472f438be64491a966d38ea",
+          "bytes": 17038,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/02_multi_text_ee_constraint/meta.json": {
+          "sha1": "4503a85e43f3c30c40427efd6ca94c762ddfc3cb",
+          "bytes": 336,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/02_multi_text_ee_constraint/motion.npz": {
+          "sha1": "789d11ff8c4b61dcc9ea4c41c242d9620812b8f0",
+          "bytes": 373806,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/03_full_body_keyframes/constraints.json": {
+          "sha1": "23868346b262d6726bee170e09fac3bfff7f15b9",
+          "bytes": 12702,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/03_full_body_keyframes/meta.json": {
+          "sha1": "fc2bf5c73be9c41e967619bfdbd7f22478074926",
+          "bytes": 244,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/03_full_body_keyframes/motion.npz": {
+          "sha1": "f2a3a766738b73233bd036fb47f17a3918a352a0",
+          "bytes": 246198,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/04_ee_constraint/constraints.json": {
+          "sha1": "2635055f4ca517ec69b58dcb569b0eb9f2c68fcd",
+          "bytes": 29831,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/04_ee_constraint/meta.json": {
+          "sha1": "129caa3add80d763f4b0b240f4ce4f7016cdea1c",
+          "bytes": 273,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/04_ee_constraint/motion.npz": {
+          "sha1": "a65af2b8f884c7a7150e5fdd27e3761f8a384a9c",
+          "bytes": 244562,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/05_root_path/constraints.json": {
+          "sha1": "681efcc539c7635aea937ed62137fda58fc9b5f7",
+          "bytes": 15065,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/05_root_path/meta.json": {
+          "sha1": "780f4c47efcaa9b5f442d677e4eae4d415a02243",
+          "bytes": 292,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/05_root_path/motion.npz": {
+          "sha1": "a40200932bf98db9747b9149c2fe65934a4054f3",
+          "bytes": 296914,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/06_root_waypoints/constraints.json": {
+          "sha1": "980788ba2768e0854fcc53c620b1a1dbef8ac9d4",
+          "bytes": 426,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/06_root_waypoints/meta.json": {
+          "sha1": "dcf09b1b72c4483ef6d48b605de90978d75e34c6",
+          "bytes": 268,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/06_root_waypoints/motion.npz": {
+          "sha1": "4a4b07929a5fea946c30749d65ca9ac1d574d108",
+          "bytes": 395074,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/07_text_terrain/meta.json": {
+          "sha1": "77d404bad05ebeaab289329297837b9061c95d38",
+          "bytes": 223,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/07_text_terrain/motion.npz": {
+          "sha1": "b8666b226b77dfde309d2f0f12e801705455352a",
+          "bytes": 172578,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/08_text_object/meta.json": {
+          "sha1": "e0d64e0bac7eeb3c772633e3b4d68190bdcb83a9",
+          "bytes": 277,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-g1-rp/08_text_object/motion.npz": {
+          "sha1": "74efad5ef496e0785790a5bfb4ce9c20ef341772",
+          "bytes": 247834,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/01_single_text_prompt/meta.json": {
+          "sha1": "081a217a0f0c7fe95b905e939905b61a853c746b",
+          "bytes": 257,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/01_single_text_prompt/motion.npz": {
+          "sha1": "a235886651c3013d551781c66593efcb83b65789",
+          "bytes": 217398,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/02_multi_text_prompt/meta.json": {
+          "sha1": "9c3ffc55219a89338f74a798ce090c105d2652fa",
+          "bytes": 352,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/02_multi_text_prompt/motion.npz": {
+          "sha1": "f3f4d0ba08c0bb0a66dca0ecae67f7faeffba691",
+          "bytes": 328586,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/03_full_body_keyframes/constraints.json": {
+          "sha1": "ac94699138e38d3fdac9f468dcdfad448bacbf87",
+          "bytes": 7456,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/03_full_body_keyframes/meta.json": {
+          "sha1": "0d39f2cf66e3b182a6a7711dbeeab14226abd4df",
+          "bytes": 247,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/03_full_body_keyframes/motion.npz": {
+          "sha1": "b345889deae59823adaa0c69938a2fc4096e62ba",
+          "bytes": 217398,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/04_ee_constraint/constraints.json": {
+          "sha1": "ba060ea5f99c2afd53950f8d5db7165e695a9c01",
+          "bytes": 29877,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/04_ee_constraint/meta.json": {
+          "sha1": "47fe3c2c9820e527adce1c1a3c0e25f3ea148c9b",
+          "bytes": 290,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/04_ee_constraint/motion.npz": {
+          "sha1": "267cebea30fa6cdf7fc7af1d255ba6816528c06e",
+          "bytes": 218842,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/05_root_path/constraints.json": {
+          "sha1": "940318b5d8fd4b11ce4434eab428c529c35e18d1",
+          "bytes": 24807,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/05_root_path/meta.json": {
+          "sha1": "9af10578584953b1d8cabcadbe5b081040abef7b",
+          "bytes": 230,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/05_root_path/motion.npz": {
+          "sha1": "cc25f6325a37fd1aca4242e216fa4bc77fdb3fa6",
+          "bytes": 433998,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/06_root_waypoints/constraints.json": {
+          "sha1": "4a9c206492ca4b1539a9131092e568e641682098",
+          "bytes": 326,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/06_root_waypoints/meta.json": {
+          "sha1": "de8b8f537c5fd9ecb0c75dc5ef6b4d5340c2079f",
+          "bytes": 253,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/06_root_waypoints/motion.npz": {
+          "sha1": "5cec47cfc53f2213066cad982f7c7afb3122b565",
+          "bytes": 262162,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/07_mixed_constraints/constraints.json": {
+          "sha1": "944db28c7c47bc64c7111c59be8e1470d98e5e19",
+          "bytes": 16785,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/07_mixed_constraints/meta.json": {
+          "sha1": "5d611eac9ea802d4f80dfd77f9dd00de1ac17f40",
+          "bytes": 272,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/07_mixed_constraints/motion.npz": {
+          "sha1": "3ac34d40af0395230feade83e98f5e3684c735fa",
+          "bytes": 220286,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/08_stylized_text/meta.json": {
+          "sha1": "869dd5cf8e47fa4880d13ebcfc6e0e94242e7ea1",
+          "bytes": 287,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/examples/kimodo-soma-rp/08_stylized_text/motion.npz": {
+          "sha1": "94b2f47a4371f393579e88de111269b429677eb6",
+          "bytes": 175522,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/nvidia_logo.png": {
+          "sha1": "d8dddbec2ea084c8011619f86f9f5716b84c2471",
+          "bytes": 27951,
+          "mode": "100644"
+        },
+        "kimodo/assets/demo/nvidia_logo_dark.png": {
+          "sha1": "f6a2bac42974127f9d99c2f03ca9248e44fbd95e",
+          "bytes": 31685,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/joints.p": {
+          "sha1": "4d5853a6e1ac0e6f2f854cd1a8893293612fa3ac",
+          "bytes": 1943,
+          "mode": "100755"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/head_link.STL": {
+          "sha1": "2ee5fba15de3ccd4c31774bc7a66de7aeefab770",
+          "bytes": 932784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_ankle_pitch_link.STL": {
+          "sha1": "69de8490184afc698f633e34bb74e65351bd4689",
+          "bytes": 71184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_ankle_roll_link.STL": {
+          "sha1": "8864e9f98103190883d1ba027aba5469925f2bca",
+          "bytes": 653384,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_elbow_link.STL": {
+          "sha1": "1a96d99ba469960173129084ab6dd3bf8a732a71",
+          "bytes": 88784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_index_0_link.STL": {
+          "sha1": "8069369afd690192ef592cbe502082ebb889fd38",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_index_1_link.STL": {
+          "sha1": "89d231d7e896a8ca5955a692980aa7d4a83d8905",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_middle_0_link.STL": {
+          "sha1": "8069369afd690192ef592cbe502082ebb889fd38",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_middle_1_link.STL": {
+          "sha1": "89d231d7e896a8ca5955a692980aa7d4a83d8905",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_palm_link.STL": {
+          "sha1": "7d595ed8fb2f20363c4b20eeb9e5b8f564c52191",
+          "bytes": 2140184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_thumb_0_link.STL": {
+          "sha1": "3028bb4d6e1ae3d30d2504259c08e4106bbacf63",
+          "bytes": 8884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_thumb_1_link.STL": {
+          "sha1": "d1c080c86e1d11fb0c8e7e58afc57863acc78280",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hand_thumb_2_link.STL": {
+          "sha1": "8b32e966348f646fe4e39fe929a10c6d2c766579",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hip_pitch_link.STL": {
+          "sha1": "5b751c767ecf03b29c707b19f1faf5367e8d33d2",
+          "bytes": 181684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hip_roll_link.STL": {
+          "sha1": "778437ffe61731915fa4cb7cf2390e9cbe738c43",
+          "bytes": 192184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_hip_yaw_link.STL": {
+          "sha1": "383093ab96ed3a099ab79f5d6ed144fc0b7067a9",
+          "bytes": 296284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_knee_link.STL": {
+          "sha1": "f2e98e54e8f1980eb62ad25c7a838044c23bbadf",
+          "bytes": 854884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_rubber_hand.STL": {
+          "sha1": "c44830f1fd519ee28750cad04d7d0adb209c265f",
+          "bytes": 2287484,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_shoulder_pitch_link.STL": {
+          "sha1": "e698311fb12d3f22f018b668c40dab667c39b8d3",
+          "bytes": 176784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_shoulder_roll_link.STL": {
+          "sha1": "80bca84aca41137f8270fb35e263dcc5d9658e43",
+          "bytes": 400284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_shoulder_yaw_link.STL": {
+          "sha1": "281e699055ffafe094f52a440547eb4b64f83bfa",
+          "bytes": 249184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_wrist_pitch_link.STL": {
+          "sha1": "82cc224a8e41251d879502f9809e31d0988ec7f9",
+          "bytes": 85984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_wrist_roll_link.STL": {
+          "sha1": "f3c263a7ab3fc1e902bf2513064d4bc666c6b59f",
+          "bytes": 356184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_wrist_roll_rubber_hand.STL": {
+          "sha1": "8fa435b66cf9d81df34423c752452ea2c7d90479",
+          "bytes": 3484884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/left_wrist_yaw_link.STL": {
+          "sha1": "31be4fd45fa18987b35b3386fdce2ce98c798774",
+          "bytes": 318684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/logo_link.STL": {
+          "sha1": "e9792098504b64b359fbffa983373e5e6fa1b50a",
+          "bytes": 243384,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/pelvis.STL": {
+          "sha1": "691a779b9c9f4c97f48eaa9edf9eb336ca3b4411",
+          "bytes": 1060884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/pelvis_contour_link.STL": {
+          "sha1": "42434339abf5a0a3816f890389e3e61af3b1e03c",
+          "bytes": 1805184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_ankle_pitch_link.STL": {
+          "sha1": "e77d8a2fe1e5d56fac049833d254d6ffa4f6b350",
+          "bytes": 71184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_ankle_roll_link.STL": {
+          "sha1": "d4261dd7ccf39dd9c54cad37c1982f1d50e6fccc",
+          "bytes": 653784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_elbow_link.STL": {
+          "sha1": "f259e3812efb9985d6463c04d3e8a4b53793a699",
+          "bytes": 88784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_index_0_link.STL": {
+          "sha1": "f87ad3212b5d52b40d8017e5cf7fc3caf78e51e4",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_index_1_link.STL": {
+          "sha1": "6dea51ad93c8a64ec9951f4914fa16f749ea176c",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_middle_0_link.STL": {
+          "sha1": "f87ad3212b5d52b40d8017e5cf7fc3caf78e51e4",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_middle_1_link.STL": {
+          "sha1": "6dea51ad93c8a64ec9951f4914fa16f749ea176c",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_palm_link.STL": {
+          "sha1": "5ae00a783df3e5744ebce98ab13f9f3591848e7a",
+          "bytes": 2140184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_thumb_0_link.STL": {
+          "sha1": "1cae7f18e16605cb9d6b1d1a0cf6e5c5c360a344",
+          "bytes": 8884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_thumb_1_link.STL": {
+          "sha1": "c141fbf5a61744444b4a6b70d5b8fe947ff167ae",
+          "bytes": 475984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hand_thumb_2_link.STL": {
+          "sha1": "e942923c50993a56cfeb29040066b1da1f9d5770",
+          "bytes": 1521784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hip_pitch_link.STL": {
+          "sha1": "998a0a0f5c248b217cf82c5088d6d365d9654ecd",
+          "bytes": 181284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hip_roll_link.STL": {
+          "sha1": "47b2eebdd36c7289679eebb9583c65a15514e194",
+          "bytes": 192684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_hip_yaw_link.STL": {
+          "sha1": "371856427c7cc31ae7463c83f00ef6652c72d672",
+          "bytes": 296284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_knee_link.STL": {
+          "sha1": "76d21a3d81e4e34520c5d6b3f28d7e43c1874364",
+          "bytes": 852284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_rubber_hand.STL": {
+          "sha1": "0aacffbb8168f0bb588f8cba3f37f9e2c6e0421a",
+          "bytes": 2192684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_shoulder_pitch_link.STL": {
+          "sha1": "3f5b4ed47ade68e83f617ef3fd65cb810e9b0e07",
+          "bytes": 176784,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_shoulder_roll_link.STL": {
+          "sha1": "179d61753d48b3a55165b81ded2c14e84deb81c2",
+          "bytes": 401884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_shoulder_yaw_link.STL": {
+          "sha1": "2ba6076a8853edac5e3e17cffd2c256318e88d92",
+          "bytes": 249984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_wrist_pitch_link.STL": {
+          "sha1": "da194543c40df9d492abb0553c06cc614a78caae",
+          "bytes": 79584,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_wrist_roll_link.STL": {
+          "sha1": "26868d2282b7e38c2ba40e00968d2c92c421fbd2",
+          "bytes": 356084,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_wrist_roll_rubber_hand.STL": {
+          "sha1": "c365aa9d8cafb8a96d2f58fe53a83727bb7427c8",
+          "bytes": 3481584,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/right_wrist_yaw_link.STL": {
+          "sha1": "d788902867014c5984e6029fce822508579f73dc",
+          "bytes": 341484,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_constraint_L_link.STL": {
+          "sha1": "75d82f57840ef997dece6477b33305bc3db5a1e2",
+          "bytes": 203584,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_constraint_L_rod_link.STL": {
+          "sha1": "6747f3f9341bd72b3803385c135c3ce750322e9d",
+          "bytes": 74884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_constraint_R_link.STL": {
+          "sha1": "5cb5958babb73993ec991f60b7f4c2d1ad9c6ac5",
+          "bytes": 203584,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_constraint_R_rod_link.STL": {
+          "sha1": "95cf415f72f1679a5867ca21a4af774f0b217cad",
+          "bytes": 74884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_link.STL": {
+          "sha1": "17745af9ce8f5c09756821330a150466680d87b7",
+          "bytes": 2232984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_link_23dof_rev_1_0.STL": {
+          "sha1": "079aa8124f279cd40a50d23c2f061dd82ccc16c6",
+          "bytes": 7825434,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/torso_link_rev_1_0.STL": {
+          "sha1": "8a759a709750ad97e1f372db0ebbff246daedcc1",
+          "bytes": 2570584,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_constraint_L.STL": {
+          "sha1": "911410fa56c33143e3360fca25e2ff7c33221de1",
+          "bytes": 114684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_constraint_R.STL": {
+          "sha1": "babe79492543c462984431bd40d18ec2a0c9a9a2",
+          "bytes": 114684,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_roll_link.STL": {
+          "sha1": "65831abd2a64bc8c36e31016964413a3d2116725",
+          "bytes": 24184,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_roll_link_rev_1_0.STL": {
+          "sha1": "a64f330c592582dc31cdf38f4d08cfff06681c5f",
+          "bytes": 85884,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_support_link.STL": {
+          "sha1": "63660fb6ee93998036f6972527b4aab4f7933da0",
+          "bytes": 150484,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_yaw_link.STL": {
+          "sha1": "7d36b02cce7cf5bb554b928fb4790afeb8a40892",
+          "bytes": 336284,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/meshes/g1/waist_yaw_link_rev_1_0.STL": {
+          "sha1": "0fabb63d37627cb77f64c5d2a46cf25d4acc66fc",
+          "bytes": 619984,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/rest_pose_local_rot.p": {
+          "sha1": "d441fc0a0b15a434c8455e4ead8cd37753742546",
+          "bytes": 2877,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/g1skel34/xml/g1.xml": {
+          "sha1": "36231a5b97ab1784ad2e2c889b974b086639c120",
+          "bytes": 31881,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/smplx22/beta.npy": {
+          "sha1": "4589d2fd49bd86c93c9c0b972afa160e73f9777e",
+          "bytes": 1328,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/smplx22/joints.p": {
+          "sha1": "fbba652bf10ab0df1dc858fbf7ada72787a56810",
+          "bytes": 1431,
+          "mode": "100755"
+        },
+        "kimodo/assets/skeletons/smplx22/mean_hands.npy": {
+          "sha1": "ace3646e73d0d5f3ed1a679c557d81f5c67f06e6",
+          "bytes": 848,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel30/joints.p": {
+          "sha1": "9e319f6fa3cb4959ed3221040b0ae945ec9646c7",
+          "bytes": 1879,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel30/soma_base_fit_mhr_params.npz": {
+          "sha1": "4dd446f1d55308e80a34b1a898db5bcfc18875d8",
+          "bytes": 1877,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/bvh_joints.p": {
+          "sha1": "3e3f2195fe6e094af5943cd98007344defa0c426",
+          "bytes": 3390,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/joints.p": {
+          "sha1": "8c5eb2e67e1314d8765c821ae8dd4e0ff1351a3b",
+          "bytes": 2967,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/relaxed_hands_rest_pose.npy": {
+          "sha1": "9028f393d8728301d9e58652a7cf00e0d951d20e",
+          "bytes": 2900,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/skin_standard.npz": {
+          "sha1": "d21389edff66cbd18356e6463eb41b223690e20f",
+          "bytes": 531434,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/somaskel77_standard_tpose.bvh": {
+          "sha1": "2998cb69ade063fc38d329288de7a14255e46b65",
+          "bytes": 15702,
+          "mode": "100644"
+        },
+        "kimodo/assets/skeletons/somaskel77/standard_t_pose_global_offsets_rots.p": {
+          "sha1": "b6d68af1e73df0fc69c2cd9a59f2f6ed6aebb425",
+          "bytes": 4653,
+          "mode": "100644"
+        },
+        "kimodo/constraints.py": {
+          "sha1": "7accd150dc5ccf8481442fc885562e92ed269765",
+          "bytes": 25450,
+          "mode": "100644"
+        },
+        "kimodo/demo/__init__.py": {
+          "sha1": "967579971a3b88b9979b8416245693c15051c8ef",
+          "bytes": 763,
+          "mode": "100644"
+        },
+        "kimodo/demo/__main__.py": {
+          "sha1": "444b3563f3c1d6ee659edb044c2dbb69f7066932",
+          "bytes": 253,
+          "mode": "100644"
+        },
+        "kimodo/demo/app.py": {
+          "sha1": "a84fea15d685e43378fdbefe0dfc729c2d93ca8d",
+          "bytes": 27302,
+          "mode": "100644"
+        },
+        "kimodo/demo/config.py": {
+          "sha1": "45fd9f453cb796d957f8c0bb6ce1570823796688",
+          "bytes": 5434,
+          "mode": "100644"
+        },
+        "kimodo/demo/embedding_cache.py": {
+          "sha1": "28771675baddb323821e7d941a248634bbc9bf4f",
+          "bytes": 8884,
+          "mode": "100644"
+        },
+        "kimodo/demo/generation.py": {
+          "sha1": "00282e615c296ea11eba746d3e092899924d4df9",
+          "bytes": 8516,
+          "mode": "100644"
+        },
+        "kimodo/demo/queue_manager.py": {
+          "sha1": "f36d302e7eeb0e581c0333b5dd95c37080c8ea3b",
+          "bytes": 12520,
+          "mode": "100644"
+        },
+        "kimodo/demo/state.py": {
+          "sha1": "e158b99c4276a7c453a7c4ca69f768513b4ed83f",
+          "bytes": 1995,
+          "mode": "100644"
+        },
+        "kimodo/demo/ui.py": {
+          "sha1": "7d9f5e32c48fb7b5a2daa8bea71e2281147ecb51",
+          "bytes": 148378,
+          "mode": "100644"
+        },
+        "kimodo/exports/__init__.py": {
+          "sha1": "57ce23ddceef985d59b206f2f3fd0f14ee36ca69",
+          "bytes": 1905,
+          "mode": "100644"
+        },
+        "kimodo/exports/bvh.py": {
+          "sha1": "d9625cca562aa0e6de2f2a8020c9e8cc1b1c6d4e",
+          "bytes": 11235,
+          "mode": "100644"
+        },
+        "kimodo/exports/motion_convert_lib.py": {
+          "sha1": "384ef20d3b11c7e4c9a65bf4b02bc53d23aad605",
+          "bytes": 6383,
+          "mode": "100644"
+        },
+        "kimodo/exports/motion_formats.py": {
+          "sha1": "c2ba4cb4a0aeb214d79084fe6911a8176a7f92c9",
+          "bytes": 2820,
+          "mode": "100644"
+        },
+        "kimodo/exports/motion_io.py": {
+          "sha1": "0b4bacc98ef84f24b77be9db01479bd1a966e877",
+          "bytes": 17802,
+          "mode": "100644"
+        },
+        "kimodo/exports/mujoco.py": {
+          "sha1": "77015dd24015f239529c1437d393cdc5859cdd97",
+          "bytes": 27304,
+          "mode": "100644"
+        },
+        "kimodo/exports/smplx.py": {
+          "sha1": "ce1d15262fccf91800b006a9b679731e95431da6",
+          "bytes": 9721,
+          "mode": "100644"
+        },
+        "kimodo/geometry.py": {
+          "sha1": "e0d2397bf5f4517fc92280caa7dfbab993452940",
+          "bytes": 6965,
+          "mode": "100644"
+        },
+        "kimodo/meta.py": {
+          "sha1": "dd9ff2f75e55e8d1dd94a4b55e1475a139338d32",
+          "bytes": 2882,
+          "mode": "100644"
+        },
+        "kimodo/metrics/__init__.py": {
+          "sha1": "eac03266819b115c07658984f398e472b83eec24",
+          "bytes": 1011,
+          "mode": "100644"
+        },
+        "kimodo/metrics/base.py": {
+          "sha1": "bb9d5577ab1acef7bc16178b9f72408a46de7b40",
+          "bytes": 2157,
+          "mode": "100644"
+        },
+        "kimodo/metrics/constraints.py": {
+          "sha1": "20606c6ff0ba63aa24b013a09d01d0c3f0a0c4e2",
+          "bytes": 3319,
+          "mode": "100644"
+        },
+        "kimodo/metrics/foot_skate.py": {
+          "sha1": "2e1b77c862beacbdd72265e855b2f77b6e8cbec2",
+          "bytes": 8869,
+          "mode": "100644"
+        },
+        "kimodo/metrics/retrieval.py": {
+          "sha1": "9d4a2766b53e35a5b5c135ea1d58fe23dbcf5255",
+          "bytes": 7998,
+          "mode": "100644"
+        },
+        "kimodo/metrics/tmr.py": {
+          "sha1": "f35c207235afc99695d24a1adf74011dce97771d",
+          "bytes": 12078,
+          "mode": "100644"
+        },
+        "kimodo/model/__init__.py": {
+          "sha1": "a1d4cd87748f15bd0538d256763a52b61ed480d4",
+          "bytes": 831,
+          "mode": "100644"
+        },
+        "kimodo/model/backbone.py": {
+          "sha1": "014f6599f2b0ff7fddfabb9a47db8d0962941b11",
+          "bytes": 10933,
+          "mode": "100644"
+        },
+        "kimodo/model/cfg.py": {
+          "sha1": "6c39defdbbf0c074a0adb746ec4d98266e5ee463",
+          "bytes": 6025,
+          "mode": "100644"
+        },
+        "kimodo/model/common.py": {
+          "sha1": "3b6937bb98bc676d380ef4657cfd58f42bc5f294",
+          "bytes": 1765,
+          "mode": "100644"
+        },
+        "kimodo/model/diffusion.py": {
+          "sha1": "7e36d9940142b01d9447ceac2f9425d87589af4d",
+          "bytes": 5541,
+          "mode": "100644"
+        },
+        "kimodo/model/kimodo_model.py": {
+          "sha1": "7f4f2c3aad3fa81ea4b44525d2c788850d07c233",
+          "bytes": 25554,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/README.md": {
+          "sha1": "450e995c0aa9cdb0f1117aa33cb30a30d84a41c0",
+          "bytes": 207,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/__init__.py": {
+          "sha1": "5890f5848bc66237649197109d3a31328d3f77a1",
+          "bytes": 314,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/llm2vec.py": {
+          "sha1": "6d01f5716ed57a6b6ea9b8cca3c9f292bdf19b5c",
+          "bytes": 19654,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/llm2vec_wrapper.py": {
+          "sha1": "3b08417de8e6885739f8d345fb9615355b628c5e",
+          "bytes": 3286,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/models/__init__.py": {
+          "sha1": "d2504048d0ee1addb1d3c95cbc04aae2b59e3e68",
+          "bytes": 262,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/models/attn_mask_utils.py": {
+          "sha1": "787f99172c52b3e340b037025ad6ac4c6f8f1929",
+          "bytes": 8760,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/models/bidirectional_llama.py": {
+          "sha1": "f3e624e6d342ac37bd1eaecb85d9b76823de6864",
+          "bytes": 9515,
+          "mode": "100644"
+        },
+        "kimodo/model/llm2vec/models/utils.py": {
+          "sha1": "92ed8ec7058668697e628da342621b7599fb5ca2",
+          "bytes": 1490,
+          "mode": "100644"
+        },
+        "kimodo/model/load_model.py": {
+          "sha1": "b732d0f67ff0474567aa170c114734e5c71d17e2",
+          "bytes": 8486,
+          "mode": "100644"
+        },
+        "kimodo/model/loading.py": {
+          "sha1": "b2636a210871cc08e8ab2c667807892e5f9cc539",
+          "bytes": 2463,
+          "mode": "100644"
+        },
+        "kimodo/model/registry.py": {
+          "sha1": "0ec518df08318f58621fd6a113c3ac1e1d563901",
+          "bytes": 18578,
+          "mode": "100644"
+        },
+        "kimodo/model/text_encoder_api.py": {
+          "sha1": "c684589ac200462770d3ec9cd75d6e640fa7a69c",
+          "bytes": 2199,
+          "mode": "100644"
+        },
+        "kimodo/model/tmr.py": {
+          "sha1": "442411ea6e7afdd8da1852dbd4edb71037bf0f50",
+          "bytes": 12508,
+          "mode": "100644"
+        },
+        "kimodo/model/twostage_denoiser.py": {
+          "sha1": "d14cf76085cfc1dbba486cb6470644bade4038d0",
+          "bytes": 5643,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/__init__.py": {
+          "sha1": "f2e7c393951785547b654703085a37deb91b774f",
+          "bytes": 391,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/conditioning.py": {
+          "sha1": "e60aa89e174dc7fe56c2254d4f6d207156d24146",
+          "bytes": 4973,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/feature_utils.py": {
+          "sha1": "4832427d531270e11c7cbc6d1ce7ee6592186cd6",
+          "bytes": 9233,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/feet.py": {
+          "sha1": "48136192a42ddbca43a6996c25750db469f5e098",
+          "bytes": 2051,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/reps/__init__.py": {
+          "sha1": "abfde4e83f8b22355ac5660bb830307746a8ab6d",
+          "bytes": 502,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/reps/ardy_motionrep.py": {
+          "sha1": "897cdc7b889f13d194ef2ea1e70443e5078b82d6",
+          "bytes": 14296,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/reps/base.py": {
+          "sha1": "abc8bebbb30e7a3061417ad8e1b12080fea3c874",
+          "bytes": 26208,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/reps/kimodo_motionrep.py": {
+          "sha1": "88558bd94353107f3e4c72fed017c4569de7af7d",
+          "bytes": 14055,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/reps/tmr_motionrep.py": {
+          "sha1": "23d79c52366e1ee86037fd2c91db6962778b571c",
+          "bytes": 9237,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/smooth_root.py": {
+          "sha1": "f3a629761c2bca26305a6352cc0ea96e18b361ce",
+          "bytes": 7916,
+          "mode": "100644"
+        },
+        "kimodo/motion_rep/stats.py": {
+          "sha1": "d76156f109567b7ec7f180670b79e4c6584d6adb",
+          "bytes": 5745,
+          "mode": "100644"
+        },
+        "kimodo/postprocess.py": {
+          "sha1": "5d0b6dcacbe655f6b95e3e839e02ee05a77f354b",
+          "bytes": 15093,
+          "mode": "100644"
+        },
+        "kimodo/sanitize.py": {
+          "sha1": "f3728e2fd1b3c3c949aa9d69a94db1570c58e230",
+          "bytes": 2733,
+          "mode": "100644"
+        },
+        "kimodo/scripts/__init__.py": {
+          "sha1": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+          "bytes": 0,
+          "mode": "100644"
+        },
+        "kimodo/scripts/docker-entrypoint.sh": {
+          "sha1": "db2246e558d0aad8a6b1c0c6241e429e85e7898d",
+          "bytes": 642,
+          "mode": "100644"
+        },
+        "kimodo/scripts/generate.py": {
+          "sha1": "e74f951932de9af08f7d78fb574b1f24d4dd0891",
+          "bytes": 20019,
+          "mode": "100644"
+        },
+        "kimodo/scripts/gradio_theme.py": {
+          "sha1": "2a11e50bfab6b12d4f17e7bd0d07c81705123a32",
+          "bytes": 1801,
+          "mode": "100644"
+        },
+        "kimodo/scripts/lock_requirements.py": {
+          "sha1": "0313e8b3ca4fff287cab29f1037d4db7bc6479a7",
+          "bytes": 4871,
+          "mode": "100755"
+        },
+        "kimodo/scripts/motion_convert.py": {
+          "sha1": "8310edf3bce70a5f296aba75395e08853920e2a1",
+          "bytes": 3390,
+          "mode": "100644"
+        },
+        "kimodo/scripts/mujoco_load.py": {
+          "sha1": "b3e201ac84b37ab65b4a885b9484192eb79a1ac5",
+          "bytes": 746,
+          "mode": "100644"
+        },
+        "kimodo/scripts/run_text_encoder_server.py": {
+          "sha1": "14f90d765735da297c93797e02c2010ff9940b60",
+          "bytes": 5467,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/__init__.py": {
+          "sha1": "b6a113cef78d5cd87c93fd998712db64ed2c3c9a",
+          "bytes": 735,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/base.py": {
+          "sha1": "19590df05e1dda0f7b3431544551c5a92debff74",
+          "bytes": 10983,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/bvh.py": {
+          "sha1": "6fae1c337303acbe8d7ad1bd4920b2d1a92f5fc8",
+          "bytes": 22352,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/definitions.py": {
+          "sha1": "a50261571d71b50f67d72cf4d693be80a4cb34e4",
+          "bytes": 13712,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/kinematics.py": {
+          "sha1": "dbf8eb1fcbec18384efb61bf962bd76ab2eebc34",
+          "bytes": 10728,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/registry.py": {
+          "sha1": "19703f377059d96c8487905537a35f6aea45e68e",
+          "bytes": 1391,
+          "mode": "100644"
+        },
+        "kimodo/skeleton/transforms.py": {
+          "sha1": "d54e0ac8bbfefeea35fbc3aeb1f108db0d6fcadb",
+          "bytes": 4348,
+          "mode": "100644"
+        },
+        "kimodo/tools.py": {
+          "sha1": "2502950679234615359afa2c6831e19275161ead",
+          "bytes": 14176,
+          "mode": "100644"
+        },
+        "kimodo/viz/__init__.py": {
+          "sha1": "91a4846a952064d01070de6329b3610c19ba2eb0",
+          "bytes": 718,
+          "mode": "100644"
+        },
+        "kimodo/viz/constraint_ui.py": {
+          "sha1": "1737714ffb22af447ed20f8de786ea4362956882",
+          "bytes": 46124,
+          "mode": "100644"
+        },
+        "kimodo/viz/coords.py": {
+          "sha1": "6152e075d472785f886f2d57514ee646346e7176",
+          "bytes": 1891,
+          "mode": "100644"
+        },
+        "kimodo/viz/g1_rig.py": {
+          "sha1": "9a400b353411f4c7137aaf708e01b4e99e29d108",
+          "bytes": 16619,
+          "mode": "100644"
+        },
+        "kimodo/viz/gui.py": {
+          "sha1": "0c269ea02ad984fc792430935c95b4e8b373c590",
+          "bytes": 1592,
+          "mode": "100644"
+        },
+        "kimodo/viz/playback.py": {
+          "sha1": "8bfb677ab5bf71f38feca9108cf543d58055e084",
+          "bytes": 36198,
+          "mode": "100644"
+        },
+        "kimodo/viz/scene.py": {
+          "sha1": "acf0785713f03a745d036116e7024834715c3d7c",
+          "bytes": 25156,
+          "mode": "100644"
+        },
+        "kimodo/viz/smplx_skin.py": {
+          "sha1": "710c873230b2a2c893bcfd366e3fa17841e50b64",
+          "bytes": 13715,
+          "mode": "100644"
+        },
+        "kimodo/viz/soma_layer_skin.py": {
+          "sha1": "63747eba3e2c347184377ad6251635173fd7c6b6",
+          "bytes": 3438,
+          "mode": "100644"
+        },
+        "kimodo/viz/soma_skin.py": {
+          "sha1": "befea6697b1a30e010aab1260bfdfceac0d424c4",
+          "bytes": 6095,
+          "mode": "100644"
+        },
+        "kimodo/viz/viser_utils.py": {
+          "sha1": "66fc919d61402152bb472f3aa8fcd842b2d18674",
+          "bytes": 1330,
+          "mode": "100644"
+        },
+        "pyproject.toml": {
+          "sha1": "998fd72f52b5b1cdd88b875aaa21f3f9f4d8677f",
+          "bytes": 1573,
+          "mode": "100644"
+        },
+        "setup.py": {
+          "sha1": "7fec15023d71290fb751ae9d9ee5aef3a5b59f3c",
+          "bytes": 4438,
+          "mode": "100644"
+        }
+      }
+    }
+  }
+}

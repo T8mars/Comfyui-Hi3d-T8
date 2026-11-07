@@ -1,0 +1,398 @@
+{
+  "schema": 1,
+  "components": [
+    {
+      "component": "parts-code",
+      "scope": "code",
+      "upstream": "https://github.com/Tencent-Hunyuan/Hunyuan3D-Part",
+      "revision": "e96be065375438962375b55326416291342958a7",
+      "files": [
+        {
+          "path": "code/parts/LICENSE",
+          "bytes": 17015,
+          "sha256": "301c12c5d0ca5229198df396e1fc5c5bf1d04f2c0c1002173f29a4b3907de260"
+        },
+        {
+          "path": "code/parts/NOTICE",
+          "bytes": 16676,
+          "sha256": "b03a519c81c6f88e7decf5e5909d974f57e37ec5494e0ceead27185548ae8c0f"
+        }
+      ]
+    },
+    {
+      "component": "skintokens-code",
+      "scope": "code",
+      "upstream": "https://github.com/VAST-AI-Research/SkinTokens",
+      "revision": "273b691d35989d71cd17ff2895fdc735097b92d1",
+      "files": [
+        {
+          "path": "code/skintokens/LICENSE",
+          "bytes": 1073,
+          "sha256": "4f818b00ed33ed1772236c8b0acfd40e740e11e93f4d6f4f846b506b5b690789"
+        }
+      ]
+    },
+    {
+      "component": "unirig-code",
+      "scope": "code",
+      "upstream": "https://github.com/VAST-AI-Research/UniRig",
+      "revision": "6793c6640ff01c8fb389f3993434124bb43d2933",
+      "files": [
+        {
+          "path": "code/unirig/LICENSE",
+          "bytes": 1124,
+          "sha256": "d6ee0be05753b9078358b9a5a2ff2e343ea94565749ddc44324f346050d9255c"
+        },
+        {
+          "path": "code/unirig/src/model/michelangelo/LICENSE",
+          "bytes": 35148,
+          "sha256": "8b1ba204bb69a0ade2bfcf65ef294a920f6bb361b317dba43c7ef29d96332b9b"
+        },
+        {
+          "path": "code/unirig/src/model/pointcept/LICENSE",
+          "bytes": 1065,
+          "sha256": "bd906826310f67eab6d56709667e1f02a24fcec21321e09430334f6dbddae603"
+        }
+      ]
+    },
+    {
+      "component": "kimodo-code",
+      "scope": "code",
+      "upstream": "https://github.com/nv-tlabs/kimodo",
+      "revision": "e1c219c99b4b94ba48be1fb6a1cbc64ecee4c954",
+      "files": [
+        {
+          "path": "code/kimodo/LICENSE",
+          "bytes": 11387,
+          "sha256": "d1a7d615ab8eff4de143b1456f46dabf232f54daf0fcf9a70442bb6f637a9e95"
+        },
+        {
+          "path": "code/kimodo/ATTRIBUTIONS.MD",
+          "bytes": 2754,
+          "sha256": "afaccd58a871e5abdc74aea47f43e28e22541afa4400210a2596b7b600f10670"
+        }
+      ]
+    },
+    {
+      "component": "meshoptimizer",
+      "scope": "code",
+      "upstream": "https://github.com/zeux/meshoptimizer",
+      "revision": "f0a684f11ead064e176775c9b796f82a55910e92",
+      "files": [
+        {
+          "path": "upstream/meshoptimizer-LICENSE.md",
+          "bytes": 1079,
+          "sha256": "f03037ca7bad1e3eb7f4a63fa6084a8baabd5ba30d3c239a9a7f35705d873e26"
+        }
+      ]
+    },
+    {
+      "component": "sonata",
+      "scope": "code",
+      "upstream": "https://github.com/facebookresearch/sonata",
+      "revision": "18c09ff8d713494f78a8213792262b910977a65d",
+      "files": [
+        {
+          "path": "upstream/sonata-LICENSE.txt",
+          "bytes": 11357,
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        }
+      ]
+    },
+    {
+      "component": "autoremesher-core",
+      "scope": "Qt-free console core and its compiled dependencies; legacy Qt GUI is not covered here",
+      "upstream": "https://github.com/huxingyi/autoremesher",
+      "revision": "4a49f82f720f647691c09a7d8a16fa63be208aad",
+      "files": [
+        {
+          "path": "native/autoremesher/LICENSE",
+          "bytes": 1120,
+          "sha256": "7b003c636dc1405dea3feb2fec73c74730b6ad18fbcfa455cf48a90267da34ee"
+        },
+        {
+          "path": "native/autoremesher/AUTHORS",
+          "bytes": 341,
+          "sha256": "4f06c87619dea31e6201ef8c121057f1d17f1a3ee3bb31750e0ea58120d5ef90"
+        },
+        {
+          "path": "native/autoremesher/CONTRIBUTORS",
+          "bytes": 522,
+          "sha256": "79a8049074bfd35dc45b40e0d367178a1b17c7cb3a1ebfe1fcabf3aaf857b7e6"
+        },
+        {
+          "path": "native/autoremesher/ACKNOWLEDGEMENTS.html",
+          "bytes": 192897,
+          "sha256": "961a632b2f80a0d9d76b5f0d887b14dc4ffbc2aeeb50724bfd3c1cab86c968c6"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/isotropicremesher/LICENSE",
+          "bytes": 1142,
+          "sha256": "6b7c52ac45eae4d5c9a258cb4bd801c3c1ad07df240d53cc2cab887ca52ec963"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/tbb/LICENSE",
+          "bytes": 11558,
+          "sha256": "1eb85fc97224598dad1852b5d6483bbcf0aa8608790dcc657a5a2a761ae9c8c6"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/meshoptimizer/LICENSE.md",
+          "bytes": 1100,
+          "sha256": "2c420c79ff65dea863ce1990a173ebd1e6e5778116d498e54738ae5002799509"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/LICENSE",
+          "bytes": 17098,
+          "sha256": "2684de17300e0a434686f1ec7f8af6045207a4b457a3fe04b2b9ce655e7c5d50"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/COPYING.APACHE",
+          "bytes": 11564,
+          "sha256": "a724e50ee0e1de4b62c0540d7877c3ef383aa176f55be806df61420aba9b3de6"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/COPYING.BSD",
+          "bytes": 1543,
+          "sha256": "ee73de74a1980f7f1667f874473393f13bc6a74c87fcee4cc9732bce96bc60cc"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/COPYING.MINPACK",
+          "bytes": 2244,
+          "sha256": "37f2b8b54e7bbf107954865cc3cf567385930a1b7031b479909a09968d9db670"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/COPYING.MPL2",
+          "bytes": 17100,
+          "sha256": "9303ea1cfbf049945652668089d753fb1a7e1f2e52c680615c3d2cea7515c118"
+        },
+        {
+          "path": "native/autoremesher/thirdparty/eigen/COPYING.README",
+          "bytes": 269,
+          "sha256": "1843cae75dab9a5396f9d4663b85e30d8b5e7fddf7ed4638790c17f85167fec0"
+        }
+      ]
+    },
+    {
+      "component": "fpsample",
+      "scope": "code",
+      "upstream": "https://pypi.org/project/fpsample/1.0.1/",
+      "revision": "1.0.1",
+      "files": [
+        {
+          "path": "native/fpsample-LICENSE.txt",
+          "bytes": 1065,
+          "sha256": "fb7fcb6aec7d3139e5faef82d136c18492ad7215f6b1d1a95c6753c4a399d06d"
+        }
+      ]
+    },
+    {
+      "component": "motion-correction-eigen",
+      "scope": "code",
+      "upstream": "https://gitlab.com/libeigen/eigen/-/tree/3.4.0",
+      "revision": "3.4.0",
+      "files": [
+        {
+          "path": "native/motion-correction/eigen/COPYING.APACHE",
+          "bytes": 11362,
+          "sha256": "03379001a7b12a2ec997a25554247d985270b353c10d5bafee9ac8d6519820b7"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.BSD",
+          "bytes": 1517,
+          "sha256": "51928dce36213c5333ba3172e847d735d4c6e9b7ff2722a326c49067155b82eb"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.GPL",
+          "bytes": 35147,
+          "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.LGPL",
+          "bytes": 26530,
+          "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.MINPACK",
+          "bytes": 2193,
+          "sha256": "c87b7f8ee88f6195e91743820c00354833583aef091b72e2d4a49c8e28e798a0"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.MPL2",
+          "bytes": 16726,
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+        },
+        {
+          "path": "native/motion-correction/eigen/COPYING.README",
+          "bytes": 779,
+          "sha256": "c83230b770f17ef1386ea1fd3681271dd98aa93646bdbfb5bff3a1b7050fff9d"
+        }
+      ]
+    },
+    {
+      "component": "model-p3sam",
+      "scope": "model card and supplied license; Tencent Hunyuan 3D-Part Community License",
+      "upstream": "https://huggingface.co/tencent/Hunyuan3D-Part",
+      "revision": "677174466c53571e8bacd5050dff5948734a1a4d",
+      "files": [
+        {
+          "path": "models/p3sam/LICENSE.txt",
+          "bytes": 17015,
+          "sha256": "e182ee41c13d854c2e9d2ccbfde0c000998b09b74bebedb3eaad78a9103828b7"
+        },
+        {
+          "path": "models/p3sam/NOTICE.txt",
+          "bytes": 16676,
+          "sha256": "b03a519c81c6f88e7decf5e5909d974f57e37ec5494e0ceead27185548ae8c0f"
+        },
+        {
+          "path": "models/p3sam/README.md",
+          "bytes": 2920,
+          "sha256": "2c706c7e086c016e4299e5d9c9ca3e80e70846f3e60bd25fbbc68c3345833f51"
+        }
+      ]
+    },
+    {
+      "component": "model-parts_full",
+      "scope": "model card and supplied license; Tencent Hunyuan 3D-Part Community License",
+      "upstream": "https://huggingface.co/tencent/Hunyuan3D-Part",
+      "revision": "677174466c53571e8bacd5050dff5948734a1a4d",
+      "files": [
+        {
+          "path": "models/parts_full/LICENSE.txt",
+          "bytes": 17015,
+          "sha256": "e182ee41c13d854c2e9d2ccbfde0c000998b09b74bebedb3eaad78a9103828b7"
+        },
+        {
+          "path": "models/parts_full/NOTICE.txt",
+          "bytes": 16676,
+          "sha256": "b03a519c81c6f88e7decf5e5909d974f57e37ec5494e0ceead27185548ae8c0f"
+        },
+        {
+          "path": "models/parts_full/README.md",
+          "bytes": 2920,
+          "sha256": "2c706c7e086c016e4299e5d9c9ca3e80e70846f3e60bd25fbbc68c3345833f51"
+        }
+      ]
+    },
+    {
+      "component": "model-sonata",
+      "scope": "model card and supplied license; Apache-2.0",
+      "upstream": "https://huggingface.co/facebook/sonata",
+      "revision": "df99897472c09f91ba9288da0a034aacffc0b010",
+      "files": [
+        {
+          "path": "models/sonata/README.md",
+          "bytes": 320,
+          "sha256": "45bc25cecc3b749773abd8d41fd811581d5325e32a3ab4c1232a74bfad6d5bb8"
+        }
+      ]
+    },
+    {
+      "component": "model-skintokens",
+      "scope": "model card and supplied license; MIT",
+      "upstream": "https://huggingface.co/VAST-AI/SkinTokens",
+      "revision": "79736cad0fd84de384d5eede659b4ebd24effe33",
+      "files": [
+        {
+          "path": "models/skintokens/README.md",
+          "bytes": 7400,
+          "sha256": "7aadc16361d4c5280865d0b5163fbf77aeb3e3af439eacbf05e0a316c159c375"
+        }
+      ]
+    },
+    {
+      "component": "model-unirig",
+      "scope": "model card and supplied license; MIT",
+      "upstream": "https://huggingface.co/VAST-AI/UniRig",
+      "revision": "36842e2b5947e9e60f89275b83208c8e74071c63",
+      "files": [
+        {
+          "path": "models/unirig/README.md",
+          "bytes": 2947,
+          "sha256": "28bd016e7f515d116e5a5f373818922c4864f8b70f18455c861ea337bbbf433c"
+        }
+      ]
+    },
+    {
+      "component": "model-qwen_rig_config",
+      "scope": "model card and supplied license; Apache-2.0",
+      "upstream": "https://huggingface.co/Qwen/Qwen3-0.6B",
+      "revision": "c1899de289a04d12100db370d81485cdf75e47ca",
+      "files": [
+        {
+          "path": "models/qwen_rig_config/LICENSE",
+          "bytes": 11343,
+          "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e"
+        },
+        {
+          "path": "models/qwen_rig_config/README.md",
+          "bytes": 13965,
+          "sha256": "1ab64a26fcb3b461423b89a433a8c858f1bf8d4086f979cbb3ff878d47cf20e9"
+        }
+      ]
+    },
+    {
+      "component": "model-kimodo",
+      "scope": "model card and supplied license; NVIDIA Open Model License",
+      "upstream": "https://huggingface.co/nvidia/Kimodo-SOMA-RP-v1.2",
+      "revision": "0e3c89024d896064b6851201373f7834784a386b",
+      "files": [
+        {
+          "path": "models/kimodo/LICENSE",
+          "bytes": 10229,
+          "sha256": "11ccdcb47db87ac30b63765b5e5154403026c4fbb52c19919d99d912ec454e19"
+        },
+        {
+          "path": "models/kimodo/README.md",
+          "bytes": 13003,
+          "sha256": "59bea6e02b9c6d25472f75312ee45831594856fe02108ae4a59f9a681ba13405"
+        }
+      ]
+    },
+    {
+      "component": "model-text_adapter",
+      "scope": "model card and supplied license; Llama 3 Community License",
+      "upstream": "https://huggingface.co/McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp",
+      "revision": "31474e395ada192e8ed1586db6be79fb3b70c9c0",
+      "files": [
+        {
+          "path": "models/text_adapter/README.md",
+          "bytes": 3315,
+          "sha256": "a5e6ec837f09b94f5acd585e67c83fae843ed80769ec3e565b3a6b4b81ca085b"
+        }
+      ]
+    },
+    {
+      "component": "model-text_adapter_supervised",
+      "scope": "model card and supplied license; Llama 3 Community License",
+      "upstream": "https://huggingface.co/McGill-NLP/LLM2Vec-Meta-Llama-3-8B-Instruct-mntp-supervised",
+      "revision": "baa8ebf04a1c2500e61288e7dad65e8ae42601a7",
+      "files": [
+        {
+          "path": "models/text_adapter_supervised/README.md",
+          "bytes": 62702,
+          "sha256": "e821992eb2485dcbab0f8903ae3819d806db6f587dfd179adafe31ef28fdda1d"
+        }
+      ]
+    },
+    {
+      "component": "model-text_base",
+      "scope": "model card and supplied license; Llama 3 Community License",
+      "upstream": "https://huggingface.co/meta-llama/Meta-Llama-3-8B-Instruct",
+      "revision": "8afb486c1db24fe5011ec46dfbe5b5dccdb575c2",
+      "files": [
+        {
+          "path": "models/text_base/LICENSE",
+          "bytes": 7801,
+          "sha256": "475211637354ce4c14b9c3dacccbefbaba735fe1b0db97d6c4fd11cd1356819f"
+        },
+        {
+          "path": "models/text_base/README.md",
+          "bytes": 38854,
+          "sha256": "8ca60bb111f7a6ac8922daf085c050d3c30755a7a21ee52e53982ad82eae3b49"
+        }
+      ]
+    }
+  ],
+  "notice": "These notices retain their upstream terms. They do not relicense models or dependencies. Python distributions retain their dist-info licenses; Blender retains its bundled licenses. Modified workbench adapters and build recipes are supplied in tools/ and hi3d_workbench/studio/."
+}

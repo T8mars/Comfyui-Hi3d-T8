@@ -1,0 +1,67 @@
+---
+library_name: hunyuan3d-2
+tags:
+- 3D-Generation
+- Part-Segmentation
+- Part-Generataion
+datasets:
+- allenai/objaverse
+- allenai/objaverse-xl
+base_model:
+- tencent/Hunyuan3D-2.1
+metrics:
+- accuracy
+---
+### ☯️ **Hunyuan3D Part**
+
+- Pipeline of our image to 3D part generation. It contains two key components, P3-SAM and X-Part. The holistic mesh is fed to part detection module P3-SAM to obtain the semantic features, part segmentations and part bounding boxes. Then X-Part generate the complete parts.  
+<img src="images/HYpart-fullpip.jpg" alt="drawing" width="600"/>
+
+####  P3-SAM： Native 3DPart Segmentation.   
+- Paper: [ https://arxiv.org/abs/2509.06784](https://arxiv.org/abs/2509.06784).  
+- Code: [https://github.com/Tencent-Hunyuan/Hunyuan3D-Part/tree/main/P3-SAM](https://github.com/Tencent-Hunyuan/Hunyuan3D-Part/tree/main/P3-SAM).  
+- Project Page: [https://murcherful.github.io/P3-SAM/ ](https://murcherful.github.io/P3-SAM/).  
+- HuggingFace Demo: [https://huggingface.co/spaces/tencent/Hunyuan3D-Part](https://huggingface.co/spaces/tencent/Hunyuan3D-Part).   
+<img src="images/p3sam.jpg" alt="drawing" width="600"/>
+
+
+
+####  X-Part： high-fidelity and structure-coherent shapede composition  
+- Paper: [https://arxiv.org/abs/2509.08643](https://arxiv.org/abs/2509.08643).  
+- Code: [https://github.com/Tencent-Hunyuan/Hunyuan3D-Part/tree/main/XPart](https://github.com/Tencent-Hunyuan/Hunyuan3D-Part/tree/main/XPart).  
+- Project Page: [https://yanxinhao.github.io/Projects/X-Part/](https://yanxinhao.github.io/Projects/X-Part/).  
+- HuggingFace Demo: [https://huggingface.co/spaces/tencent/Hunyuan3D-Part](https://huggingface.co/spaces/tencent/Hunyuan3D-Part).   
+<img src="images/xpart.jpg" alt="drawing" width="600"/>
+
+
+
+
+#### **Notice**   
+- **The current release is a light version of X-Part**. The full-blood version is available on [![Hunyuan3D-Studio](https://img.shields.io/badge/Hunyuan3D-Studio-yellow)](https://3d.hunyuan.tencent.com/studio).  
+- For X-Part, we recommend using ​​scanned​​ or ​​AI-generated meshes​​ (e.g., from Hunyuan3D V2.5 or V3.0) as input.
+- P3-SAM can handle any input mesh.
+
+
+
+#### 🔗 Citation
+If you found this repository helpful, please cite our reports:
+
+- **P3-SAM**
+```
+@article{ma2025p3sam,
+  title={P3-sam: Native 3d part segmentation},
+  author={Ma, Changfeng and Li, Yang and Yan, Xinhao and Xu, Jiachen and Yang, Yunhan and Wang, Chunshi and Zhao, Zibo and Guo, Yanwen and Chen, Zhuo and Guo, Chunchao},
+  journal={arXiv preprint arXiv:2509.06784},
+  year={2025}
+}
+```
+
+- **X-Part**
+```
+@article{yan2025xpart,
+  title={X-Part: high fidelity and structure coherent shape decomposition},
+  author={Yan, Xinhao and Xu, Jiachen and Li, Yang and Ma, Changfeng and Yang, Yunhan and Wang, Chunshi and Zhao, Zibo and Lai, Zeqiang and Zhao, Yunfei and Chen, Zhuo and others},
+  journal={arXiv preprint arXiv:2509.08643},
+  year={2025}
+}
+```

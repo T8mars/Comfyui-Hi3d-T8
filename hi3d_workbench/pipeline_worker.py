@@ -230,6 +230,8 @@ def _run(request_path):
 
 
 def main():
+    from .common import configure_stdio
+    configure_stdio()
     parser = argparse.ArgumentParser()
     parser.add_argument('--request', type=Path, required=True)
     parser.add_argument('--session', action='store_true')

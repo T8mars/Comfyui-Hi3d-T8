@@ -4,6 +4,8 @@ import json
 from .models import download_all,STATE,verify_all,status
 
 def main():
+    from .common import configure_stdio
+    configure_stdio()
     p=argparse.ArgumentParser();p.add_argument('command',choices=['download','verify','status']);args=p.parse_args()
     if args.command=='download':
         if not download_all():

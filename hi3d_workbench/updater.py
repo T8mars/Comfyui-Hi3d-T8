@@ -25,7 +25,7 @@ DOWNLOAD = f'https://github.com/{REPOSITORY}/releases/download/'
 RUNTIME_API = 1
 MAX_ARCHIVE = 128 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
-CODE_DIRS = {'hi3d_workbench', 'scripts', 'examples', 'docs', 'licenses', 'samples', 'tools', 'tests', 'validation'}
+CODE_DIRS = {'hi3d_workbench', 'scripts', 'examples', 'docs', 'licenses', 'samples', 'tools', 'tests', 'validation', 'runtime_requirements'}
 CODE_FILES = {'__init__.py', 'comfy_nodes.py', 'pyproject.toml', 'Start-Workbench.cmd', 'Update-Workbench.cmd',
               'requirements.txt', 'requirements-worker-windows.txt', 'requirements-pipeline-windows.txt',
               'README.md', 'README.zh-CN.md', 'LICENSE', 'NOTICE.md', 'VALIDATION.md', 'roadmap.md',

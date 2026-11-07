@@ -12,8 +12,8 @@ import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
 from contextlib import asynccontextmanager, contextmanager, ExitStack
-from fastapi import FastAPI, HTTPException, UploadFile, File, Request
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Query
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from starlette.background import BackgroundTask
@@ -26,6 +26,7 @@ from .geometry import load_mesh, inspect_mesh, export_mesh
 from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
 from . import common, models, pipeline_models, updater, lifecycle, runtime_acceleration
+from .studio import models as studio_models
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -41,7 +42,7 @@ MODEL_PATH_LOCK=threading.RLock()
 PREVIEW_LOCK=threading.Lock()
 PREVIEW_EVENTS=[]
 ACCELERATION_INSTALL={'state':'idle','message':''}
-JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json"}
+JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json","output.glb","rig-original.glb","output.fbx","output.obj","parts.zip","parts.json","rig.json","motion.bvh","motion.npz","motion.json","original-segmentation.glb","original-parts.json","original-parts.zip"}
 
 @contextmanager
 def gpu_operation(kind):
@@ -51,6 +52,7 @@ def gpu_operation(kind):
         if manager.active:raise HTTPException(409,"已有精修任务或建模/贴图任务运行，请先等待或停止该任务")
         if PIPELINE_MODELS_LOCK.locked():raise HTTPException(409,"扩展模型正在下载或校验，请稍候")
         if pipeline_models.status().get('download',{}).get('state')=='downloading':raise HTTPException(409,'扩展模型下载进程仍在运行，请稍候')
+        if studio_models.download_busy():raise HTTPException(409,'资产模型正在下载或校验，请稍候')
         if manager.recovery_blocked or probe_recovery_workers():raise HTTPException(409,"仍有残留工作或诊断进程运行，请等待该进程退出")
         operation=kind
         yield
@@ -81,6 +83,13 @@ def initial_pipeline_verification():
     except Exception:pass
     finally:PIPELINE_MODELS_LOCK.release()
 
+def initial_studio_verification():
+    from .studio import models as studio_models
+    try:
+        studio_models.verify(installed_only=True,
+            callback=lambda state:print('[模型校验] '+state['message'],flush=True))
+    except Exception:pass  # Status retains the concrete error for the page.
+
 @asynccontextmanager
 async def lifespan(app):
     from filelock import FileLock,Timeout
@@ -96,6 +105,9 @@ async def lifespan(app):
         extension=pipeline_models.status()
         if extension['runtime']['ready'] and not extension['ready'] and all((pipeline_models.MODEL_ROOT/key/name).is_file() for key,spec in pipeline_models.SPECS.items() if not spec.get('optional') for name in spec['files']):
             threading.Thread(target=initial_pipeline_verification,daemon=True).start()
+        from .studio import models as studio_models
+        if studio_models.pending_verification():
+            threading.Thread(target=initial_studio_verification,daemon=True).start()
         updater.start_background(lambda: bool(manager.active or operation or PIPELINE_MODELS_LOCK.locked()))
         yield
     finally:
@@ -247,6 +259,7 @@ def _model_path_busy_reason(*, include_local_locks=True):
         if PIPELINE_MODELS_LOCK.locked() or pipeline_models._LOCK.locked():
             return '扩展模型正在下载或校验，请稍候'
         if models._download_lock_held():return '模型下载或校验进程仍在运行，请稍候'
+        if studio_models.download_busy():return '资产模型正在下载或校验，请稍候'
         if pipeline_models.status().get('download',{}).get('state')=='downloading':
             return '扩展模型下载或校验进程仍在运行，请稍候'
     return None
@@ -259,6 +272,7 @@ def model_path():
         return {'models_dir':value,'resolved_path':str(MODELS),
                 'default_path':str(common.DEFAULT_MODELS),
                 'extensions_path':str(pipeline_models.MODEL_ROOT),
+                'studio_path':str(studio_models.model_root()),
                 'is_default':MODELS.resolve()==common.DEFAULT_MODELS.resolve(),
                 'exists':MODELS.is_dir(),'restart_required':False,
                 'busy':reason is not None,'busy_reason':reason}
@@ -280,14 +294,15 @@ def save_model_path(body:ModelPathInput):
         with manager.lock, ExitStack() as guards:
             reason=_model_path_busy_reason(include_local_locks=False)
             if reason:raise HTTPException(409,reason)
-            for lock in (VERIFY_LOCK,PIPELINE_MODELS_LOCK,models.LOCK,pipeline_models._LOCK):
+            for lock in (VERIFY_LOCK,PIPELINE_MODELS_LOCK,models.LOCK,pipeline_models._LOCK,studio_models.LOCK):
                 if not lock.acquire(blocking=False):
                     raise HTTPException(409,'模型正在下载或校验，请稍候再修改模型目录')
                 guards.callback(lock.release)
             # Hold actual CLI locks on both the old and selected directories.
             # Nonexistent roots stay nonexistent until a download is requested.
             from filelock import FileLock, Timeout
-            roots={MODELS.resolve(),pipeline_models.MODEL_ROOT.resolve(),target,(target/'extensions').resolve()}
+            roots={MODELS.resolve(),pipeline_models.MODEL_ROOT.resolve(),studio_models.model_root().resolve(),
+                   target,(target/'extensions').resolve(),(target/'studio').resolve()}
             for root in sorted(roots,key=str):
                 if not root.is_dir():continue
                 lock=FileLock(str(root/'.download.lock'),thread_local=False)
@@ -629,6 +644,22 @@ def job_file(jid:str,name:str):
     if not path.is_file():raise HTTPException(404)
     return FileResponse(path,filename=name)
 
+@app.get('/api/jobs/{jid}/log')
+def job_log(jid:str,limit:int=Query(32768,ge=1024,le=262144)):
+    if manager.get(jid) is None:raise HTTPException(404)
+    path=child_path(manager.root,jid)/'worker.log'
+    if not path.is_file():raise HTTPException(404,'日志尚未生成')
+    # Read a fixed byte range, even when another process is appending rapidly.
+    with path.open('rb') as stream:
+        size=stream.seek(0,2)
+        offset=max(0,size-limit)
+        stream.seek(offset)
+        data=stream.read(min(size,limit))
+    text=data.decode('utf-8',errors='replace')
+    if offset:text='…（仅显示最近日志，完整文件可另行下载）\n'+text
+    return PlainTextResponse(text,headers={'Cache-Control':'no-store','X-Log-Size':str(size),
+        'X-Log-Offset':str(offset),'X-Log-Truncated':'true' if offset else 'false'})
+
 class ExportInput(BaseModel):
     source:str="refined"
     format:str="glb"
@@ -667,5 +698,8 @@ def exported(eid:str,name:str):
     p=child_path(DATA/"exports",eid)/name
     if not p.is_file():raise HTTPException(404)
     return FileResponse(p,filename=name)
+
+from .studio.api import mount as mount_studio
+mount_studio(app,manager,gpu_operation,ASSETS)
 
 app.mount("/static",StaticFiles(directory=WEB),name="static")

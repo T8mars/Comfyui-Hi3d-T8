@@ -183,31 +183,18 @@ def _repair_local_faces(source_vertices, mapping, faces, pixels, side, resolutio
     pixels -= minimum
     side = max(float(side)-float(minimum.min()), float(pixels.max()), 1.)
     budget = min(4096, max(16, len(faces)//100))
-    repaired = set()
-    height_adjusted = set()
     original_side = side
     summary = {'repaired_faces': 0, 'repair_budget': budget, 'repair_passes': 0,
                'minimum_height_adjusted_faces': 0, 'source_revision': SOURCE_REVISION,
                'repaired_zero_uv_faces': 0, 'repaired_duplicate_uv_faces': 0}
+    repaired = set()
     repaired_zero, repaired_duplicate = set(), set()
     repaired_coincident, repaired_collisions = set(), set()
-    for attempt in range(4):
-        result = _normalized_pixels(pixels, side)
-        zero = _zero_uv_faces(faces, result)
-        duplicate, duplicate_first = _duplicate_uv_faces(faces, result, return_pairs=True)
-        bad = np.union1d(zero, duplicate)
-        if not len(bad):
-            used, inverse = np.unique(faces.reshape(-1), return_inverse=True)
-            summary.update(original_atlas_side=original_side, final_atlas_side=side,
-                           atlas_linear_scale=original_side/side)
-            return mapping[used], inverse.reshape(-1, 3), result[used], summary
-        prospective = repaired | set(map(int, bad))
-        if len(prospective) > budget or attempt == 3:
-            raise LocalUVRepairError(f'UV 局部退化超过安全修复范围：{len(prospective)}/{len(faces)} 面，'
-                                     f'上限 {budget}，已拒绝全网 CPU 重算')
-        if attempt == 0:
-            summary.update(_coincident_source_faces(source_vertices, mapping[faces]))
-        original_indices = mapping[faces[bad]]
+
+    def layout(selected):
+        # Plan against the untouched atlas. Growing and re-normalizing a repaired
+        # atlas repeatedly can collapse a different float32 sliver on every pass.
+        original_indices = mapping[faces[selected]]
         triangle = np.asarray(source_vertices, dtype=np.float64)[original_indices]
         edges = np.roll(triangle, -1, axis=1)-triangle
         edge_lengths = np.einsum('nki,nki->nk', edges, edges)
@@ -220,48 +207,78 @@ def _repair_local_faces(source_vertices, mapping, faces, pixels, side, resolutio
         x = np.einsum('ni,ni->n', a, b)/length2
         if not np.isfinite(height).all() or not np.isfinite(x).all() or np.any(height <= 0.):
             raise LocalUVRepairError('UV 局部修补无法证明原三角面具有非零面积')
-        same_geometry = _same_source_triangle(source_vertices, mapping, faces, duplicate, duplicate_first)
-        repaired_coincident.update(map(int, duplicate[same_geometry]))
-        repaired_collisions.update(map(int, duplicate[~same_geometry]))
-        # Dedicated islands have at least two target texels of area before
-        # the tiny strip expansion. Very thin triangles may need UV-only
-        # height inflation; report its count rather than deleting their faces.
-        factor = max(1., side/float(resolution))
+        factor = max(1., original_side/float(resolution))
         edge_pixels, minimum_height = 8.*factor, .5*factor
         pixel_height = np.maximum(height*edge_pixels, minimum_height)
-        height_adjusted.update(map(int, bad[height*edge_pixels < minimum_height]))
-        summary['minimum_height_adjusted_faces'] = len(height_adjusted)
         pitch = (8.+2.*padding)*factor
-        columns = max(1, int(side//pitch))
-        rows = np.arange(len(bad))//columns
-        columns_index = np.arange(len(bad))%columns
+        columns = max(1, int(original_side//pitch))
+        rows = np.arange(len(selected))//columns
+        columns_index = np.arange(len(selected))%columns
         strip_y = math.ceil(float(pixels[:, 1].max()))+padding*factor
-        base = np.column_stack(((columns_index*pitch+padding*factor),
+        base = np.column_stack((columns_index*pitch+padding*factor,
                                 strip_y+rows*pitch+padding*factor))
-        new_pixels = np.empty((len(bad), 3, 2), dtype=np.float64)
+        new_pixels = np.empty((len(selected), 3, 2), dtype=np.float64)
         new_pixels[:, 0] = base
         new_pixels[:, 1] = base+np.array([edge_pixels, 0.])
         new_pixels[:, 2] = base+np.column_stack((np.clip(x, 0., 1.)*edge_pixels, pixel_height))
-        # Restore original corner order after the cyclic longest-edge choice.
         aligned = np.empty_like(new_pixels)
         np.put_along_axis(aligned, corners[:, :, None], new_pixels, axis=1)
-        offset = len(mapping)
-        mapping = np.concatenate((mapping, original_indices.reshape(-1)))
-        pixels = np.vstack((pixels, aligned.reshape(-1, 2)))
-        faces[bad] = np.arange(offset, offset+3*len(bad)).reshape(-1, 3)
-        side = max(side, math.ceil(float(pixels.max()))+padding*factor)
+        final_side = max(original_side, math.ceil(float(aligned.max()))+padding*factor)
+        return original_indices, aligned, final_side, int((height*edge_pixels < minimum_height).sum())
+
+    # First find a stable canvas and the union of faces that collapse at that
+    # canvas size; only then write replacement islands. The one-percent/4096-face
+    # bound still applies, and every original oriented triangle is retained.
+    for attempt in range(16):
+        result = _normalized_pixels(pixels, side)
+        zero = _zero_uv_faces(faces, result)
+        duplicate, duplicate_first = _duplicate_uv_faces(faces, result, return_pairs=True)
+        bad = np.union1d(zero, duplicate)
+        if not len(bad):
+            used, inverse = np.unique(faces.reshape(-1), return_inverse=True)
+            summary.update(original_atlas_side=original_side, final_atlas_side=side,
+                           atlas_linear_scale=original_side/side)
+            return mapping[used], inverse.reshape(-1, 3), result[used], summary
+        prospective = repaired | set(map(int, bad))
+        if len(prospective) > budget:
+            raise LocalUVRepairError(f'UV 局部退化超过安全修复范围：{len(prospective)}/{len(faces)} 面，'
+                                     f'上限 {budget}，已拒绝全网 CPU 重算')
+        if attempt == 0:
+            summary.update(_coincident_source_faces(source_vertices, mapping[faces]))
+        same_geometry = _same_source_triangle(source_vertices, mapping, faces, duplicate, duplicate_first)
+        repaired_coincident.update(map(int, duplicate[same_geometry]))
+        repaired_collisions.update(map(int, duplicate[~same_geometry]))
         repaired = prospective
         repaired_zero.update(map(int, zero))
         repaired_duplicate.update(map(int, duplicate))
-        summary.update(repaired_faces=len(repaired), repair_passes=attempt+1,
+        selected = np.asarray(sorted(repaired), dtype=np.int64)
+        original_indices, aligned, planned_side, adjusted = layout(selected)
+        if planned_side == side:
+            break
+        side = planned_side
+    else:
+        raise LocalUVRepairError('UV 局部修复的画布规划未收敛，原几何保持，未启动全网 CPU 重算')
+
+    offset = len(mapping)
+    mapping = np.concatenate((mapping, original_indices.reshape(-1)))
+    pixels = np.vstack((pixels, aligned.reshape(-1, 2)))
+    faces[selected] = np.arange(offset, offset+3*len(selected)).reshape(-1, 3)
+    result = _normalized_pixels(pixels, side)
+    if len(_zero_uv_faces(faces, result)) or len(_duplicate_uv_faces(faces, result)):
+        raise LocalUVRepairError('UV 局部修复后仍有退化或复用面，拒绝输出，原几何保持')
+    summary.update(repaired_faces=len(repaired), repair_passes=1, planning_passes=attempt+1,
+                       minimum_height_adjusted_faces=adjusted,
                        repaired_zero_uv_faces=len(repaired_zero),
                        repaired_duplicate_uv_faces=len(repaired_duplicate),
                        repaired_coincident_uv_faces=len(repaired_coincident),
                        repaired_unrelated_uv_collisions=len(repaired_collisions))
-        notify('uv_repair', f'局部重建 {len(bad)} 个退化/复用 UV 面，累计 {len(repaired)}/{budget}，保留原几何',
-               device='cpu', current=len(bad), total=len(bad), unit='faces',
+    notify('uv_repair', f'局部重建 {len(repaired)} 个退化/复用 UV 面，上限 {budget}，保留原几何',
+               device='cpu', current=len(repaired), total=len(repaired), unit='faces',
                uv_repair=dict(summary), local_uv_repaired_faces=len(repaired), atlas_side=side)
-    raise AssertionError('unreachable UV repair state')
+    used, inverse = np.unique(faces.reshape(-1), return_inverse=True)
+    summary.update(original_atlas_side=original_side, final_atlas_side=side,
+                   atlas_linear_scale=original_side/side)
+    return mapping[used], inverse.reshape(-1, 3), result[used], summary
 
 
 def unwrap(vertices, faces, resolution, padding, notify):

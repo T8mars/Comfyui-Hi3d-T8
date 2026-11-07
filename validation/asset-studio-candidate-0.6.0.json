@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "recorded_date": "2026-11-07",
+  "acceptance": "pending",
+  "scope": "Recorded local backend and serialized-artifact evidence; not final visual, browser or distribution acceptance.",
+  "device": "NVIDIA GeForce RTX 5090 Laptop GPU 24GB",
+  "regression": {
+    "tests": 270,
+    "failures": 0,
+    "junit_sha256": "67a746b7e99513980e38597306b51bead237a47a2b9d18dd6db17a79bc25a3d9"
+  },
+  "repository_regression": {
+    "tests": 844,
+    "failures": 0,
+    "junit_sha256": "900c17d55d7dfb7bdc98221372891c1a30f4a60002c0fe1f8c8d73cfeb87085c"
+  },
+  "git_checkout_bytes": {
+    "tests": 1,
+    "failures": 0,
+    "junit_sha256": "899114e6c18c5b3ace466ccc115ede7f5add74035a5204bf1f5619491af22e15",
+    "autocrlf": true,
+    "gitattributes_sha256": "d1669064d784e184ea888c0a8ec3c8607aedde904fcf7f8e30a371c2b4cf450f",
+    "preserved_files": {
+      "licenses/asset-studio/models/p3sam/README.md": "2c706c7e086c016e4299e5d9c9ca3e80e70846f3e60bd25fbbc68c3345833f51",
+      "hi3d_workbench/web/vendor/three/loaders/RGBELoader.js": "6c08f9c441040a61a188ad7711078da4df48f8c5ac3b3725dd6f10ac9ff81162",
+      "tools/native/autoremesher_cli.cpp": "7960db76297cb6abff9f72afd481e02fcefb62c044c9d22ad08b01eec4647ed2"
+    }
+  },
+  "result_handlers": {
+    "web_source_sha256": "32a15752ac7b704056091d728498721887ce69ac5ef20ab8b0c947d87a8e2129",
+    "actual_failed_job_http_to_handler_downloads_verified": true,
+    "candidate_static_bytes_match": true,
+    "http_download_hashes_and_zip_crc": "passed",
+    "race_cases": [
+      "late completed-job poll after a new input",
+      "late log from another job",
+      "obsolete preview metadata",
+      "late model-source list"
+    ],
+    "browser_ui_accepted": false
+  },
+  "failed_geometry_replay": {
+    "raw_source_sha256": "7b38ee2f81935cf10a7a9b0c008d93b3fa3e0d8f4539cfd2032171cd380c5bf3",
+    "output_sha256": "8fd1bacc7b9d37a5bf2d5afe7d701f23ff7e1899abb5803e0e08d96422b0628e",
+    "faces": 1089160,
+    "surface_preparation": {
+      "scope": "new generated surface only; original input and face partition untouched",
+      "input_faces": 1089162,
+      "output_faces": 1089160,
+      "merged_float32_vertices": 1,
+      "removed_collapsed_faces": 2,
+      "unused_vertices_removed": 0,
+      "max_position_roundoff": 5.960449223074704e-08,
+      "valid_oriented_triangles_preserved": true,
+      "input_watertight": true,
+      "output_watertight": true,
+      "input_winding_consistent": true,
+      "output_winding_consistent": true
+    },
+    "zero_uv_faces": 0,
+    "duplicate_uv_faces": 0,
+    "independent_all_valid_oriented_triangles_readback": true
+  },
+  "basic_completion": {
+    "input_kind": "mathematical bumpy mesh; no source materials or textures",
+    "manual_part_correction": true,
+    "source_sha256": "6c0e35a0e80c06c98eceecb63707b8fba306aecaae72e878a8e97c26a0abfbba",
+    "output_sha256": "d4b6887615a425f04a7e8c9692dc2053db3891c3775411b2dc191bdcf187d213",
+    "input_faces": 1280,
+    "output_faces": 1899524,
+    "seconds": 342.078,
+    "torch_peak_allocated_mib": 13329.07,
+    "parts": [
+      {
+        "id": 1,
+        "faces": 1091596,
+        "watertight": true,
+        "boundary_edges": 0
+      },
+      {
+        "id": 2,
+        "faces": 807928,
+        "watertight": true,
+        "boundary_edges": 0
+      }
+    ],
+    "uv": [
+      {
+        "backend": "gpu",
+        "zero_uv_faces": 0,
+        "duplicate_uv_faces": 0
+      },
+      {
+        "backend": "gpu",
+        "zero_uv_faces": 0,
+        "duplicate_uv_faces": 0
+      }
+    ],
+    "colour_fidelity_accepted": false
+  },
+  "continued_edit": {
+    "source_sha256": "d4b6887615a425f04a7e8c9692dc2053db3891c3775411b2dc191bdcf187d213",
+    "output_sha256": "eff601a4301298d83fdcca97159a346c40d48207db3a8a8df58b59c1b43d0fbf",
+    "faces": 1899524,
+    "reconstruction_origin_retained": true,
+    "all_geometry_attributes_materials_and_images_preserved": true,
+    "original_partition_http_download_verified": true,
+    "zip_crc": "passed"
+  },
+  "cartoon_motion": {
+    "scope": "all 121 saved frames at 30 fps; 979450 faces; fixed-projection render samples, not full browser playback",
+    "cases": {
+      "walk": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "4c43cf7fcf92e7f21860e2232f5a9c797f799f78817692bb29a8bf6036610f07",
+        "max_severely_stretched_faces": 0,
+        "max_ground_penetration": 0.0
+      },
+      "run": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "9a2ac9d815b5dbf97cbf9587f799c6eace6bb9d9ec986a7b43ae6b63c022db5f",
+        "max_severely_stretched_faces": 12,
+        "max_ground_penetration": 0.0
+      },
+      "wave": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "c5562eb830f48ddd334b411c108e6d211eeb911438dbcbba878154e232bd3203",
+        "max_severely_stretched_faces": 48,
+        "max_ground_penetration": 0.0
+      },
+      "punch": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "df94850d18eda03ec4299a0cdda6c3621441259ad0388a7e3ec8a5e46846f5e0",
+        "max_severely_stretched_faces": 64,
+        "max_ground_penetration": 0.0
+      },
+      "dodge": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "27f8e224391e9a654148c3c030454b5f57330183fc57282fc1927ffe8441a012",
+        "max_severely_stretched_faces": 33,
+        "max_ground_penetration": 0.0011717195731600905
+      },
+      "kick": {
+        "frames": 121,
+        "faces": 979450,
+        "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+        "output_sha256": "415dde079a9e47f063847ea7fa7555a5ee2925ba0d3f519de3f6271401322644",
+        "max_severely_stretched_faces": 85,
+        "max_ground_penetration": 0.0
+      }
+    }
+  },
+  "worker_source_sha256": {
+    "generated_geometry.py": "76c214b8ed4c77c77d39210e506d205fba2293f14806c41cec4975bf1fefc5a3",
+    "parts_models.py": "815930a01148e97edfccadf9ec93d0efd385cb82d5b4faadd129dbc92d6114b2",
+    "parts.py": "47bc57fa02f474de41d5d27a0d30d8548ea80cfcc6c72a10bacc3915f83bfe62",
+    "animation.py": "74166458e7736f047880707ede790d1a947fbfc027a247aa2bebb615ce131e78",
+    "foot_support.py": "a0486f111da875777b29662ac0be767df86a0e25b1cf8f551b4973bdecc5e016",
+    "retarget.py": "9ad8744bba8ffffb8bbbb9cd5865a0c093c1371446ecd52f53e6800e4d9aa066"
+  },
+  "pending": [
+    "browser interactions and full animation playback",
+    "complex completion, material and deformation quality",
+    "final complete-bundle acceptance and release"
+  ]
+}

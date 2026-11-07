@@ -5,6 +5,8 @@ import threading
 from .common import ROOT, VERSION, config, resolve_model_dir
 
 def main():
+    from .common import configure_stdio
+    configure_stdio()
     parser=argparse.ArgumentParser(description="Hi3D local workbench")
     parser.add_argument("--port",type=int,default=config()["port"])
     parser.add_argument("--open",action="store_true")

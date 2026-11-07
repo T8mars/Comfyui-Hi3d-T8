@@ -58,7 +58,8 @@ def test_get_default_does_not_create_weight_directory(paths):
     assert result.status_code==200
     value=result.json()
     assert value=={'models_dir':'','resolved_path':str(paths.default),'default_path':str(paths.default),
-                   'extensions_path':str(paths.default/'extensions'),'is_default':True,'exists':False,
+                   'extensions_path':str(paths.default/'extensions'),'studio_path':str(paths.default/'studio'),
+                   'is_default':True,'exists':False,
                    'restart_required':False,'busy':False,'busy_reason':None}
     assert not paths.default.exists()
 
@@ -75,6 +76,7 @@ def test_save_immediately_switches_all_roots_and_preserves_settings(paths,relati
     assert not data['busy'] and not data['exists'] and not data['is_default']
     assert common.MODELS==server.MODELS==models.MODELS==expected.resolve()
     assert pipeline_models.MODEL_ROOT==expected.resolve()/'extensions'
+    assert server.studio_models.model_root()==expected.resolve()/'studio'
     assert server.verification_error is None
     saved=common.read_json(paths.root/'config.local.json')
     assert saved=={'port':8382,'download_workers':3,'custom_setting':{'keep':True},'models_dir':value}
@@ -144,7 +146,7 @@ def test_path_mutation_keeps_session_and_origin_protection(paths):
     assert common.MODELS==paths.default
 
 
-@pytest.mark.parametrize('busy',['task','gpu','core_verify','core_download','pipeline_operation','pipeline_download','operation','recovery','probe'])
+@pytest.mark.parametrize('busy',['task','gpu','core_verify','core_download','pipeline_operation','pipeline_download','studio_download','operation','recovery','probe'])
 def test_busy_operations_block_switch_and_report_reason(paths,busy):
     lock=None
     if busy=='task':paths.monkeypatch.setattr(server.manager,'active','running-test-job')
@@ -155,7 +157,8 @@ def test_busy_operations_block_switch_and_report_reason(paths,busy):
     elif busy=='probe':paths.monkeypatch.setattr(server,'probe_recovery_workers',lambda:[{'pid':123,'created':1}])
     else:
         lock={'gpu':server.GPU_OPERATION,'core_verify':server.VERIFY_LOCK,'core_download':models.LOCK,
-              'pipeline_operation':server.PIPELINE_MODELS_LOCK,'pipeline_download':pipeline_models._LOCK}[busy]
+              'pipeline_operation':server.PIPELINE_MODELS_LOCK,'pipeline_download':pipeline_models._LOCK,
+              'studio_download':server.studio_models.LOCK}[busy]
         lock.acquire()
     before=(paths.root/'config.local.json').read_bytes()
     try:
@@ -171,10 +174,11 @@ def test_busy_operations_block_switch_and_report_reason(paths,busy):
         assert paths.client.post('/api/model-path',json={'models_dir':str(paths.custom)}).status_code==200
 
 
-@pytest.mark.parametrize('which',['old_core','old_extensions','target_core','target_extensions'])
+@pytest.mark.parametrize('which',['old_core','old_extensions','old_studio','target_core','target_extensions','target_studio'])
 def test_actual_download_locks_block_switch_on_old_and_new_roots(paths,which):
     location={'old_core':paths.default,'old_extensions':paths.default/'extensions',
-              'target_core':paths.custom,'target_extensions':paths.custom/'extensions'}[which]
+              'old_studio':paths.default/'studio','target_core':paths.custom,
+              'target_extensions':paths.custom/'extensions','target_studio':paths.custom/'studio'}[which]
     location.mkdir(parents=True)
     with FileLock(str(location/'.download.lock'),thread_local=False):
         response=paths.client.post('/api/model-path',json={'models_dir':str(paths.custom)})

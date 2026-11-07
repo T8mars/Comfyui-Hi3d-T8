@@ -561,6 +561,8 @@ def verify(model_root: str | Path | None = None) -> dict:
 
 
 if __name__ == "__main__":
+    from .common import configure_stdio
+    configure_stdio()
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("action", choices=["status", "download", "verify"], default="status", nargs="?")

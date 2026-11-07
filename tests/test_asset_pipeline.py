@@ -405,12 +405,16 @@ def test_same_size_corruption_with_restored_mtime_invalidates_extension_ready(ti
 
 
 @pytest.mark.parametrize('identity',['matching','wrong-time','invalid-json-object','missing'])
-def test_stage_recovery_reaps_only_verified_identity_and_blocks_unknown_survivor(tmp_path,monkeypatch,identity):
+@pytest.mark.parametrize('stage_path',['stages/texture','stages/studio-remesh','studio-blender/fbx','studio-blender/import-motion','studio-blender/inspect-motion','studio-blender/prepare-remesh','studio-blender/quadriflow','studio-blender/tessellate'])
+def test_stage_recovery_reaps_only_verified_identity_and_blocks_unknown_survivor(tmp_path,monkeypatch,identity,stage_path):
     monkeypatch.setattr(jobs,'DATA',tmp_path/'data')
-    manager=jobs.JobManager();folder=manager.root/'stage-recovery';stage=folder/'stages'/'texture';stage.mkdir(parents=True)
+    manager=jobs.JobManager();folder=manager.root/'stage-recovery';stage=folder/stage_path;stage.mkdir(parents=True)
     request=stage/'request.json';request.write_text('{}')
     common.atomic_json(folder/'state.json',{'id':folder.name,'created':1,'state':'running','options':{'mode':'texture'}})
-    command=[sys.executable,'-c','import time;time.sleep(30)','-m','hi3d_workbench.engines.run_stage','--request',str(request)]
+    identity_command=(['--python',str(Path(jobs.__file__).parent/'studio'/'blender_ops.py')]
+                      if stage_path.startswith('studio-blender/') else
+                      ['-m','hi3d_workbench.studio.native' if stage_path.endswith('studio-remesh') else 'hi3d_workbench.engines.run_stage'])
+    command=[sys.executable,'-c','import time;time.sleep(30)',*identity_command,'--request',str(request)]
     process=subprocess.Popen(command)
     created=psutil.Process(process.pid).create_time()
     try:

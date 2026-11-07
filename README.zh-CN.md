@@ -4,9 +4,11 @@
 
 **By T8star** — Hi3D V1.0 ComfyUI 几何精修节点与独立本地 3D 工作台。
 
-**ComfyUI 节点**只复现官方 Hi3D：输入**同一物体的参考图＋粗网格**，输出精修几何；直接在 ComfyUI 进程内运行，无需独立工作台服务。**独立整合包 v0.4**另支持单图生成几何、多种建模／PBR 引擎选择，以及同灯光下的历史结果对比。已验证范围见 [roadmap.md](roadmap.md)。
+**ComfyUI 节点**只复现官方 Hi3D：输入**同一物体的参考图＋粗网格**，输出精修几何；直接在 ComfyUI 进程内运行，无需独立工作台服务。**独立整合包**另支持单图生成几何、多种建模／PBR 引擎选择，以及同灯光下的历史结果对比。已验证范围见 [roadmap.md](roadmap.md)。
 
 [模型下载](https://huggingface.co/t8star/Hi3d-Comfy) · [画布工作流](examples/Hi3D-Refine.json) · [验证记录](VALIDATION.md) · [Hi3D 原项目](https://github.com/hi3d-official/Hi3Dv1.0)
+
+资产加工与单人动画正在开发，功能、操作及限制见 [使用说明](docs/ASSET_STUDIO.zh-CN.md)。这些后端尚未完成最终验收和完整包交付，不属于新增 ComfyUI 节点。
 
 ```mermaid
 flowchart LR

@@ -7,10 +7,12 @@ import sys
 import threading
 import time
 import uuid
+from pathlib import Path
 from .common import ROOT, DATA, atomic_json, read_json, config, child_path
 from .events import iter_events
 
-WORKER_MODULES={'hi3d_workbench.worker','hi3d_workbench.pipeline_worker','hi3d_workbench.engines.run_stage'}
+WORKER_MODULES={'hi3d_workbench.worker','hi3d_workbench.pipeline_worker','hi3d_workbench.engines.run_stage','hi3d_workbench.studio_worker','hi3d_workbench.studio.native','hi3d_workbench.studio.gpu_uv'}
+WORKER_STAGES=('coarse','refine','texture','studio-remesh','studio-blender','studio-uv')
 
 def _finite_number(value):
     try:return isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value)
@@ -37,12 +39,18 @@ def _terminal_text(value):
     return ''.join(char if char.isprintable() else ' ' for char in str(value))[:500]
 
 def _worker_request(command):
-    if not any(module in command for module in WORKER_MODULES):return None
+    blender_script=str(Path(__file__).parent/'studio'/'blender_ops.py')
+    if not any(module in command for module in WORKER_MODULES) and blender_script not in command:return None
     try:return command[command.index('--request')+1]
     except (ValueError,IndexError):return None
 
+def _stage_directories(request_path):
+    folder=request_path.parent
+    return [*(folder/'stages'/stage for stage in WORKER_STAGES),
+            *(folder/'studio-blender'/operation for operation in ('fbx','import-motion','inspect-motion','prepare-remesh','quadriflow','tessellate'))]
+
 def _job_requests(request_path):
-    return {str(request_path),*(str(request_path.parent/'stages'/stage/'request.json') for stage in ('coarse','refine','texture'))}
+    return {str(request_path),*(str(stage/'request.json') for stage in _stage_directories(request_path))}
 
 def _kill_worker_tree(pid, created, request_path):
     """Kill only the recorded worker identity, never an unrelated reused PID."""
@@ -129,8 +137,7 @@ class JobManager:
     def _cleanup_stage_workers(self,request_path,snapshot=None):
         """Reap recorded stages even when their supervisor has already exited."""
         import psutil
-        for stage in ('coarse','refine','texture'):
-            stage_dir=request_path.parent/'stages'/stage
+        for stage_dir in _stage_directories(request_path):
             try:
                 identity=read_json(stage_dir/'process.json',{})
                 if not isinstance(identity,dict):continue
@@ -236,7 +243,7 @@ class JobManager:
             folder=self.root/jid
             folder.mkdir()
             try:
-                shutil.copy2(image,folder/"input.png")
+                if image is not None:shutil.copy2(image,folder/"input.png")
                 if mesh is not None:shutil.copy2(mesh,folder/"coarse.glb")
                 atomic_json(folder/"request.json",options)
                 state={"id":jid,"created":time.time(),"state":"queued","stage":"queued","options":options,"message":"任务已保存"}
@@ -340,15 +347,21 @@ class JobManager:
         created=None
         pipeline=False
         resident=False
+        options={}
         try:
             cfg=config()
             cmd=cfg["worker_command"] or [str((ROOT/cfg["worker_python"]).resolve())]
             options=self.get(jid)['options']
-            pipeline=options.get('mode','refine')!='refine' or options.get('generate_texture',False)
+            studio=options.get('mode')=='studio'
+            pipeline=not studio and (options.get('mode','refine')!='refine' or options.get('generate_texture',False))
             resident=pipeline and options.get('model_policy') in {'runtime','resident'} and (
                 options.get('mode')=='image_to_asset' and options.get('geometry_engine')=='trellis2' or
                 (options.get('mode')=='texture' or options.get('generate_texture',False)) and options.get('texture_engine','trellis2')=='trellis2')
             module='hi3d_workbench.pipeline_worker' if pipeline else 'hi3d_workbench.worker'
+            if studio:
+                from .studio.models import runtime_python
+                cmd=[str(runtime_python())]
+                module='hi3d_workbench.studio_worker'
             # A custom command is a trusted local configuration, never HTTP input.
             with self.lock:
                 if jid in self.cancelled:return
@@ -383,12 +396,20 @@ class JobManager:
                 report=read_json(folder/'report.json')
                 if not isinstance(report,dict) or report.get('status')!='succeeded':
                     raise ValueError('进程未提供有效的成功报告，请查看阶段日志')
-                expected='textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
+                expected='output.glb' if studio else 'textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
                 if not (folder/expected).is_file():raise RuntimeError('进程退出但缺少预期结果文件')
                 if expected=='textured.glb':
                     from .asset_pipeline import inspect_textured_glb
                     inspect_textured_glb(folder/expected)
                     if not report.get('texture_generated'):raise ValueError('贴图报告未确认生成成功')
+                if studio:
+                    from .studio.gltf import Document
+                    document=Document.load(folder/expected)
+                    if not list(document.primitives()):raise ValueError('资产加工结果缺少网格')
+                    if options.get('action') in {'rig','retarget','motion','edit_rig'} and not document.tree.get('skins'):
+                        raise ValueError('角色结果缺少骨架与蒙皮')
+                    if options.get('action') in {'retarget','motion'} and not document.tree.get('animations'):
+                        raise ValueError('动作结果缺少可播放的动画')
                 self._update(jid,state="succeeded",stage="complete",report=report,message="模型与贴图已完成" if expected=='textured.glb' else "模型已完成")
             else:
                 try:fail=read_json(folder/"failure.json",{})
@@ -418,7 +439,7 @@ class JobManager:
             # Supervisor crashes and cancellation between stage transitions
             # can leave a child outside the earlier tree snapshot. Never free
             # the GPU gate until this final exact-request scan is recorded.
-            if pipeline and (not resident or self.get(jid).get('state')!='succeeded'):
+            if (pipeline or options.get('mode')=='studio') and (not resident or self.get(jid).get('state')!='succeeded'):
                 try:
                     if self._cleanup_stage_workers(folder/'request.json'):
                         message=f'任务 {jid} 的阶段进程尚未退出，已阻止新的 GPU 操作'

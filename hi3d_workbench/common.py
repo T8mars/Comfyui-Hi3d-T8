@@ -3,6 +3,7 @@ import hashlib
 import json
 import os
 import shutil
+import sys
 import tempfile
 from pathlib import Path
 
@@ -12,8 +13,18 @@ ROOT = Path(os.environ.get("HI3D_WORKBENCH_ROOT", _project_root)).resolve()
 DATA = ROOT / "data"
 DEFAULT_MODELS = ROOT / "models"
 SOURCE_REVISION = "23dcc684bc6e1fab86ecafb99ec5270edad122f9"
-VERSION = "0.5.1"
+VERSION = "0.6.0"
 MODEL_REVISION = "705fc0901c5d896cdcbf1dbf1feaa173e62bdd3a"
+
+
+def configure_stdio():
+    """Use the UTF-8 wire format even when embedded Python ignores env vars."""
+    for name in ('stdin', 'stdout', 'stderr'):
+        stream = getattr(sys, name, None)
+        reconfigure = getattr(stream, 'reconfigure', None)
+        if reconfigure is not None:
+            reconfigure(encoding='utf-8', errors='strict' if name == 'stdin' else 'replace')
+
 
 def atomic_json(path: Path, value):
     path.parent.mkdir(parents=True, exist_ok=True)

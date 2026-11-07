@@ -1,6 +1,7 @@
 """CPU tests for UV provenance, bounded fallback and verified caching."""
 import json
 import sys
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 from types import SimpleNamespace
 
@@ -357,6 +358,23 @@ def test_extreme_source_sliver_gets_minimum_texel_area_without_geometry_change()
     area = abs(np.cross(triangle[1]-triangle[0], triangle[2]-triangle[0]))*.5
     assert area*2048**2 > 1.
     assert np.array_equal(vertices[new_mapping][new_faces], vertices[source.faces])
+
+
+def test_final_canvas_drift_does_not_exhaust_retry_limit_within_repair_budget():
+    from hi3d_workbench.engines.community_uv import _repair_local_faces
+    # Reduced floating-point layout from a real dense part, with synthetic 3D
+    # triangles. The former four-pass path failed at 9/24 faces despite its
+    # 16-face bound; it normalized the growing canvas after each repair.
+    case=json.loads((Path(__file__).parent/'fixtures/uv-float32-canvas-drift.json').read_text())
+    vertices=np.tile([[0.,0.,0.],[1.,0.,0.],[.4,1.,0.]],(case['faces'],1))
+    mapping=np.arange(len(vertices));faces=mapping.reshape(-1,3)
+    source=trimesh.Trimesh(vertices,faces,process=False)
+    new_mapping,new_faces,new_uv,report=_repair_local_faces(vertices,mapping,faces,np.asarray(case['pixels']),
+        case['side'],case['resolution'],case['padding'],lambda *args,**values:None)
+    mesh_uv._verify_arrays(source,faces,new_mapping,new_faces,new_uv)
+    assert 0<report['repaired_faces']<=report['repair_budget']
+    assert report['atlas_linear_scale']>.98
+    np.testing.assert_array_equal(new_mapping[new_faces],mapping[faces])
 
 
 def test_large_scale_collapsed_layout_is_rejected_instead_of_hidden_cpu_rerun(monkeypatch):

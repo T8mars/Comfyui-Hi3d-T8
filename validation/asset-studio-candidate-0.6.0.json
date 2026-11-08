@@ -190,8 +190,7 @@
     "retarget.py": "9ad8744bba8ffffb8bbbb9cd5865a0c093c1371446ecd52f53e6800e4d9aa066"
   },
   "pending": [
-    "browser interactions and full animation playback",
-    "complex completion, material and deformation quality",
+    "actual browser interactions and full animation playback",
     "final complete-bundle acceptance and release"
   ],
   "historical_repository_regression": {
@@ -207,7 +206,8 @@
     "p3sam-numerics-0.6.0.json": "71de053fc25d4572b8faa9bc4c97f956b9f7e9596548bfc9b15b9256d6b2636b",
     "asset-studio-courier-0.6.0.json": "46285bf7ede33f58f6ec0459622f91b85b7e04fd1b1831243502a1f4d09a3863",
     "scene-index-width-0.6.0.json": "d64736260bf25c3ccf8c251371954e4f70ba66881faee2952016519a68825d42",
-    "xpart-courier-0.6.0.json": "4f9d8cf9be01132f2ddb300a303d266e85dba0c0cfb0c09749688ea510e2d184"
+    "xpart-courier-0.6.0.json": "8039e71a0bb021e484c8fa81ffe09e870361b2436a88c7fb13a74ee99578b806",
+    "xpart-courier-http-0.6.0.json": "ee9a5961894ef6b733877385bf80e43edcd14fa649004473b90b7d69d05c6c53"
   },
   "historical_worker_source_sha256": {
     "generated_geometry.py": "76c214b8ed4c77c77d39210e506d205fba2293f14806c41cec4975bf1fefc5a3",
@@ -216,5 +216,20 @@
     "animation.py": "74166458e7736f047880707ede790d1a947fbfc027a247aa2bebb615ce131e78",
     "foot_support.py": "a0486f111da875777b29662ac0be767df86a0e25b1cf8f551b4973bdecc5e016",
     "retarget.py": "9ad8744bba8ffffb8bbbb9cd5865a0c093c1371446ecd52f53e6800e4d9aa066"
-  }
+  },
+  "fresh_seven_part_http": {
+    "job": "cb23f4be0ac149a7bb2aa79bc0e21808",
+    "seconds": 846.672,
+    "parts": 7,
+    "faces": 498894,
+    "output_sha256": "ae14df23c2f07e6dce27db4d791a42268a65975df49d6ee79c05a42146ae850c",
+    "http_and_artifact_checks_passed": true,
+    "sampled_static_views_accepted": true,
+    "browser_accepted": false
+  },
+  "known_quality_limits": [
+    "Fused hand/hip surfaces can stretch or open after contact separation.",
+    "Layered fox-knight completion/retopology cases remain poor; those original inputs have no narrow-index overflow, so their failure evidence remains applicable.",
+    "Generated interiors, fine fingers and printable assembly fit need inspection; no universal input-quality guarantee."
+  ]
 }

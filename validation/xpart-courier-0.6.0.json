@@ -2,7 +2,7 @@
   "schema": 1,
   "version": "0.6.0",
   "recorded_date": "2026-11-08",
-  "acceptance": "pending final HTTP/browser/bundle validation",
+  "acceptance": "pending browser and final distribution",
   "regression": {
     "repository_tests": 897,
     "failures": 0,
@@ -1266,8 +1266,14 @@
     "scope": "Narrow-index offset audit only; not a rerun of affected model or native tool inference."
   },
   "pending": [
-    "fresh full HTTP completion",
     "actual browser interactions and full animation playback",
     "final complete-bundle acceptance and release"
-  ]
+  ],
+  "fresh_full_http_result": {
+    "receipt": "validation/xpart-courier-http-0.6.0.json",
+    "receipt_sha256": "ee9a5961894ef6b733877385bf80e43edcd14fa649004473b90b7d69d05c6c53",
+    "job": "cb23f4be0ac149a7bb2aa79bc0e21808",
+    "state": "succeeded",
+    "output_sha256": "ae14df23c2f07e6dce27db4d791a42268a65975df49d6ee79c05a42146ae850c"
+  }
 }

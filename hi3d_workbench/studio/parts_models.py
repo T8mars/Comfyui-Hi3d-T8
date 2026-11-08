@@ -310,6 +310,19 @@ def complete(source, target, document, labels, names, request, emit):
     del pipeline
     import gc
     gc.collect(); torch.cuda.empty_cache()
+    return finish_completed_parts(source,target,metadata,original,parts,center,scale,names,request,emit,generation)
+
+
+def finish_completed_parts(source,target,metadata,original,parts,center,scale,names,request,emit,generation):
+    """Validate and bake decoded geometry without repeating model sampling."""
+    from .gltf import Document
+    from .join import join_static
+    from .parts import write_parts
+    folder=Path(target).parent;original=Path(original);segmented=original/'output.glb'
+    for filename,name in [('output.glb','original-segmentation.glb'),
+                          ('parts.json','original-parts.json'),('parts.zip','original-parts.zip')]:
+        if (original/filename).resolve()!=(folder/name).resolve():
+            atomic_copy(original/filename,folder/name)
     paths = []
     transfer_reports=[]
     from .material_transfer import run as transfer_material

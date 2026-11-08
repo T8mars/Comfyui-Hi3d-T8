@@ -1,0 +1,1273 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "recorded_date": "2026-11-08",
+  "acceptance": "pending final HTTP/browser/bundle validation",
+  "regression": {
+    "repository_tests": 897,
+    "failures": 0,
+    "junit_sha256": "13363a0bc053eba7a8dc22d37dff61d54f78396dab8ed82a359afec2fa74eadd"
+  },
+  "geometry_origin": {
+    "real_http_job": "8380feec030e4128a7e4a2977e2f4efd",
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "generation": {
+      "guidance_scale": 7.5,
+      "precision": "FP32",
+      "sampling": "separate CFG branches with shared part-embedding RNG",
+      "staged": true,
+      "seed": 23,
+      "steps": 50,
+      "resolution": 512,
+      "decode_chunks": 32768,
+      "semantic_matching": [
+        {
+          "context": "obj_cond",
+          "parts": 7,
+          "queries_per_part": 4096,
+          "reference_points_per_part": 81920,
+          "legacy_distance_matrix_bytes": 9395240960,
+          "max_distance_block_bytes": 8000000,
+          "precision": "torch.float32",
+          "all_reference_points_tested": true,
+          "distance_formula": "direct coordinate differences; first-index ties"
+        },
+        {
+          "context": "geo_cond",
+          "parts": 7,
+          "queries_per_part": 4096,
+          "reference_points_per_part": 81920,
+          "legacy_distance_matrix_bytes": 9395240960,
+          "max_distance_block_bytes": 8000000,
+          "precision": "torch.float32",
+          "all_reference_points_tested": true,
+          "distance_formula": "direct coordinate differences; first-index ties"
+        }
+      ],
+      "condition_seconds": 155.15599999999904,
+      "sampling_seconds": 346.35899999999856,
+      "decode_seconds": 33.21899999999914
+    },
+    "coverage": [
+      {
+        "part": 0,
+        "name": "Glove A",
+        "coverage": {
+          "source_vertex_samples": 5149,
+          "normalized_distance_p95": 0.004740274697542189,
+          "normalized_distance_max": 0.034260381013154984,
+          "vertices_over_3_percent_extent": 2
+        },
+        "source_sha256": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+        "candidate_sha256": "8fde8f734a1ebecde4973897fa134d25794365ae7130c5abe6cef5e407fa0e0c",
+        "status": "passed"
+      },
+      {
+        "part": 1,
+        "name": "Glove B",
+        "coverage": {
+          "source_vertex_samples": 5166,
+          "normalized_distance_p95": 0.004810581915080547,
+          "normalized_distance_max": 0.036331482231616974,
+          "vertices_over_3_percent_extent": 3
+        },
+        "source_sha256": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+        "candidate_sha256": "c236c5c699a55e222396df35636b52b78cdbcbc8958a033e2373c37fb8d5cc08",
+        "status": "passed"
+      },
+      {
+        "part": 2,
+        "name": "Head",
+        "coverage": {
+          "source_vertex_samples": 18621,
+          "normalized_distance_p95": 0.0029576166998595,
+          "normalized_distance_max": 0.020785944536328316,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+        "candidate_sha256": "9306514fa92841ce7b3640f1de7b208398a693873659d8743fe657f232bbfeb8",
+        "status": "passed"
+      },
+      {
+        "part": 3,
+        "name": "Jacket",
+        "coverage": {
+          "source_vertex_samples": 42290,
+          "normalized_distance_p95": 0.0009417087421752508,
+          "normalized_distance_max": 0.017041830345988274,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+        "candidate_sha256": "3e5f984fe16764bd02e2bf3d86e1adb0801369bb8b6bbe0f81abe5554ccc5aad",
+        "status": "passed"
+      },
+      {
+        "part": 4,
+        "name": "Boot A",
+        "coverage": {
+          "source_vertex_samples": 8998,
+          "normalized_distance_p95": 0.002837528253439813,
+          "normalized_distance_max": 0.00986887700855732,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "3ce314df713083200cb86ad1072e25270a98c1aaeecf71153b51b97eb0d4852c",
+        "candidate_sha256": "e1ee50d06a8ee99bd4c4d05009e804e0a776a1940414048b3149127b378a45f1",
+        "status": "passed"
+      },
+      {
+        "part": 5,
+        "name": "Trousers",
+        "coverage": {
+          "source_vertex_samples": 46778,
+          "normalized_distance_p95": 0.0009296823962358759,
+          "normalized_distance_max": 0.01078065950423479,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "68b92dd93cc3c2f3732a733826b076338dbe5cacb727356f98cadf8395ec230e",
+        "candidate_sha256": "81a5e50e9f0fff4197d3bff5b40c99edf71f2375764575413b361bb628c23073",
+        "status": "passed"
+      },
+      {
+        "part": 7,
+        "name": "Boot B",
+        "coverage": {
+          "source_vertex_samples": 8812,
+          "normalized_distance_p95": 0.0028091232059523435,
+          "normalized_distance_max": 0.008162528276443481,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "6c565b9160215649564d3e457b4eb5a7d92bc8f10bf72951b2562c20c8efb632",
+        "candidate_sha256": "02231d0d09813cca24cecf10ce91438c309121b02ac5913ce8d15c9cca073acb",
+        "status": "passed"
+      }
+    ],
+    "http_job_terminal_state": "failed during CPU UV after all seven geometry checks passed"
+  },
+  "small_part_uv_repair": {
+    "original_failure": "CPU xatlas: 327 degenerate faces / 13088, above unchanged limit of 130.",
+    "same_glove_gpu": {
+      "source_sha256": "8fde8f734a1ebecde4973897fa134d25794365ae7130c5abe6cef5e407fa0e0c",
+      "output_sha256": "d88300358914854cfe59178821440abbdc752293d75ba6e5d26fad287ab7f1fa",
+      "seconds": 23.04700000000048,
+      "report": {
+        "backend": "community GPU PEC / original indices",
+        "faces": 13088,
+        "charts": 64,
+        "texture_size": 2048,
+        "padding_pixels": 4,
+        "oriented_geometry_preserved": true,
+        "zero_uv_faces": 0,
+        "duplicate_uv_faces": 0,
+        "uv_area": 0.5367987647060175,
+        "subpixel_triangles": 113,
+        "stage": {
+          "backend": "community GPU PEC / original indices",
+          "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+          "input_sha256": "57621c08842894fac8bd07b532b50a105fb48143a0c6a3a46c86f001105f9339",
+          "seconds": 19.547,
+          "gpu_peak_allocated_mib": 27.4,
+          "uv_diagnostics": {
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "faces": 13088,
+            "charts": 64,
+            "prepack_zero_faces": 0,
+            "postpack_zero_faces": 0,
+            "prepack_bad_face_sample": [],
+            "postpack_duplicate_faces": 0,
+            "postpack_duplicate_face_sample": [],
+            "packing_backend": "numba",
+            "packing_device": "cpu",
+            "postpack_bad_face_sample": [],
+            "atlas_width": 2201,
+            "atlas_height": 2091,
+            "unclipped_uv_min": [
+              0.0,
+              0.05150437355041504
+            ],
+            "unclipped_uv_max": [
+              0.9984803199768066,
+              1.0
+            ]
+          }
+        }
+      },
+      "serialized_glb_metrics": [
+        {
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5367987647060175,
+          "subpixel_triangles": 113
+        }
+      ],
+      "same_generated_glove": true,
+      "repair_budget_unchanged": true,
+      "new_diffusion_run": false
+    },
+    "independent_glb_readback": {
+      "faces": 13088,
+      "every_oriented_triangle_preserved": true,
+      "source_sha256": "8fde8f734a1ebecde4973897fa134d25794365ae7130c5abe6cef5e407fa0e0c",
+      "uv_glb_sha256": "d88300358914854cfe59178821440abbdc752293d75ba6e5d26fad287ab7f1fa",
+      "scope": "Independent original float32 triangle coordinates versus serialized GLB, allowing cyclic vertex order but retaining orientation."
+    },
+    "behavior": "Auto mode retries only a CPU layout rejection on the independent available GPU atlas. Explicit CPU, geometry failures and unavailable GPU do not silently switch. GPU retries do not loop or fall back to CPU."
+  },
+  "production_post_decode_replay": {
+    "new_diffusion_run": false,
+    "seconds": 285.9220000000005,
+    "report_sha256": "e08ba8686d184cd53ccdc4aeb0affba69f6e647609a1f1cccaf6611ddc35af6c",
+    "independent_validation": {
+      "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+      "output_sha256": "11104e1fbf6fb3d3f4a8a46b1e012d974611928f98c7577d7d8c00cb2fbd686b",
+      "parts_zip_sha256": "2ce01fd7d90dd7a419edfc94d5da120bb5e23341035de857df63dc562bb3761c",
+      "faces": 498894,
+      "parts": [
+        {
+          "id": 0,
+          "name": "Glove A",
+          "faces": 13088,
+          "saved_geometry_sha256": "8fde8f734a1ebecde4973897fa134d25794365ae7130c5abe6cef5e407fa0e0c",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.5367987575202847,
+              "subpixel_triangles": 113
+            }
+          ]
+        },
+        {
+          "id": 1,
+          "name": "Glove B",
+          "faces": 13064,
+          "saved_geometry_sha256": "c236c5c699a55e222396df35636b52b78cdbcbc8958a033e2373c37fb8d5cc08",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.5319540299614561,
+              "subpixel_triangles": 115
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Head",
+          "faces": 43820,
+          "saved_geometry_sha256": "9306514fa92841ce7b3640f1de7b208398a693873659d8743fe657f232bbfeb8",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.5660136614410985,
+              "subpixel_triangles": 885
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "Jacket",
+          "faces": 181372,
+          "saved_geometry_sha256": "3e5f984fe16764bd02e2bf3d86e1adb0801369bb8b6bbe0f81abe5554ccc5aad",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.4689224169960035,
+              "subpixel_triangles": 9209
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Boot A",
+          "faces": 22280,
+          "saved_geometry_sha256": "e1ee50d06a8ee99bd4c4d05009e804e0a776a1940414048b3149127b378a45f1",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.5601485381853549,
+              "subpixel_triangles": 234
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "name": "Trousers",
+          "faces": 204046,
+          "saved_geometry_sha256": "81a5e50e9f0fff4197d3bff5b40c99edf71f2375764575413b361bb628c23073",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.4156877571944684,
+              "subpixel_triangles": 10988
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "name": "Boot B",
+          "faces": 21224,
+          "saved_geometry_sha256": "02231d0d09813cca24cecf10ce91438c309121b02ac5913ce8d15c9cca073acb",
+          "all_generated_oriented_triangles_preserved": true,
+          "watertight": true,
+          "winding_consistent": true,
+          "uv": [
+            {
+              "zero_uv_faces": 0,
+              "duplicate_uv_faces": 0,
+              "uv_area": 0.5211486829168194,
+              "subpixel_triangles": 167
+            }
+          ]
+        }
+      ],
+      "embedded_2k_images": [
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGBA"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        },
+        {
+          "size": [
+            2048,
+            2048
+          ],
+          "mode": "RGB"
+        }
+      ],
+      "zip_crc": "passed",
+      "all_original_part_files_preserved": true,
+      "report_sha256": "e08ba8686d184cd53ccdc4aeb0affba69f6e647609a1f1cccaf6611ddc35af6c",
+      "new_diffusion_run": false,
+      "geometry_origin_job": "8380feec030e4128a7e4a2977e2f4efd",
+      "scope": "Independent real saved geometry / PBR / ZIP readback; no fresh HTTP or browser acceptance claimed.",
+      "visual_review_pending": true
+    },
+    "material_transfers": [
+      {
+        "quad_faces": 0,
+        "polygons": 13088,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 13088,
+          "charts": 64,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5367987575202847,
+          "subpixel_triangles": 113,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "57621c08842894fac8bd07b532b50a105fb48143a0c6a3a46c86f001105f9339",
+            "seconds": 16.5,
+            "gpu_peak_allocated_mib": 27.4,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 13088,
+              "charts": 64,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2201,
+              "atlas_height": 2091,
+              "unclipped_uv_min": [
+                0.0,
+                0.05150437355041504
+              ],
+              "unclipped_uv_max": [
+                0.9984803199768066,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 7911642,
+          "nearest_fallback_samples": 1094620,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 2273117,
+              "surface_samples": 9006262,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.03470297157764435,
+              "p95_projection_distance": 0.012578717619180627,
+              "extrapolated_samples": 932886,
+              "opposed_surface_samples": 695847
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 49.562,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ],
+        "uv_retry": {
+          "requested": "auto",
+          "initial_backend": "cpu",
+          "used_backend": "gpu",
+          "reason": "UV 局部退化超过安全修复范围：327/13088 面，上限 130，已拒绝全网 CPU 重算"
+        }
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 13064,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 13064,
+          "charts": 65,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5319540299614561,
+          "subpixel_triangles": 115,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "8b1c314d940e69f396887177a42da10efd817929c706808edf150e5283dc25d5",
+            "seconds": 5.047,
+            "gpu_peak_allocated_mib": 23.1,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 13064,
+              "charts": 65,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2211,
+              "atlas_height": 2148,
+              "unclipped_uv_min": [
+                0.0,
+                0.02994561195373535
+              ],
+              "unclipped_uv_max": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 7879227,
+          "nearest_fallback_samples": 1045530,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 2254354,
+              "surface_samples": 8924757,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.034401413053274155,
+              "p95_projection_distance": 0.01185079850256442,
+              "extrapolated_samples": 888590,
+              "opposed_surface_samples": 717766
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 35.031,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ],
+        "uv_retry": {
+          "requested": "auto",
+          "initial_backend": "cpu",
+          "used_backend": "gpu",
+          "reason": "UV 局部退化超过安全修复范围：292/13064 面，上限 130，已拒绝全网 CPU 重算"
+        }
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 43820,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 43820,
+          "charts": 116,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5660136614410985,
+          "subpixel_triangles": 885,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "a71c5d60de6128be77d4896352377ff75e002c3b5780b71a7f7dfd5c6019e3df",
+            "seconds": 3.922,
+            "gpu_peak_allocated_mib": 70.64,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 43820,
+              "charts": 116,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2127,
+              "atlas_height": 2143,
+              "unclipped_uv_min": [
+                -0.0001916985202115029,
+                0.0016540884971618652
+              ],
+              "unclipped_uv_max": [
+                0.9906122088432312,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 8991049,
+          "nearest_fallback_samples": 505069,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 2403489,
+              "surface_samples": 9496118,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.05719633772969246,
+              "p95_projection_distance": 0.002946489898022275,
+              "extrapolated_samples": 353626,
+              "opposed_surface_samples": 277265
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 46.282,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ],
+        "uv_retry": {
+          "requested": "auto",
+          "initial_backend": "cpu",
+          "used_backend": "gpu",
+          "reason": "UV 局部退化超过安全修复范围：1081/43820 面，上限 438，已拒绝全网 CPU 重算"
+        }
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 181372,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 181372,
+          "charts": 138,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.4689224169960035,
+          "subpixel_triangles": 9209,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "ce06205439823198f2d8a5387c079e08ad089f9efb68059244c06ae43c21ce52",
+            "seconds": 6.235,
+            "gpu_peak_allocated_mib": 115.4,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 181372,
+              "charts": 138,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2318,
+              "atlas_height": 2260,
+              "unclipped_uv_min": [
+                0.0,
+                0.026272475719451904
+              ],
+              "unclipped_uv_max": [
+                0.9983268976211548,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 4189683,
+          "nearest_fallback_samples": 3677492,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 1998507,
+              "surface_samples": 7867175,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.030277201905846596,
+              "p95_projection_distance": 0.010322287678718567,
+              "extrapolated_samples": 0,
+              "opposed_surface_samples": 3597283
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 33.141,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ]
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 22280,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 22280,
+          "charts": 31,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5601485381853549,
+          "subpixel_triangles": 234,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "a5d8775cde7c9d452bb39e4e3b83a01f78a7d053494fe25110b18bcbea8ae917",
+            "seconds": 4.906,
+            "gpu_peak_allocated_mib": 20.46,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 22280,
+              "charts": 31,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2146,
+              "atlas_height": 2045,
+              "unclipped_uv_min": [
+                0.0,
+                0.04883164167404175
+              ],
+              "unclipped_uv_max": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 8453824,
+          "nearest_fallback_samples": 944123,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 2364280,
+              "surface_samples": 9397947,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.05267130583524704,
+              "p95_projection_distance": 0.01640043500810861,
+              "extrapolated_samples": 663348,
+              "opposed_surface_samples": 356796
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 36.672,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ],
+        "uv_retry": {
+          "requested": "auto",
+          "initial_backend": "cpu",
+          "used_backend": "gpu",
+          "reason": "UV 局部退化超过安全修复范围：364/22280 面，上限 222，已拒绝全网 CPU 重算"
+        }
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 204046,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 204046,
+          "charts": 75,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.4156877571944684,
+          "subpixel_triangles": 10988,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "d056b19df1b6f3ad71a774d72c8c945de5df67b956188a59ac9bb8445e32da9a",
+            "seconds": 8.469,
+            "gpu_peak_allocated_mib": 127.61,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 204046,
+              "charts": 75,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2355,
+              "atlas_height": 2375,
+              "unclipped_uv_min": [
+                0.0,
+                0.0014784932136535645
+              ],
+              "unclipped_uv_max": [
+                0.9915789365768433,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 3595252,
+          "nearest_fallback_samples": 3379916,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 1770427,
+              "surface_samples": 6975168,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.027645045891404152,
+              "p95_projection_distance": 0.010332178277894854,
+              "extrapolated_samples": 0,
+              "opposed_surface_samples": 3287000
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 33.0,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ]
+      },
+      {
+        "quad_faces": 0,
+        "polygons": 21224,
+        "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+        "uv_backend": "gpu",
+        "texture_size": 2048,
+        "channels": [
+          "base_color",
+          "roughness",
+          "metallic",
+          "alpha",
+          "emission",
+          "normal",
+          "occlusion"
+        ],
+        "uv": {
+          "backend": "community GPU PEC / original indices",
+          "faces": 21224,
+          "charts": 28,
+          "texture_size": 2048,
+          "padding_pixels": 4,
+          "oriented_geometry_preserved": true,
+          "zero_uv_faces": 0,
+          "duplicate_uv_faces": 0,
+          "uv_area": 0.5211486829168194,
+          "subpixel_triangles": 167,
+          "stage": {
+            "backend": "community GPU PEC / original indices",
+            "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+            "input_sha256": "6b539de37f0c7de3720e35aff9ede10791ad5cd4b4af026e7fe819be67a3befb",
+            "seconds": 3.89,
+            "gpu_peak_allocated_mib": 29.26,
+            "uv_diagnostics": {
+              "source_revision": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+              "faces": 21224,
+              "charts": 28,
+              "prepack_zero_faces": 0,
+              "postpack_zero_faces": 0,
+              "prepack_bad_face_sample": [],
+              "postpack_duplicate_faces": 0,
+              "postpack_duplicate_face_sample": [],
+              "packing_backend": "numba",
+              "packing_device": "cpu",
+              "postpack_bad_face_sample": [],
+              "atlas_width": 2215,
+              "atlas_height": 2136,
+              "unclipped_uv_min": [
+                0.0,
+                0.03727835416793823
+              ],
+              "unclipped_uv_max": [
+                1.0,
+                1.0
+              ]
+            }
+          },
+          "cache_hit": false
+        },
+        "projection": {
+          "material_transfer": "CPU normal cage with nearest fallback PBR projection",
+          "projection": "cage",
+          "cage_samples": 8124256,
+          "nearest_fallback_samples": 618761,
+          "texture_size": 2048,
+          "supersample": 2,
+          "source_has_materials": true,
+          "atlases": [
+            {
+              "atlas_texels": 2200304,
+              "surface_samples": 8743017,
+              "unassigned_texels": 0,
+              "max_projection_distance": 0.05376264452934265,
+              "p95_projection_distance": 0.00951108206063504,
+              "extrapolated_samples": 430332,
+              "opposed_surface_samples": 76626
+            }
+          ],
+          "notice": "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        },
+        "seconds": 33.109,
+        "warnings": [
+          "保留新网格与 UV；沿目标法线投射原表面，未命中时回退最近表面。内部新表面属于推测转移，需要检查或重新贴图。"
+        ],
+        "uv_retry": {
+          "requested": "auto",
+          "initial_backend": "cpu",
+          "used_backend": "gpu",
+          "reason": "UV 局部退化超过安全修复范围：296/21224 面，上限 212，已拒绝全网 CPU 重算"
+        }
+      }
+    ]
+  },
+  "sampled_visual_review": {
+    "accepted_for_this_case": true,
+    "model_sha256": "11104e1fbf6fb3d3f4a8a46b1e012d974611928f98c7577d7d8c00cb2fbd686b",
+    "front_back_quarter_manifest_sha256": "edae48f19999563d1a3fb61bddafff31c8d987552d95cf1ca2324dac2c1d179a",
+    "exploded_manifest_sha256": "03f2a41900e61b9868e6142ea9f91f95ac66dbd8aff4102a6243442c7b653358",
+    "images": [
+      "docs/assets/courier-completed-front.png",
+      "docs/assets/courier-completed-parts.png"
+    ],
+    "finding": "Both sleeves, hands, head, trousers and boots remain coherent in the inspected views. PBR clothing colors are retained; the soft face/boot details and waist bands also exist in the original. Raw internal surfaces are inferred, not an assembly/printability guarantee.",
+    "scope": "Three static PBR views and a seven-part exploded view of actual saved-geometry postprocessing; not fresh HTTP or browser acceptance."
+  },
+  "full_motion_render": {
+    "model_sha256": "3d17066362ce98f449757cda3af54944f414a4fe99f005c7306c681856b2d8d9",
+    "frames": 121,
+    "fps": 30,
+    "encoded_duration_seconds": 4.033333,
+    "render_validation_sha256": "af138a30584c9def47e919ef8dc6c6b11b309f476e88ccf63a1f164750be774f",
+    "mp4_sha256": "1f128b4aa0d3c6a281d848570cfeb7fd43a076c026c7456ed901f06e4d2b7972",
+    "fixed_camera": true,
+    "fixed_world_floor": true,
+    "full_playback_accepted": false,
+    "scope": "All stored frames rendered and encoded; player file dialog did not provide reliable input focus, so actual full playback remains unaccepted."
+  },
+  "fresh_full_http_run_at_checkpoint": {
+    "id": "cb23f4be0ac149a7bb2aa79bc0e21808",
+    "state": "running",
+    "stage": "asset_part_completion",
+    "message": "X-Part 部件几何采样"
+  },
+  "code_sha256": {
+    "parts_models.py": "4949d40933bdc520f04022ee264c7af9c9f0cdf4136349b159e5297390fac7ec",
+    "uv_atlas.py": "45a5b2a8ec2fca07b0e1d8d194134394251fd11ac836a9ae1f155a629b74bea4",
+    "material_transfer.py": "07f03c49979900f610803103fc6b3191aded245b9500b069094f07496e5c1620"
+  },
+  "prior_failure_impact_audit": {
+    "cases": [
+      {
+        "path": "data/asset-studio-validation/xpart-fox-colored-v1/input/segmented.glb",
+        "sha256": "86f1e80c17b2afe9ec1de1aaf125722c32be518d46ae5077bf81f3ad681e1857",
+        "faces": 979450,
+        "incorrect_faces": 0,
+        "primitives": [
+          {
+            "node": 2,
+            "primitive": 0,
+            "dtype": "uint32",
+            "offset": 0,
+            "faces": 882636,
+            "incorrect_faces": 0
+          },
+          {
+            "node": 3,
+            "primitive": 0,
+            "dtype": "uint32",
+            "offset": 930562,
+            "faces": 96814,
+            "incorrect_faces": 0
+          }
+        ]
+      },
+      {
+        "path": "data/asset-studio-validation/retopology-fox-surface-v3/coarse.glb",
+        "sha256": "8509577846354ba3ab32e4c8bdeccab3d68757f938ac7d2ca7ff0e7bec38e620",
+        "faces": 979450,
+        "incorrect_faces": 0,
+        "primitives": [
+          {
+            "node": 1,
+            "primitive": 0,
+            "dtype": "uint32",
+            "offset": 0,
+            "faces": 979450,
+            "incorrect_faces": 0
+          }
+        ]
+      },
+      {
+        "path": "data/asset-studio-validation/unirig-cesium-man/coarse.glb",
+        "sha256": "b7001eaeea8254bd44773bcd247e78696d94169388fbb2a1800fc69434e777d9",
+        "faces": 4672,
+        "incorrect_faces": 0,
+        "primitives": [
+          {
+            "node": 2,
+            "primitive": 0,
+            "dtype": "uint16",
+            "offset": 0,
+            "faces": 4672,
+            "incorrect_faces": 0
+          }
+        ]
+      }
+    ],
+    "scope": "Narrow-index offset audit only; not a rerun of affected model or native tool inference."
+  },
+  "pending": [
+    "fresh full HTTP completion",
+    "actual browser interactions and full animation playback",
+    "final complete-bundle acceptance and release"
+  ]
+}

@@ -1,21 +1,29 @@
 {
   "schema": 1,
   "version": "0.6.0",
-  "recorded_date": "2026-11-07",
+  "recorded_date": "2026-11-08",
   "acceptance": "pending",
   "scope": "Recorded local backend and serialized-artifact evidence; not final visual, browser or distribution acceptance.",
   "device": "NVIDIA GeForce RTX 5090 Laptop GPU 24GB",
   "regression": {
     "tests": 272,
     "failures": 0,
-    "junit_sha256": "42c0c4f760943264914e59ff8dd27351d3390bb2fe257b782daec311b5176925"
+    "junit_sha256": "42c0c4f760943264914e59ff8dd27351d3390bb2fe257b782daec311b5176925",
+    "scope": "Historical targeted suite; latest full repository regression is recorded separately."
   },
   "repository_regression": {
-    "tests": 844,
+    "tests": 897,
     "failures": 0,
-    "junit_sha256": "900c17d55d7dfb7bdc98221372891c1a30f4a60002c0fe1f8c8d73cfeb87085c",
-    "source_commit": "8576bd0de0e9393bea5ff5a9afe59251717768b6",
-    "scope": "previous checkpoint; subsequent preview-only fix covered by current targeted regression"
+    "junit_sha256": "13363a0bc053eba7a8dc22d37dff61d54f78396dab8ed82a359afec2fa74eadd",
+    "scope": "Current tested runtime source; exact code hashes are in recent receipts. Historical targeted counts are not added.",
+    "runtime_code_sha256": {
+      "scene.py": "ea6be32429319e38bfef2524c6520266062a7526f8ee966be73ea4b2b26d7ec1",
+      "retopology.py": "946567ba6a038670e1c818160556d6cd8e964e811f7bb2d21b6cf5ebceea37f5",
+      "parts.py": "c8eb773905db0cacd1cf1c0bd20e95844f943d07c0453e24c5210b62e7e83225",
+      "parts_models.py": "4949d40933bdc520f04022ee264c7af9c9f0cdf4136349b159e5297390fac7ec",
+      "uv_atlas.py": "45a5b2a8ec2fca07b0e1d8d194134394251fd11ac836a9ae1f155a629b74bea4",
+      "material_transfer.py": "07f03c49979900f610803103fc6b3191aded245b9500b069094f07496e5c1620"
+    }
   },
   "preview_bone_tracking": {
     "tests": 6,
@@ -175,8 +183,8 @@
   },
   "worker_source_sha256": {
     "generated_geometry.py": "76c214b8ed4c77c77d39210e506d205fba2293f14806c41cec4975bf1fefc5a3",
-    "parts_models.py": "815930a01148e97edfccadf9ec93d0efd385cb82d5b4faadd129dbc92d6114b2",
-    "parts.py": "47bc57fa02f474de41d5d27a0d30d8548ea80cfcc6c72a10bacc3915f83bfe62",
+    "parts_models.py": "4949d40933bdc520f04022ee264c7af9c9f0cdf4136349b159e5297390fac7ec",
+    "parts.py": "c8eb773905db0cacd1cf1c0bd20e95844f943d07c0453e24c5210b62e7e83225",
     "animation.py": "74166458e7736f047880707ede790d1a947fbfc027a247aa2bebb615ce131e78",
     "foot_support.py": "a0486f111da875777b29662ac0be767df86a0e25b1cf8f551b4973bdecc5e016",
     "retarget.py": "9ad8744bba8ffffb8bbbb9cd5865a0c093c1371446ecd52f53e6800e4d9aa066"
@@ -185,5 +193,28 @@
     "browser interactions and full animation playback",
     "complex completion, material and deformation quality",
     "final complete-bundle acceptance and release"
-  ]
+  ],
+  "historical_repository_regression": {
+    "tests": 844,
+    "failures": 0,
+    "junit_sha256": "900c17d55d7dfb7bdc98221372891c1a30f4a60002c0fe1f8c8d73cfeb87085c",
+    "source_commit": "8576bd0de0e9393bea5ff5a9afe59251717768b6",
+    "scope": "previous checkpoint; subsequent preview-only fix covered by current targeted regression"
+  },
+  "recent_receipts": {
+    "hunyuan-multiview-0.6.0.json": "c7a13a8147e74b16a3df8624a8e95f9590585e3f92b25d25cfd5e391853c349f",
+    "cartoon-rig-mapping-0.6.0.json": "faa1c201c02466c78539fbaba1efd509c0f585fbefbcc362b307491ebb908f55",
+    "p3sam-numerics-0.6.0.json": "71de053fc25d4572b8faa9bc4c97f956b9f7e9596548bfc9b15b9256d6b2636b",
+    "asset-studio-courier-0.6.0.json": "46285bf7ede33f58f6ec0459622f91b85b7e04fd1b1831243502a1f4d09a3863",
+    "scene-index-width-0.6.0.json": "d64736260bf25c3ccf8c251371954e4f70ba66881faee2952016519a68825d42",
+    "xpart-courier-0.6.0.json": "4f9d8cf9be01132f2ddb300a303d266e85dba0c0cfb0c09749688ea510e2d184"
+  },
+  "historical_worker_source_sha256": {
+    "generated_geometry.py": "76c214b8ed4c77c77d39210e506d205fba2293f14806c41cec4975bf1fefc5a3",
+    "parts_models.py": "815930a01148e97edfccadf9ec93d0efd385cb82d5b4faadd129dbc92d6114b2",
+    "parts.py": "47bc57fa02f474de41d5d27a0d30d8548ea80cfcc6c72a10bacc3915f83bfe62",
+    "animation.py": "74166458e7736f047880707ede790d1a947fbfc027a247aa2bebb615ce131e78",
+    "foot_support.py": "a0486f111da875777b29662ac0be767df86a0e25b1cf8f551b4973bdecc5e016",
+    "retarget.py": "9ad8744bba8ffffb8bbbb9cd5865a0c093c1371446ecd52f53e6800e4d9aa066"
+  }
 }

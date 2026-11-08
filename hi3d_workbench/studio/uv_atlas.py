@@ -9,6 +9,10 @@ from .material_projection import normalize
 from ..common import digest
 
 
+class UVLayoutError(RuntimeError):
+    """A layout failed acceptance; source geometry validation remains separate."""
+
+
 def select_backend(source,backend='auto'):
     if backend not in {'auto','cpu','gpu'}:raise ValueError('UV 展开方式无效')
     if backend=='cpu':return 'cpu'
@@ -115,14 +119,17 @@ def create(source,output,*,size=2048,backend='cpu',owner=None,emit=lambda *a,**k
         charts=xatlas.ChartOptions();charts.max_iterations=4
         packing=xatlas.PackOptions();packing.resolution=size;packing.padding=4;packing.bilinear=True
         atlas.generate(charts,packing)
-        if atlas.atlas_count!=1:raise RuntimeError('网格需要多个图集，请提高贴图分辨率或先减面')
+        if atlas.atlas_count!=1:raise UVLayoutError('网格需要多个图集，请提高贴图分辨率或先减面')
         mapping,new_faces,uv=atlas[0];chart_count=atlas.chart_count;label='xatlas 0.0.11 CPU'
         metrics=layout_metrics(new_faces,np.asarray(uv,dtype=np.float32),size)
         if metrics['zero_uv_faces'] or metrics['duplicate_uv_faces']:
             from ..engines.community_uv import _repair_local_faces
             pixels=np.column_stack((uv[:,0],1.-uv[:,1])).astype(np.float64)*size
-            mapping,new_faces,uv,repair=_repair_local_faces(positions,mapping,new_faces,pixels,float(size),size,4,
-                lambda phase,message,**values:emit('asset_uv',message,device=values.get('device','cpu')))
+            try:
+                mapping,new_faces,uv,repair=_repair_local_faces(positions,mapping,new_faces,pixels,float(size),size,4,
+                    lambda phase,message,**values:emit('asset_uv',message,device=values.get('device','cpu')))
+            except RuntimeError as error:
+                raise UVLayoutError(str(error)) from error
             details['uv_repair']=repair
     mapping=np.asarray(mapping);new_faces=np.asarray(new_faces)
     if (mapping.ndim!=1 or not np.issubdtype(mapping.dtype,np.integer) or np.any(mapping<0) or np.any(mapping>=len(positions))
@@ -138,7 +145,7 @@ def create(source,output,*,size=2048,backend='cpu',owner=None,emit=lambda *a,**k
     uv=np.asarray(uv,dtype=np.float32)
     metrics=layout_metrics(new_faces,uv,size)
     if metrics['zero_uv_faces'] or metrics['duplicate_uv_faces']:
-        raise RuntimeError('UV 展开后仍有退化或复用三角面，请提高贴图分辨率或更换展开方式')
+        raise UVLayoutError('UV 展开后仍有退化或复用三角面，请提高贴图分辨率或更换展开方式')
     document=Document({'asset':{'version':'2.0'},'scene':0,'scenes':[{'nodes':[0]}],
         'nodes':[{'mesh':0}],'meshes':[{'primitives':[]}],
         'materials':[{'name':'UV preparation','pbrMetallicRoughness':{'metallicFactor':0,'roughnessFactor':.5}}]})

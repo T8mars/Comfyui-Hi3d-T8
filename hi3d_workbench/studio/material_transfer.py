@@ -10,7 +10,7 @@ import time
 from .. import common
 from ..common import atomic_json,digest,read_json
 from .gltf import Document
-from .uv_atlas import create,select_backend,validate_cached
+from .uv_atlas import UVLayoutError,create,select_backend,validate_cached
 from .material_projection import transfer
 
 
@@ -45,7 +45,24 @@ def run(source,geometry,output,directory,*,texture_size=2048,obj_output=None,pro
         if valid:
             uv=saved['uv'];emit('asset_uv','复用已校验的 UV 图集',device='cpu')
         else:
-            uv=create(uv_geometry,cached,size=texture_size,backend=backend,owner=owner or directory,emit=emit)
+            try:
+                uv=create(uv_geometry,cached,size=texture_size,backend=backend,owner=owner or directory,emit=emit)
+            except UVLayoutError as error:
+                if uv_backend!='auto' or backend!='cpu':raise
+                # The automatic small-mesh CPU path may fail on thin generated
+                # triangles. Try the independent GPU atlas with the same strict
+                # acceptance, in its own cache namespace; never retry in a loop.
+                try:select_backend(uv_geometry,'gpu')
+                except RuntimeError as unavailable:
+                    raise UVLayoutError(str(error)+'；自动重试所需 GPU UV 不可用：'+str(unavailable)) from error
+                emit('asset_uv','CPU UV 图集未通过检查，改用独立 GPU 展开；原几何和修复上限不变。原因：'+str(error),device='cuda')
+                report=run(source,geometry,output,directory,texture_size=texture_size,obj_output=obj_output,
+                    projection=projection,triangulated_geometry=triangulated_geometry,
+                    uv_backend='gpu',owner=owner,emit=emit)
+                report['uv_retry']={'requested':'auto','initial_backend':'cpu','used_backend':'gpu','reason':str(error)}
+                report['seconds']=round(time.monotonic()-started,3)
+                atomic_json(directory/'report.json',report)
+                return report
             atomic_json(cache/'manifest.json',{'identity':identity,'uv':uv,'sha256':digest(cached)})
         # A private stage copy remains inspectable if material transfer fails.
         atlas=directory/'atlas.glb';shutil.copy2(cached,atlas)

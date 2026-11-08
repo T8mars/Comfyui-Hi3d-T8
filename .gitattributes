@@ -3,4 +3,6 @@ licenses/asset-studio/** -text
 # Idol notices retain original bytes, including upstream Markdown end spaces.
 licenses/idol/** -text whitespace=-blank-at-eol
 hi3d_workbench/web/vendor/three/** -text
+# The pinned HDR loader includes an extra final newline upstream.
+hi3d_workbench/web/vendor/three/loaders/HDRLoader.js whitespace=-blank-at-eof
 tools/native/** -text

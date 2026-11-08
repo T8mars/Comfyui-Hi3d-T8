@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "updated_utc": "2026-11-08T16:54:22.955944+00:00",
+  "status": "passed_with_browser_automation_limits",
+  "scope": "Idol integration browser smoke and one real four-second character clip; not all model-quality acceptance",
+  "service": "http://127.0.0.1:8384/",
+  "installed_bundle": "E:\\Hi3D-Workbench-0.6.0-Full",
+  "browsers": {
+    "iab": "navigation, local file upload, downloads, export and complete playback verified",
+    "chrome_extension": "navigation, controls, native splat viewer, mesh/PBR stages and complete playback verified",
+    "edge": "not verified"
+  },
+  "connection_recovery": {
+    "variable": "CODEX_HOME",
+    "scope": "User",
+    "value": "E:\\codex-record\\codex-home",
+    "new_process_inherited": true,
+    "state_moved": false,
+    "permissions_changed": false,
+    "local_evidence": {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\codex-home-change-result.json",
+      "sha256": "79adcb0bd4b440cae0727eddd23ce5d7c5c5026a0a0d961548a2adc2323a0573"
+    }
+  },
+  "fixed_initialization": {
+    "error": "Three.js RGBELoader imports absent HDRLoader.js; HTTP 404 prevented all studio initialization",
+    "upstream": "https://raw.githubusercontent.com/mrdoob/three.js/r180/examples/jsm/loaders/HDRLoader.js",
+    "sha256": "d7053cfc4019f520335ae07e0fe82b4ef5a66b6766e8b253d066616184995e89",
+    "source_and_installed_and_served_bytes_match": true,
+    "regression": "Actual shipped module graph import and one-pixel HDR decode"
+  },
+  "ui_checks": {
+    "engineSwitch": true,
+    "samplerSwitch": true,
+    "reusedSettings": {
+      "crop": "real",
+      "engine": "idol",
+      "extractMesh": false,
+      "gaussians": "1048576",
+      "refineDisabled": true,
+      "textureDisabled": true
+    },
+    "rawOnlyDisablesRefineAndPbr": true,
+    "meshToggle": true,
+    "rawPreview": {
+      "gaussians": 1048576,
+      "rendered": true,
+      "rotation": true,
+      "zoom": true,
+      "reset": true
+    },
+    "meshAndPbrStageSwitch": true,
+    "nativeDownloadsViaIab": true,
+    "pbr180mmExportViaIab": true,
+    "animation": {
+      "joints": 52,
+      "durationSeconds": 4,
+      "fullPlaybackBothBrowsers": true,
+      "autoStopAtEnd": true,
+      "pause": true,
+      "seek": true,
+      "boneToggle": true
+    },
+    "chromeUploadPermissionEnabled": false,
+    "chromeDownloadCapture": "timed_out; IAB downloads verified"
+  },
+  "downloads": {
+    "status": "passed",
+    "browser": "iab",
+    "files": [
+      {
+        "name": "splat.ply",
+        "download_path": "E:\\AI-Storage\\Downloads\\splat.ply",
+        "bytes": 71303585,
+        "sha256": "03e8226296fcb7317e74dc81930a4094a21f1543888d0ab2cc41f5b59ed5bb02",
+        "source_sha256": "03e8226296fcb7317e74dc81930a4094a21f1543888d0ab2cc41f5b59ed5bb02"
+      },
+      {
+        "name": "splat.spz",
+        "download_path": "E:\\AI-Storage\\Downloads\\splat.spz",
+        "bytes": 10957720,
+        "sha256": "e869f1f17886aeea785c4d71ce5838a22d2275f06ef9023598d2536fa0ce875e",
+        "source_sha256": "e869f1f17886aeea785c4d71ce5838a22d2275f06ef9023598d2536fa0ce875e"
+      },
+      {
+        "name": "splat.ksplat",
+        "download_path": "E:\\AI-Storage\\Downloads\\splat.ksplat",
+        "bytes": 46142464,
+        "sha256": "fb69ccc71fef642b44df6bd0d131df2f737e539a1e49451800b9cbacaa7f04d7",
+        "source_sha256": "fb69ccc71fef642b44df6bd0d131df2f737e539a1e49451800b9cbacaa7f04d7"
+      }
+    ],
+    "pbr_export": {
+      "download_path": "E:\\AI-Storage\\Downloads\\model.glb",
+      "sha256": "f518cf44d9213838122e0700cc8c04d19e2c664e4caf8b5edb1fbd9663e9df29",
+      "height_m": 0.18,
+      "faces": 333795,
+      "images": 2,
+      "uv_preserved": true,
+      "oriented_triangle_indices_exact": true,
+      "uv_exact": true,
+      "base_color_and_metallic_roughness_pixels_exact": true
+    }
+  },
+  "full_clip_playback": {
+    "elapsedSeconds": 50.252,
+    "iab": {
+      "max": "4",
+      "value": "4"
+    },
+    "chrome": {
+      "max": "4",
+      "value": "4"
+    },
+    "completedAtDuration": true,
+    "automaticallyStopped": true
+  },
+  "tests": {
+    "passed": 928,
+    "warnings": 1,
+    "seconds": 177.77,
+    "junit": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-all-tests-browser-final.xml",
+      "sha256": "02721ab2eed1917e457a719b59faaa82d8748f93c766c9d8f33e411f527be959"
+    }
+  },
+  "screenshots": [
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\chrome-recovered.png",
+      "sha256": "61b1c52caee966ad2a396bb23d728f809fa5bc00d186025fc8b88f76d34e61ea"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\iab-recovered.png",
+      "sha256": "b2feabff434ad543ae0dd82dabd0d85bcdfc9f55e4ba6bf45fc58deadd27175f"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-splat-before.png",
+      "sha256": "39fea0056f247976b2a8a4fee3bd3043501d8575c9549450c85ac8047c1f3f8a"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-splat-rotated.png",
+      "sha256": "5b4b0e0df3bb5f43f96217abb2a3d8eb3a50c6b727a442297f2759be39c47eb3"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-splat-zoomed.png",
+      "sha256": "ce7fc1be7e311db769c8e18e6a662ab8e3a235467bd52142f62b043a642dd9d8"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-motion-playing-1.png",
+      "sha256": "22fa09a9ef2055405033a057827dae180079b11d218091f7e4d90015f7e8f6ad"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-motion-ended.png",
+      "sha256": "9171a666d621b886bb4fbcb6b4ee01ab9d8ec53b89f7363cb2cb4988f5b2fc9b"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-motion-midpoint.png",
+      "sha256": "7396148ef0bbfda7fce70fdca0094f2b2a3d54f4f1045d66c949c81157f5065d"
+    },
+    {
+      "path": "E:\\hi3d\\data\\browser-connection-diagnostics\\2026-11-08\\idol-browser-accepted.png",
+      "sha256": "dadca9fa3b1d92b8f5ec7f96ba1495a179ba02861b4cac48d3b80970811745d7"
+    }
+  ],
+  "limits": [
+    "Chrome automated upload requires extension file-URL access; permission was not changed. IAB upload passed.",
+    "Chrome download-event capture timed out. All three native downloads and scaled PBR export passed through IAB.",
+    "One Idol character clip does not establish all-character motion naturalness, collision quality or all engine workflows.",
+    "No stable release was published."
+  ]
+}

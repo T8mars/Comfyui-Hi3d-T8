@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "date": "2026-11-08",
-  "updated_utc": "2026-11-08T13:46:05.946440+00:00",
-  "status": "installed_backend_and_portable_paths_passed_browser_pending",
+  "updated_utc": "2026-11-08T16:54:22.955944+00:00",
+  "status": "installed_backend_portable_paths_and_browser_smoke_passed",
   "research_rounds": 20,
   "scope": "standalone Workbench Idol; existing ComfyUI nodes remain refinement-only",
   "installed_bundle": "E:/Hi3D-Workbench-0.6.0-Full",
@@ -134,12 +134,25 @@
     "final_bundle_source_sync": {
       "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-bundle-install\\final-source-sync.json",
       "sha256": "83e723dd87b8642c5cfc1be0f3160c1763f5a44ed564eaf24baa84d42df707fb"
+    },
+    "browser": {
+      "path": "E:\\hi3d\\validation\\idol-browser-2026-11-08.json",
+      "sha256": "b6b14a8478d3430b7d90336f04e5155bf87256052a34d4678fb3eaf9a238a44d"
     }
   },
   "browser": {
-    "accepted": false,
-    "latest_inventory": "MCP Apps only; zero browser tabs; Chrome and Edge visible as native apps",
-    "no_browser_workaround_or_security_changes": true
+    "accepted": true,
+    "scope": "Idol browser smoke and one complete real character clip",
+    "previous_inventory": "MCP Apps only; zero browser tabs; Chrome and Edge visible only as native apps",
+    "latest_inventory": "IAB and Chrome extension connected; actual local navigation and interaction verified",
+    "recovery": "Explicit User CODEX_HOME pointing at the existing canonical junction target; inherited after full desktop restart",
+    "security_controls_changed": false,
+    "edge_verified": false,
+    "limitations": [
+      "Chrome automated upload requires extension file-URL access; permission was not changed. IAB upload passed.",
+      "Chrome download-event capture timed out. All three native downloads and scaled PBR export passed through IAB."
+    ],
+    "receipt": "validation/idol-browser-2026-11-08.json"
   },
   "failed_cases_retained": [
     {
@@ -159,22 +172,23 @@
     "degenerate_faces": 0,
     "mesh_components": 8,
     "native_gaussians_have_no_uv_pbr_skin_or_animation": true,
-    "motion_full_browser_playback_accepted": false,
+    "motion_full_browser_playback_accepted": true,
     "broad_photo_mechanical_holes_benchmark_accepted": false,
-    "optional_hi3d": "May alter the face and clothing; keep comparison with retained original mesh; not broadly shape-quality accepted"
+    "optional_hi3d": "May alter the face and clothing; keep comparison with retained original mesh; not broadly shape-quality accepted",
+    "motion_browser_acceptance_scope": "One real Idol 52-joint, four-second punch clip in IAB and Chrome; broader quality limits unchanged"
   },
   "pending": [
-    "browser_interaction_and_full_animation_playback",
     "broader_photo_mechanical_thin_holes_quality_benchmark_and_sdk_comparison",
     "stable_release_after_final_acceptance"
   ],
   "tests": {
-    "full_suite": 927,
-    "junit": "E:\\hi3d\\data\\asset-studio-validation\\idol-all-tests-final.xml",
-    "junit_sha256": "60eb5aa6140f36886317824247667f8e57be7a0426973ae8bb941e3cf2cc4b90",
-    "seconds": 88.1,
+    "full_suite": 928,
+    "junit": "E:\\hi3d\\data\\asset-studio-validation\\idol-all-tests-browser-final.xml",
+    "junit_sha256": "02721ab2eed1917e457a719b59faaa82d8748f93c766c9d8f33e411f527be959",
+    "seconds": 177.77,
     "node_syntax": "passed",
-    "browser_not_implied": true
+    "browser_not_implied": true,
+    "actual_vendor_module_graph_and_hdr_decode": "passed"
   },
   "real_http": {
     "raw_only_1m": {
@@ -241,7 +255,9 @@
     "tools/build_release.py": "05fd9706e61cdeec78ec602ed375142e375a841e872e8060939d3b7edd93efef",
     "tools/audit_release.py": "fc2722ff07f2fe04eb9694a152a6b889955948dd040369b0a1fbc694f9123120",
     "tools/prepare_idol_licenses.py": "7751fb35e8fb7476e58386169fecac8f96acbfd443d3fdbe98fd5cb39f0bd024",
-    "runtime_requirements/idol-windows.txt": "05a5efc8ab9fa58d2b94ded8d0191f9fd6dc954732cc34e692bb7052aac507ba"
+    "runtime_requirements/idol-windows.txt": "05a5efc8ab9fa58d2b94ded8d0191f9fd6dc954732cc34e692bb7052aac507ba",
+    "hi3d_workbench/web/vendor/three/loaders/HDRLoader.js": "d7053cfc4019f520335ae07e0fe82b4ef5a66b6766e8b253d066616184995e89",
+    "hi3d_workbench/web/vendor/three/manifest.json": "8f7454e4a96f0ce3fa03f4289fe994dcf8657da38456628fb58289dfae041d0b"
   },
   "live_service_final": {
     "status": "passed",
@@ -250,6 +266,6 @@
     "ready_engines": 9,
     "total_engines": 9,
     "served_web_files_sha256_match": true,
-    "browser_interaction_accepted": false
+    "browser_interaction_accepted": true
   }
 }

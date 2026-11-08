@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "verified_utc": "2026-11-08T17:27:43.448252+00:00",
+  "status": "published_and_verified",
+  "github": {
+    "repository": "T8mars/Comfyui-Hi3d-T8",
+    "release_url": "https://github.com/T8mars/Comfyui-Hi3d-T8/releases/tag/v0.6.0",
+    "version": "v0.6.0",
+    "tag_commit": "e7b9770ed41fc6580416f1e5fa9479c1bab3ef2b",
+    "main_and_development_branch_pushed": true,
+    "latest_stable_release": true,
+    "workflow_run": 42504707257,
+    "workflow_url": "https://github.com/T8mars/Comfyui-Hi3d-T8/actions/runs/42504707257",
+    "workflow_conclusion": "success",
+    "release_assets": 6,
+    "archives": {
+      "Hi3D-Workbench-launcher-0.6.0.zip": {
+        "bytes": 6542,
+        "sha256": "a72c4599b2f4f4b1358d9bc53d8f5b41b1738babe7b3a47e48af571154d156de",
+        "crc": "passed",
+        "tracked_files_match_exact_tag": 0,
+        "windows_scripts_match_tag_with_crlf_normalized": [
+          "Start-Workbench.cmd"
+        ]
+      },
+      "Hi3D-Workbench-update-0.6.0.zip": {
+        "bytes": 17048616,
+        "sha256": "32aa8778b397c21fc0fe9cb15ac440770677984915b09054d16b2a45299daec8",
+        "crc": "passed",
+        "tracked_files_match_exact_tag": 538,
+        "windows_scripts_match_tag_with_crlf_normalized": []
+      },
+      "Hi3D-Workbench-source-0.6.0.zip": {
+        "bytes": 17175695,
+        "sha256": "43614a14c0bb48459abb5344528a124658f16015c46f1d1535948ea5ceb0bcf7",
+        "crc": "passed",
+        "tracked_files_match_exact_tag": 612,
+        "windows_scripts_match_tag_with_crlf_normalized": []
+      },
+      "ComfyUI-Hi3D-nodes-0.6.0.zip": {
+        "bytes": 154836,
+        "sha256": "67c8a89402c723db0f5cdf8d532ff417553c5f78cefd85b85dbbf3923ddfa679",
+        "crc": "passed",
+        "tracked_files_match_exact_tag": 83,
+        "windows_scripts_match_tag_with_crlf_normalized": []
+      }
+    },
+    "downloaded_assets_crc_and_sha256": "passed",
+    "code_matches_tag": "passed",
+    "published_runtime_api": 2
+  },
+  "hugging_face": {
+    "repository": "t8star/Hi3d-Comfy",
+    "url": "https://huggingface.co/t8star/Hi3d-Comfy",
+    "final_commit": "7953439298d7ecaf2fd26ef4a32ea6d78fd8f448",
+    "model_commit": "b0f80740e3b5b142ff6189f9a491a77151639df9",
+    "public": true,
+    "added_artifacts": 70,
+    "added_bytes": 38688168045,
+    "total_artifacts": 169,
+    "total_model_bytes": 122885470205,
+    "all_remote_hashes_match": true,
+    "bilingual_readmes_verified": true,
+    "original_sources_revisions_and_licenses_retained": true
+  },
+  "tests": {
+    "full_suite_passed": 935,
+    "isolated_release_updater_passed": 37,
+    "registry_node_pack_passed": true
+  },
+  "distribution": "GitHub contains code and launcher only; models on Hugging Face; full Python runtime bundle distributed separately",
+  "quality_scope": "Release documentation retains complex-geometry/motion, printability and hardware limits; browser receipt predates publication",
+  "protected_user_files_excluded": [
+    "IMPLEMENTATION_STATUS.md",
+    "research/"
+  ]
+}

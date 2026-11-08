@@ -16,6 +16,13 @@ ENGINES = {
             'components': ['coarse_hunyuan21'], 'runtime_feature': 'hunyuan21',
             'resolutions': [256, 384, 512], 'default_resolution': 384, 'default_steps': 50,
         },
+        'hunyuan_mv': {
+            'name': 'Hunyuan3D-2mv · 多视图',
+            'description': '同一物体的正面及左侧／背面／右侧图片共同约束几何；支持三视图。',
+            'components': ['coarse_hunyuan_mv'], 'runtime_feature': 'baseline',
+            'resolutions': [256, 384, 512], 'default_resolution': 384, 'default_steps': 30,
+            'views': ['front', 'left', 'back', 'right'],
+        },
         'trellis2': {
             'name': 'TRELLIS.2',
             'description': '从图片直接生成几何；与现有网格贴图引擎独立选择。',

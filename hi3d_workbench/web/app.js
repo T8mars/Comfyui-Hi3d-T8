@@ -1,6 +1,8 @@
 const $ = selector => document.querySelector(selector);
 let token = $('meta[name="hi3d-token"]').content;
 let inputImage = null, inputMesh = null, currentJob = null, health = null;
+let inputViews = {left:null,back:null,right:null};
+const viewLabels = {left:'左侧',back:'背面',right:'右侧'};
 let online = false, pending = null, exportPending = false, pollBusy = false;
 let epoch = 0, shownJob = null, sessionReady = false, sessionDefaultsApplied = false, toastTimer, logsKey = '';
 let selectedMode = 'image_to_asset', previewManual = false, exportSourceManual = false;
@@ -40,7 +42,8 @@ function missingModels() {
   const texture = pipeline?.engines?.texture?.[$('#texture-engine').value];
   if (selectedMode === 'image_to_asset' && !(geometry?.ready ?? ($('#geometry-engine').value === 'hunyuan_mini' && pipeline?.coarse_ready))) missing.push(geometry?.name || '图片建模组件');
   if (wantsTexture() && !(texture?.ready ?? ($('#texture-engine').value === 'trellis2' && pipeline?.texture_ready))) missing.push(texture?.name || 'PBR 贴图组件');
-  if ((selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && inputImage?.has_transparency !== true) missing.push('自动前景组件');
+  const references=selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv'?[inputImage,...Object.values(inputViews).filter(Boolean)]:[inputImage];
+  if ((selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && references.some(image=>image?.has_transparency!==true)) missing.push('自动前景组件');
   if ((selectedMode === 'image_to_asset' || wantsTexture()) && !pipeline?.runtime?.ready) missing.push('扩展运行环境');
   return missing;
 }
@@ -69,6 +72,7 @@ function syncModeUI() {
   $('#refine-geometry-field').hidden = !imageMode; $('#generate-texture-field').hidden = selectedMode === 'texture';
   $('#refine-settings').hidden = !refine; $('#texture-settings').hidden = !texture;
   $('#geometry-settings').hidden = !imageMode;
+  renderViewInputs();
   $('#trellis-cleanup-field').hidden = !imageMode || $('#geometry-engine').value !== 'trellis2';
   $('#trellis-target-faces-field').hidden = !usesTrellisFaceBudget();
   $('#pipeline-attention-settings').hidden = !usesTrellisPipeline();
@@ -80,6 +84,21 @@ function syncModeUI() {
   $('#run-step-title').textContent = modeLabels[selectedMode];
   $('#mode-description').textContent = imageMode ? '默认先生成粗模型并添加 PBR 贴图。Hi3D 精修可选，会重建几何；卡通可先保形，再按需尝试。' : selectedMode === 'texture' ? '上传参考图片与已有模型，保留几何并生成 PBR 材质；使用 GLB 导出贴图结果。' : '用 Hi3D 重建已有粗模型并补充几何细节，可选择在精修后继续生成 PBR 贴图。';
   $('#input-help').textContent = imageMode ? '图片建模不需要粗模型。图片尽量背景简单、主体完整；自动处理背景或手动清理透明区域后再开始。' : '从建模软件导出 GLB、PLY 或 STL。图片与模型应为同一物体，主体与朝向匹配；贴图过程不会替代几何精修。';
+}
+function renderViewInputs(){
+  const multi=selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv';
+  $('#multiview-inputs').hidden=!multi;
+  $('#image-drop b').textContent=multi?'点击或拖入正面参考图':'点击或拖入参考图片';
+  for(const view of Object.keys(viewLabels)){
+    const item=currentJob?null:inputViews[view],saved=currentJob&&hasJobFile(currentJob,`view-${view}.png`);
+    const url=saved?`/api/jobs/${currentJob.id}/files/view-${view}.png`:item?.url;
+    const thumb=$(`#view-${view}-thumb`),download=$(`#view-${view}-download`);
+    thumb.hidden=!url;if(url){if(thumb.getAttribute('src')!==url)thumb.src=url;}else thumb.removeAttribute('src');
+    $(`#view-${view}-name`).textContent=saved?'此任务的'+viewLabels[view]+'参考图':currentJob?.options?.view_images?.[view]?'原图已缺失':item?.name||'可选';
+    const locked=inputBusy()||Boolean(currentJob);
+    $(`#view-${view}-file`).disabled=locked;$(`#view-${view}-remove`).disabled=locked||!item;
+    download.hidden=!saved;if(saved)download.href=url;else download.removeAttribute('href');
+  }
 }
 function stageName(stage = '') {
   for (const [prefix,label] of [['coarse_','图片建模'],['refine_','Hi3D 精修'],['texture_','PBR 贴图']]) if (stage.startsWith(prefix)) return `${label} · ${stageLabels[stage.slice(prefix.length)] || stage.slice(prefix.length) || '正在处理'}`;
@@ -410,7 +429,8 @@ function renderDraft() {
   $('#progress-label').textContent = inputsReady() ? `输入已准备好，可以开始${modeLabels[selectedMode]}` : needsMesh() ? '先准备图片和模型' : '先准备一张参考图片';
   $('#stage-detail').textContent = needsMesh() ? '请确认图片和模型为同一物体，主体与朝向匹配。' : '一张参考图片即可开始。按选择依次生成粗模、精修几何与 PBR 贴图；各阶段结果保存在任务目录。'; availability();
 }
-function draftWith(image, mesh) {
+function draftWith(image, mesh, views) {
+  if(views!==undefined||!image&&!mesh)inputViews={left:null,back:null,right:null,...views};
   epoch++; currentJob = null; shownJob = null; inputImage = image; inputMesh = mesh; resetResult(); renderDraft();
 }
 $('#new-task').onclick = () => { if (!inputBusy()) draftWith(null, null); };
@@ -439,6 +459,15 @@ async function upload(file, kind) {
   const form = new FormData(); form.append('file', file);
   const item = await api('/api/assets', {method:'POST', body:form});
   if (item.kind !== kind) throw new Error('文件类型与输入栏不匹配。'); return item;
+}
+for(const view of Object.keys(viewLabels)){
+  $(`#view-${view}-file`).onchange=async()=>{
+    const field=$(`#view-${view}-file`),file=field.files[0];if(!file||inputBusy()||currentJob)return;
+    const revision=epoch;pending='upload-view-'+view;availability();
+    try{const item=await upload(file,'image');if(revision===epoch&&!currentJob){inputViews[view]=item;renderDraft();}}
+    catch(error){showError(error);}finally{field.value='';pending=null;availability();}
+  };
+  $(`#view-${view}-remove`).onclick=()=>{if(inputBusy()||currentJob)return;inputViews[view]=null;availability();};
 }
 async function handleFile(file, kind) {
   if (!file || inputBusy()) return false;
@@ -469,7 +498,7 @@ $('#load-sample').onclick = async () => {
       const blob = await api('/api/sample/'+name, {responseType:'blob'});
       items.push(await upload(new File([blob], name, {type}), kind));
     }
-    draftWith(items[0],items[1] || null); toast('样例已载入。它用于熟悉流程，不是美术效果基准。');
+    draftWith(items[0],items[1] || null,{}); toast('样例已载入。它用于熟悉流程，不是美术效果基准。');
   } catch (error) { showError(error); }
   finally { pending = null; availability(); }
 };
@@ -534,7 +563,7 @@ syncView($('#before'), $('#after')); syncView($('#after'), $('#before'));
 $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]) view.autoRotate = event.target.checked; };
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 function generationOptions() {
-  return {mode:selectedMode, image:inputImage.id, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, voxel_backend:$('#voxel-backend').value, encoding_cache:$('#encoding-cache').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
+  return {mode:selectedMode, image:inputImage.id, view_images:selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv'?Object.fromEntries(Object.entries(inputViews).filter(([,item])=>item).map(([view,item])=>[view,item.id])):{}, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, voxel_backend:$('#voxel-backend').value, encoding_cache:$('#encoding-cache').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
 }
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
@@ -629,7 +658,7 @@ function renderStages(stages) {
 function renderJob(job) {
   const changed = shownJob !== job.id; currentJob = job;
   if (changed) {
-    resetResult(); shownJob = job.id; inputImage = null; inputMesh = null; applyOptions(job.options);
+    resetResult(); shownJob = job.id; inputImage = null; inputMesh = null; inputViews={left:null,back:null,right:null}; applyOptions(job.options);
     comparisonJob = null; comparisonCandidates = []; comparisonsFor = '';
     $('#comparison-job').replaceChildren(new Option('当前任务的阶段模型',''));
     $('#comparison-version').value = 'coarse';
@@ -696,7 +725,7 @@ async function openJob(id) {
 }
 $('#reuse').onclick = async () => {
   if (!currentJob || inputBusy()) return; pending = 'reuse'; availability();
-  try { const result = await post(`/api/jobs/${currentJob.id}/reuse`); applyOptions(result.options); draftWith(result.image, result.mesh || null); toast('输入和参数已复制到新任务。调整流程后即可再次运行，原记录与阶段文件保留。'); }
+  try { const result = await post(`/api/jobs/${currentJob.id}/reuse`); applyOptions(result.options); draftWith(result.image, result.mesh || null, result.views||{}); toast('输入和参数已复制到新任务。调整流程后即可再次运行，原记录与阶段文件保留。'); }
   catch (error) { showError(error); } finally { pending = null; availability(); }
 };
 $('#report').onclick = () => { if (currentJob && !$('#report').disabled) window.open(`/api/jobs/${currentJob.id}/files/report.json`, '_blank', 'noopener'); };

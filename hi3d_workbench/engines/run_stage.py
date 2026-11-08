@@ -118,11 +118,12 @@ def coarse(request, image, output, emit_fn):
     else:
         source_dir("hunyuan")
         from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
-    component = 'coarse_hunyuan21' if full else 'coarse'
+    multi = choice['id']=='hunyuan_mv'
+    component = 'coarse_hunyuan21' if full else 'coarse_hunyuan_mv' if multi else 'coarse'
     model_dir = Path(request.get("model_root") or MODEL_ROOT) / component
     emit_fn("loading", message=f"加载 {choice['name']} 基础几何模型")
     pipeline = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
-        str(model_dir), subfolder="hunyuan3d-dit-v2-1" if full else "hunyuan3d-dit-v2-mini-turbo", use_safetensors=not full,
+        str(model_dir), subfolder="hunyuan3d-dit-v2-1" if full else "hunyuan3d-dit-v2-mv" if multi else "hunyuan3d-dit-v2-mini-turbo", use_safetensors=not full,
         device="cpu" if request.get("offload", True) else "cuda", dtype=torch.float16,
     )
     # Keep the checkpoint's VAE and official default dense volume decoder.
@@ -141,7 +142,7 @@ def coarse(request, image, output, emit_fn):
         pipeline.device = torch.device("cuda")
     # The fixed mini-Turbo checkpoint is step distilled. Use the upstream
     # mini-Turbo example's five steps rather than a base-model step count.
-    steps = int(request.get('geometry_steps', 50)) if full else 5
+    steps = int(request.get('geometry_steps', choice['default_steps'])) if full or multi else 5
     original_condition = pipeline.encode_cond
     def conditioned(*args, **kwargs):
         value = original_condition(*args, **kwargs)
@@ -163,6 +164,7 @@ def coarse(request, image, output, emit_fn):
     emit_fn("exporting", faces=len(mesh.faces))
     mesh.export(output)
     return {"model": SPECS[component], "engine": choice['id'], "geometry_generated": True, "texture_generated": False,
+            "views":list(image) if multi else ['front'],
             "vertices": len(mesh.vertices), "faces": len(mesh.faces), "inference_steps": steps,
             "volume_decoder": "official dense VanillaVolumeDecoder; checkpoint VAE preserved",
             "runtime_compatibility": "explicit component registry and CUDA execution device for upstream CPU-offload helper" if request.get("offload", True) else "standard CUDA residency",
@@ -194,6 +196,7 @@ def texture(request, image, output, emit_fn):
     # loading the diffusion models, including when CPU offloading is disabled.
     from ..asset_pipeline import load_texture_input
     loaded, uv_policy = load_texture_input(Path(request['mesh_path']))
+    generated_uv=getattr(loaded.visual,'uv',None) is None
     from .uv_runtime import prepare
     loaded,uv_generation,uv_runtime=prepare(loaded,request,emit_fn)
 
@@ -341,10 +344,14 @@ def texture(request, image, output, emit_fn):
     from ..asset_pipeline import repair_invalid_normals
     normal_repair=repair_invalid_normals(textured)
     textured.export(output, file_type="glb")
+    uv_readback=None
+    if generated_uv:
+        from .mesh_uv import verify_exported_uv
+        uv_readback=verify_exported_uv(output)
     return {"model": SPECS["texture"], "engine": 'trellis2', "inference_steps": int(request.get('texture_steps',12)), "image_encoder": SPECS["texture_encoder"],
             "geometry_generated": False, "texture_generated": True, "texture_condition": "official mesh-to-shape-SLAT encoder on supplied mesh",
             'uv_policy': uv_policy,
-            'uv_generation':uv_generation,'uv_runtime':uv_runtime,'shading_normals':'input normals preserved through UV and frame conversion',
+            'uv_generation':uv_generation,'uv_runtime':uv_runtime,'uv_readback':uv_readback,'shading_normals':'input normals preserved through UV and frame conversion',
             'normal_repair':normal_repair, 'baking':baking_report, 'encoding':encoding_report,
             "vertices": len(textured.vertices), "faces": len(textured.faces), "texture_size": int(request.get("texture_size", 2048)),
             "pbr_channels": ["baseColor", "metallic", "roughness", "alpha"],
@@ -388,6 +395,8 @@ def run_request(request_path, stage):
         if args.stage == "texture" and not Path(request["mesh_path"]).is_file():
             raise ValueError("贴图网格不存在")
         choice = engine(args.stage, request.get('engine'))
+        from ..multiview import stage_paths
+        auxiliary_paths=stage_paths(request,args.stage)
         resolution = request.get("resolution", choice['default_resolution'])
         if resolution not in choice['resolutions']:
             label = '基础几何分辨率' if args.stage == 'coarse' else '贴图采样分辨率'
@@ -415,7 +424,8 @@ def run_request(request_path, stage):
         if os.name == 'nt' and (args.stage == 'texture' or choice['id']=='trellis2') and torch.cuda.get_device_capability() < (8, 6):
             raise RuntimeError('当前 Windows 资产运行时的预编译扩展需要 CUDA 计算能力 8.6 或以上；该扩展包不支持 RTX 20 系列或 A100（8.0）。这不是模型本身的理论硬件下限。')
         torch.cuda.reset_peak_memory_stats()
-        image, background = foreground(request, output.parent, args.stage)
+        from ..multiview import prepare_views
+        image, background = prepare_views(request,output.parent,foreground,args.stage)
         callback = lambda stage, **kw: emit(args.stage + "_" + stage, **kw)
         result = globals()[args.stage](request, image, temp, callback)
         from .model_loading import finish_stage, CACHE
@@ -428,6 +438,8 @@ def run_request(request_path, stage):
             raise RuntimeError("推理没有生成有效GLB")
         torch.cuda.synchronize()
         result['input_image_sha256'] = digest(Path(request['image_path']))
+        if choice['id']=='hunyuan_mv':
+            result['input_view_sha256']={'front':result['input_image_sha256'],**{view:digest(path) for view,path in auxiliary_paths.items()}}
         if args.stage == 'texture':
             result['input_mesh_sha256'] = digest(Path(request['mesh_path']))
         result['output_sha256'] = digest(temp)

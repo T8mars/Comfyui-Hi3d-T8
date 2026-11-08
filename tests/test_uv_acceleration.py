@@ -609,13 +609,28 @@ def test_native_algorithm_source_changes_invalidate_uv_cache(monkeypatch):
     assert old != new
 
 
-def test_unsafe_native_repair_stops_before_community_or_cpu(monkeypatch):
+def test_rejected_native_atlas_can_use_one_independently_verified_gpu_layout(monkeypatch):
     from hi3d_workbench.engines import community_uv
-    monkeypatch.setattr(community_uv, 'unwrap', lambda *args: pytest.fail('cannot bypass native structural rejection'))
+    source=hard_box();calls=[];events=[]
+    def community(vertices,faces,*args):
+        calls.append('community');return arrays_for(faces)
+    monkeypatch.setattr(community_uv, 'unwrap',community)
     monkeypatch.setattr(mesh_uv, '_legacy_arrays', lambda *args, **kw: (_ for _ in ()).throw(
         community_uv.LocalUVRepairError('over budget native UV')))
     monkeypatch.setattr(mesh_uv, '_chunked_atlas', lambda *args: pytest.fail('cannot hide unsafe repair in CPU unwrap'))
-    with pytest.raises(community_uv.LocalUVRepairError, match='over budget'):
+    result,policy=mesh_uv.ensure_uv(source,emit=lambda **values:events.append(values))
+    assert calls==['community'] and 'community_GPU' in policy
+    assert len(result.faces)==len(source.faces)
+    assert any('over budget native UV' in row.get('fallback_reason','') for row in events)
+
+
+@pytest.mark.parametrize('failure',[ImportError('unavailable GPU backend'),RuntimeError('invalid new layout')])
+def test_native_structural_failure_never_falls_through_to_cpu_after_second_gpu_failure(monkeypatch,failure):
+    from hi3d_workbench.engines import community_uv
+    monkeypatch.setattr(mesh_uv,'_legacy_arrays',lambda *a,**kw: (_ for _ in ()).throw(community_uv.LocalUVRepairError('native over budget')))
+    monkeypatch.setattr(community_uv,'unwrap',lambda *a: (_ for _ in ()).throw(failure))
+    monkeypatch.setattr(mesh_uv,'_chunked_atlas',lambda *a:pytest.fail('must not retry whole mesh on CPU'))
+    with pytest.raises(community_uv.LocalUVRepairError,match='未运行 CPU'):
         mesh_uv.ensure_uv(hard_box())
 
 
@@ -702,3 +717,31 @@ def test_native_rejection_then_community_structural_repair_failure_stops_before_
     with pytest.raises(community_uv.LocalUVRepairError, match='over repair budget'):
         mesh_uv.ensure_uv(hard_box())
     assert calls == ['cumesh', 'community']
+def test_actual_mv_uv_survives_gltf_v_flip_float32_roundtrip(tmp_path):
+    import json
+    from pathlib import Path
+    from hi3d_workbench.engines import community_uv
+    data=json.loads((Path(__file__).parent/'fixtures/mv-uv-v-flip-roundtrip.json').read_text())
+    vertices=np.asarray(data['vertices']);faces=np.asarray(data['faces']);mapping=np.arange(len(vertices))
+    mapping,indices,uv,report=community_uv._repair_local_faces(vertices,mapping,faces,
+        np.asarray(data['pixels']),data['atlas_side'],data['texture_size'],data['padding'],lambda *a,**kw:None)
+    assert report['repaired_faces']==1 and report['repaired_faces']<=report['repair_budget']
+    target=tmp_path/'roundtrip.glb'
+    mesh=trimesh.Trimesh(vertices[mapping],indices,process=False,visual=trimesh.visual.TextureVisuals(uv=uv))
+    mesh.export(target)
+    loaded=trimesh.load(target,force='mesh',process=False)
+    mesh_uv._verify_uv_layout(loaded.faces,loaded.visual.uv)
+    assert mesh_uv.verify_exported_uv(target)['serialized_glb_readback']=='passed'
+    assert len(loaded.faces)==len(faces)
+    mesh_uv._require_complete_faces(faces,mapping[indices])
+
+
+def test_final_uv_guard_rejects_actual_mv_layout_that_only_fails_after_serialization():
+    import json
+    from pathlib import Path
+    from hi3d_workbench.engines import community_uv
+    data=json.loads((Path(__file__).parent/'fixtures/mv-uv-v-flip-roundtrip.json').read_text())
+    uv=np.asarray(data['uv']);faces=np.asarray(data['faces'])
+    assert len(community_uv._zero_uv_faces(faces,uv))==0
+    with pytest.raises(RuntimeError,match='GLB 序列化'):
+        mesh_uv._verify_uv_layout(faces,uv)

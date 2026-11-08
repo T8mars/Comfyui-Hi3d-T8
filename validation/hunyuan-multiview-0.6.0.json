@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "acceptance": "pending browser and complete-bundle acceptance",
+  "model": {
+    "repo": "tencent/Hunyuan3D-2mv",
+    "revision": "3a761b539b29fe4ff64714813aa9560fd66f5de0",
+    "weight_sha256": "d36f5881bcdc56726b73e517cd444c13c60732431622da7268145355c8d38e9c"
+  },
+  "regression": {
+    "tests": 855,
+    "failures": 0,
+    "junit_sha256": "99fdcb0d8f6662c18afba94ac67fe30c18e161634c25dd42775b9f15063d233b"
+  },
+  "full_http_case": {
+    "views": [
+      "front",
+      "left",
+      "back"
+    ],
+    "steps": 30,
+    "geometry_resolution": 384,
+    "texture_resolution": 512,
+    "texture_size": 2048,
+    "texture_steps": 12,
+    "seconds": 189.16,
+    "input_view_sha256": {
+      "front": "81341337e12198484efbe67154a3a597408ff80bcf8d5db8fa39260983781b73",
+      "left": "be3f604a6e451b29e705a0e82fd79096d58f83a71d6645d0c1c181bf1d341800",
+      "back": "6617c4dd15252bc1e32fca2515fadbacec41b1b77b84ffbf43c515bb4220062e"
+    },
+    "coarse_sha256": "e20068179e470bbcd3b0cd41046a24876654563a467d43215bfa54e3d3c50335",
+    "textured_sha256": "da2a41d0a8c096e418cb3244f701b92eb1fb51ba1a5303721df2281a46c57bd4",
+    "input_faces": 643364,
+    "output_faces": 643352,
+    "removed_zero_area_source_faces": 12,
+    "all_valid_oriented_triangles_preserved": true,
+    "max_position_roundoff": 0.0,
+    "uv_readback": {
+      "serialized_glb_readback": "passed",
+      "faces": 643352,
+      "zero_area_uv_faces": 0,
+      "duplicate_uv_faces": 0
+    },
+    "all_views_download_and_reuse_verified": true,
+    "stages": [
+      {
+        "engine": "hunyuan_mv",
+        "seconds": 100.664,
+        "torch_peak_allocated_mib": 2764.0
+      },
+      {
+        "engine": "trellis2",
+        "seconds": 83.205,
+        "torch_peak_allocated_mib": 2839.55
+      }
+    ]
+  },
+  "visual_review": {
+    "scope": "front/back Blender renders of this delivered static asset; no browser interaction or animation acceptance",
+    "sample_views_accepted": true,
+    "findings": [
+      "Recognizable silhouette, bow placement and front/back materials retained.",
+      "Hair surface and eye edges remain soft at the tested default settings."
+    ],
+    "renders": {
+      "front.png": "03bbb1e6c9f799de6034b39bb8d3e1759638d879abfd9564c715c5f755111c17",
+      "back.png": "8c07011879c92b954f273752acc7ab1f35788efb12180e6adad7288f9f62fd72"
+    }
+  },
+  "model_publication": {
+    "repo": "t8star/Hi3d-Comfy",
+    "model_commit": "8422f0b2187ba3fb85e1f324972c41026e25c28a",
+    "docs_commit": "fb55d73f630fa162b7cdfcc4a278727e44bb8f15",
+    "files_verified": 99,
+    "bytes": 84197302160,
+    "studio_models_in_this_mirror": false
+  },
+  "scope": "workbench only; existing Hi3D refinement and painters condition on front image; ComfyUI nodes unchanged",
+  "pending": [
+    "real browser interactions",
+    "remaining asset-studio animation/complex-model acceptance",
+    "final complete-bundle release"
+  ]
+}

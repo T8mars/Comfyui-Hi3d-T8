@@ -235,7 +235,7 @@ class JobManager:
         values.update(self._memory_states)
         return sorted(values.values(),key=lambda value:value['created'],reverse=True)
 
-    def create(self,image,mesh,options):
+    def create(self,image,mesh,options,view_images=None):
         with self.lock:
             if self.recovery_blocked:raise RuntimeError('检测到记录损坏或身份不明的残留工作进程，请先关闭它，再创建新任务')
             if self.active:raise RuntimeError("已有推理任务运行，请等待或取消")
@@ -245,6 +245,8 @@ class JobManager:
             try:
                 if image is not None:shutil.copy2(image,folder/"input.png")
                 if mesh is not None:shutil.copy2(mesh,folder/"coarse.glb")
+                from .multiview import view_filename
+                for view,path in (view_images or {}).items():shutil.copy2(path,folder/view_filename(view))
                 atomic_json(folder/"request.json",options)
                 state={"id":jid,"created":time.time(),"state":"queued","stage":"queued","options":options,"message":"任务已保存"}
                 atomic_json(folder/"state.json",state)

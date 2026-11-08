@@ -10,6 +10,8 @@
 
 资产加工与单人动画正在开发，功能、操作及限制见 [使用说明](docs/ASSET_STUDIO.zh-CN.md)。这些后端尚未完成最终验收和完整包交付，不属于新增 ComfyUI 节点。
 
+工作台新增 **Hunyuan3D-2mv 多视图建模**：正面为主参考，可另上传左侧、背面、右侧，支持三视图；权重独立下载。后续精修和现有 PBR 阶段使用正面参考。[操作与模型说明](docs/MULTIVIEW.zh-CN.md)。
+
 ```mermaid
 flowchart LR
   A[Hi3D Model Loader] --> D[Hi3D Refine]

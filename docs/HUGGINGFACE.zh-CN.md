@@ -2,9 +2,9 @@
 
 [English](README.md) | **简体中文**
 
-**By T8star。** 为 [Hi3D T8 本地工作台与 ComfyUI 节点](https://github.com/T8mars/Comfyui-Hi3d-T8)整理的完整模型组件。保留原始权重、配置、固定版本与各自许可；UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。
+**By T8star。** 为 [Hi3D T8 本地工作台与 ComfyUI 节点](https://github.com/T8mars/Comfyui-Hi3d-T8)整理的核心、建模和贴图模型组件。保留原始权重、配置、固定版本与各自许可；UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。
 
-**ComfyUI 只使用 Hi3D 核心，输入参考图＋粗模，输出精修几何。** 单图建模与 PBR 扩展仅用于独立工作台。本仓库不含应用或 Python；GitHub Release 只提供代码，含 Python 与模型的完整版由 T8star 另行提供。
+**ComfyUI 只使用 Hi3D 核心，输入参考图＋粗模，输出精修几何。** 单图／多视图建模与 PBR 扩展仅用于独立工作台。本仓库不含应用或 Python；GitHub Release 只提供代码，含 Python 与模型的完整版由 T8star 另行提供。
 
 原生节点在 ComfyUI 自身 Python 内直接推理，无需启动工作台。上传图片和粗模后精修，使用相同原始核心权重；旧桥接画布需替换为新版示例。
 
@@ -18,6 +18,7 @@
 | `dino/`、`clip/` | 核心必需的 DINOv2 Large、CLIP ViT-L/14 编码器 | Apache-2.0／MIT |
 | `extensions/coarse/` | Hunyuan3D-2mini Turbo 图片建模 | 腾讯 Hunyuan 3D 2.0 社区许可 |
 | `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 图片建模 | 腾讯 Hunyuan 3D 2.1 社区许可 |
+| `extensions/coarse_hunyuan_mv/` | Hunyuan3D-2mv 多视图建模；正面＋左侧／背面／右侧 | 腾讯 Hunyuan 3D 2.0 社区许可 |
 | `extensions/coarse_trellis2/`、`extensions/trellis_structure/` | TRELLIS.2 建模与结构解码器 | MIT |
 | `extensions/texture/`、`extensions/texture_encoder/` | TRELLIS.2 PBR 与 DINOv3 编码器 | MIT／DINOv3 License |
 | `extensions/texture_hunyuan21/`、`extensions/paint_dino/`、`extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1、DINOv2 Giant、Real-ESRGAN | 腾讯／Apache-2.0／BSD-3-Clause |
@@ -25,9 +26,13 @@
 | `extensions/ultratex_backbone_int8/` | tsolful 的 Klein Base 9B INT8 ConvRot；固定 CivitAI 版本 3080042／文件 2959286 | 原始 FLUX 非商业许可 |
 | `extensions/background/` | 可选 CPU U2Netp 抠图 | MIT／Apache-2.0 |
 
-`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 14 个扩展组件及来源版本；`model-catalogue.json` 列出全部 **95 个权重／配置／许可文件，合计约 79.3GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
+`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 15 个建模／贴图扩展组件及来源版本；`model-catalogue.json` 列出全部 **99 个权重／配置／许可文件，合计约 84.2GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
 
-**2026-10-26 重新核对：**本地 95 个文件与清单、抱脸文件哈希一致，没有待补传或替换的模型权重。运行时加速轮子单独统计，不计入模型清单。
+**2026-11-07 更新：**新增官方多视图的 4 个文件，约 4.93GB；以上 99 个文件均与本地清单及远端哈希核对。工作台中选择 Hunyuan3D-2mv，正面放主图片位，再上传左侧、背面或右侧；后续精修和现有贴图使用正面参考。
+
+多视图入口需要 **0.6 候选版或更新的工作台**，旧版下载权重后不会自动增加入口。[候选代码](https://github.com/T8mars/Comfyui-Hi3d-T8/tree/codex/asset-studio-multiview)。
+
+资产拆件、骨骼和动作等 `studio` 模型由工作台按固定官方版本另外管理，**不在本仓库这 99 个文件中**。运行时加速轮子也不计入模型清单。
 
 ## 下载方式
 
@@ -39,7 +44,7 @@
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-下载全部核心与扩展（约 79.3GB，另留运行环境和任务空间）：
+下载本仓库全部核心与建模／贴图扩展（约 84.2GB，另留运行环境和任务空间）：
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models
@@ -51,6 +56,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 |---|---|---:|
 | Hunyuan3D-2mini Turbo 建模 | `coarse` | 3.82GB |
 | Hunyuan3D 2.1 建模 | `coarse_hunyuan21` | 7.37GB |
+| Hunyuan3D-2mv 多视图建模 | `coarse_hunyuan_mv` | 4.93GB |
 | TRELLIS.2 建模 | `coarse_trellis2`、`trellis_structure`、`texture_encoder` | 10.06GB |
 | TRELLIS.2 PBR | `texture`、`texture_encoder` | 8.04GB |
 | Hunyuan3D-Paint 2.1 | `texture_hunyuan21`、`paint_dino`、`paint_upscaler` | 11.50GB |

@@ -311,11 +311,19 @@ def _verify_uv_layout(faces, uv):
     reuse; it is not an exhaustive arbitrary-polygon intersection solver.
     """
     import numpy as np
+    serialized=np.asarray(uv,dtype=np.float64).copy()
+    serialized[:,0]=serialized[:,0].astype(np.float32).astype(np.float64)
+    serialized[:,1]=1.-(1.-serialized[:,1]).astype(np.float32).astype(np.float64)
+    final_triangle=serialized[faces]
+    a,b=final_triangle[:,1]-final_triangle[:,0],final_triangle[:,2]-final_triangle[:,0]
+    serialized_collapsed=np.any(np.abs(a[:,0]*b[:,1]-a[:,1]*b[:,0])==0)
     triangles = np.asarray(uv, dtype=np.float64)[faces]
     edge1, edge2 = triangles[:, 1]-triangles[:, 0], triangles[:, 2]-triangles[:, 0]
     double_area = np.abs(edge1[:, 0]*edge2[:, 1]-edge1[:, 1]*edge2[:, 0])
     if np.any(double_area == 0.):
         raise RuntimeError('UV 展开产生零面积三角形，已拒绝不可贴图结果')
+    if serialized_collapsed:
+        raise RuntimeError('GLB 序列化会使 UV 三角面退化，已拒绝结果')
     if float(double_area.sum())*.5 > 1.001:
         raise RuntimeError('UV 图块面积超出单张图集，可能发生重叠或多页布局')
     order = np.lexsort((triangles[:, :, 1], triangles[:, :, 0]), axis=1)
@@ -323,6 +331,21 @@ def _verify_uv_layout(faces, uv):
     keys = canonical.view(np.dtype((np.void, 48))).reshape(-1)
     if len(np.unique(keys)) != len(keys):
         raise RuntimeError('UV 存在完全重叠或镜像复用的三角面，已拒绝结果')
+    order=np.lexsort((final_triangle[:,:,1],final_triangle[:,:,0]),axis=1)
+    canonical=np.ascontiguousarray(np.take_along_axis(final_triangle,order[:,:,None],axis=1)).reshape(-1,6)
+    if len(np.unique(canonical.view(np.dtype((np.void,48))).reshape(-1)))!=len(faces):
+        raise RuntimeError('GLB 序列化会使 UV 三角面完全复用，已拒绝结果')
+
+
+def verify_exported_uv(path):
+    """Read the actual generated GLB, after all painter/serializer transforms."""
+    import trimesh
+    mesh=trimesh.load(path,force='mesh',process=False)
+    uv=getattr(mesh.visual,'uv',None)
+    if uv is None:raise RuntimeError('导出 GLB 缺少生成的 UV')
+    _verify_uv_layout(mesh.faces,uv)
+    return {'serialized_glb_readback':'passed','faces':len(mesh.faces),
+            'zero_area_uv_faces':0,'duplicate_uv_faces':0}
 
 
 def _result_from_arrays(mesh, mapping, faces, uv):
@@ -592,6 +615,7 @@ def ensure_uv(mesh, *, emit=None, cache_dir=None, texture_size=2048, backend='au
     arrays = None
     policy = None
     failures = []
+    native_layout_rejection = None
     from .community_uv import LocalUVRepairError
     choices = ('cumesh', 'community', 'cpu') if backend == 'auto' else (
         'community' if backend == 'comfy_gpu' else backend,)
@@ -613,10 +637,17 @@ def ensure_uv(mesh, *, emit=None, cache_dir=None, texture_size=2048, backend='au
             arrays = _verify_arrays(mesh, source_faces, *arrays)
             break
         except (ImportError, OSError, RuntimeError, ValueError) as error:
-            # A bounded repair failure is structural. Switching algorithms to
-            # evade its safety budget would conceal the rejected input/output.
-            if isinstance(error, LocalUVRepairError) or backend != 'auto' or selected == 'cpu':
+            # Reject the native atlas itself, but allow one fresh GPU atlas in
+            # auto mode. The independent layout crosses the same full geometry,
+            # zero-area, duplicate and repair-budget guards. Never hide either
+            # structural rejection by restarting the whole mesh on CPU.
+            if backend != 'auto' or selected == 'cpu':
                 raise
+            if selected=='community' and native_layout_rejection is not None:
+                raise LocalUVRepairError(f'CuMesh 图集已拒绝；独立 GPU 图集也未通过：{error}；未运行 CPU 重算') from error
+            if isinstance(error,LocalUVRepairError):
+                if selected!='cumesh':raise
+                native_layout_rejection=error
             arrays, policy = None, None
             failures.append(labels[selected]+': '+str(error))
             next_backend = choices[choices.index(selected)+1]

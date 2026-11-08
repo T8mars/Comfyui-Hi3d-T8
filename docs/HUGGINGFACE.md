@@ -19,7 +19,7 @@ tags:
 
 **English** | [简体中文](README.zh-CN.md)
 
-**By T8star.** Verified redistribution of the shared Hi3D core and all model components supported by the [standalone Hi3D T8 workbench](https://github.com/T8mars/Comfyui-Hi3d-T8). Original weights, configurations, pinned revisions and individual licenses are retained. UltraTex uses an upstream-published fp8 base; this project did not quantize it.
+**By T8star.** Verified redistribution of the shared Hi3D core, geometry and PBR model components used by the [standalone Hi3D T8 workbench](https://github.com/T8mars/Comfyui-Hi3d-T8). Original weights, configurations, pinned revisions and individual licenses are retained. UltraTex uses an upstream-published fp8 base; this project did not quantize it.
 
 **ComfyUI only uses the Hi3D core for reference-image + coarse-mesh geometry refinement.** Image-to-3D and PBR extensions belong to the standalone workbench. This model repository contains neither the application nor Python. GitHub Releases contain code only; T8star will provide the complete package with Python and models separately.
 
@@ -35,6 +35,7 @@ Native nodes infer directly inside ComfyUI's own Python, without a workbench ser
 | `dino/`, `clip/` | Required DINOv2 Large and CLIP ViT-L/14 core encoders | Apache-2.0 / MIT |
 | `extensions/coarse/` | Hunyuan3D-2mini Turbo image-to-geometry | Tencent Hunyuan 3D 2.0 Community |
 | `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 image-to-geometry | Tencent Hunyuan 3D 2.1 Community |
+| `extensions/coarse_hunyuan_mv/` | Hunyuan3D-2mv multi-view geometry: front with left/back/right views | Tencent Hunyuan 3D 2.0 Community |
 | `extensions/coarse_trellis2/`, `extensions/trellis_structure/` | TRELLIS.2 geometry and structure decoder | MIT |
 | `extensions/texture/`, `extensions/texture_encoder/` | TRELLIS.2 PBR and DINOv3 encoder | MIT / DINOv3 License |
 | `extensions/texture_hunyuan21/`, `extensions/paint_dino/`, `extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1, DINOv2 Giant and Real-ESRGAN | Tencent / Apache-2.0 / BSD-3-Clause |
@@ -42,9 +43,13 @@ Native nodes infer directly inside ComfyUI's own Python, without a workbench ser
 | `extensions/ultratex_backbone_int8/` | tsolful Klein Base 9B INT8 ConvRot, pinned CivitAI version 3080042/file 2959286 | Original FLUX Non-Commercial |
 | `extensions/background/` | Optional CPU U2Netp foreground extraction | MIT / Apache-2.0 |
 
-`manifest.json` records the shared core. `extensions/manifest.json` records 14 extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **95 model/config/license artifacts (79.3GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
+`manifest.json` records the shared core. `extensions/manifest.json` records 15 geometry/PBR extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **99 model/config/license artifacts (84.2GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
 
-**Inventory checked on 2026-10-26:** all 95 local files match their manifests and this repository's hashes; no missing or changed checkpoints require uploading. Runtime wheels are counted separately from the model catalogue.
+**2026-11-07 update:** four official multi-view files add about 4.93GB; all 99 files are checked against local manifests and remote hashes. Select Hunyuan3D-2mv in the workbench, upload the front image in the main slot and add left/back/right views. Subsequent refinement and existing painters use the front reference.
+
+Multi-view requires the **0.6 candidate or a newer workbench**; downloading weights alone does not add the controls to older code. [Candidate code](https://github.com/T8mars/Comfyui-Hi3d-T8/tree/codex/asset-studio-multiview).
+
+Asset segmentation, rigging and motion `studio` models are managed separately by the workbench from pinned official repositories and **are not among these 99 files**. Runtime wheels are also counted separately.
 
 ## Download
 
@@ -56,7 +61,7 @@ Core only (10.66GB), sufficient for the independent Hi3D ComfyUI nodes:
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-All core and extension files (about 79.3GB; allow additional runtime and working space):
+All hosted core and geometry/PBR extension files (about 84.2GB; allow additional runtime and working space):
 
 ```bash
 hf download t8star/Hi3d-Comfy --local-dir models
@@ -68,6 +73,7 @@ Download the **complete component set in one row** for each workbench engine you
 |---|---|---:|
 | Hunyuan3D-2mini Turbo geometry | `coarse` | 3.82GB |
 | Hunyuan3D 2.1 geometry | `coarse_hunyuan21` | 7.37GB |
+| Hunyuan3D-2mv multi-view geometry | `coarse_hunyuan_mv` | 4.93GB |
 | TRELLIS.2 geometry | `coarse_trellis2`, `trellis_structure`, `texture_encoder` | 10.06GB |
 | TRELLIS.2 PBR | `texture`, `texture_encoder` | 8.04GB |
 | Hunyuan3D-Paint 2.1 | `texture_hunyuan21`, `paint_dino`, `paint_upscaler` | 11.50GB |

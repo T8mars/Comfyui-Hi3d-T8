@@ -146,7 +146,12 @@ def _normalized_pixels(pixels, side):
     import numpy as np
     result = np.asarray(pixels, dtype=np.float64)/float(side)
     result[:, 1] = 1.-result[:, 1]
-    return result.astype(np.float32)
+    result=result.astype(np.float32)
+    # glTF stores V-down. Trimesh flips V again before the float32 accessor;
+    # values near zero can otherwise merge only during final serialization.
+    # Plan/repair against a fixed point of that round trip, before accepting UVs.
+    result[:,1]=np.float32(1.)-(np.float32(1.)-result[:,1])
+    return result
 
 
 def _save_diagnostics(arrays, metadata, *, prefix='community'):

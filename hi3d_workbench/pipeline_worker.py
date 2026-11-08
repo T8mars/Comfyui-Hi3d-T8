@@ -159,6 +159,9 @@ def _run(request_path):
         # Face budgets apply to generated geometry only. Existing mesh
         # texturing must never inherit a simplification request.
         if stage == 'coarse':payload['target_faces']=req.get('geometry_target_faces',1000000)
+        if stage == 'coarse' and req.get('view_images'):
+            from .multiview import view_filename
+            payload['view_paths']={view:str(folder/view_filename(view)) for view in req['view_images']}
         if source_mesh:
             payload['mesh_path'] = str(source_mesh)
         stage_request = stage_dir / 'request.json'
@@ -178,6 +181,11 @@ def _run(request_path):
             if candidate.is_file():
                 atomic_copy(candidate, folder / 'foreground.png')
                 break
+        if stage=='coarse':
+            from .multiview import AUXILIARY_VIEWS
+            for view in AUXILIARY_VIEWS:
+                name=f'foreground-{view}.png'
+                if (stage_dir/name).is_file():atomic_copy(stage_dir/name,folder/name)
         atomic_json(folder / 'pipeline-progress.json', {'stages': stages})
         return out
 

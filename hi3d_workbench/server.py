@@ -10,6 +10,7 @@ import sys
 import uuid
 import zipfile
 from pathlib import Path
+from typing import Literal
 from urllib.parse import urlparse
 from contextlib import asynccontextmanager, contextmanager, ExitStack
 from fastapi import FastAPI, HTTPException, UploadFile, File, Request, Query
@@ -27,6 +28,7 @@ from .asset_pipeline import inspect_asset_geometry
 from .jobs import JobManager
 from . import common, models, pipeline_models, updater, lifecycle, runtime_acceleration
 from .studio import models as studio_models
+from .multiview import AUXILIARY_VIEWS, view_filename
 
 TOKEN=secrets.token_urlsafe(32)
 WEB=Path(__file__).parent/"web"
@@ -43,6 +45,8 @@ PREVIEW_LOCK=threading.Lock()
 PREVIEW_EVENTS=[]
 ACCELERATION_INSTALL={'state':'idle','message':''}
 JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json","output.glb","rig-original.glb","output.fbx","output.obj","parts.zip","parts.json","rig.json","motion.bvh","motion.npz","motion.json","original-segmentation.glb","original-parts.json","original-parts.zip"}
+JOB_FILES.update(view_filename(view) for view in AUXILIARY_VIEWS)
+JOB_FILES.update(f'foreground-{view}.png' for view in AUXILIARY_VIEWS)
 
 @contextmanager
 def gpu_operation(kind):
@@ -510,6 +514,7 @@ def asset(aid:str,name:str):
 
 class JobInput(BaseModel):
     image:str
+    view_images:dict[Literal['left','back','right'], StrictStr]=Field(default_factory=dict,max_length=3)
     mesh:str | None=None
     mode:str='refine'
     refine_geometry:bool=False
@@ -559,6 +564,10 @@ def create_job(body:JobInput):
     mesh=child_path(ASSETS,body.mesh)/"mesh.glb" if body.mesh else None
     if not image.is_file() or body.mode!='image_to_asset' and (mesh is None or not mesh.is_file()):raise HTTPException(400,"请上传参考图；已有模型模式还需要同物体网格")
     if body.mode=='image_to_asset':mesh=None
+    if body.view_images and (body.mode!='image_to_asset' or body.geometry_engine!='hunyuan_mv'):
+        raise HTTPException(400,'附加视图仅适用于 Hunyuan3D-2mv 图片建模，请切换引擎或移除附加图片')
+    view_images={view:child_path(ASSETS,aid)/'image.png' for view,aid in body.view_images.items()}
+    if any(not path.is_file() for path in view_images.values()):raise HTTPException(400,'附加视图不存在，请重新上传对应图片')
     with gpu_operation('preparing'):
         if models.LOCK.locked():raise HTTPException(409,"模型正在下载")
         if wants_refine:
@@ -570,14 +579,16 @@ def create_job(body:JobInput):
         if body.mode=='image_to_asset' and not is_ready(extension,'coarse',body.geometry_engine):raise HTTPException(409,f'{geometry_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
         if wants_texture and not is_ready(extension,'texture',body.texture_engine):raise HTTPException(409,f'{texture_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
         if (body.mode=='image_to_asset' or wants_texture) and body.background=='auto':
-            with Image.open(image) as reference:
-                opaque=reference.convert('RGBA').getchannel('A').getextrema()[0]>=250
+            opaque=False
+            for path in [image,*view_images.values()]:
+                with Image.open(path) as reference:
+                    opaque=opaque or reference.convert('RGBA').getchannel('A').getextrema()[0]>=250
             if opaque and not extension.get('background_ready',False):raise HTTPException(409,'自动前景处理模型未就绪，请补齐扩展组件，或提供透明图片/选择保留背景')
         options={**body.model_dump(exclude={"image","mesh"}),"generate_texture":wants_texture,"image_asset":body.image,"mesh_asset":body.mesh if mesh is not None else None}
         options['input_has_materials']=bool(mesh is not None and read_json(mesh.parent/'meta.json',{}).get('has_materials'))
         options.update(geometry_resolution=geometry_resolution, texture_resolution=texture_resolution, geometry_steps=body.geometry_steps or geometry_choice['default_steps'],
                        texture_steps=body.texture_steps or texture_choice['default_steps'])
-        try:return manager.create(image,mesh,options)
+        try:return manager.create(image,mesh,options,view_images=view_images) if view_images else manager.create(image,mesh,options)
         except RuntimeError as e:raise HTTPException(409,str(e)) from e
 
 @app.get("/api/jobs")
@@ -610,9 +621,15 @@ def reuse_job(jid:str):
     value=manager.get(jid)
     image_only=bool(value and value['options'].get('mode')=='image_to_asset')
     if not value or not (folder/'input.png').is_file() or not image_only and not (folder/'coarse.glb').is_file():raise HTTPException(404,"此任务的输入文件已不存在")
+    view_names=value['options'].get('view_images',{}) if image_only else {}
+    if not isinstance(view_names,dict) or any(view not in AUXILIARY_VIEWS or not (folder/view_filename(view)).is_file() for view in view_names):
+        raise HTTPException(404,'此任务的附加视图已不存在，不能完整复用')
     created=[]
+    metadata={}
     try:
-        for kind,filename in ([('image','input.png')] if image_only else [('image','input.png'),('mesh','coarse.glb')]):
+        inputs=[('image','image','input.png')] if image_only else [('image','image','input.png'),('mesh','mesh','coarse.glb')]
+        inputs.extend((view,'image',view_filename(view)) for view in AUXILIARY_VIEWS if view in view_names)
+        for label,kind,filename in inputs:
             aid=uuid.uuid4().hex;dest=ASSETS/aid;dest.mkdir();created.append(dest)
             if kind=='image':
                 shutil.copy2(folder/filename,dest/'image.png')
@@ -626,7 +643,8 @@ def reuse_job(jid:str):
                 tree=read_glb_container(dest/'mesh.glb')
                 meta={"id":aid,"kind":kind,"name":"复用粗模型.glb","has_materials":bool(tree.get('materials')),"url":f"/api/assets/{aid}/mesh.glb","geometry":inspect_asset_geometry(dest/'mesh.glb')}
             atomic_json(dest/'meta.json',meta)
-        return {"image":read_json(created[0]/'meta.json'),"mesh":read_json(created[1]/'meta.json') if len(created)>1 else None,"options":value['options']}
+            metadata[label]=meta
+        return {"image":metadata['image'],"mesh":metadata.get('mesh'),"views":{view:metadata[view] for view in view_names},"options":value['options']}
     except Exception:
         # Only remove files in the newly allocated asset directories, never task originals.
         for directory in created:

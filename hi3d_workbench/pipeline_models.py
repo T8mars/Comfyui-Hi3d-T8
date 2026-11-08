@@ -74,6 +74,14 @@ SPECS = {
         "files": ["hunyuan3d-dit-v2-1/config.yaml", "hunyuan3d-dit-v2-1/model.fp16.ckpt", "LICENSE", "Notice.txt", "README.md"],
         "optional": True,
     },
+    "coarse_hunyuan_mv": {
+        "repo": "tencent/Hunyuan3D-2mv",
+        "revision": "3a761b539b29fe4ff64714813aa9560fd66f5de0",
+        "license": "Tencent Hunyuan 3D 2.0 Community License",
+        "files": ["hunyuan3d-dit-v2-mv/config.yaml", "hunyuan3d-dit-v2-mv/model.fp16.safetensors", "LICENSE", "README.md"],
+        "expected_file_hashes": {"hunyuan3d-dit-v2-mv/model.fp16.safetensors": "d36f5881bcdc56726b73e517cd444c13c60732431622da7268145355c8d38e9c"},
+        "optional": True,
+    },
     "coarse_trellis2": {
         "repo": "microsoft/TRELLIS.2-4B",
         "revision": "af44b45f2e35a493886929c6d786e563ec68364d",

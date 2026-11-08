@@ -10,6 +10,8 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 Asset processing and single-character animation are under development: [scope, operation and limits](docs/ASSET_STUDIO.md). Final acceptance and a complete bundle for these backends are still pending; they are not additional ComfyUI nodes.
 
+The workbench adds **Hunyuan3D-2mv multi-view modeling**: use a front reference with optional left, back and right images, including three-view inputs. Its checkpoint downloads separately. Subsequent refinement and existing PBR stages use the front reference. [Usage and model details](docs/MULTIVIEW.md).
+
 ```mermaid
 flowchart LR
   A[Hi3D Model Loader] --> D[Hi3D Refine]

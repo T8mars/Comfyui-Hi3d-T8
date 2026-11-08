@@ -36,8 +36,13 @@ def install_xpart_attention():
 
 def install_xpart_sonata_attention(model):
     """Preserve Sonata's patch ordering/scale without its forced FP16 cast."""
-    from types import MethodType
     from partgen.models.sonata.model import SerializedAttention
+    return install_sonata_attention(model, SerializedAttention, label='X-Part')
+
+
+def install_sonata_attention(model, attention_type, *, label):
+    """Shared inference path for separately imported, pinned Sonata classes."""
+    from types import MethodType
     def forward(self,point):
         pad,unpad,offsets=self.get_padding_and_inverse(point)
         order=point.serialized_order[self.order_index][pad]
@@ -48,11 +53,11 @@ def install_xpart_sonata_attention(model):
         return point
     changed=0
     for module in model.modules():
-        if isinstance(module,SerializedAttention):
-            if not module.enable_flash or module.enable_rpe:
-                raise RuntimeError('固定 X-Part Sonata 配置与 FP32 分块注意力不兼容')
+        if isinstance(module,attention_type):
+            if not module.enable_flash or module.enable_rpe or module.training:
+                raise RuntimeError(f'固定 {label} Sonata 配置与 FP32 分块推理不兼容')
             module.forward=MethodType(forward,module);changed+=1
-    if not changed:raise RuntimeError('未找到固定 X-Part Sonata 注意力层')
+    if not changed:raise RuntimeError(f'未找到固定 {label} Sonata 注意力层')
     return changed
 
 

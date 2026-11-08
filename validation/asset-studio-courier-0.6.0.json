@@ -1,0 +1,180 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "acceptance": "pending final browser/full-bundle acceptance",
+  "regression": {
+    "repository_tests": 885,
+    "failures": 0,
+    "junit_sha256": "1c4dea691832a17230e9c4e8f9897c67012ac51db6ad55d19dcc9dddf6d0eb96"
+  },
+  "reference": {
+    "generator": "Codex built-in image_gen",
+    "image_sha256": "596f65a7829a56e0fef3f810d23a8d5289833982a4d540e76efd56663206bdca",
+    "prompt_sha256": "605766eb57035c07ccd0fec90cebd9f8b347e024eb8f376e7062709997a3993e",
+    "pose": "front-facing A pose with separated limbs"
+  },
+  "geometry_and_pbr": {
+    "job": "26dd0532ee714c69bea56f2e2456798a",
+    "seconds": 241.93,
+    "geometry_engine": "hunyuan_mv",
+    "input_views": [
+      "front"
+    ],
+    "geometry_resolution": 384,
+    "geometry_steps": 30,
+    "texture_engine": "trellis2",
+    "texture_resolution": 512,
+    "texture_steps": 12,
+    "texture_size": 2048,
+    "coarse_sha256": "b1f4cad2d47d5caaa38982bac0b0a511596e93bba48917aefdd937eb867e2ac2",
+    "textured_sha256": "10aebc7a95b23422701115537d4cfe16358affaa9a853e9f874285447dd0e180",
+    "static_front_back_render_manifest_sha256": "4756d8b3fb64a3372b5a933eaad29b3ecec424a438055e5ce11455ca0c577c7c",
+    "sampled_static_views_accepted": true,
+    "finding": "Readable pose, clothing colors and front/back surfaces; fine face and fabric detail remains soft at these settings."
+  },
+  "rig": {
+    "job": "472bf990bda84deeaefd1a0df1ef4b71",
+    "engine": "SkinTokens",
+    "seconds": 75.61,
+    "joints": 52,
+    "preservation": {
+      "initial_geometry_preserved": true,
+      "max_world_position_error": 2.0076117457357157e-07,
+      "uv_attributes_preserved": 1,
+      "pbr_settings_preserved": true,
+      "embedded_images_preserved": 2,
+      "source_sha256": "10aebc7a95b23422701115537d4cfe16358affaa9a853e9f874285447dd0e180",
+      "output_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0"
+    },
+    "fbx_roundtrip": true
+  },
+  "six_single_character_motions": {
+    "walk": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "22d2b05253283082455c85767cabec2aefcd18f3c40dc08b406b839b7f5b0fcb",
+      "max_severely_stretched_faces": 4,
+      "max_ground_penetration": 5.011801220256018e-06,
+      "job": "e4e64a7e988b478b93c830e70a6d7919",
+      "seconds": 7.094,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 10,
+      "render_receipt_sha256": "36292faeac57b151ada254b3e8d0f0081a6bbcf9e2b08b1875db7f8885d83aca"
+    },
+    "run": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "3278fed4134464399a1a5c91741624d9d369f33e22d427a904a5078affc9f0b2",
+      "max_severely_stretched_faces": 13,
+      "max_ground_penetration": 7.461589919266487e-06,
+      "job": "4bede7d153aa477788941603bda84b32",
+      "seconds": 6.484,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 10,
+      "render_receipt_sha256": "31fb3396e5d2b1ee749a825ee21fe2df479f0bca0cf1e7ff4882d59cefa68806"
+    },
+    "wave": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "d8b5030660441705a07c6be3c01770932fc8fe6581f84e16603d0787edc0817c",
+      "max_severely_stretched_faces": 14,
+      "max_ground_penetration": 9.162102821091977e-06,
+      "job": "646b24537a424d02b82b647040dc8100",
+      "seconds": 7.469,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 10,
+      "render_receipt_sha256": "47e28f4ca683ccb7d69dcdf373e7b92758af2b610b3e667903343300de2e2c3c"
+    },
+    "punch": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "3d17066362ce98f449757cda3af54944f414a4fe99f005c7306c681856b2d8d9",
+      "max_severely_stretched_faces": 18,
+      "max_ground_penetration": 3.1079850331128256e-06,
+      "job": "4fdacbf34fce419c9e030d9495d40714",
+      "seconds": 6.75,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 10,
+      "render_receipt_sha256": "e8a9163abc754b87da65d01932bf2b5cc982cd1b2fe7131dd17ddef33d8d2924"
+    },
+    "kick": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "e34c6246602807b6f4e85204e2f47324c9135cd17a18f5f218897ffd64871d65",
+      "max_severely_stretched_faces": 9,
+      "max_ground_penetration": 1.1032998352700218e-06,
+      "job": "5b6e3608073746909f2ed2b7697c37e4",
+      "seconds": 6.89,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 9,
+      "render_receipt_sha256": "232ae6a5b9033a99f166d000115b2ec11c46eec4002e56799240a2bd9655bd96"
+    },
+    "dodge": {
+      "frames": 121,
+      "faces": 269892,
+      "floor": -1.000242178531054,
+      "source_sha256": "fbd239416ebc0aef6c49fc2284d9ca17ae9072c78044ed41cdd6949405f636d0",
+      "output_sha256": "ae4c7475d31ce64d95f56b6899ff7f925a195dc0023cd1c35f9827d305ac5adf",
+      "max_severely_stretched_faces": 20,
+      "max_ground_penetration": 5.8353394924992585e-06,
+      "job": "d3484235fac2459396a2d15269756483",
+      "seconds": 7.156,
+      "fbx_roundtrip": true,
+      "sampled_render_count": 10,
+      "render_receipt_sha256": "6947caf0c048d0a6c8c746fc3aca62b08f0c852ac5e40c4ed0715cec47ea6c63"
+    }
+  },
+  "motion_source": "Previously generated Kimodo-SOMA-RP-v1.2 BVHs; retargeted through real workbench HTTP to this new character. No new text-model generation claimed.",
+  "sampled_motion_visual_review": {
+    "sampled_frames": 59,
+    "contact_sheet": "docs/assets/courier-motion-samples.png",
+    "contact_sheet_sha256": "730b01e04496ee462867d68d5eae9fa9f88e3d81c30e92e4d1fbf414eac6759f",
+    "sampled_poses_accepted": true,
+    "findings": "Walking, running, raised-hand wave, punch/guard and crouching dodge are readable, with coherent clothing and PBR in the inspected samples. Hands retain the relaxed source finger pose.",
+    "kick_peak": {
+      "candidates": [
+        {
+          "side": "left",
+          "frame": 35,
+          "time": 1.1666666666666667,
+          "forward_reach": 0.6849976971363673,
+          "extension_ratio": 0.9326777473858934
+        },
+        {
+          "side": "right",
+          "frame": 70,
+          "time": 2.3333333333333335,
+          "forward_reach": 0.16095666122925467,
+          "extension_ratio": 0.9363298566091147
+        }
+      ],
+      "peak": {
+        "side": "left",
+        "frame": 35,
+        "time": 1.1666666666666667,
+        "forward_reach": 0.6849976971363673,
+        "extension_ratio": 0.9326777473858934
+      },
+      "output_sha256": "e34c6246602807b6f4e85204e2f47324c9135cd17a18f5f218897ffd64871d65"
+    },
+    "kick_peak_render_sha256": "f1f7ea09695b5a3f4c707252cdd914ea74060d1f94249907d8fd4caf3fef48fb",
+    "kick_peak_image": "docs/assets/courier-kick-peak.png",
+    "kick_peak_framing": "Same camera/world floor, orthographic projection widened by 1.25 for the additional peak render; source uniform samples unchanged.",
+    "scope": "Fixed-projection Blender samples and every stored frame at 30fps numerically; no browser or complete video-playback acceptance."
+  },
+  "pending": [
+    "X-Part completion/material acceptance",
+    "real browser interaction and full animation playback",
+    "final complete-bundle release"
+  ]
+}

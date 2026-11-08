@@ -26,6 +26,22 @@ def parameterized_mask_source(source):
     return source.replace(assignments, '', 1)
 
 
+def validate_p3sam_features(value, point_count):
+    import torch
+    if (not isinstance(value, torch.Tensor) or value.ndim != 2 or len(value) != point_count
+            or not torch.isfinite(value).all()):
+        raise RuntimeError('P3-SAM 点云特征无效，已停止，未将原模型误报为拆件成品')
+    return value
+
+
+def validate_p3sam_probabilities(values):
+    import torch
+    if (not isinstance(values, (tuple, list)) or len(values) != 4
+            or any(not isinstance(value, torch.Tensor) or not torch.isfinite(value).all()
+                   or torch.any(value < 0) or torch.any(value > 1) for value in values)):
+        raise RuntimeError('P3-SAM 掩码概率出现无效数值，已停止，未发布回退的整体模型')
+
+
 def _p3sam(request, emit):
     import torch
     from safetensors.torch import load_file
@@ -73,6 +89,17 @@ def _p3sam(request, emit):
     emit('asset_loading', '加载 P3-SAM 与本地 Sonata 权重', device='cpu')
     predictor = automatic.AutoMask(str(checkpoint), point_num=request.get('segment_points', 100000),
         prompt_num=request.get('segment_prompts', 400), threshold=request.get('segment_threshold', .95))
+    from .attention import install_sonata_attention
+    layers = install_sonata_attention(predictor.model.sonata, module.sonata.model.SerializedAttention,
+                                     label='P3-SAM')
+    emit('asset_loading', f'P3-SAM Sonata {layers} 层使用有界 FP32 点云注意力', device='cuda')
+    original_features = automatic.get_feat
+
+    def checked_features(model, points, normals):
+        return validate_p3sam_features(original_features(model, points, normals), len(points))
+
+    automatic.get_feat = checked_features
+    predictor.model.register_forward_hook(lambda model, inputs, values: validate_p3sam_probabilities(values))
     original_mask = automatic.get_mask
     completed = 0
     total = request.get('segment_prompts', 400)
@@ -141,6 +168,8 @@ def _xpart(emit,*,staged=False):
             from .attention import install_xpart_sonata_attention
             layers=install_xpart_sonata_attention(instance.seg_feat_encoder.sonata)
             emit('asset_loading',f'Sonata {layers} 层使用有界 FP32 点云注意力',device='cpu')
+            from .geometry_matching import install_xpart_conditioning
+            install_xpart_conditioning(instance, emit)
         del state
         # Publish each verified model to its execution device before building
         # the next one, avoiding simultaneous CPU copies of all FP32 models.

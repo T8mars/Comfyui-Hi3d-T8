@@ -69,6 +69,61 @@ def test_geometry_roles_work_with_generic_names_and_rotated_human_skeletons():
         identify(human_rig(),{'left_hand':'bone_7','right_hand':'bone_7'})
 
 
+def cartoon_finger_rig():
+    import json
+    from pathlib import Path
+    data=json.loads((Path(__file__).parent/'fixtures/skintokens-cartoon-finger-chain.json').read_text(encoding='utf-8'))
+    return skin.oriented_rig(data['positions'],data['parents'],data['names']),data['expected_roles']
+
+
+@pytest.mark.parametrize('angle,scale',[(0,1),(90,.01),(180,10)])
+def test_actual_cartoon_fingers_are_not_mapped_as_elbows_or_wrists(angle,scale):
+    rig,expected=cartoon_finger_rig()
+    points=Rotation.from_euler('y',angle,degrees=True).apply(rig.worlds[:,:3,3])*scale
+    transformed=skin.oriented_rig(points,rig.parents,rig.names)
+    roles=identify(transformed)['roles']
+    assert {role:roles[role] for role in expected}==expected
+
+
+def test_cartoon_short_finger_heuristic_keeps_explicit_mapping_and_names():
+    rig,_=cartoon_finger_rig()
+    assert identify(rig,{'left_hand':'bone_12'})['roles']['left_hand']==12
+    rig.names[12]='LeftHand'
+    rig.names[11]='LeftForeArm'
+    roles=identify(rig)['roles']
+    assert roles['left_hand']==12 and roles['left_forearm']==11
+
+
+def test_long_distal_segments_do_not_trigger_the_short_finger_heuristic():
+    rig,_=cartoon_finger_rig()
+    points=rig.worlds[:,:3,3].copy()
+    for node in (10,11,12):
+        points[node]=points[node-1]+[.14,.02,0]
+    rig=skin.oriented_rig(points,rig.parents,rig.names)
+    assert identify(rig)['roles']['left_hand']==12
+
+
+def test_saved_motion_drives_the_actual_cartoon_elbow_instead_of_fingers(tmp_path):
+    from hi3d_workbench.studio.animation import Motion,rotations
+    from hi3d_workbench.studio.motion_constraints import skeleton_document
+    from hi3d_workbench.studio.gltf import Document
+    source=human_rig()
+    worlds=np.repeat(source.worlds[None],2,axis=0)
+    rotation=Rotation.from_euler('z',80,degrees=True).as_matrix()
+    pivot=source.worlds[6,:3,3]
+    delta=np.eye(4);delta[:3,:3]=rotation;delta[:3,3]=pivot-rotation@pivot
+    worlds[1,[6,7]]=delta@worlds[1,[6,7]]
+    motion=Motion(source,np.array([0.,1.]),worlds,'elbow raise').validate()
+    target,_=cartoon_finger_rig()
+    output,details=apply(skeleton_document(target),motion,{'foot_lock':False})
+    path=tmp_path/'cartoon-elbow.glb';output.save(path)
+    actual=sample_glb(Document.load(path))
+    assert details['target_mapping']['left_forearm']=='bone_8'
+    before,after=rotations(actual.worlds[[0,-1],8])
+    assert Rotation.from_matrix(after@before.T).magnitude()>np.deg2rad(75)
+    assert np.linalg.norm(actual.worlds[-1,9,:3,3]-actual.worlds[0,9,:3,3])>.1
+
+
 def test_two_bone_ik_hits_reachable_target_without_stretching_bones():
     parents=np.array([-1,0,1]);order=[0,1,2]
     translation=np.array([[0.,2,0],[0,-1,.15],[0,-1,-.15]])

@@ -21,6 +21,7 @@
 2. Simplify or retopologize as needed. Inspect actual counts, silhouette, details and materials. Retopology changes vertices and requires rebinding; the original rig and animation remain in the source file.
 3. Inspect and correct part assignments. The spherical brush also selects rear-facing surfaces; radius zero selects individual triangles.
 4. Rig a human or humanoid character. Check joint placement, shoulders, elbows, knees and clothing. Use the existing-skeleton option to regenerate weights while retaining the rig.
+   Prefer a T/A pose with separated limbs. Hands resting on the waist, crossed legs and fused clothing can stretch during motion; contact separation can expose previously hidden openings. Successful rig export is not a deformation-quality pass.
    If limbs pull clothing or the opposite leg into long strips, try limb-contact correction. It separates suspected contacts using existing neural weights while protecting normal shoulder/hip blends and retaining original triangles, UVs, materials and the skeleton. The raw rigged GLB remains downloadable. The resulting boundary can be open; this does not replace print repair or fix every skinning error.
    For a tail or accessory that should not bend with a leg, segment or brush-separate and save the part first. Choose rigid part attachment, select the part and bone, then add the assignment. The entire part follows one bone; this does not generate natural tail or cloth motion. Other parts retain their weights. Saved part names and identities remain editable after rigging and motion processing.
    Enable attachment ground avoidance if the part intersects the floor. It adds an independent attachment joint and pitches the part upward during subsequent motion, using the sole-defined ground while retaining the original body joints. It does not handle body, weapon or scene-object collisions, and reports cases it cannot resolve.
@@ -44,6 +45,7 @@
 - The original partition GLB and ZIP are published before completion starts. Downloads lists saved files even after failure or cancellation, without waiting for the 3D preview. Select `original-segmentation.glb` from model sources to edit it again; its hash-matched part metadata remains separate from the reconstructed output.
 - Editing, rigging and motion processing retain reconstruction provenance and verified original-partition attachments. Reconstruction history does not guarantee that a newly edited cut is closed; inspect each part's current boundary report.
 - X-Part defaults to shape guidance 7.5, with controls for guidance, steps and geometry resolution. Encoding, guided sampling and decoding use the GPU in separate FP32 stages; logs show actual encoder and sampling progress. Excessive guidance can add small fragments, so inspect shape and material quality.
+- P3-SAM uses FP32 point-cloud attention with the original order, padding and scale, and checks feature/probability values before masks. X-Part streams semantic nearest searches over every reference point, retaining all parts and encoders and reporting actual query progress; sampling, decoding and material transfer remain separate phases.
 - Animation covers one character. Automatic skinning can pull clothing incorrectly; generated motion can miss a prompt, slide or intersect geometry. Human motion is not directly compatible with animal skeletons. Current body constraints do not provide detailed finger-gesture control.
 - Upstream SkinTokens requires at least 14GB VRAM; UniRig's model card specifies more than 8GB. Kimodo CPU text encoding reduces VRAM at the cost of host RAM and encoding time. Measurements on one GPU/input do not establish minimum requirements for other cards.
 - GPU models run in stages and are released when their worker exits. CPU UV, surface transfer and native CPU stages may show no GPU activity. Progress counters describe their active stage, not an estimated percentage of the whole task.
@@ -65,6 +67,14 @@ QuadriFlow runs through bundled Blender without extra AI weights. Distribution r
 ## Developer validation
 
 The [candidate evidence summary](../validation/asset-studio-candidate-0.6.0.json) separates backend/artifact checks, sampled renders and browser acceptance. Outstanding acceptance remains pending.
+
+An original A-pose character has completed real image-to-geometry/PBR, a 52-joint rig and six single-character GLB/FBX motion exports. These are fixed-projection renders of the actual outputs; full browser playback remains pending. The [character receipt](../validation/asset-studio-courier-0.6.0.json) records every stored frame, local stretching and ground errors; a [kick peak](assets/courier-kick-peak.png) is retained separately.
+
+![Actual PBR samples of six single-character motions](assets/courier-motion-samples.png)
+
+P3-SAM detected ten original-surface parts. The view below shows seven parts after explicitly merging hair with the head and boot soles with their uppers. All oriented triangles, vertex attributes and both textures were independently read back. Cuts remain open: this is original partitioning, with completion and final delivery still under validation. See the [partition receipt](../validation/p3sam-numerics-0.6.0.json) and [matching evidence](../validation/geometry-matching-0.6.0.json).
+
+![Seven parts retaining their original PBR](assets/courier-parts.png)
 
 `tools/validate_studio_http.py` exercises a new isolated service and real workers: upload, simplification, motion import, cancellation during sampling and restart recovery. It keeps its evidence under the checkout's `data` directory and does not use production ports or data. Supply a rigged `--source`, a BVH/FBX/GLB `--motion` and a new `--output` directory; the required runtime features must already be ready.
 

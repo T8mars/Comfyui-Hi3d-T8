@@ -72,6 +72,7 @@ def generate(pipe,*,mesh,boxes,steps,resolution,seed,guidance,emit,callback):
         condition=pipe.conditioner(part_gpu.reshape(count,*part_gpu.shape[-2:]),obj_gpu)
     if not isinstance(condition,dict) or any(not torch.isfinite(value).all() for value in condition.values()):
         raise RuntimeError('X-Part 几何条件包含无效数值')
+    matching_report = getattr(pipe.conditioner, '_hi3d_matching_report', [])
     del obj,parts,part_gpu,obj_gpu
     pipe.conditioner=None;gc.collect();torch.cuda.empty_cache()
     condition_seconds=time.monotonic()-started
@@ -108,5 +109,6 @@ def generate(pipe,*,mesh,boxes,steps,resolution,seed,guidance,emit,callback):
             scene.add_geometry(part,geom_name=f'part_{index:04d}')
     report={'guidance_scale':guidance,'precision':'FP32','sampling':'separate CFG branches with shared part-embedding RNG',
         'staged':True,'seed':seed,'steps':steps,'resolution':resolution,'decode_chunks':32768,
+        'semantic_matching':matching_report,
         'condition_seconds':condition_seconds,'sampling_seconds':sample_seconds,'decode_seconds':time.monotonic()-decode_started}
     return scene,report

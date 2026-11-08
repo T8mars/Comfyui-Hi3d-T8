@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "scope": "Real P3-SAM numerical repair and original-surface preservation; workbench only.",
+  "regression": {
+    "repository_tests": 885,
+    "failures": 0,
+    "junit_sha256": "1c4dea691832a17230e9c4e8f9897c67012ac51db6ad55d19dcc9dddf6d0eb96"
+  },
+  "failure_reproduced": {
+    "first_nonfinite_module": "sonata.enc.enc1.block0.attn",
+    "diagnostic_sha256": "ba30d37f5c9aa929c7f2d3bc41e2ce8b1c8a4116f3ab76499a81bc99322cbf5c",
+    "legacy_behavior": "NaN features became empty boolean masks; all 400 clusters were rejected and a whole-object fallback was exported."
+  },
+  "repair": "Full FP32 Sonata attention with original padding/order/scale, plus finite-feature and probability guards before boolean masks.",
+  "isolated_attention_replay": {
+    "captured_qkv_sha256": "206bdc01121adac22666ae7158edcbb1ec643de4c8098a0b743a40db757780bd",
+    "shape": [
+      29696,
+      3,
+      6,
+      16
+    ],
+    "patches": 29,
+    "head_dimension": 16,
+    "scale": 0.25,
+    "device": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "native_fp16_nonfinite_values": 0,
+    "native_total_values": 2850816,
+    "replacement_fp32_all_finite": true,
+    "checkpoint_projection_weights_all_finite": true,
+    "replacement_projection_all_finite": true,
+    "reference_patch": [
+      0,
+      1024
+    ],
+    "cpu_float64_reference_max_error": 9.74445399842816e-07,
+    "cpu_float64_reference_normalized_error": 9.74445399842816e-07,
+    "algorithm": "Same saved padded QKV, patch boundaries, scale, all query/key/value points and model projection; FP32 full attention."
+  },
+  "diagnostic_limit": "The full legacy Sonata layer reproduced NaNs; the isolated saved-QKV native-kernel replay was finite. No claim of a generally broken native kernel.",
+  "same_mesh_cases": [
+    {
+      "before_job": "67e2bcb1af4d4c82b82ac59dd3e93fa4",
+      "before_parts": 1,
+      "after": {
+        "job": "8fd2c1d67fb34640b52f0439058fcc51",
+        "source_sha256": "10aebc7a95b23422701115537d4cfe16358affaa9a853e9f874285447dd0e180",
+        "output_sha256": "bde0f0a1e816d83a268d4317e78a2cbf114e9c6e94109e65b1d039089359e145",
+        "faces": 269892,
+        "parts": 10,
+        "all_oriented_triangles_and_all_vertex_attributes_exact": true,
+        "world_positions_exact": true,
+        "pbr_and_embedded_images_exact": true,
+        "embedded_images": 2,
+        "zip_crc_and_individual_parts_verified": true,
+        "http_downloads": {
+          "output.glb": "bde0f0a1e816d83a268d4317e78a2cbf114e9c6e94109e65b1d039089359e145",
+          "parts.json": "7e622446d1e8f479d9d353300e88990121619bd6b72ac569040a03d725ed2e0c",
+          "parts.zip": "e9a69ad21b8ab6f89e43867eb0fc282f6101dbd1a09502bd4e3b8a0de40d3931"
+        },
+        "cut_boundaries_reported": true,
+        "visual_quality_accepted": false
+      },
+      "seconds": 37.437,
+      "torch_peak_allocated_mib": 6589.46,
+      "points": 100000,
+      "prompts": 400,
+      "threshold": 0.95
+    },
+    {
+      "before_job": "1864cd61b0ce4d8d8e69ebf3fbefcfe3",
+      "before_parts": 1,
+      "after": {
+        "job": "5c159089d4d84bb6b97f6bff0365e7ec",
+        "source_sha256": "da2a41d0a8c096e418cb3244f701b92eb1fb51ba1a5303721df2281a46c57bd4",
+        "output_sha256": "73783cb591406925801cabf7fcdaba9f9dad7409d91a435722876161f06c1862",
+        "faces": 643352,
+        "parts": 10,
+        "all_oriented_triangles_and_all_vertex_attributes_exact": true,
+        "world_positions_exact": true,
+        "pbr_and_embedded_images_exact": true,
+        "embedded_images": 2,
+        "zip_crc_and_individual_parts_verified": true,
+        "http_downloads": {
+          "output.glb": "73783cb591406925801cabf7fcdaba9f9dad7409d91a435722876161f06c1862",
+          "parts.json": "89bf7ce713c462eac38188138a4509a411bf2cf6941a0f3efcacc2d39031e012",
+          "parts.zip": "9704174a6bec6244762ded72ee305abbf6c17573d78063a2bab8b1327d2810b0"
+        },
+        "cut_boundaries_reported": true,
+        "visual_quality_accepted": false
+      },
+      "seconds": 46.547,
+      "torch_peak_allocated_mib": 6590.37,
+      "points": 100000,
+      "prompts": 400,
+      "threshold": 0.95
+    }
+  ],
+  "prepared_seven_parts": {
+    "job": "83963ae3ee95440292fa786303a9eb8b",
+    "source_sha256": "bde0f0a1e816d83a268d4317e78a2cbf114e9c6e94109e65b1d039089359e145",
+    "output_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "faces": 269892,
+    "parts": 7,
+    "all_oriented_triangles_and_all_vertex_attributes_exact": true,
+    "world_positions_exact": true,
+    "pbr_and_embedded_images_exact": true,
+    "embedded_images": 2,
+    "zip_crc_and_individual_parts_verified": true,
+    "http_downloads": {
+      "output.glb": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+      "parts.json": "f266d4afb916ff46de271670ce12dcc050a911e4184c50b647f658265b299dae",
+      "parts.zip": "ec488105832e224f5906c3450cbb2e808f516fcbae3581a615ad066fa2ebc9d5"
+    },
+    "cut_boundaries_reported": true,
+    "visual_quality_accepted": false
+  },
+  "sampled_visual_review": {
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "image_sha256": "1d7c26ebe3efa2f329f587c2d2797cd0cf12cf761f4c325aaa7a014c430d93dc",
+    "image": "docs/assets/courier-parts.png",
+    "finding": "The two gloves, merged head, jacket, trousers and two merged boots separate coherently with original PBR. Raw cuts are open.",
+    "sample_accepted": true,
+    "scope": "Prepared seven-part static exploded view, after three explicit merges; not watertight completion or browser acceptance."
+  },
+  "code_sha256": {
+    "attention.py": "74b43aaa2d749e8e490f44b5a4157304d6d74b4afd7905b03372f3e17f42b70b",
+    "parts_models.py": "e9254c0b718cfa3af1e1f5c1698f11db026d0d74cb27dd241de8d2c4fa636118"
+  },
+  "pending": [
+    "X-Part completion/material acceptance",
+    "real browser interaction",
+    "final complete-bundle release"
+  ]
+}

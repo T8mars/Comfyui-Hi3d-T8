@@ -73,6 +73,22 @@ def identify(rig, overrides=None):
             index = stack.pop(); result.append(index); stack.extend(children[index])
         return result
 
+    def arm_prefix(limb):
+        # A generic, unbranched finger chain can continue past the wrist.
+        # Mapping the last two nodes would then drive fingers as elbow/hand.
+        # Trim only a consistently short distal run after two substantial arm
+        # segments; named bones and explicit overrides still take precedence.
+        lengths = np.linalg.norm(np.diff(points[limb], axis=0), axis=1)
+        for wrist in range(2, len(limb) - 2):
+            proximal = lengths[wrist - 2:wrist]
+            reference = float(np.median(proximal))
+            distal = lengths[wrist:]
+            if (reference > span * 1e-5 and proximal.min() > reference * .4
+                    and distal.max() < reference * .45
+                    and distal.sum() < reference * 1.25):
+                return limb[:wrist + 1]
+        return limb
+
     hips = named.get('hips')
     if hips is None and len(roots) == 1:
         hips = int(roots[0])
@@ -133,6 +149,7 @@ def identify(rig, overrides=None):
                     if index != roles.get('spine'):
                         roles['chest'] = index
                     for limb in branches:
+                        limb = arm_prefix(limb)
                         side = 'left' if np.dot(points[limb[-1]] - points[hips], left) > 0 else 'right'
                         roles[side + '_hand'] = limb[-1]
                         roles[side + '_forearm'] = limb[-2]

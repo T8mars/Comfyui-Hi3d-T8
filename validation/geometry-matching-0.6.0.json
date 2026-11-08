@@ -1,0 +1,151 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "regression": {
+    "repository_tests": 885,
+    "failures": 0,
+    "junit_sha256": "1c4dea691832a17230e9c4e8f9897c67012ac51db6ad55d19dcc9dddf6d0eb96"
+  },
+  "benchmark": {
+    "source_mesh_sha256": "10aebc7a95b23422701115537d4cfe16358affaa9a853e9f874285447dd0e180",
+    "batches": 7,
+    "queries_per_batch": 4096,
+    "reference_points": 81920,
+    "all_28672_exact_subsample_matches_verified": true,
+    "perturbed_queries_float64_all_reference_oracle": 16,
+    "seconds": 8.343999999999141,
+    "torch_peak_allocated_mib": 16.74658203125,
+    "torch_peak_reserved_mib": 24.0,
+    "legacy_distance_matrix_bytes": 9395240960,
+    "single_distance_block_max_bytes": 8000000,
+    "device": "NVIDIA GeForce RTX 5090 Laptop GPU",
+    "scope": "Matching only; no whole-task speedup or VRAM minimum claim."
+  },
+  "repair": "Stream all Euclidean candidates in bounded blocks, preserve first-index ties, and avoid GEMM cancellation for near-coincident points.",
+  "fidelity": "All full-batch encoders, part interactions, points, model precision, sampling steps and RNG order retained; only nearest matching is streamed.",
+  "cancelled_seven_part_baseline": {
+    "job": "5aede996e9264fe1917d519dafb79932",
+    "stage": "asset_part_condition",
+    "whole_card_gpu_snapshot_mib": "100, 24035, 103",
+    "reason": "Owned QA stopped to fix unbounded full-distance matrices; no successful baseline runtime or speedup ratio claimed."
+  },
+  "full_same_input_replay_at_checkpoint": {
+    "job": "86c16e2699e24a648761abd2ef246fd8",
+    "state": "failed",
+    "stage": "failed",
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "parts": 7,
+    "steps": 50,
+    "resolution": 512,
+    "guidance": 7.5,
+    "texture_size": 2048,
+    "quality_accepted": false,
+    "generation": {
+      "guidance_scale": 7.5,
+      "precision": "FP32",
+      "sampling": "separate CFG branches with shared part-embedding RNG",
+      "staged": true,
+      "seed": 23,
+      "steps": 50,
+      "resolution": 512,
+      "decode_chunks": 32768,
+      "semantic_matching": [
+        {
+          "context": "obj_cond",
+          "parts": 7,
+          "queries_per_part": 4096,
+          "reference_points_per_part": 81920,
+          "legacy_distance_matrix_bytes": 9395240960,
+          "max_distance_block_bytes": 8000000,
+          "precision": "torch.float32",
+          "all_reference_points_tested": true,
+          "distance_formula": "direct coordinate differences; first-index ties"
+        },
+        {
+          "context": "geo_cond",
+          "parts": 7,
+          "queries_per_part": 4096,
+          "reference_points_per_part": 81920,
+          "legacy_distance_matrix_bytes": 9395240960,
+          "max_distance_block_bytes": 8000000,
+          "precision": "torch.float32",
+          "all_reference_points_tested": true,
+          "distance_formula": "direct coordinate differences; first-index ties"
+        }
+      ],
+      "condition_seconds": 152.28099999999904,
+      "sampling_seconds": 342.67199999999866,
+      "decode_seconds": 34.04699999999866
+    },
+    "coverage": [
+      {
+        "part": 0,
+        "name": "Glove A",
+        "coverage": {
+          "source_vertex_samples": 5149,
+          "normalized_distance_p95": 0.023219448328018182,
+          "normalized_distance_max": 0.06863553822040558,
+          "vertices_over_3_percent_extent": 90
+        },
+        "source_sha256": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+        "candidate_sha256": "e62e243fadbf2eb2ec1436be89c0dcf0250b3054931621fde62e476cc91daba1",
+        "status": "passed"
+      },
+      {
+        "part": 1,
+        "name": "Glove B",
+        "coverage": {
+          "source_vertex_samples": 5166,
+          "normalized_distance_p95": 0.021632034331560135,
+          "normalized_distance_max": 0.06887898594141006,
+          "vertices_over_3_percent_extent": 113
+        },
+        "source_sha256": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+        "candidate_sha256": "0c7a0c2ce2bedb64af5be75cfacb23cb05a2f51b6a6d5969b7b4d988df429bb2",
+        "status": "passed"
+      },
+      {
+        "part": 2,
+        "name": "Head",
+        "coverage": {
+          "source_vertex_samples": 18621,
+          "normalized_distance_p95": 0.002946163062006235,
+          "normalized_distance_max": 0.017542848363518715,
+          "vertices_over_3_percent_extent": 0
+        },
+        "source_sha256": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+        "candidate_sha256": "162eb5d499230a5b858471414c83977499f760caccde0185c58862cea1fc6616",
+        "status": "passed"
+      },
+      {
+        "part": 3,
+        "name": "Jacket",
+        "coverage": {
+          "source_vertex_samples": 42290,
+          "normalized_distance_p95": 0.11490696817636485,
+          "normalized_distance_max": 0.1772240549325943,
+          "vertices_over_3_percent_extent": 9811
+        },
+        "source_sha256": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+        "candidate_sha256": "ac88364affc35b9a5b3b3cbf50d858c040be7868561a8f8683c9ce9b71b821f6",
+        "status": "rejected"
+      }
+    ],
+    "failure": "X-Part 明显改变了原部件外形，已停止材质转移并保留原拆件；请调整部件划分后重试。"
+  },
+  "code_sha256": {
+    "geometry_matching.py": "2baba766d7c86b87ad19a59ca699f3cd5da56c379c62703c62b8a900f08e7c70",
+    "parts_models.py": "e9254c0b718cfa3af1e1f5c1698f11db026d0d74cb27dd241de8d2c4fa636118",
+    "xpart_sampling.py": "a28f78414b85bb7eda61b9b8c743b15cf9704c8a08812625d77a1bbc2ee0bd8f"
+  },
+  "scope": "Matching benchmark is independent; full completion and material quality remain separately unaccepted.",
+  "same_seven_parts_guidance_4_trial_at_checkpoint": {
+    "job": "da637099025044cfa46b057069ff67df",
+    "state": "running",
+    "stage": "asset_part_condition",
+    "guidance": 4,
+    "steps": 50,
+    "resolution": 512,
+    "quality_accepted": false
+  }
+}

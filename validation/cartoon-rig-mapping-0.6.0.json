@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "acceptance": "pending",
+  "scope": "Standalone workbench skeleton-role correction; no model weight or ComfyUI-node change.",
+  "fix": {
+    "problem": "Generic single-chain fingers were mapped as elbows/wrists.",
+    "behavior": "Recognize a short distal finger run after substantial arm segments; preserve named/manual mapping priority.",
+    "humanoid_source_sha256": "a8818f180e641f91c678b42d7193ed31917e33da07d3625faa7f0601535fe62f",
+    "actual_skeleton_fixture_sha256": "d2d1c6dcdf4163cd03b43d8ff9c145eddf340a4a4f8aee13692c0befedb689bf"
+  },
+  "same_input_same_motion_comparison": {
+    "same_raw_rig_and_motion_asset": true,
+    "motion_asset": "5cf23efe45e940c39a5cbda7c51d8544",
+    "same_saved_source_motion_arrays": true,
+    "baseline_mapping_commit": "629c3fc5ebcbd501974779fa39b5ec27f40346d3",
+    "method": "Current worker with explicit old semantic mapping versus corrected automatic mapping; same raw rig and saved source-motion arrays.",
+    "raw_rig_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+    "results": {
+      "before": {
+        "job": "4ebb2b16263f4298a14d4a40d8f83445",
+        "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+        "output_sha256": "b1b14a308a163b1d98b47a61c76ad2779cb67dc1243b73fcf7f53a1a4b54002b",
+        "mapping": {
+          "hips": "bone_0",
+          "left_thigh": "bone_20",
+          "left_shin": "bone_21",
+          "left_foot": "bone_22",
+          "left_toe": "bone_23",
+          "right_thigh": "bone_24",
+          "right_shin": "bone_25",
+          "right_foot": "bone_26",
+          "right_toe": "bone_27",
+          "head": "bone_5",
+          "neck": "bone_4",
+          "spine": "bone_1",
+          "chest": "bone_3",
+          "left_hand": "bone_12",
+          "left_forearm": "bone_11",
+          "left_upper_arm": "bone_7",
+          "left_shoulder": "bone_6",
+          "right_hand": "bone_19",
+          "right_forearm": "bone_18",
+          "right_upper_arm": "bone_14",
+          "right_shoulder": "bone_13"
+        },
+        "frames": 121,
+        "actual_elbow_max_rotation_degrees": 111.40824163009624,
+        "actual_elbow_local_rotation_degrees": 1.2088132912391158e-14,
+        "actual_wrist_peak_height_above_hips": 0.40597304618234853,
+        "actual_wrist_height_range": 0.40850325151782046,
+        "fbx_roundtrip": true
+      },
+      "after": {
+        "job": "4aacf5766e1e494d9b59a413f9469e51",
+        "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+        "output_sha256": "8900567635d0f25f6f6c0adef307b7a807d30d02ee2c106d3313856b61db7d51",
+        "mapping": {
+          "hips": "bone_0",
+          "left_thigh": "bone_20",
+          "left_shin": "bone_21",
+          "left_foot": "bone_22",
+          "left_toe": "bone_23",
+          "right_thigh": "bone_24",
+          "right_shin": "bone_25",
+          "right_foot": "bone_26",
+          "right_toe": "bone_27",
+          "head": "bone_5",
+          "neck": "bone_4",
+          "spine": "bone_1",
+          "chest": "bone_3",
+          "left_hand": "bone_9",
+          "left_forearm": "bone_8",
+          "left_upper_arm": "bone_7",
+          "left_shoulder": "bone_6",
+          "right_hand": "bone_16",
+          "right_forearm": "bone_15",
+          "right_upper_arm": "bone_14",
+          "right_shoulder": "bone_13"
+        },
+        "frames": 121,
+        "actual_elbow_max_rotation_degrees": 123.2304480765819,
+        "actual_elbow_local_rotation_degrees": 60.76099536349878,
+        "actual_wrist_peak_height_above_hips": 0.4514739641765318,
+        "actual_wrist_height_range": 0.45826662026491016,
+        "fbx_roundtrip": true
+      }
+    },
+    "visual_quality_accepted": false
+  },
+  "existing_real_skeleton_mappings_unchanged": {
+    "skintokens-cesium-man": {
+      "source_sha256": "27ad5f3609a33317e0cffbac04617a281403cf1b69d6fbc9a2e783d7defb670d",
+      "changed": {}
+    },
+    "unirig-cesium-man": {
+      "source_sha256": "727603e5af3262ef083c83faed3be83b34fb16a852d46f255a6194e2f3093ad7",
+      "changed": {}
+    },
+    "unirig-fox-knight": {
+      "source_sha256": "58003f6a479955e4111f4e7dca4342a915582140190ffd4ae6ecd8abe27d75f6",
+      "changed": {}
+    },
+    "cartoon-contact-v3/rig": {
+      "source_sha256": "f707c200ebaf43e4d88f6f9c600fe5c8b19ab83d36ec53dc8c3a352ada283eab",
+      "changed": {}
+    }
+  },
+  "regression": {
+    "repository_tests": 861,
+    "failures": 0,
+    "junit_sha256": "c7ddb5771e4094f063a08376ecedabb51e03fefcc36bae6aaa0d8ccecc1c040d"
+  },
+  "raw_rig_six_motion_readbacks": {
+    "wave": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "8900567635d0f25f6f6c0adef307b7a807d30d02ee2c106d3313856b61db7d51",
+      "max_severely_stretched_faces": 939,
+      "max_ground_penetration": 5.15154653024652e-06
+    },
+    "walk": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "012d4b549c657a75146bc01caad19dedfed065a00ec371ea7d42445d8e94b088",
+      "max_severely_stretched_faces": 452,
+      "max_ground_penetration": 5.841446644172521e-06
+    },
+    "run": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "6f4e7d85ea9c38cb6eb091aa78f89e2c4c511053a34b2ea06f70b1a372130ebe",
+      "max_severely_stretched_faces": 1019,
+      "max_ground_penetration": 5.855915678809609e-06
+    },
+    "punch": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "fe3f6f448aa1c37ec4d8a1fe96dd788b398cec62f7059f13ba2ab483e6f2c512",
+      "max_severely_stretched_faces": 1981,
+      "max_ground_penetration": 5.786491781289982e-06
+    },
+    "kick": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "10cdf735d28cff9ec6cd59b5a579803a5eab858eaa05066d49c523b668b20cbc",
+      "max_severely_stretched_faces": 1155,
+      "max_ground_penetration": 5.861718731292598e-06
+    },
+    "dodge": {
+      "frames": 121,
+      "faces": 643352,
+      "floor": -1.0001046333033015,
+      "source_sha256": "dcd64e90e3473dda7aa83de90e4b654c186392eecc04b6346889c5311ed0f905",
+      "output_sha256": "d88c690af894775c73d1fa8db56b6b1b277abdb38e79208e41ad7de74f2909af",
+      "max_severely_stretched_faces": 1254,
+      "max_ground_penetration": 2.026159853452114e-06
+    }
+  },
+  "p3sam_additional_case": {
+    "job": "1864cd61b0ce4d8d8e69ebf3fbefcfe3",
+    "faces": 643352,
+    "detected_parts": 1,
+    "all_original_oriented_faces_attributes_and_pbr_preserved": true,
+    "zip_crc_and_http_downloads_verified": true,
+    "output_sha256": "850cd79991501e5592a7833c09a9bcadaec6cdb02fb39c9322ab0d727a58f8b3",
+    "quality_accepted": false,
+    "finding": "Only one part detected for this dense chibi character; not an accepted automatic partition and no X-Part completion was attempted."
+  },
+  "sampled_actual_render_reviews": [
+    {
+      "case": "mv-character-v15/skintokens/walk",
+      "output_sha256": "3a095063bca4b272e445d837c067160cff188dbcb79e3088da2b81f79128a735",
+      "viewed_renders": {
+        "frame-2.png": "1714c91718183f08eb73e153c43ee25017357ec860b124702648c3cf94c3ae56",
+        "frame-5.png": "3400603dcaa3eb74afd242e76b7e1b9d907f0232dc3db114484f1372e6175c02"
+      },
+      "finding": "Limb-contact separation exposes an opening in the hip/shorts area.",
+      "quality_accepted": false
+    },
+    {
+      "case": "mv-character-v15/unirig/wave",
+      "output_sha256": "aa5a6700559c0ec9b8fac7f15f399cdb2c41273692676e29746483de8bffb110",
+      "viewed_renders": {
+        "frame-2.png": "a50a8b8acf8a90a3a9e164662b6694822e6f91848ce2b85fe031d04ba176c8a4"
+      },
+      "finding": "This contact-corrected rig has large clothing/leg openings and is not accepted.",
+      "quality_accepted": false
+    },
+    {
+      "case": "mv-character-v16/skintokens-raw/wave",
+      "output_sha256": "8900567635d0f25f6f6c0adef307b7a807d30d02ee2c106d3313856b61db7d51",
+      "viewed_renders": {
+        "frame-2.png": "116b0114b57ee67b318571c1eed698d671e2d28de7b03e404833493f9116af7a",
+        "frame-6.png": "2ba576e8168c65fa4ebbd80e51c5595cd885c756dd674d07d9e8c2ce5f4733fc"
+      },
+      "finding": "Corrected roles preserve the uncut surface; hand-on-hip deformation still stretches the fused surface.",
+      "quality_accepted": false
+    }
+  ],
+  "remaining": [
+    "Normal A-pose cartoon full-chain acceptance is in progress.",
+    "Complex completion/material and fused-surface deformation quality remain unaccepted.",
+    "Real browser interaction, full animation playback and final complete-bundle release remain pending."
+  ]
+}

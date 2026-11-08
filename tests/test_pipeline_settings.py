@@ -6,6 +6,27 @@ from pathlib import Path
 import pytest
 
 
+def test_idol_ui_uses_its_own_foreground_until_pbr_is_selected(tmp_path):
+    node=shutil.which('node')
+    if not node:pytest.skip('Node.js required')
+    source=(Path(__file__).parents[1]/'hi3d_workbench/web/app.js').read_text(encoding='utf-8')
+    function=source[source.index('function missingModels('):source.index('function syncEngines(')]
+    script=tmp_path/'idol-readiness.cjs'
+    script.write_text("""const assert=require('node:assert/strict');
+let generateTexture=false,selectedMode='image_to_asset',inputViews={},inputImage={has_transparency:false};
+const wantsRefine=()=>false,wantsTexture=()=>generateTexture;
+const fields={'#geometry-engine':{value:'idol'},'#texture-engine':{value:'trellis2'},'#background':{value:'auto'}};
+const $=name=>fields[name];
+const health={pipeline_models:{background_ready:false,runtime:{ready:true},engines:{coarse:{idol:{ready:true}},texture:{trellis2:{ready:true}}}}};
+"""+function+"""
+assert.deepEqual(missingModels(),[]);
+generateTexture=true;assert.deepEqual(missingModels(),['自动前景组件']);
+inputImage.has_transparency=true;assert.deepEqual(missingModels(),[]);
+""",encoding='utf-8')
+    result=subprocess.run([node,str(script)],capture_output=True,text=True)
+    assert result.returncode==0,result.stdout+result.stderr
+
+
 @pytest.fixture
 def pipeline_settings(monkeypatch):
     # Keep browser-only checks independent of native scientific-library imports.
@@ -58,6 +79,9 @@ def test_browser_settings_scope_restore_and_submission_are_independent(tmp_path)
     scopes=app[app.index('function needsMesh('):app.index('function inputsReady(')]
     restore=app[app.index('function applyOptions('):app.index('function renderComparison(')]
     submit=app[app.index('function generationOptions('):app.index("$('#run').onclick =")]
+    idol=(web/'idol-controls.js').read_text(encoding='utf-8').split('\n',1)[1].replace('export function','function')
+    import re
+    idol=re.sub(r'\bfields\b','idolFields',idol)
     script=tmp_path/'settings.cjs'
     script.write_text(r"""
 const assert=require('node:assert/strict');
@@ -68,7 +92,7 @@ let selectedMode='image_to_asset';
 let inputImage={id:'image-fixture'},inputMesh={id:'mesh-fixture'};
 function syncModeUI(){}
 function syncEngines(){}
-"""+scopes+restore+submit+r"""
+"""+idol+scopes+restore+submit+r"""
 applyOptions({mode:'image_to_asset',geometry_engine:'trellis2',texture_engine:'ultratex_int8',generate_texture:true,attention:'flash',geometry_cleanup:true});
 assert.equal($('#geometry-target-faces').value,'1000000');
 assert.equal($('#pipeline-attention').value,'auto');
@@ -99,6 +123,13 @@ applyOptions({mode:'refine',generate_texture:false,geometry_engine:'trellis2'});
 assert.equal(usesTrellisPipeline(),false);
 assert.equal(usesTrellisFaceBudget(),false);
 console.log('browser settings checks passed');
+applyOptions({mode:'image_to_asset',geometry_engine:'idol',generate_texture:false,idol_extract_mesh:false,idol_gaussians:32768,idol_cfg:4.2,idol_crop:'real',idol_decode_seed:57});
+request=generationOptions();
+assert.equal(request.idol_extract_mesh,false);
+assert.equal(request.idol_gaussians,32768);
+assert.equal(request.idol_cfg,4.2);
+assert.equal(request.idol_crop,'real');
+assert.equal(request.idol_decode_seed,57);
 """,encoding='utf-8')
     result=subprocess.run([node,str(script)],capture_output=True,text=True,encoding='utf-8',check=False)
     assert result.returncode==0,result.stdout+result.stderr

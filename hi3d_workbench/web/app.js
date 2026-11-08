@@ -1,4 +1,6 @@
 const $ = selector => document.querySelector(selector);
+import {installIdolControls,idolOptions,restoreIdolOptions,syncIdolControls,renderIdolResult,resetIdolResult} from './idol-controls.js';
+installIdolControls(()=>availability());
 let token = $('meta[name="hi3d-token"]').content;
 let inputImage = null, inputMesh = null, currentJob = null, health = null;
 let inputViews = {left:null,back:null,right:null};
@@ -15,6 +17,7 @@ const stageLabels = {queued:'任务已保存，等待启动', loading:'正在加
 const stateLabels = {succeeded:'已完成', failed:'失败', running:'运行中', queued:'等待启动', cancelled:'已停止', interrupted:'已中断', cancelling:'停止中'};
 Object.assign(stageLabels, {starting:'启动阶段', initializing:'初始化推理运行时', background:'处理参考图背景', encoding_mesh:'准备法线与 UV', encoding_reference:'编码参考条件', unwrapping:'展开 UV', uv:'展开 UV', baking:'烘焙 PBR 材质'});
 Object.assign(stageLabels,{releasing:'释放或缓存本阶段模型'});
+Object.assign(stageLabels,{splat_saved:'原始高斯已保存',rendering:'生成环绕展示视频'});
 const modeLabels = {image_to_asset:'图片建模', texture:'已有模型贴图', refine:'模型精修',studio:'资产加工'};
 const modelVersions = ['textured','refined','coarse','generated'];
 const versionLabels = {textured:'PBR 材质结果', refined:'Hi3D 精修几何', coarse:'粗模型', generated:'原始生成网格'};
@@ -43,7 +46,8 @@ function missingModels() {
   if (selectedMode === 'image_to_asset' && !(geometry?.ready ?? ($('#geometry-engine').value === 'hunyuan_mini' && pipeline?.coarse_ready))) missing.push(geometry?.name || '图片建模组件');
   if (wantsTexture() && !(texture?.ready ?? ($('#texture-engine').value === 'trellis2' && pipeline?.texture_ready))) missing.push(texture?.name || 'PBR 贴图组件');
   const references=selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv'?[inputImage,...Object.values(inputViews).filter(Boolean)]:[inputImage];
-  if ((selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && references.some(image=>image?.has_transparency!==true)) missing.push('自动前景组件');
+  const needsStandardForeground = !(selectedMode === 'image_to_asset' && $('#geometry-engine').value === 'idol' && !wantsTexture());
+  if (needsStandardForeground && (selectedMode === 'image_to_asset' || wantsTexture()) && $('#background').value === 'auto' && pipeline?.background_ready === false && references.some(image=>image?.has_transparency!==true)) missing.push('自动前景组件');
   if ((selectedMode === 'image_to_asset' || wantsTexture()) && !pipeline?.runtime?.ready) missing.push('扩展运行环境');
   return missing;
 }
@@ -228,6 +232,7 @@ function availability() {
   $('#model-policy').disabled = busy || isHistory || !usesTrellisPipeline();
   for (const id of ['voxel-backend','encoding-cache']) $('#'+id).disabled = busy || isHistory || !wantsTexture() || $('#texture-engine').value !== 'trellis2';
   $('#texture-acceleration').hidden = !wantsTexture() || $('#texture-engine').value !== 'trellis2';
+  syncIdolControls(selectedMode==='image_to_asset'&&$('#geometry-engine').value==='idol',busy||isHistory);
   $('#unload-models').disabled = !online || Boolean(pending) || gpuBusy();
   document.querySelectorAll('[data-quality-preset]').forEach(button => {
     button.disabled=busy || isHistory;
@@ -314,6 +319,7 @@ function setView(id, url) {
   }
 }
 function resetResult() {
+  resetIdolResult();
   comparisonJob = null; comparisonCandidates = []; comparisonsFor = '';
   $('#comparison-job').replaceChildren(new Option('当前任务的阶段模型',''));
   $('#comparison-version').replaceChildren(new Option('粗模型','coarse'));
@@ -334,6 +340,7 @@ function resetResult() {
   $('#geometry-info').textContent = '包括连通件、边界边与法向方向。自交、壁厚和实际打印强度需在专门软件中检查。';
 }
 function applyOptions(options = {}) {
+  restoreIdolOptions(options);
   selectedMode = Object.hasOwn(modeLabels,options.mode) ? options.mode : 'refine';
   for (const key of ['resolution','steps','seed','attention']) if (options[key] !== undefined) $('#'+key).value = options[key];
   if (options.offload !== undefined) $('#offload').checked = options.offload;
@@ -563,7 +570,7 @@ syncView($('#before'), $('#after')); syncView($('#after'), $('#before'));
 $('#rotate').onchange = event => { for (const view of [$('#before'),$('#after')]) view.autoRotate = event.target.checked; };
 $('#reset-camera').onclick = () => { for (const view of [$('#before'),$('#after')]) { view.cameraOrbit = '35deg 72deg auto'; view.fieldOfView = 'auto'; view.cameraTarget = 'auto'; } };
 function generationOptions() {
-  return {mode:selectedMode, image:inputImage.id, view_images:selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv'?Object.fromEntries(Object.entries(inputViews).filter(([,item])=>item).map(([view,item])=>[view,item.id])):{}, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, voxel_backend:$('#voxel-backend').value, encoding_cache:$('#encoding-cache').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
+  return {...idolOptions(),mode:selectedMode, image:inputImage.id, view_images:selectedMode==='image_to_asset'&&$('#geometry-engine').value==='hunyuan_mv'?Object.fromEntries(Object.entries(inputViews).filter(([,item])=>item).map(([view,item])=>[view,item.id])):{}, mesh:needsMesh() ? inputMesh.id : null, refine_geometry:wantsRefine(), generate_texture:wantsTexture(), geometry_engine:$('#geometry-engine').value, geometry_cleanup:$('#trellis-cleanup').checked, geometry_target_faces:+$('#geometry-target-faces').value, pipeline_attention:$('#pipeline-attention').value, model_policy:$('#model-policy').value, voxel_backend:$('#voxel-backend').value, encoding_cache:$('#encoding-cache').checked, geometry_resolution:+$('#geometry-resolution').value, geometry_steps:+$('#geometry-steps').value, texture_engine:$('#texture-engine').value, texture_steps:+$('#texture-steps').value, texture_resolution:+$('#texture-resolution').value, texture_size:+$('#texture-size').value, background:$('#background').value, resolution:+$('#resolution').value, steps:wantsRefine() ? +$('#steps').value : 25, seed:+$('#seed').value, offload:$('#offload').checked, attention:$('#attention').value};
 }
 $('#run').onclick = async () => {
   if ($('#run').disabled) return;
@@ -656,6 +663,7 @@ function renderStages(stages) {
   container.hidden = !values.length;
 }
 function renderJob(job) {
+  renderIdolResult(job);
   const changed = shownJob !== job.id; currentJob = job;
   if (changed) {
     resetResult(); shownJob = job.id; inputImage = null; inputMesh = null; inputViews={left:null,back:null,right:null}; applyOptions(job.options);
@@ -693,6 +701,7 @@ function renderJob(job) {
       if (wantsRefine(job.options || {}) && !hasJobFile(job,'refined.glb')) absent.push('Hi3D 精修文件');
       if (wantsTexture(job.options || {}) && !hasJobFile(job,'textured.glb')) absent.push('PBR 材质文件');
       if (absent.length) $('#stage-detail').textContent = `任务记录已完成，但当前目录缺少${absent.join('、')}。现有阶段模型仍可预览和导出。`;
+      else if (report.representation === '3d_gaussian_splat') $('#stage-detail').textContent = '原始高斯已保存。打开高斯预览旋转查看，或下载 PLY／SPZ／KSPLAT；需要网格时可复用输入并开启网格提取。';
       else if (!complete || !validMetric(report.seconds) || !validMetric(report.peak_allocated_mb)) $('#stage-detail').textContent = '运行报告不完整，缺失指标显示为 —。现有阶段模型仍可预览和导出，几何质量需另行检查。';
     } else $('#stage-detail').textContent = `${job.message || stateLabels[job.state] || '任务未完成'}。已生成的阶段文件与日志保留，可查看、导出或复用输入。`;
   }

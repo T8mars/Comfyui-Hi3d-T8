@@ -84,6 +84,24 @@ def verify_bundle(bundle,components,runtime):
         assert bundle['full_engine_coverage'] is covers_all_engines(declared),'发行清单完整引擎覆盖声明错误'
     return {'declared_components':sorted(expected),'engine_dependency_closure':'passed'}
 
+
+def verify_idol_archive(z,prefix):
+    """Expose the optional feature only after checking its shipped bytes."""
+    base=prefix+'runtime-pipeline/'
+    receipt=json.loads(z.read(base+'idol-runtime.json'))
+    assert receipt.get('ready') is True and receipt.get('source_revision')=='7cebca52227c63b4180ceed448cbd7ad22903b6d'
+    source=json.loads(z.read(base+'sources/idol_mesh/source-manifest.json'))
+    assert source.get('revision')=='0decb39ee5b5e17c200334589fc317dbbe98310e'
+    for folder,entries in (('engines/idol/',receipt.get('files')),('sources/idol_mesh/',source.get('files'))):
+        assert isinstance(entries,dict) and entries,'Idol runtime hash list is empty'
+        for name,expected in entries.items():
+            assert isinstance(name,str) and '\\' not in name and ':' not in name
+            path=PurePosixPath(name)
+            assert str(path)==name and not path.is_absolute() and not any(p in {'.','..'} for p in path.parts)
+            with z.open(base+folder+name) as stream:
+                assert stream_hash(stream)==expected,'Idol runtime hash mismatch: '+name
+    return 'idol'
+
 def audit(release,archive_dir=None):
     dist=Path(archive_dir).resolve() if archive_dir else release.parent
     catalog=json.loads((dist/'SHA256.json').read_text(encoding='utf-8'))
@@ -124,6 +142,8 @@ def audit(release,archive_dir=None):
                     extension=json.loads(z.read(extension_name));verified=0
                     bundle=json.loads(z.read(prefix+'bundle-manifest.json'))
                     runtime=json.loads(z.read(prefix+'runtime-pipeline/pipeline-runtime.json'))
+                    if prefix+'runtime-pipeline/idol-runtime.json' in names:
+                        runtime={**runtime,'features':[*runtime.get('features',[]),verify_idol_archive(z,prefix)]}
                     result['bundle_manifest']=verify_bundle(bundle,extension.get('components',{}),runtime)
                     from hi3d_workbench.pipeline_models import SPECS
                     assert not set(extension.get('components',{}))-set(SPECS),'发行包含未知扩展组件'

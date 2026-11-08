@@ -1,0 +1,255 @@
+{
+  "schema": 1,
+  "date": "2026-11-08",
+  "updated_utc": "2026-11-08T13:46:05.946440+00:00",
+  "status": "installed_backend_and_portable_paths_passed_browser_pending",
+  "research_rounds": 20,
+  "scope": "standalone Workbench Idol; existing ComfyUI nodes remain refinement-only",
+  "installed_bundle": "E:/Hi3D-Workbench-0.6.0-Full",
+  "service": "http://127.0.0.1:8384",
+  "engine_coverage": {
+    "ready": 9,
+    "total": 9
+  },
+  "model_components": {
+    "coarse_idol": {
+      "repo": "Comfy-Org/Idol",
+      "revision": "3d050f4bc705ca1202a0ae4d21d2d97987521307",
+      "license": "Idol Apache-2.0; DINOv3 License; FLUX.2 VAE Apache-2.0",
+      "optional": true,
+      "files": [
+        "README.md",
+        "diffusion_models/idol_fp16.safetensors",
+        "vae/idol_decoder_fp16.safetensors",
+        "clip_vision/dino_v3_vit_h_bf16.safetensors",
+        "vae/flux2-vae.safetensors"
+      ],
+      "expected_file_hashes": {
+        "diffusion_models/idol_fp16.safetensors": "9abf6a99fc6bdad701901b12de8fe1b256f02cae4948f7489d25d86b11b52a93",
+        "vae/idol_decoder_fp16.safetensors": "6a146a1e6b2653f74422f7ea835eb8715c547c7de8fc4545051f15c247ae54a9",
+        "clip_vision/dino_v3_vit_h_bf16.safetensors": "a29ef35101a16966972a0d50732a6f3a608ff7cfffb2afa9bbe9007cb842cc53",
+        "vae/flux2-vae.safetensors": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3"
+      },
+      "reuse_paths": {
+        "vae/flux2-vae.safetensors": "ultratex_text_encoder/split_files/vae/flux2-vae.safetensors"
+      }
+    },
+    "idol_background": {
+      "repo": "Comfy-Org/BiRefNet",
+      "revision": "884af709e9b795d89dafbf97f29c8d6a2386f5c6",
+      "license": "BiRefNet MIT",
+      "optional": true,
+      "files": [
+        "README.md",
+        "background_removal/birefnet.safetensors"
+      ],
+      "expected_file_hashes": {
+        "background_removal/birefnet.safetensors": "9ab37426bf4de0567af6b5d21b16151357149139362e6e8992021b8ce356a154"
+      }
+    }
+  },
+  "weights_bytes": 3779188020,
+  "weights_reused_by_hardlinks": true,
+  "default": {
+    "sampler": "native_euler",
+    "steps": 50,
+    "cfg_native": 3,
+    "gaussians": 262144,
+    "mesh_backend": "solid",
+    "mesh_resolution": 384
+  },
+  "evidence": {
+    "default_mesh_pbr": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-default-full\\report.json",
+      "sha256": "304e94cc1910699a29d6f09c7a3739dc45ca881ef8a3b01552887e8603b1843e"
+    },
+    "rig": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-rig-real\\report.json",
+      "sha256": "eea477169dadb908b8d46181127444e79544d13fec648cf20349331ed70a3f6c"
+    },
+    "motion": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-motion-real\\punch\\report.json",
+      "sha256": "08eaed5b884e31f83fe9b84ac4b75514a8c083b8aed591ff7097b0426bc8e074"
+    },
+    "motion_deformation": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-motion-real\\punch\\deformation.json",
+      "sha256": "c1daa0d398482c83cb129db30e7764fe4e1c9e73d2a564dbca0ddd53c449c8fa"
+    },
+    "simplify_unlit": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-simplify-real\\report.json",
+      "sha256": "834fc2badda35c70508a1083068aab729273d4425e0d2c3147e8c689a270c214"
+    },
+    "raw_http": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\raw-validation.json",
+      "sha256": "61903a9f7615e998948aac3c80ac2ced8632eaaa34cc22e5f29f3e32ecd287b4"
+    },
+    "bundle_install": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-bundle-install\\install.json",
+      "sha256": "859d0de07c365c10e50ad77eed489dfe44640448ef9d733ef78e26edac760206"
+    },
+    "unlit_material": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-unlit-material\\validation.json",
+      "sha256": "f93c240e2e7bb1d5bb651799069571a019fe63cf9b71d412123ceaa4f6b5b39a"
+    },
+    "full_http": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\full-validation.json",
+      "sha256": "de4b615629bcea7012d4a0a6f6c645c520fc872fd092ed398ce28567382b9224"
+    },
+    "segmentation_http": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\segment-validation.json",
+      "sha256": "8f550f441e8b7a16212f1ff6274639a1dc325f9e6dbbb0fd5b8342af4a065269"
+    },
+    "independent_mesh_material_readback": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\independent-readback.json",
+      "sha256": "dda1472e70f994058268e3dce36f7094b325b3685ad4b9211bb9c3af23f98c14"
+    },
+    "video_decode": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\video-readback.json",
+      "sha256": "666c9fbd39c81841253979c45cff87032df4f6a872b008355529785eb6b5d1a7"
+    },
+    "cancel": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\cancel-validation.json",
+      "sha256": "25ed17d5ce89fcf641f3b34f06e8e415567787b6b168cca9fb1cc4cc8405f2ea"
+    },
+    "restart": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\restart-validation.json",
+      "sha256": "cd3b2099b4c2e1dec1d8a76ad6c1abff35f55060b6bb8fc6cc244b8f1bfcf0d4"
+    },
+    "empty_foreground_and_unload": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-http\\failure-validation.json",
+      "sha256": "6e8b8b163c6682380073212610c069c1d25389749c424980cd9d7d8ae25dc9d6"
+    },
+    "offline_unicode_runtime_model_paths": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-offline\\validation.json",
+      "sha256": "ee6b30742a5868fc668f709fee68779c5c7bf71e06df93e4338574e5dc574ea3"
+    },
+    "native_stage_output_path": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-raw-receipt\\validation.json",
+      "sha256": "cb0be547488f62e5e785649f441cd14be560bf979b6de76a8f14816b250528da"
+    },
+    "private_runtime_archive": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-bundle-install\\private-archive-audit.json",
+      "sha256": "127cf2acc659e3957958f24b29c61dcc27d1fa1eb4e7b0a2ad0f4986bb07ce19"
+    },
+    "final_bundle_source_sync": {
+      "path": "E:\\hi3d\\data\\asset-studio-validation\\idol-bundle-install\\final-source-sync.json",
+      "sha256": "83e723dd87b8642c5cfc1be0f3160c1763f5a44ed564eaf24baa84d42df707fb"
+    }
+  },
+  "browser": {
+    "accepted": false,
+    "latest_inventory": "MCP Apps only; zero browser tabs; Chrome and Edge visible as native apps",
+    "no_browser_workaround_or_security_changes": true
+  },
+  "failed_cases_retained": [
+    {
+      "job": "12a40003a8154482b578a85501955eac",
+      "error": "Job manager wrongly required GLB in raw-only mode",
+      "fix": "native format/count/hash/PLY validation; new real HTTP job passed"
+    },
+    {
+      "job": "682010b1dd3f47bba4ff83970052e7f0",
+      "error": "manual CUDA voxelization selected before optional add-on was installed",
+      "fix": "installed pinned add-on using existing API; kernel probe passed; complete job rerunning"
+    }
+  ],
+  "quality_limits": {
+    "mesh_watertight": false,
+    "nonmanifold_edges": 77,
+    "degenerate_faces": 0,
+    "mesh_components": 8,
+    "native_gaussians_have_no_uv_pbr_skin_or_animation": true,
+    "motion_full_browser_playback_accepted": false,
+    "broad_photo_mechanical_holes_benchmark_accepted": false,
+    "optional_hi3d": "May alter the face and clothing; keep comparison with retained original mesh; not broadly shape-quality accepted"
+  },
+  "pending": [
+    "browser_interaction_and_full_animation_playback",
+    "broader_photo_mechanical_thin_holes_quality_benchmark_and_sdk_comparison",
+    "stable_release_after_final_acceptance"
+  ],
+  "tests": {
+    "full_suite": 927,
+    "junit": "E:\\hi3d\\data\\asset-studio-validation\\idol-all-tests-final.xml",
+    "junit_sha256": "60eb5aa6140f36886317824247667f8e57be7a0426973ae8bb941e3cf2cc4b90",
+    "seconds": 88.1,
+    "node_syntax": "passed",
+    "browser_not_implied": true
+  },
+  "real_http": {
+    "raw_only_1m": {
+      "job": "4a7e2a5fe1cc43399d808a6ec7a27dbf",
+      "seconds": 87.163,
+      "gaussians": 1048576,
+      "birefnet": true,
+      "history_reuse_downloads": true
+    },
+    "idol_hi3d_pbr": {
+      "job": "2875eab738bd413f9f51df155c4be92d",
+      "seconds": 274.09,
+      "faces": 333795,
+      "final_sha256": "39108eb5b7226926040de708ee59897ce33217153907f371d21ba3c4bd42c3a6"
+    },
+    "segmentation": {
+      "job": "0d76f9393a2142d9aa4a782ec4a2585e",
+      "seconds": 63.562,
+      "parts": 6,
+      "all_original_triangles_and_unlit_material_preserved": true
+    }
+  },
+  "offline_scope": {
+    "status": "passed",
+    "scope": "runtime_and_models_paths",
+    "original_root": "E:\\Hi3D-Workbench-0.6.0-Full",
+    "tested_root": "E:\\Hi3D-Workbench-0.6.0-Full",
+    "tested_runtime": "E:\\Hi3D-Workbench-0.6.0-Full\\runtime-pipeline-Idol-离线",
+    "tested_models": "E:\\Hi3D-Workbench-0.6.0-Full\\models-Idol-离线",
+    "root_changed_with_unicode": false,
+    "host_python_cuda_paths_removed": true,
+    "fresh_caches": true,
+    "outbound_socket_connect_denied": true,
+    "network_attempts": [],
+    "gaussians": 32768,
+    "mesh_faces": 99652,
+    "seconds": 87.626,
+    "output_sha256": "4235d501dcbe0ca4e93e06337cf45e80b2af04eec4371174bf36cb4c2bf1d777",
+    "video": {
+      "frames": 75,
+      "fps": 25,
+      "size": 512,
+      "type": "static object camera orbit"
+    },
+    "all_outputs_preserved_under_bundle_data": true,
+    "browser_accepted": false
+  },
+  "runtime_manifest_paths": "canonical POSIX names for portable archive verification",
+  "source_files_sha256": {
+    "hi3d_workbench/engine_catalog.py": "77ee1cb0ba0918860cea6a265055b70477db8c07b59e824f429964a8a035b89b",
+    "hi3d_workbench/engines/idol.py": "7ec2d351f17d8ae72e3be50b8bf30b903aa30198a0587489b557d12800077784",
+    "hi3d_workbench/engines/run_stage.py": "694d1938985360d83f6a00ee9a13b632758b27c98f446cecaff0703b3021f065",
+    "hi3d_workbench/jobs.py": "d5346c5828e67750452aa3093ec7b5a84e51957ffeb74b72003df2ee535d10a8",
+    "hi3d_workbench/pipeline_models.py": "7936a2c03e6edcd596d002ba730c19d71bcbfd7e4082bb65a404ff84177841b9",
+    "hi3d_workbench/pipeline_worker.py": "470762044060d0a021f2b5d3cc74a7b630ce67cdd12e90c3f3227036dd5cf630",
+    "hi3d_workbench/server.py": "4ed076a44f2d919261a7b9057db3104583950c2e71f78880b65e5bd57dd00181",
+    "hi3d_workbench/studio/material_projection.py": "a8c4c675c5a7b37179e0e916406180d53b3a5f97b52ffefe9853bdc69f9b6a49",
+    "hi3d_workbench/web/app.js": "14c99ef15175337c8df95d8ef489da06f47bf617f14bc7b2f29805d31e45ec39",
+    "hi3d_workbench/web/idol-controls.js": "a4f2db2f31f84aef55085f837e04430c1b5bdcf7eab9d21c6ef7654f78f80e93",
+    "hi3d_workbench/web/splat-viewer.html": "5020b5a8dfed533d14359ad3395395e9f3d6c5c6310c395c4b313677706babee",
+    "hi3d_workbench/web/splat-viewer.js": "b6fbfbeebddce2c5222cbd3fd4b79da02fc4591ed1eafbae191ba133f23272d4",
+    "hi3d_workbench/web/splat-sort-worker.js": "d505f13cfba4bceefb5c0bb212ae029ea02367816619dd88f48a55a0192981bc",
+    "tools/setup_idol_runtime.py": "eb76b12eb7ef9246f7ba95bcfe8cc00379d62683b8a16e2daae3c3bd901a6b28",
+    "tools/build_release.py": "05fd9706e61cdeec78ec602ed375142e375a841e872e8060939d3b7edd93efef",
+    "tools/audit_release.py": "fc2722ff07f2fe04eb9694a152a6b889955948dd040369b0a1fbc694f9123120",
+    "tools/prepare_idol_licenses.py": "7751fb35e8fb7476e58386169fecac8f96acbfd443d3fdbe98fd5cb39f0bd024",
+    "runtime_requirements/idol-windows.txt": "05a5efc8ab9fa58d2b94ded8d0191f9fd6dc954732cc34e692bb7052aac507ba"
+  },
+  "live_service_final": {
+    "status": "passed",
+    "port": 8384,
+    "active_job": null,
+    "ready_engines": 9,
+    "total_engines": 9,
+    "served_web_files_sha256_match": true,
+    "browser_interaction_accepted": false
+  }
+}

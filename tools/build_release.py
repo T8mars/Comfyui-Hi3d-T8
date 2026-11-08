@@ -86,6 +86,9 @@ def pipeline_runtime(out):
     shutil.copytree(source/'Lib/site-packages',target/'Lib/site-packages',ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.nbi','*.nbc'))
     shutil.copytree(source/'sources',target/'sources',ignore=shutil.ignore_patterns('__pycache__','*.pyc','*.nbi','*.nbc','.git'))
     shutil.copy2(source/'pipeline-runtime.json',target/'pipeline-runtime.json')
+    if (source/'idol-runtime.json').is_file():
+        shutil.copytree(source/'engines/idol',target/'engines/idol',ignore=shutil.ignore_patterns('__pycache__','*.pyc'))
+        shutil.copy2(source/'idol-runtime.json',target/'idol-runtime.json')
     (target/'python312._pth').write_text('python312.zip\nDLLs\nLib/site-packages\n..\nimport site\n')
     packages=subprocess.check_output([str(target/'python.exe'),'-m','pip','freeze'],cwd=out,text=True,encoding='utf-8')
     (out/'runtime-pipeline-packages.txt').write_text(packages,encoding='utf-8')
@@ -148,6 +151,10 @@ def portable(base,include_models,name,include_pipeline=False,pipeline_engines=()
         from hi3d_workbench.pipeline_models import selection_components
         selected=list(dict.fromkeys(selection_components('all') +
             [key for choice in pipeline_engines for key in selection_components(choice)]))
+        if 'coarse_idol' in selected:
+            from hi3d_workbench.pipeline_models import idol_runtime_ready
+            if not idol_runtime_ready(ROOT/'.pipelineenv'):
+                raise RuntimeError('Idol 私有环境未完成真实生成及文件校验，不能打包所选引擎')
     elif pipeline_engines:raise ValueError('Engine selections require --include-pipeline')
     if include_models:
         progress('Verifying Hi3D model bytes before copying')

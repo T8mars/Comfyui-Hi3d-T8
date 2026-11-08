@@ -2,6 +2,10 @@
 
 Workbench integration and design: By T8star. Upstream authorship and licenses remain as stated below.
 
+## Idol workbench engine
+
+Idol weights and original SDK: speridlabs, Apache-2.0; TripoSplat: VAST-AI-Research, MIT; BiRefNet: ZhengPeng7, MIT. The DINOv3 ViT-H+ encoder retains the separate DINOv3 License. The FLUX.2 autoencoder is separately published by Black Forest Labs under Apache-2.0; this engine uses no FLUX image generator or text encoder. ComfyUI inference and the separately pinned Gaussian meshing module retain GPL-3.0. Original notices, exact source URLs and SHA256 records are in `licenses/idol/manifest.json`. These notices do not relabel the complete distribution under one license. Model weights and Python are excluded from GitHub code archives.
+
 This is a community integration, not an official Hi3D product. The ComfyUI nodes and workbench call the unmodified Hi3D v1.0 inference implementation at commit 23dcc684bc6e1fab86ecafb99ec5270edad122f9. The standalone ComfyUI node archive includes the pinned official Python source and upstream notices under hi3d_native/vendor, plus the integration and mesh-upload extension. It runs directly in ComfyUI, without a workbench service. Model weights and Python runtimes are not included.
 
 Hi3D is licensed under the Hi3D Open License Agreement Version 1.0. Copyright © 2026 OCEANO HK HOLDING LIMITED. All rights not expressly granted are reserved. The Hi3D trademarks are owned by OCEANO HK HOLDING LIMITED or its applicable affiliate(s).

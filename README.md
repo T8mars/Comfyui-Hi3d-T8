@@ -12,6 +12,8 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 The workbench adds **Hunyuan3D-2mv multi-view modeling**: use a front reference with optional left, back and right images, including three-view inputs. Its checkpoint downloads separately. Subsequent refinement and existing PBR stages use the front reference. [Usage and model details](docs/MULTIVIEW.md).
 
+The workbench also integrates **Idol image-to-splat and colored mesh generation**, retaining PLY/SPZ/KSPLAT with a separate Gaussian preview, orbit video, official mesh conversion and downstream PBR/asset processing. Models and private dependencies are prepared; see [operation and real validation](docs/IDOL.md). Browser interaction acceptance is recorded separately.
+
 ```mermaid
 flowchart LR
   A[Hi3D Model Loader] --> D[Hi3D Refine]

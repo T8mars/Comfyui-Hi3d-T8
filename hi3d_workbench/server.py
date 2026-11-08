@@ -48,6 +48,8 @@ JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioni
 JOB_FILES.update(view_filename(view) for view in AUXILIARY_VIEWS)
 JOB_FILES.update({'part-coverage.json', 'xpart-generation.json', 'xpart-surface-preparation.json'})
 JOB_FILES.update(f'foreground-{view}.png' for view in AUXILIARY_VIEWS)
+JOB_FILES.update({'splat.ply','splat.spz','splat.ksplat','splat.json','idol-input.png','splat-preview.mp4'})
+JOB_FILES.update({'idol-camera.json','idol-latent.safetensors'})
 
 @contextmanager
 def gpu_operation(kind):
@@ -521,6 +523,21 @@ class JobInput(BaseModel):
     refine_geometry:bool=False
     generate_texture:bool | None=None
     geometry_engine:str='hunyuan_mini'
+    idol_gaussians:int=262144
+    idol_cfg:float=3.
+    idol_decode_seed:int=0
+    idol_extract_mesh:bool=True
+    idol_crop:str='synthetic'
+    idol_level:float=.6
+    idol_smooth:int=0
+    idol_min_component:int=500
+    idol_min_opacity:float=.02
+    idol_video:bool=True
+    idol_sampling:str='native_euler'
+    idol_align_mesh:bool=True
+    idol_mesh_backend:str='solid'
+    idol_solid:bool=True
+    idol_fill:float=20.
     geometry_resolution:int | None=None
     geometry_steps:int | None=Field(None,ge=1,le=100)
     geometry_cleanup:bool=True
@@ -561,6 +578,12 @@ def create_job(body:JobInput):
             or geometry_resolution not in geometry_choice['resolutions']):raise HTTPException(400,'无效任务模式或所选引擎的采样配置')
     wants_refine=body.mode=='refine' or body.mode=='image_to_asset' and body.refine_geometry
     wants_texture=body.mode=='texture' or (body.generate_texture if body.generate_texture is not None else body.mode=='image_to_asset')
+    if body.mode=='image_to_asset' and body.geometry_engine=='idol':
+        from .engines.idol import settings
+        try:settings(body.model_dump())
+        except ValueError as exc:raise HTTPException(400,str(exc)) from exc
+        if not body.idol_extract_mesh and (wants_refine or wants_texture):
+            raise HTTPException(400,'仅高斯模式不能直接精修或生成 PBR；请勾选提取网格')
     image=child_path(ASSETS,body.image)/"image.png"
     mesh=child_path(ASSETS,body.mesh)/"mesh.glb" if body.mesh else None
     if not image.is_file() or body.mode!='image_to_asset' and (mesh is None or not mesh.is_file()):raise HTTPException(400,"请上传参考图；已有模型模式还需要同物体网格")
@@ -579,7 +602,7 @@ def create_job(body:JobInput):
         extension=pipeline_models.status()
         if body.mode=='image_to_asset' and not is_ready(extension,'coarse',body.geometry_engine):raise HTTPException(409,f'{geometry_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
         if wants_texture and not is_ready(extension,'texture',body.texture_engine):raise HTTPException(409,f'{texture_choice["name"]} 模型或运行环境未就绪，请查看「模型与环境」')
-        if (body.mode=='image_to_asset' or wants_texture) and body.background=='auto':
+        if (body.mode=='image_to_asset' or wants_texture) and body.background=='auto' and not (body.mode=='image_to_asset' and body.geometry_engine=='idol' and not wants_texture):
             opaque=False
             for path in [image,*view_images.values()]:
                 with Image.open(path) as reference:

@@ -41,7 +41,8 @@ def source_dir(name):
     expected = {"hunyuan": "f8db63096c8282cb27354314d896feba5ba6ff8a", "trellis2": "75fbf0183001ed9876c8dbb35de6b68552ee08bd",
                 "hunyuan21": "82920d643c0dc2f7bfd7255f45f62d386edfe60c",
                 "ultratex_bridge": "8cc29849dd076ddec0fe5a1ec6207945dedbbbf1",
-                "comfy_core": "7cebca52227c63b4180ceed448cbd7ad22903b6d"}[name]
+                "comfy_core": "7cebca52227c63b4180ceed448cbd7ad22903b6d",
+                "idol_mesh": "0decb39ee5b5e17c200334589fc317dbbe98310e"}[name]
     if manifest.get("revision") != expected or not isinstance(manifest.get("files"), dict) or not manifest["files"]:
         raise RuntimeError(f"推理源码清单无效: {name}")
     from ..models import _file_signature
@@ -64,6 +65,9 @@ def source_dir(name):
 
 
 def foreground(request, output_dir, stage):
+    if stage == 'coarse' and request.get('engine') == 'idol':
+        from .idol import foreground as idol_foreground
+        return idol_foreground(request, output_dir, stage)
     import numpy as np
     from PIL import Image, ImageOps
     image = ImageOps.exif_transpose(Image.open(request["image_path"])).convert("RGBA")
@@ -107,6 +111,9 @@ def foreground(request, output_dir, stage):
 def coarse(request, image, output, emit_fn):
     import torch
     choice = engine('coarse', request.get('engine'))
+    if choice['id'] == 'idol':
+        from .idol import generate
+        return generate(request, image, output, emit_fn)
     if choice['id'] == 'trellis2':
         from .trellis_geometry import generate
         return generate(request, image, output, emit_fn)
@@ -434,7 +441,9 @@ def run_request(request_path, stage):
         from .checkpoint_io import READ_AHEAD
         result['checkpoint_io']={**READ_AHEAD.stats,'scope':'runtime_session_cumulative',
                                  'note':'read-through bytes; not physical disk I/O counters'}
-        if not temp.is_file() or temp.stat().st_size < 100:
+        splat_only = choice['id']=='idol' and not request.get('idol_extract_mesh',True)
+        deliverable = output.parent/'splat.ply' if splat_only else temp
+        if not deliverable.is_file() or deliverable.stat().st_size < 100:
             raise RuntimeError("推理没有生成有效GLB")
         torch.cuda.synchronize()
         result['input_image_sha256'] = digest(Path(request['image_path']))
@@ -442,18 +451,19 @@ def run_request(request_path, stage):
             result['input_view_sha256']={'front':result['input_image_sha256'],**{view:digest(path) for view,path in auxiliary_paths.items()}}
         if args.stage == 'texture':
             result['input_mesh_sha256'] = digest(Path(request['mesh_path']))
-        result['output_sha256'] = digest(temp)
+        result['output_sha256'] = digest(deliverable)
         result.update(base, status="succeeded", background=background, seconds=round(time.perf_counter()-started, 3),
                       peak_allocated_mb=max(result.get('peak_allocated_mb',0), round(torch.cuda.max_memory_allocated()/2**20, 2)),
                       peak_reserved_mb=max(result.get('peak_reserved_mb',0), round(torch.cuda.max_memory_reserved()/2**20, 2)),
                       memory_metric="PyTorch CUDA allocator; external native allocations are not included",
                       runtime={"torch": str(torch.__version__), "cuda": torch.version.cuda,
                                "gpu": torch.cuda.get_device_name(), "capability": list(torch.cuda.get_device_capability())})
+        if splat_only:result['output_path']=str(deliverable)
         atomic_json(report_path, result)
         # A stage report is consumed only after this process exits successfully.
         # Finish CUDA/error checks and persist it before replacing a previous
         # deliverable; a failed synchronization or full disk must preserve it.
-        os.replace(temp, output)
+        if not splat_only:os.replace(temp, output)
         emit(args.stage + "_complete", **{k:v for k,v in result.items() if k not in {"stage", "model", "image_encoder"}})
     except BaseException as exc:
         if 'torch' in locals():

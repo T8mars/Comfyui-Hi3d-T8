@@ -8,11 +8,44 @@ import threading
 import time
 import uuid
 from pathlib import Path
-from .common import ROOT, DATA, atomic_json, read_json, config, child_path
+from .common import ROOT, DATA, atomic_json, read_json, config, child_path, digest
 from .events import iter_events
 
 WORKER_MODULES={'hi3d_workbench.worker','hi3d_workbench.pipeline_worker','hi3d_workbench.engines.run_stage','hi3d_workbench.studio_worker','hi3d_workbench.studio.native','hi3d_workbench.studio.gpu_uv'}
 WORKER_STAGES=('coarse','refine','texture','studio-remesh','studio-blender','studio-uv')
+
+
+def _validate_splat_result(folder,options,report):
+    """Check the native deliverables without requiring a derived triangle mesh."""
+    splat=read_json(folder/'splat.json',{})
+    count=options.get('idol_gaussians',262144)
+    if (report.get('representation')!='3d_gaussian_splat' or report.get('final_file')!='splat.ply'
+            or splat.get('gaussians')!=count):
+        raise ValueError('高斯结果报告或数量不匹配')
+    for name in ('splat.ply','splat.spz','splat.ksplat'):
+        row=splat.get('files',{}).get(name,{})
+        path=folder/name
+        if (not path.is_file() or path.stat().st_size!=row.get('bytes')
+                or digest(path)!=row.get('sha256')):
+            raise ValueError('高斯结果文件缺失或哈希不匹配：'+name)
+    if digest(folder/'splat.ply')!=report.get('final_sha256'):
+        raise ValueError('高斯最终结果哈希不匹配')
+    with (folder/'splat.ply').open('rb') as stream:
+        header=[]
+        for _ in range(256):
+            line=stream.readline(1024)
+            header.append(line)
+            if line==b'end_header\n':break
+        else:raise ValueError('高斯 PLY 头部无效')
+        if (header[0]!=b'ply\n' or b'format binary_little_endian 1.0\n' not in header
+                or f'element vertex {count}\n'.encode() not in header):
+            raise ValueError('高斯 PLY 格式或数量不匹配')
+        properties=[line for line in header if line.startswith(b'property ')]
+        required=('x','y','z','scale_0','scale_1','scale_2','rot_0','rot_1','rot_2','rot_3','opacity','f_dc_0','f_dc_1','f_dc_2')
+        if (any(f'property float {name}\n'.encode() not in properties for name in required)
+                or any(not line.startswith(b'property float ') for line in properties)
+                or stream.tell()+count*len(properties)*4!=(folder/'splat.ply').stat().st_size):
+            raise ValueError('高斯 PLY 属性或长度不匹配')
 
 def _finite_number(value):
     try:return isinstance(value,(int,float)) and not isinstance(value,bool) and math.isfinite(value)
@@ -398,8 +431,12 @@ class JobManager:
                 report=read_json(folder/'report.json')
                 if not isinstance(report,dict) or report.get('status')!='succeeded':
                     raise ValueError('进程未提供有效的成功报告，请查看阶段日志')
-                expected='output.glb' if studio else 'textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
+                splat_only=(options.get('mode')=='image_to_asset' and options.get('geometry_engine')=='idol'
+                            and options.get('idol_extract_mesh') is False
+                            and not options.get('generate_texture') and not options.get('refine_geometry'))
+                expected='splat.ply' if splat_only else 'output.glb' if studio else 'textured.glb' if options.get('mode')=='texture' or options.get('generate_texture',options.get('mode')=='image_to_asset') else 'refined.glb' if options.get('mode','refine')=='refine' or options.get('refine_geometry',False) else 'coarse.glb'
                 if not (folder/expected).is_file():raise RuntimeError('进程退出但缺少预期结果文件')
+                if splat_only:_validate_splat_result(folder,options,report)
                 if expected=='textured.glb':
                     from .asset_pipeline import inspect_textured_glb
                     inspect_textured_glb(folder/expected)
@@ -412,7 +449,7 @@ class JobManager:
                         raise ValueError('角色结果缺少骨架与蒙皮')
                     if options.get('action') in {'retarget','motion'} and not document.tree.get('animations'):
                         raise ValueError('动作结果缺少可播放的动画')
-                self._update(jid,state="succeeded",stage="complete",report=report,message="模型与贴图已完成" if expected=='textured.glb' else "模型已完成")
+                self._update(jid,state="succeeded",stage="complete",report=report,message="原始高斯已完成" if splat_only else "模型与贴图已完成" if expected=='textured.glb' else "模型已完成")
             else:
                 try:fail=read_json(folder/"failure.json",{})
                 except (OSError,ValueError):fail={}

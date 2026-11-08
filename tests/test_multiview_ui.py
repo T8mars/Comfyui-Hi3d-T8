@@ -22,6 +22,7 @@ let selectedMode='image_to_asset',inputImage={id:'front'},inputMesh=null,current
 let epoch=0,shownJob=null,inputViews={left:{id:'left',url:'/left'},back:{id:'back',url:'/back'},right:null};
 const viewLabels={left:'左侧',back:'背面',right:'右侧'};
 const inputBusy=()=>false,needsMesh=()=>selectedMode!=='image_to_asset',wantsRefine=()=>false,wantsTexture=()=>true;
+const idolOptions=()=>({}); // Separate engine controls are covered by the settings round-trip test.
 const hasJobFile=(job,name)=>job.available_files.includes(name),resetResult=()=>{},renderDraft=()=>{};
 """+generation+draft+views+r"""
 $('#geometry-engine').value='hunyuan_mv';

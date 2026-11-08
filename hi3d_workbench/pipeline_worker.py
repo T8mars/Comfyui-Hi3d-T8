@@ -17,6 +17,13 @@ from .worker import emit
 
 _engine_session=None
 _stage_prefetch=None
+IDOL_FILES=('splat.ply','splat.spz','splat.ksplat','splat.json','idol-input.png',
+            'splat-preview.mp4','idol-camera.json','idol-latent.safetensors')
+
+
+def _publish_idol_artifacts(stage_dir,job_dir):
+    for name in IDOL_FILES:
+        if (stage_dir/name).is_file():atomic_copy(stage_dir/name,job_dir/name,immutable=True)
 
 
 def close_engine_session():
@@ -67,6 +74,11 @@ def run_child(command, request_path, directory, stage):
                     # Keep real events on independent lines. Forwarding the
                     # original mixed line too would make Jobs apply it twice.
                     event.setdefault('pipeline_stage',stage)
+                    if (stage=='coarse' and event['stage']=='coarse_splat_saved'
+                            and read_json(request_path).get('engine')=='idol'):
+                        # Publish before forwarding progress: even termination
+                        # of the whole process tree during meshing retains it.
+                        _publish_idol_artifacts(directory,directory.parent.parent)
                     if _stage_prefetch is not None:_stage_prefetch.observe(stage,event)
                     if event['stage']=='complete':
                         event.update(stage=stage+'_complete',message=f'{stage} 阶段已保存，继续处理后续阶段')
@@ -156,6 +168,9 @@ def _run(request_path):
                    'voxel_backend': req.get('voxel_backend','auto'), 'encoding_cache': req.get('encoding_cache',True),
                    'texture_size': req.get('texture_size', 2048), 'offload': req['offload'],
                    'background': req.get('background', 'auto'), 'model_root': str(pipeline_models.MODEL_ROOT)}
+        if stage == 'coarse' and payload['engine']=='idol':
+            from .engines.idol import settings
+            payload.update(settings(req))
         # Face budgets apply to generated geometry only. Existing mesh
         # texturing must never inherit a simplification request.
         if stage == 'coarse':payload['target_faces']=req.get('geometry_target_faces',1000000)
@@ -167,14 +182,20 @@ def _run(request_path):
         stage_request = stage_dir / 'request.json'
         atomic_json(stage_request, payload)
         emit(stage + '_starting', message='正在生成基础模型' if stage == 'coarse' else '正在为最终模型生成 PBR 材质')
-        run_child([pipeline_python, '-u', '-m', 'hi3d_workbench.engines.run_stage', '--stage', stage], stage_request, stage_dir, stage)
-        if not out.is_file():
+        try:
+            run_child([pipeline_python, '-u', '-m', 'hi3d_workbench.engines.run_stage', '--stage', stage], stage_request, stage_dir, stage)
+        finally:
+            if stage == 'coarse' and payload['engine']=='idol':
+                # Only atomic, completed artifacts are published by the adapter.
+                _publish_idol_artifacts(stage_dir,folder)
+        splat_only = stage=='coarse' and payload['engine']=='idol' and not payload['idol_extract_mesh']
+        if not out.is_file() and not splat_only:
             raise RuntimeError(f'{stage} 阶段退出但没有输出模型')
         stage_report = read_json(out.with_suffix('.stage.json'), {})
         if not isinstance(stage_report, dict) or stage_report.get('status') != 'succeeded':
             raise ValueError('模型阶段没有提供有效的成功报告')
         stages.append({'stage': stage, **stage_report})
-        if stage == 'coarse':atomic_copy(out, mesh, immutable=True)
+        if stage == 'coarse' and not splat_only:atomic_copy(out, mesh, immutable=True)
         if stage == 'coarse' and (stage_dir/'raw-geometry.glb').is_file():
             atomic_copy(stage_dir/'raw-geometry.glb',folder/'generated.glb',immutable=True)
         for candidate in (stage_dir / 'foreground.png', out.with_name('foreground.png')):
@@ -191,6 +212,16 @@ def _run(request_path):
 
     if mode == 'image_to_asset':
         extension_stage('coarse')
+    if mode=='image_to_asset' and req.get('geometry_engine')=='idol' and not req.get('idol_extract_mesh',True):
+        if want_refine or want_texture:raise ValueError('仅高斯模式不能直接精修或生成 PBR，请先提取网格')
+        splat=read_json(folder/'splat.json')
+        atomic_json(folder/'report.json',{'status':'succeeded','mode':mode,'geometry_engine':'idol',
+            'stages':stages,'seconds':round(time.time()-started,3),'final_file':'splat.ply',
+            'final_sha256':digest(folder/'splat.ply'),'input_sha256':digest(image),
+            'representation':'3d_gaussian_splat','splat':splat,'texture_generated':False,
+            'peak_allocated_mb':max((s.get('peak_allocated_mb',0) for s in stages),default=0)})
+        emit('complete',message='原始高斯已保存，可旋转预览或下载')
+        return
     if not mesh.is_file():
         raise ValueError('此模式需要已有模型')
     inspect_mesh(load_mesh(mesh))

@@ -20,6 +20,7 @@ MODEL_ROOT = MODELS / "extensions"
 _LOCK = threading.Lock()
 _STATE = {"state": "idle", "message": "扩展模型尚未下载"}
 _STATE_PATH = None
+_IDOL_RUNTIME_VERIFIED = {}
 
 def set_model_root(root):
     """Switch idle model state without touching existing model directories."""
@@ -30,6 +31,28 @@ def set_model_root(root):
     _STATE.update(state='idle',message='扩展模型尚未下载')
 
 SPECS = {
+    "coarse_idol": {
+        "repo": "Comfy-Org/Idol",
+        "revision": "3d050f4bc705ca1202a0ae4d21d2d97987521307",
+        "license": "Idol Apache-2.0; DINOv3 License; FLUX.2 VAE Apache-2.0",
+        "optional": True,
+        "files": ["README.md", "diffusion_models/idol_fp16.safetensors", "vae/idol_decoder_fp16.safetensors",
+                  "clip_vision/dino_v3_vit_h_bf16.safetensors", "vae/flux2-vae.safetensors"],
+        "expected_file_hashes": {
+            "diffusion_models/idol_fp16.safetensors": "9abf6a99fc6bdad701901b12de8fe1b256f02cae4948f7489d25d86b11b52a93",
+            "vae/idol_decoder_fp16.safetensors": "6a146a1e6b2653f74422f7ea835eb8715c547c7de8fc4545051f15c247ae54a9",
+            "clip_vision/dino_v3_vit_h_bf16.safetensors": "a29ef35101a16966972a0d50732a6f3a608ff7cfffb2afa9bbe9007cb842cc53",
+            "vae/flux2-vae.safetensors": "868fe7b343cc8f3a19dbcfcafbc3d5f888802be3f89bd81b65b3621a066ce8f3",
+        },
+        "reuse_paths": {"vae/flux2-vae.safetensors": "ultratex_text_encoder/split_files/vae/flux2-vae.safetensors"},
+    },
+    "idol_background": {
+        "repo": "Comfy-Org/BiRefNet",
+        "revision": "884af709e9b795d89dafbf97f29c8d6a2386f5c6",
+        "license": "BiRefNet MIT", "optional": True,
+        "files": ["README.md", "background_removal/birefnet.safetensors"],
+        "expected_file_hashes": {"background_removal/birefnet.safetensors": "9ab37426bf4de0567af6b5d21b16151357149139362e6e8992021b8ce356a154"},
+    },
     "background": {
         "repo": "danielgatis/rembg (U2Netp ONNX release)",
         "revision": "v0.0.0-u2netp-309c8469258dda74",
@@ -382,6 +405,33 @@ def _ranged_download(spec, name, destination, size, expected):
     return destination
 
 
+def idol_runtime_ready(runtime_root):
+    """Verify a portable private overlay without trusting a stale ready flag."""
+    runtime_root=Path(runtime_root)
+    receipt=_read(runtime_root/'idol-runtime.json')
+    files=receipt.get('files')
+    if not (receipt.get('ready') is True and isinstance(files,dict) and files and
+            receipt.get('source_revision')=='7cebca52227c63b4180ceed448cbd7ad22903b6d'):
+        return False
+    source=runtime_root/'sources/idol_mesh'
+    manifest=_read(source/'source-manifest.json')
+    if manifest.get('revision')!='0decb39ee5b5e17c200334589fc317dbbe98310e' or not isinstance(manifest.get('files'),dict) or not manifest['files']:
+        return False
+    for base,entries in ((runtime_root/'engines/idol',files),(source,manifest['files'])):
+        for name,expected in entries.items():
+            try:path=(base/name).resolve()
+            except (OSError,ValueError,TypeError):return False
+            if not path.is_relative_to(base.resolve()) or not isinstance(expected,str):return False
+            signature=_signature(path)
+            if signature is None:return False
+            key=str(path)
+            if _IDOL_RUNTIME_VERIFIED.get(key)!=(signature,expected):
+                checked=_verified_signature(path,expected)
+                if checked is None:return False
+                _IDOL_RUNTIME_VERIFIED[key]=(checked,expected)
+    return True
+
+
 def status(model_root: str | Path | None = None) -> dict:
     root = Path(model_root or MODEL_ROOT)
     manifest, errors = _manifest(root)
@@ -401,6 +451,8 @@ def status(model_root: str | Path | None = None) -> dict:
     runtime_root = executable.parent.parent if executable.parent.name.lower() in {"scripts", "bin"} else executable.parent
     runtime = _read(runtime_root / "pipeline-runtime.json")
     runtime_ready = executable.is_file() and runtime.get("ready") is True
+    if idol_runtime_ready(runtime_root):
+        runtime={**runtime,'features':list(dict.fromkeys([*runtime.get('features',[]),'idol']))}
     local_state = _STATE if _STATE_PATH is None or Path(_STATE_PATH).parent.resolve() == root.resolve() else {}
     download_state = {"state":"idle", "message":"扩展模型尚未下载", **local_state, **_read(root / "download-state.json")}
     if root.is_dir():
@@ -444,6 +496,7 @@ def selection_components(selection: str) -> list[str]:
         if len(parts) == 3:
             keys = required_components(parts[1], parts[2])
             if all(key in SPECS for key in keys):
+                if parts[1:] == ['coarse','idol']:return keys
                 return ['background', *keys]
     raise ValueError('无效模型下载选择，或引擎尚无可安装权重清单')
 
@@ -509,6 +562,14 @@ def download(selection: str = "all", model_root: str | Path | None = None, progr
                         pinned_hash = spec.get('expected_file_hashes', {}).get(name)
                         if pinned_hash and (not meta.lfs or meta.lfs.sha256 != pinned_hash):
                             raise ValueError(f'公开副本与固定发布权重不一致: {key}/{name}')
+                        reuse = spec.get('reuse_paths', {}).get(name)
+                        target = root / key / name
+                        if reuse and pinned_hash and not target.exists():
+                            source = (root / reuse).resolve()
+                            if source.is_relative_to(root.resolve()) and source.is_file() and _hash(source) == pinned_hash:
+                                target.parent.mkdir(parents=True, exist_ok=True)
+                                try: os.link(source, target)
+                                except OSError: pass  # Cross-volume installs use the normal verified downloader.
                         path = _ranged_download(spec, name, root / key / name, meta.size, meta.lfs.sha256) if meta.lfs and meta.size > 32*1024*1024 else Path(hf_hub_download(spec["repo"], name, revision=spec["revision"], local_dir=root / key))
                     expected = meta.lfs.sha256 if meta.lfs else meta.blob_id
                     signature = _verified_signature(path, expected, git_blob=not bool(meta.lfs), size=meta.size)

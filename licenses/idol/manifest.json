@@ -1,0 +1,41 @@
+{
+  "scope": "Idol and its independent model/code components; not a blanket license",
+  "flux2_vae": "The autoencoder is Apache-2.0 as stated separately by BFL; Idol uses no FLUX generator or text encoder.",
+  "files": {
+    "Idol-Apache-2.0.txt": {
+      "url": "https://raw.githubusercontent.com/speridlabs/idol-sdk/4702a7f00850e34b6e83a2170cc123c3e9570744/LICENSE",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    "DINOv3-LICENSE.md": {
+      "url": "https://huggingface.co/facebook/dinov3-vith16plus-pretrain-lvd1689m/resolve/c807c9eeea853df70aec4069e6f56b28ddc82acc/LICENSE.md",
+      "bytes": 7503,
+      "sha256": "25d122eb8f5b880fd23c736fb6ea8018ee45c12237e00b8a86d14c653904999e"
+    },
+    "BiRefNet-MIT.txt": {
+      "url": "https://raw.githubusercontent.com/ZhengPeng7/BiRefNet/f7079632d681ecf12161fcea8905682934e59e51/LICENSE",
+      "bytes": 1066,
+      "sha256": "92a7089e0915fc32bc40067560b398f1e6a7a5958abd7d04eda393629a5acefb"
+    },
+    "TripoSplat-MIT.txt": {
+      "url": "https://raw.githubusercontent.com/VAST-AI-Research/TripoSplat/d8db9e018b413dd9c4a9fe22463781bf98e8e68d/LICENSE",
+      "bytes": 1061,
+      "sha256": "9bca624970eb854fb4391320d52f91af0b4965970b309abed48d7159f9a262b9"
+    },
+    "FLUX2-autoencoder-README.md": {
+      "url": "https://raw.githubusercontent.com/black-forest-labs/flux2/50fe5162777813d869182b139e83b10743caef15/README.md",
+      "bytes": 8466,
+      "sha256": "435753749320bbb395c15983e63e3dc73936c03f0f1870c628e7bf922c55eef7"
+    },
+    "Comfy-Idol-README.md": {
+      "url": "https://huggingface.co/Comfy-Org/Idol/resolve/3d050f4bc705ca1202a0ae4d21d2d97987521307/README.md",
+      "bytes": 1653,
+      "sha256": "309df59c181a11043dd0be001f7eb6d35487d6bc721e697c113e0efebca2db1f"
+    },
+    "ComfyUI-GPL-3.0.txt": {
+      "source": "Comfy-Org/ComfyUI@7cebca52227c63b4180ceed448cbd7ad22903b6d/LICENSE",
+      "bytes": 35149,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+    }
+  }
+}

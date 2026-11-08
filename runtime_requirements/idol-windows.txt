@@ -1,0 +1,12 @@
+# Private engines/idol overlay; does not upgrade the base pipeline runtime.
+av==17.0.0
+aiohttp==3.13.2
+aiohappyeyeballs==2.7.1
+aiosignal==1.4.0
+attrs==26.1.0
+frozenlist==1.8.0
+multidict==6.9.1
+propcache==0.5.4
+yarl==1.25.1
+typing-extensions==4.16.0
+idna==3.20

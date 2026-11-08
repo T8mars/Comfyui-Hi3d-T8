@@ -12,6 +12,8 @@
 
 工作台新增 **Hunyuan3D-2mv 多视图建模**：正面为主参考，可另上传左侧、背面、右侧，支持三视图；权重独立下载。后续精修和现有 PBR 阶段使用正面参考。[操作与模型说明](docs/MULTIVIEW.zh-CN.md)。
 
+工作台另已接入 **Idol 单图生成高斯与彩色网格**：保留 PLY／SPZ／KSPLAT，支持独立高斯预览、环绕视频、官方转网格及后续 PBR／资产加工。模型与隔离依赖已准备，真实生成和加工记录见 [操作说明](docs/IDOL.zh-CN.md)；网页交互验收仍单独记录。
+
 ```mermaid
 flowchart LR
   A[Hi3D Model Loader] --> D[Hi3D Refine]

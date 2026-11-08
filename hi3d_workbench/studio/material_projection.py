@@ -134,7 +134,12 @@ class Surface:
         self.scale=float(np.ptp(coordinates,axis=0).max())
         if self.scale<=1e-10:raise ValueError('材质来源模型尺寸无效')
         self.scene=o3d.t.geometry.RaycastingScene(nthreads=4)
-        allowed={'KHR_materials_emissive_strength'}
+        unlit=[bool('KHR_materials_unlit' in document.tree.get('materials',[])[row.definition['material']].get('extensions',{}))
+               if 'material' in row.definition else False for row in source_rows]
+        self.unlit=bool(unlit and all(unlit))
+        if any(unlit) and not self.unlit:
+            raise ValueError('材质转移暂不支持混合无光照与 PBR 来源；请分别处理这些部件')
+        allowed={'KHR_materials_emissive_strength','KHR_materials_unlit'}
         for row in source_rows:
             definition=row.definition
             position_accessor=document.tree['accessors'][definition['attributes']['POSITION']]
@@ -352,6 +357,14 @@ def transfer(source,target,output,*,size=2048,projection='nearest',emit=lambda *
             material['extensions']={'KHR_materials_emissive_strength':{'emissiveStrength':strength}}
             document.tree.setdefault('extensionsUsed',[])
             if 'KHR_materials_emissive_strength' not in document.tree['extensionsUsed']:document.tree['extensionsUsed'].append('KHR_materials_emissive_strength')
+        if surface.unlit:
+            # Unlit vertex colour is baked into the atlas without inventing
+            # reflectance. Keep the original light-independent appearance.
+            material={'name':f'Transferred unlit {row_index+1}','doubleSided':True,
+                'pbrMetallicRoughness':{'baseColorTexture':material['pbrMetallicRoughness']['baseColorTexture']},
+                'extensions':{'KHR_materials_unlit':{}}}
+            document.tree.setdefault('extensionsUsed',[])
+            if 'KHR_materials_unlit' not in document.tree['extensionsUsed']:document.tree['extensionsUsed'].append('KHR_materials_unlit')
         if np.any(base[valid,3]<.999):material['alphaMode']='BLEND'
         row.definition['material']=len(document.tree['materials']);document.tree['materials'].append(material)
         attrs.pop('COLOR_0',None)  # Source vertex colour is already in the atlas.
@@ -360,7 +373,8 @@ def transfer(source,target,output,*,size=2048,projection='nearest',emit=lambda *
             'max_projection_distance':float(distance.max()),'p95_projection_distance':float(np.percentile(distance,95)),
             'extrapolated_samples':int((distance>surface.scale*.03).sum()),'opposed_surface_samples':opposed})
     method={'cage':'normal cage with nearest fallback','nearest':'nearest surface'}[projection]
-    report={'material_transfer':'CPU '+method+' PBR projection',
+    report={'material_transfer':'CPU '+method+(' unlit colour projection' if surface.unlit else ' PBR projection'),
+        'material_model':'unlit' if surface.unlit else 'pbr',
         'projection':projection,'cage_samples':surface.cage_samples,'nearest_fallback_samples':surface.cage_fallbacks,
         'texture_size':size,'supersample':supersample,
         'source_has_materials':bool(original.tree.get('materials')),'atlases':reports,

@@ -4,6 +4,12 @@ from __future__ import annotations
 BASELINE_COMPONENTS = ('background', 'coarse', 'texture', 'texture_encoder')
 ENGINES = {
     'coarse': {
+        'idol': {
+            'name': 'Idol · 高斯与彩色网格',
+            'description': '单图生成 3D Gaussian Splat，保留原始高斯并提取顶点色网格；PBR 可另行生成。',
+            'components': ['coarse_idol', 'idol_background'], 'runtime_feature': 'idol',
+            'resolutions': [256, 384, 512], 'default_resolution': 384, 'default_steps': 50,
+        },
         'hunyuan_mini': {
             'name': 'Hunyuan3D-2mini Turbo',
             'description': '快速、省显存；适合先试轮廓。',

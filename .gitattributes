@@ -1,4 +1,6 @@
 # Preserve pinned upstream notices and source bytes used by hash receipts.
 licenses/asset-studio/** -text
+# Idol notices retain original bytes, including upstream Markdown end spaces.
+licenses/idol/** -text whitespace=-blank-at-eol
 hi3d_workbench/web/vendor/three/** -text
 tools/native/** -text

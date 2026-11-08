@@ -8,7 +8,7 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 [Models](https://huggingface.co/t8star/Hi3d-Comfy) · [Canvas workflow](examples/Hi3D-Refine.json) · [Validation](VALIDATION.md) · [Upstream Hi3D](https://github.com/hi3d-official/Hi3Dv1.0)
 
-Asset processing and single-character animation are under development: [scope, operation and limits](docs/ASSET_STUDIO.md). Final acceptance and a complete bundle for these backends are still pending; they are not additional ComfyUI nodes.
+**v0.6.0 candidate:** asset processing and single-character animation are implemented; the local complete bundle has passed offline runtime/model checks, real upload/process/download tasks and EXE start/stop checks. Final browser interaction and full animation playback remain pending. [Scope and operation](docs/ASSET_STUDIO.md) · [Portable validation](validation/asset-studio-portable-0.6.0.json). These features belong to the standalone workbench.
 
 The workbench adds **Hunyuan3D-2mv multi-view modeling**: use a front reference with optional left, back and right images, including three-view inputs. Its checkpoint downloads separately. Subsequent refinement and existing PBR stages use the front reference. [Usage and model details](docs/MULTIVIEW.md).
 

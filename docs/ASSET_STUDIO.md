@@ -2,7 +2,7 @@
 
 **English** | [简体中文](ASSET_STUDIO.zh-CN.md)
 
-**Development preview: final acceptance and complete-bundle delivery are unfinished.** See the [roadmap](../roadmap.md) for evidence and outstanding failures. These features belong to the standalone workbench; ComfyUI continues to provide independent Hi3D geometry refinement only.
+**v0.6.0 candidate; final browser acceptance is pending.** The local complete folder includes the three Python runtimes, selected model weights and demos, and has passed offline cold probes, real HTTP tasks and EXE lifecycle checks. See the [portable validation](../validation/asset-studio-portable-0.6.0.json) and [roadmap](../roadmap.md). These features belong only to the standalone workbench; ComfyUI nodes continue to run Hi3D geometry refinement only.
 
 | Operation | Backend | Result |
 | --- | --- | --- |

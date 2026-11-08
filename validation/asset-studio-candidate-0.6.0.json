@@ -191,7 +191,7 @@
   },
   "pending": [
     "actual browser interactions and full animation playback",
-    "final complete-bundle acceptance and release"
+    "final acceptance and stable release"
   ],
   "historical_repository_regression": {
     "tests": 844,
@@ -207,7 +207,8 @@
     "asset-studio-courier-0.6.0.json": "46285bf7ede33f58f6ec0459622f91b85b7e04fd1b1831243502a1f4d09a3863",
     "scene-index-width-0.6.0.json": "d64736260bf25c3ccf8c251371954e4f70ba66881faee2952016519a68825d42",
     "xpart-courier-0.6.0.json": "8039e71a0bb021e484c8fa81ffe09e870361b2436a88c7fb13a74ee99578b806",
-    "xpart-courier-http-0.6.0.json": "ee9a5961894ef6b733877385bf80e43edcd14fa649004473b90b7d69d05c6c53"
+    "xpart-courier-http-0.6.0.json": "ee9a5961894ef6b733877385bf80e43edcd14fa649004473b90b7d69d05c6c53",
+    "asset-studio-portable-0.6.0.json": "b4f8125f10ac0860d120179725aae8e522a6aa5ef5a71c132097253f6425fb2c"
   },
   "historical_worker_source_sha256": {
     "generated_geometry.py": "76c214b8ed4c77c77d39210e506d205fba2293f14806c41cec4975bf1fefc5a3",
@@ -231,5 +232,12 @@
     "Fused hand/hip surfaces can stretch or open after contact separation.",
     "Layered fox-knight completion/retopology cases remain poor; those original inputs have no narrow-index overflow, so their failure evidence remains applicable.",
     "Generated interiors, fine fingers and printable assembly fit need inspection; no universal input-quality guarantee."
-  ]
+  ],
+  "clean_full_folder": {
+    "path": "E:\\Hi3D-Workbench-0.6.0-Full",
+    "receipt": "asset-studio-portable-0.6.0.json",
+    "backend_and_relocation_checks": "passed",
+    "browser_accepted": false,
+    "stable_release_published": false
+  }
 }

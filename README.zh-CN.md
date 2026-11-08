@@ -8,7 +8,7 @@
 
 [模型下载](https://huggingface.co/t8star/Hi3d-Comfy) · [画布工作流](examples/Hi3D-Refine.json) · [验证记录](VALIDATION.md) · [Hi3D 原项目](https://github.com/hi3d-official/Hi3Dv1.0)
 
-资产加工与单人动画正在开发，功能、操作及限制见 [使用说明](docs/ASSET_STUDIO.zh-CN.md)。这些后端尚未完成最终验收和完整包交付，不属于新增 ComfyUI 节点。
+**v0.6.0 候选版：**已实现资产加工与单人动画；本地完整包通过离线环境／模型校验、真实上传加工下载及 EXE 启停检查。网页交互与整段动画播放仍待最终验收。[范围与操作](docs/ASSET_STUDIO.zh-CN.md) · [完整包验证](validation/asset-studio-portable-0.6.0.json)。这些功能属于独立工作台。
 
 工作台新增 **Hunyuan3D-2mv 多视图建模**：正面为主参考，可另上传左侧、背面、右侧，支持三视图；权重独立下载。后续精修和现有 PBR 阶段使用正面参考。[操作与模型说明](docs/MULTIVIEW.zh-CN.md)。
 

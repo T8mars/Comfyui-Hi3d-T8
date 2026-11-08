@@ -34,7 +34,7 @@ def visible_mesh(document):
                 positions += weight * document.accessor(morph['POSITION'])
         vertices.append(positions @ row.world[:3, :3].T + row.world[:3, 3])
         faces = row.faces[:, [0, 2, 1]] if np.linalg.det(row.world[:3, :3]) < 0 else row.faces
-        triangles.append(faces + offset)
+        triangles.append(faces.astype(np.int64, copy=False) + offset)
         offset += len(positions)
     vertices = np.concatenate(vertices)
     triangles = np.concatenate(triangles)

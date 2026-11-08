@@ -269,7 +269,7 @@ def write_parts(document, labels, names, target, *, engine, source_sha256):
             continue
         vertices, faces, offset = [], [], 0
         for xyz, triangles in rows:
-            vertices.append(xyz); faces.append(triangles + offset); offset += len(xyz)
+            vertices.append(xyz); faces.append(triangles.astype(np.int64, copy=False) + offset); offset += len(xyz)
         xyz, triangles = np.concatenate(vertices), np.concatenate(faces)
         # Only this diagnostic copy merges exactly coincident UV seam vertices.
         diagnostic = trimesh.Trimesh(xyz, triangles, process=True)

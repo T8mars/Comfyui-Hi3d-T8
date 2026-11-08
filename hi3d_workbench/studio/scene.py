@@ -82,7 +82,9 @@ def combined(document: Document, *, apply_morphs=False):
         positions = morphed_positions(document, row) if apply_morphs else row.positions
         vertices.append(positions @ row.world[:3, :3].T + row.world[:3, 3])
         triangles = row.faces[:, [0, 2, 1]] if np.linalg.det(row.world[:3, :3]) < 0 else row.faces
-        faces.append(triangles + offset)
+        # glTF may use uint8/uint16 indices. Promote before adding a scene
+        # offset, otherwise valid small primitives wrap into earlier meshes.
+        faces.append(triangles.astype(np.int64, copy=False) + offset)
         offset += len(row.positions)
     return np.concatenate(vertices), np.concatenate(faces), rows
 

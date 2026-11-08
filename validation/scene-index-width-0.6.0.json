@@ -1,0 +1,310 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "recorded_date": "2026-11-08",
+  "acceptance": "pending",
+  "scope": "Exact original geometry in scene/part/remesh assembly; separate full completion quality gate.",
+  "cause": "Adding a scene vertex offset while indices retain glTF uint8/uint16 dtype wraps some indices into earlier primitives.",
+  "repair": "Promote to int64 before adding offsets in all three geometry assembly paths. Original GLB buffers, face order, winding and materials are retained.",
+  "same_real_input_before": {
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "vertices": 155303,
+    "faces": 269892,
+    "incorrect_faces": 20997,
+    "primitives": [
+      {
+        "part": 0,
+        "index_dtype": "uint16",
+        "vertices": 6535,
+        "faces": 10212,
+        "offset": 0,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 1,
+        "index_dtype": "uint16",
+        "vertices": 6605,
+        "faces": 10241,
+        "offset": 6535,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 2,
+        "index_dtype": "uint16",
+        "vertices": 17011,
+        "faces": 27293,
+        "offset": 13140,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 3,
+        "index_dtype": "uint16",
+        "vertices": 47190,
+        "faces": 83998,
+        "offset": 30151,
+        "incorrect_faces": 20997
+      },
+      {
+        "part": 4,
+        "index_dtype": "uint16",
+        "vertices": 6554,
+        "faces": 11081,
+        "offset": 77341,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 5,
+        "index_dtype": "uint16",
+        "vertices": 50815,
+        "faces": 93002,
+        "offset": 83895,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 2,
+        "index_dtype": "uint16",
+        "vertices": 6160,
+        "faces": 9810,
+        "offset": 134710,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 7,
+        "index_dtype": "uint16",
+        "vertices": 6278,
+        "faces": 10662,
+        "offset": 140870,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 4,
+        "index_dtype": "uint16",
+        "vertices": 4072,
+        "faces": 6746,
+        "offset": 147148,
+        "incorrect_faces": 0
+      },
+      {
+        "part": 7,
+        "index_dtype": "uint16",
+        "vertices": 4083,
+        "faces": 6847,
+        "offset": 151220,
+        "incorrect_faces": 0
+      }
+    ],
+    "cause": "Original narrow index dtype is retained while adding scene offsets."
+  },
+  "same_real_input_after": {
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "vertices": 155303,
+    "faces": 269892,
+    "all_original_oriented_triangles_exact": true,
+    "incorrect_faces": 0,
+    "remesh_copy_all_triangles_exact": true,
+    "winding_consistent": true,
+    "watertight": true,
+    "mesh_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+    "source_unchanged": true
+  },
+  "sampling_comparison": [
+    {
+      "name": "Glove A",
+      "points": 81920,
+      "before_outside_box": 20869,
+      "after_outside_box": 676,
+      "after_sampled_bounds": [
+        [
+          0.34527949882526304,
+          -0.06006850130116862,
+          -0.07031087449136025
+        ],
+        [
+          0.5337362109293109,
+          0.14323832402408335,
+          0.04417674126773754
+        ]
+      ]
+    },
+    {
+      "name": "Glove B",
+      "points": 81920,
+      "before_outside_box": 28554,
+      "after_outside_box": 785,
+      "after_sampled_bounds": [
+        [
+          -0.5337711166823056,
+          -0.059826738673832654,
+          -0.07026292192987965
+        ],
+        [
+          -0.34069460068486906,
+          0.13902611843320586,
+          0.0439574297099591
+        ]
+      ]
+    },
+    {
+      "name": "Head",
+      "points": 81920,
+      "before_outside_box": 453,
+      "after_outside_box": 526,
+      "after_sampled_bounds": [
+        [
+          -0.14600239527126682,
+          0.5093671511791539,
+          -0.14187908106301966
+        ],
+        [
+          0.12674988596259337,
+          0.7999764676733437,
+          0.14185062927042272
+        ]
+      ]
+    },
+    {
+      "name": "Jacket",
+      "points": 81920,
+      "before_outside_box": 27129,
+      "after_outside_box": 923,
+      "after_sampled_bounds": [
+        [
+          -0.4079581429256868,
+          0.08854634819971276,
+          -0.10356431846707971
+        ],
+        [
+          0.4083065196003099,
+          0.5724845870352221,
+          0.1130967536342788
+        ]
+      ]
+    },
+    {
+      "name": "Boot A",
+      "points": 81920,
+      "before_outside_box": 933,
+      "after_outside_box": 933,
+      "after_sampled_bounds": [
+        [
+          0.08670354225244248,
+          -0.79993519371985,
+          -0.12574483216677404
+        ],
+        [
+          0.2086670441496903,
+          -0.5805813915359745,
+          0.13923073618952878
+        ]
+      ]
+    },
+    {
+      "name": "Trousers",
+      "points": 81920,
+      "before_outside_box": 816,
+      "after_outside_box": 55,
+      "after_sampled_bounds": [
+        [
+          -0.18395160592268875,
+          -0.6142436828179276,
+          -0.11813635659424614
+        ],
+        [
+          0.18461213555784023,
+          0.1474497207458459,
+          0.1002759556131402
+        ]
+      ]
+    },
+    {
+      "name": "Boot B",
+      "points": 81920,
+      "before_outside_box": 802,
+      "after_outside_box": 802,
+      "after_sampled_bounds": [
+        [
+          -0.20788163023864037,
+          -0.7999997468733686,
+          -0.12560901835213847
+        ],
+        [
+          -0.08601531106401529,
+          -0.5974258521347175,
+          0.1390191149663079
+        ]
+      ]
+    }
+  ],
+  "sampling_method": "Unchanged upstream AABB intersection sampling, 81920 surface points per part; no approximation or masking change.",
+  "diagnostic_limits": "Some samples still extend slightly beyond the box because upstream samples entire triangles with any vertex inside. This is separate from integer overflow.",
+  "condition_diagnostic_before": {
+    "saved_condition_sha256": "36a61964de372467a59855772dc6df87f6d656b856e5038907d64e5a27c31960",
+    "receipt_sha256": "5fc6fd74b0c7f4c4fa4a720ad9c8aaf428ceb128944cfdbc41d9345132b12592",
+    "full_original_seven_parts": true,
+    "new_diffusion_run": false
+  },
+  "regression": {
+    "repository_tests": 892,
+    "failures": 0,
+    "junit_sha256": "9d6f3d802272efbeaa0ef5e57e5931e11bdef327faa3b1ba627200524b8dfba2",
+    "old_code_fixture": {
+      "tests": 4,
+      "failures": 3,
+      "junit_sha256": "1a1ffaba8aafb539af7bedb5178547a8bc5e2babacf6b50bdd8af4e793eeeed2"
+    },
+    "targeted_tests": 20,
+    "targeted_junit_sha256": "7914751a424ee60d1850fbf9907993f34b5990e6d7f7b4fe5cc14ca5d038afe3"
+  },
+  "upstream_reference_comparison": {
+    "space_revision": "27cacbd069110b5fdeb85e928e6f9433d5487c37",
+    "files": [
+      {
+        "path": "partgen/models/partformer_dit.py",
+        "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-Part/resolve/27cacbd069110b5fdeb85e928e6f9433d5487c37/XPart/partgen/models/partformer_dit.py",
+        "official_sha256": "7867fb33f1c8ac5d0fe0aea6a5a350f6944785c29f1c904a58a6a9f1a6cc0587",
+        "local_sha256": "7867fb33f1c8ac5d0fe0aea6a5a350f6944785c29f1c904a58a6a9f1a6cc0587",
+        "diff_lines": 0
+      },
+      {
+        "path": "partgen/models/conditioner/sonata_extractor.py",
+        "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-Part/resolve/27cacbd069110b5fdeb85e928e6f9433d5487c37/XPart/partgen/models/conditioner/sonata_extractor.py",
+        "official_sha256": "1d13aad365131cb106b13a119af637ccd7f0e1a968fb06dde673a2ebd5011297",
+        "local_sha256": "1d13aad365131cb106b13a119af637ccd7f0e1a968fb06dde673a2ebd5011297",
+        "diff_lines": 0
+      },
+      {
+        "path": "partgen/partformer_pipeline.py",
+        "url": "https://huggingface.co/spaces/tencent/Hunyuan3D-Part/resolve/27cacbd069110b5fdeb85e928e6f9433d5487c37/XPart/partgen/partformer_pipeline.py",
+        "official_sha256": "17b926a7e675ce7c11a7152801d39ccf4811fe5d4ff1e8ef2e3bc2f826dbc648",
+        "local_sha256": "17b926a7e675ce7c11a7152801d39ccf4811fe5d4ff1e8ef2e3bc2f826dbc648",
+        "diff_lines": 0
+      }
+    ]
+  },
+  "corrected_full_http_run_at_checkpoint": {
+    "job": "8380feec030e4128a7e4a2977e2f4efd",
+    "state": "running",
+    "stage": "asset_part_condition",
+    "settings": {
+      "seed": 23,
+      "part_steps": 50,
+      "part_guidance": 7.5,
+      "part_resolution": 512,
+      "texture_size": 2048,
+      "material_projection": "cage",
+      "uv_backend": "auto"
+    },
+    "quality_accepted": false,
+    "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e"
+  },
+  "code_sha256": {
+    "scene.py": "ea6be32429319e38bfef2524c6520266062a7526f8ee966be73ea4b2b26d7ec1",
+    "retopology.py": "946567ba6a038670e1c818160556d6cd8e964e811f7bb2d21b6cf5ebceea37f5",
+    "parts.py": "c8eb773905db0cacd1cf1c0bd20e95844f943d07c0453e24c5210b62e7e83225"
+  },
+  "pending": [
+    "corrected full completion, PBR and visual validation",
+    "real browser interaction and full animation playback",
+    "final complete-bundle acceptance"
+  ]
+}

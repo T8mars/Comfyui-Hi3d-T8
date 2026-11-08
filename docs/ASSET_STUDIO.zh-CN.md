@@ -2,7 +2,7 @@
 
 [English](ASSET_STUDIO.md) | **简体中文**
 
-**v0.6.0 候选版，网页最终验收尚未完成。** 本地完整目录已包含三套 Python 环境、所选模型和演示素材，通过离线冷启动检查、真实 HTTP 加工和 EXE 启停验证。详见[完整包验证](../validation/asset-studio-portable-0.6.0.json)与[路线图](../roadmap.md#当前实施进展未完成交付)。这些功能仅属于独立工作台；ComfyUI 节点继续只运行 Hi3D 几何精修。
+**v0.6.0，请按下文质量边界逐个检查资产。** 本地完整目录包含三套 Python 环境、所选模型和演示素材，通过离线检查、真实 HTTP 加工及 EXE 启停验证。公共资产页、真实模型上传、骨骼显示及一份完整 4 秒 Idol 动作已补做网页验收，不扩大为全部样例或所有变形均通过。详见[网页证据](../validation/idol-browser-2026-11-08.json)、[完整包验证](../validation/asset-studio-portable-0.6.0.json)与[路线图](../roadmap.md)。ComfyUI 节点继续只运行 Hi3D 几何精修。
 
 | 入口 | 后端 | 输出与用途 |
 | --- | --- | --- |

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "updated_utc": "2026-11-08T17:19:32.523549+00:00",
+  "scope": "v0.6.0 pre-publication validation; GitHub release outcome recorded separately",
+  "version": "0.6.0",
+  "runtime_api": 2,
+  "full_tests": {
+    "passed": 935,
+    "seconds": 139.42,
+    "warnings": 1,
+    "junit_sha256": "b6a2dd3ee8bdfd469a34bb4faa1b487ca276c38d4ab43793189d6d5b23775495"
+  },
+  "isolated_release_updater_tests": 37,
+  "older_runtime_rejected": true,
+  "native_comfy_code_and_canvas_unchanged_from_origin_main": true,
+  "registry_pack": {
+    "crc": "passed",
+    "files": 113,
+    "sha256": "12396de9b22f00e8a323835f6553776f76d0098dc81cb7e6664a3d7008ab61e2",
+    "canvas_and_vendor_models_retained": true,
+    "personal_models_runtimes_excluded": true
+  },
+  "hugging_face": {
+    "repo": "t8star/Hi3d-Comfy",
+    "model_commit": "b0f80740e3b5b142ff6189f9a491a77151639df9",
+    "documentation_commit": "7953439298d7ecaf2fd26ef4a32ea6d78fd8f448",
+    "model_files": 169,
+    "model_bytes": 122885470205,
+    "all_remote_model_hashes_match": true,
+    "readmes_verified": true,
+    "added_model_artifacts": 70,
+    "added_model_bytes": 38688168045
+  },
+  "github_assets_policy": "source, nodes, code updater, launcher and checksums; no weights or Python runtimes",
+  "quality_limits": "Documented in docs/releases/v0.6.0.md; no broader quality benchmark implied"
+}

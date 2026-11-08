@@ -22,7 +22,7 @@ from .common import ROOT, VERSION, atomic_json, config
 REPOSITORY = 'T8mars/Comfyui-Hi3d-T8'
 API = f'https://api.github.com/repos/{REPOSITORY}/releases/latest'
 DOWNLOAD = f'https://github.com/{REPOSITORY}/releases/download/'
-RUNTIME_API = 1
+RUNTIME_API = 2
 MAX_ARCHIVE = 128 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
 CODE_DIRS = {'hi3d_workbench', 'scripts', 'examples', 'docs', 'licenses', 'samples', 'tools', 'tests', 'validation', 'runtime_requirements'}

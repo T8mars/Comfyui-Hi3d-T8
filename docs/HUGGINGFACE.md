@@ -25,7 +25,7 @@ tags:
 
 Native nodes infer directly inside ComfyUI's own Python, without a workbench service. Upload the reference and coarse mesh to refine with the same original core weights. Replace legacy bridge canvases with the new example.
 
-**Workbench v0.5.1 retains all existing model weights.** The optional Windows CUDA converter is code in `runtime-wheels/v0.4.9/`, installed separately by the workbench with a pinned hash; it is not a checkpoint or a Python distribution. The GPU converter keeps the upstream MIT notices.
+**Workbench v0.6.0 adds Idol and asset-studio models.** Existing core weights are retained. New features require the v0.6 runtime; a model download or code ZIP alone does not upgrade an older Python bundle. The optional Windows CUDA converter in `runtime-wheels/v0.4.9/` is separately installed code, not a checkpoint or Python distribution.
 
 ## Included models
 
@@ -36,20 +36,24 @@ Native nodes infer directly inside ComfyUI's own Python, without a workbench ser
 | `extensions/coarse/` | Hunyuan3D-2mini Turbo image-to-geometry | Tencent Hunyuan 3D 2.0 Community |
 | `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 image-to-geometry | Tencent Hunyuan 3D 2.1 Community |
 | `extensions/coarse_hunyuan_mv/` | Hunyuan3D-2mv multi-view geometry: front with left/back/right views | Tencent Hunyuan 3D 2.0 Community |
+| `extensions/coarse_idol/`, `extensions/idol_background/` | Idol diffusion/decoder, DINO-H+, FLUX.2 VAE and BiRefNet | Apache-2.0 / DINOv3 License / MIT |
 | `extensions/coarse_trellis2/`, `extensions/trellis_structure/` | TRELLIS.2 geometry and structure decoder | MIT |
 | `extensions/texture/`, `extensions/texture_encoder/` | TRELLIS.2 PBR and DINOv3 encoder | MIT / DINOv3 License |
 | `extensions/texture_hunyuan21/`, `extensions/paint_dino/`, `extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1, DINOv2 Giant and Real-ESRGAN | Tencent / Apache-2.0 / BSD-3-Clause |
 | `extensions/texture_ultratex/`, `extensions/ultratex_backbone/`, `extensions/ultratex_text_encoder/` | UltraTex adapters/decoder, FLUX.2 Klein 9B fp8, Qwen3 and VAE | MIT / FLUX Non-Commercial / Apache-2.0 |
 | `extensions/ultratex_backbone_int8/` | tsolful Klein Base 9B INT8 ConvRot, pinned CivitAI version 3080042/file 2959286 | Original FLUX Non-Commercial |
 | `extensions/background/` | Optional CPU U2Netp foreground extraction | MIT / Apache-2.0 |
+| `studio/p3sam/`, `studio/parts_full/`, `studio/sonata/` | Part segmentation and X-Part completion | Tencent Hunyuan 3D-Part Community / Apache-2.0 |
+| `studio/skintokens/`, `studio/qwen_rig_config/`, `studio/unirig/` | Character skeleton and skin prediction | MIT / Apache-2.0 |
+| `studio/kimodo/`, `studio/text_base/`, `studio/text_adapter/`, `studio/text_adapter_supervised/` | Single-character text motion and LLM2Vec encoders | NVIDIA Open Model / Llama 3 Community |
 
-`manifest.json` records the shared core. `extensions/manifest.json` records 15 geometry/PBR extension components, original repositories and fixed revisions. `model-catalogue.json` lists all **99 model/config/license artifacts (84.2GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
+`manifest.json`, `extensions/manifest.json` and `studio/manifest.json` record 3 core, 17 geometry/PBR and 10 asset-studio components. `model-catalogue.json` lists all **169 model/config/license artifacts (122.89GB)** with byte counts and SHA256. ComfyUI and the workbench use identical Hi3D weights; no separate ComfyUI checkpoint exists. The INT8 file is the community-published **Base** quantization, not distilled/KV; it was not quantized by this project. FP8 remains available separately.
 
-**2026-11-07 update:** four official multi-view files add about 4.93GB; all 99 files are checked against local manifests and remote hashes. Select Hunyuan3D-2mv in the workbench, upload the front image in the main slot and add left/back/right views. Subsequent refinement and existing painters use the front reference.
+**2026-11-08 update:** Idol adds 7 artifacts (3.78GB); asset-studio adds 63 artifacts (34.91GB). Multi-view modeling remains available. Select Idol for native Gaussian outputs and optional colored mesh/PBR, or choose Hunyuan3D-2mv for front/left/back/right references. Subsequent refinement and existing painters use the front reference.
 
-Multi-view requires the **0.6 candidate or a newer workbench**; downloading weights alone does not add the controls to older code. [Candidate code](https://github.com/T8mars/Comfyui-Hi3d-T8/tree/codex/asset-studio-multiview).
+New controls require **v0.6.0 or newer with its matching complete runtime**. [Release and code](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/tag/v0.6.0). GitHub assets contain no Python or weights; the author distributes the full runtime bundle separately.
 
-Asset segmentation, rigging and motion `studio` models are managed separately by the workbench from pinned official repositories and **are not among these 99 files**. Runtime wheels are also counted separately.
+Studio models are now hosted under `studio/`, retaining their pinned official repositories and licenses. **Built with Meta Llama 3**: Kimodo's LLM2Vec text encoder uses the unchanged Meta-Llama-3-8B-Instruct base and two adapters. Retain `studio/text_base/LICENSE`, `USE_POLICY.md` and the component notices. Runtime wheels are counted separately from the 169 model artifacts.
 
 ## Download
 
@@ -61,10 +65,10 @@ Core only (10.66GB), sufficient for the independent Hi3D ComfyUI nodes:
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-All hosted core and geometry/PBR extension files (about 84.2GB; allow additional runtime and working space):
+All hosted core, geometry/PBR and studio files (about 122.89GB; allow additional runtime and working space):
 
 ```bash
-hf download t8star/Hi3d-Comfy --local-dir models
+hf download t8star/Hi3d-Comfy --local-dir models --exclude "runtime-wheels/*"
 ```
 
 Download the **complete component set in one row** for each workbench engine you need:
@@ -74,6 +78,7 @@ Download the **complete component set in one row** for each workbench engine you
 | Hunyuan3D-2mini Turbo geometry | `coarse` | 3.82GB |
 | Hunyuan3D 2.1 geometry | `coarse_hunyuan21` | 7.37GB |
 | Hunyuan3D-2mv multi-view geometry | `coarse_hunyuan_mv` | 4.93GB |
+| Idol Gaussian/colored mesh generation | `coarse_idol`, `idol_background` | 3.78GB |
 | TRELLIS.2 geometry | `coarse_trellis2`, `trellis_structure`, `texture_encoder` | 10.06GB |
 | TRELLIS.2 PBR | `texture`, `texture_encoder` | 8.04GB |
 | Hunyuan3D-Paint 2.1 | `texture_hunyuan21`, `paint_dino`, `paint_upscaler` | 11.50GB |
@@ -81,6 +86,22 @@ Download the **complete component set in one row** for each workbench engine you
 | UltraTex INT8 ConvRot | `texture_ultratex`, `ultratex_backbone_int8`, `ultratex_text_encoder` | 19.46GB |
 
 Sizes use decimal GB, include each row's shared dependencies, and exclude Python, temporary files and optional accelerators. Shared directories download once, so do not add all rows to estimate the full repository. Hi3D refinement is optional in the workbench; add the core only if you enable it. Background removal adds `extensions/background/` (about 4.6MB).
+
+| Asset-studio operation | Directories under `studio/` | Download size |
+|---|---|---:|
+| P3-SAM segmentation | `p3sam`, `sonata` | 0.89GB |
+| X-Part completion | `parts_full`, `p3sam`, `sonata` | 9.93GB |
+| SkinTokens rigging | `skintokens`, `qwen_rig_config` | 1.62GB |
+| UniRig rigging | `unirig` | 5.82GB |
+| Kimodo text motion | `kimodo`, `text_base`, `text_adapter`, `text_adapter_supervised` | 17.55GB |
+
+For example, download Idol and its own foreground model without the other engines:
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "extensions/manifest.json" "extensions/coarse_idol/*" "extensions/idol_background/*" "licenses/idol/*"
+```
+
+Studio files belong under `models/studio/`; include `studio/manifest.json` and every component in the relevant row. Mesh simplification and motion retargeting do not require new neural weights. [Operation and quality limits](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/ASSET_STUDIO.md).
 
 For example, TRELLIS.2 geometry **and** PBR, with their shared encoder:
 

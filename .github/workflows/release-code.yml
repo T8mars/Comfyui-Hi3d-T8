@@ -66,7 +66,7 @@ jobs:
           cp -R hi3d_workbench "$TEST_ROOT/"
           cp tests/test_updater.py "$TEST_ROOT/tests/"
           cd "$TEST_ROOT"
-          python -m pytest tests/test_updater.py -q
+          HI3D_WORKBENCH_ROOT="$RUNNER_TEMP/hi3d-updater-data" python -m pytest tests/test_updater.py -q
       - run: python "$RUNNER_TEMP/prepare_release_upstream.py" --root "$GITHUB_WORKSPACE"
       - uses: actions/download-artifact@v4
         with:

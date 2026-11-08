@@ -8,11 +8,11 @@ The **ComfyUI nodes** refine a **reference image + coarse mesh of the same objec
 
 [Models](https://huggingface.co/t8star/Hi3d-Comfy) · [Canvas workflow](examples/Hi3D-Refine.json) · [Validation](VALIDATION.md) · [Upstream Hi3D](https://github.com/hi3d-official/Hi3Dv1.0)
 
-**v0.6.0 candidate:** asset processing and single-character animation are implemented; the local complete bundle has passed offline runtime/model checks, real upload/process/download tasks and EXE start/stop checks. Final browser interaction and full animation playback remain pending. [Scope and operation](docs/ASSET_STUDIO.md) · [Portable validation](validation/asset-studio-portable-0.6.0.json). These features belong to the standalone workbench.
+**v0.6.0:** Idol Gaussian generation, asset processing and single-character animation are available in the standalone workbench. Real generation, offline runtime/model checks, upload/process/download tasks and EXE lifecycle checks have passed. Browser checks cover the million-splat viewer, mesh/PBR stages, downloads/export and one complete four-second Idol character clip. [Release notes](docs/releases/v0.6.0.md) · [Scope and quality limits](docs/ASSET_STUDIO.md) · [Browser evidence](validation/idol-browser-2026-11-08.json).
 
 The workbench adds **Hunyuan3D-2mv multi-view modeling**: use a front reference with optional left, back and right images, including three-view inputs. Its checkpoint downloads separately. Subsequent refinement and existing PBR stages use the front reference. [Usage and model details](docs/MULTIVIEW.md).
 
-The workbench also integrates **Idol image-to-splat and colored mesh generation**, retaining PLY/SPZ/KSPLAT with a separate Gaussian preview, orbit video, official mesh conversion and downstream PBR/asset processing. Models and private dependencies are prepared; see [operation and real validation](docs/IDOL.md). Browser interaction acceptance is recorded separately.
+The workbench integrates **Idol image-to-splat and colored mesh generation**, retaining PLY/SPZ/KSPLAT with a separate Gaussian preview, orbit video, official mesh conversion and downstream PBR/asset processing. See [operation and real validation](docs/IDOL.md). Gaussian appearance and extracted mesh geometry remain separate outputs.
 
 ```mermaid
 flowchart LR
@@ -28,11 +28,13 @@ flowchart LR
 
 [GitHub Releases](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [Update instructions](docs/UPDATES.md)
 
+**v0.6 runtime change:** older v0.5.x complete bundles need the matching v0.6 full runtime bundle. The updater rejects an incompatible code overlay instead of replacing Python packages. Model weights can be retained in a shared model directory.
+
 From v0.4.1, standalone bundles check and download code updates while idle, verify them, and install on the next launch. Models, Python, configuration and history are preserved. Disable automatic downloads in **Models and environment → Program updates**, or close the app and run `Update-Workbench.cmd`. Old v0.4.0 bundles need one manual code overlay first. A runtime-incompatible release requests a new complete bundle instead of replacing Python dependencies. Git source checkouts update through Git.
 
 ### Launch and close the Windows bundle
 
-**Complete model bundles (v0.5.1):** three geometry choices and four texture entries, including separate UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B options. Full coverage needs 14 extension components plus the Hi3D core, approximately 79.3 GB of model/config files. A baseline-only package is not a complete multi-engine bundle. **Models → Complete all engines** prepares every registered dependency; the page reports ready/total engine counts. A complete package declares `full_engine_coverage: true` in `bundle-manifest.json`. [Selective downloads and per-engine sizes](https://huggingface.co/t8star/Hi3d-Comfy#download).
+**Complete model coverage (v0.6.0):** five geometry choices and four texture entries, including Idol, Hunyuan3D-2mv, UltraTex **INT8 ConvRot Base 9B** and FP8 Base 9B. Core plus all geometry/PBR components total about 87.98GB; the separately managed asset-studio components add 34.91GB. **Models → Complete all engines** prepares the geometry/PBR dependencies; asset operations prepare their own components. A complete package records its exact contents in `bundle-manifest.json`. [Selective downloads and per-engine sizes](https://huggingface.co/t8star/Hi3d-Comfy#download).
 
 Builders must use `--include-models --include-pipeline --all-engines` with `tools/build_release.py`. The INT8 checkpoint is tsolful's pinned community quantization of **Base 9B**, not distilled/KV Klein; its original FLUX non-commercial license remains applicable. This project does not re-quantize it. INT8 is not guaranteed to use less VRAM or run faster than FP8 on every GPU.
 
@@ -74,10 +76,11 @@ The three nodes are **Hi3D Model Loader**, **Hi3D Load Mesh** and **Hi3D Refine*
 | Hi3D transformer 512 + VAE | 512 refinement | ComfyUI and workbench |
 | Hi3D transformer 1024 + the same VAE | 1024 and 1536 refinement; no separate 1536 checkpoint | ComfyUI and workbench |
 | DINOv2 Large + CLIP ViT-L/14 | Required image encoders, not extra 3D models | ComfyUI and workbench |
-| Hunyuan3D-2mini-Turbo / Hunyuan3D 2.1 / TRELLIS.2 | Selectable image-to-geometry engines | Workbench only |
+| Hunyuan3D-2mini-Turbo / Hunyuan3D 2.1 / Hunyuan3D-2mv / TRELLIS.2 / Idol | Selectable image-to-geometry engines | Workbench only |
 | TRELLIS.2 PBR / Hunyuan3D-Paint 2.1 / UltraTex | Selectable mesh-conditioned PBR engines | Workbench only |
 | DINOv3, DINOv2 Giant, FLUX.2 Klein 9B and Qwen3 | Dependencies of the selected extension engine | Workbench only |
 | CPU U2Netp | Optional foreground extraction for opaque images | Workbench only |
+| P3-SAM / X-Part / SkinTokens / UniRig / Kimodo | Segmentation, completion, rigging and single-character motion | Workbench only |
 
 The [Hugging Face repository](https://huggingface.co/t8star/Hi3d-Comfy) contains the **shared Hi3D core weights and configurations plus every standalone extension component**. There are no ComfyUI-specific Hi3D checkpoints. Extension models live under `models/extensions`, retaining pinned sources, hashes and their individual licenses. UltraTex uses an upstream-published fp8 base, not a new quantization by this project. The Registry/node download contains **code and the canvas workflow only**. Model files alone do not provide an inference environment.
 
@@ -87,7 +90,7 @@ ComfyUI defaults to `ComfyUI/models/Hi3D/`; the workbench uses its own `models/`
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-The command above downloads the core only. Omit `--include` to download every geometry/PBR extension (about 79.3GB); see the [model repository](https://huggingface.co/t8star/Hi3d-Comfy) for selective downloads. Layout: `models/manifest.json`, `models/hi3d/`, `models/dino/`, `models/clip/`, with extensions under `models/extensions/`. The manifest records pinned upstream revisions and SHA256 hashes. The backend also supports downloading directly from the original upstream repositories.
+The command above downloads the core only. All core, geometry/PBR and studio model artifacts total about 122.89GB; use the [model repository's selective download sets](https://huggingface.co/t8star/Hi3d-Comfy#download). Geometry/PBR components live under `models/extensions/`, asset components under `models/studio/`. Manifests retain pinned upstream revisions and hashes. The backend also downloads from the original repositories.
 
 **Custom model directory:** choose a root in **Models and environment → Model directory**, such as `E:/AI-Models/Hi3D`, or a path relative to the workbench root. It contains `hi3d/`, `dino/`, `clip/` and optional `extensions/`. Save applies while idle without restarting; **Restore default** returns to `models/`. Files are not moved automatically, and code updates preserve the setting. Existing core files still need **Reverify all core models** before the new location is ready.
 

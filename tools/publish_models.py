@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 import sys
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 os.environ.setdefault('HF_XET_CHUNK_CACHE_SIZE_BYTES', '0')
 os.environ.setdefault('HF_XET_SHARD_CACHE_SIZE_LIMIT', '1073741824')
@@ -13,8 +13,6 @@ from huggingface_hub import HfApi, CommitOperationAdd
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from hi3d_workbench.common import atomic_json, VERSION, MODELS
-from hi3d_workbench.pipeline_models import SPECS
 
 REPO = 't8star/Hi3d-Comfy'
 
@@ -35,10 +33,43 @@ def matches(remote, meta):
     return remote.lfs.sha256 == meta['sha256'] if remote.lfs else remote.blob_id == meta['git_sha1']
 
 
+def studio_components(base, specs):
+    """Build public entries from pinned specs, never local verification signatures."""
+    groups, catalogue, clean = {}, {}, {'components': {}}
+    for key, spec in specs.items():
+        assert key and '/' not in key and '\\' not in key and ':' not in key and key not in {'.', '..'}, key
+        public = {name: value for name, value in spec.items() if name != 'files'}
+        public['files'] = {}
+        items = []
+        for entry in spec['files']:
+            name = entry['name']
+            relative = PurePosixPath(name)
+            assert name and not relative.is_absolute() and '\\' not in name and ':' not in name and '..' not in relative.parts, name
+            path = base / key / relative
+            assert path.stat().st_size == entry['size'], str(path)
+            sha, git = hashes(path)
+            assert entry['algorithm'] in {'sha256', 'git-sha1'}, name
+            assert entry['hash'] == (sha if entry['algorithm'] == 'sha256' else git), str(path)
+            remote_name = f'studio/{key}/{name}'
+            meta = {'bytes': path.stat().st_size, 'sha256': sha, 'git_sha1': git,
+                    'repo': spec['repo'], 'revision': spec['revision'], 'license': spec['license']}
+            catalogue[remote_name] = meta
+            items.append((remote_name, path, meta))
+            public['files'][name] = {'bytes': entry['size'], 'hash': entry['hash'], 'algorithm': entry['algorithm']}
+        clean['components'][key] = public
+        groups[f'studio/{key}'] = items
+        print(f'Verified studio/{key}: {len(items)} files', flush=True)
+    return groups, catalogue, clean
+
+
 def main():
+    from hi3d_workbench.common import atomic_json, VERSION, MODELS
+    from hi3d_workbench.pipeline_models import SPECS
     parser = argparse.ArgumentParser()
     parser.add_argument('--include-extensions', action='store_true')
+    parser.add_argument('--include-studio', action='store_true')
     parser.add_argument('--models-only', action='store_true')
+    parser.add_argument('--dry-run', action='store_true', help='Verify local files and report remote differences without publishing')
     parser.add_argument('--preupload', action='store_true', help='Preupload missing weights concurrently before per-component commits')
     parser.add_argument('--output',type=Path,default=ROOT/'data'/('model-publication-v'+VERSION.replace('.','')))
     args = parser.parse_args()
@@ -80,14 +111,39 @@ def main():
         target = output / (kind + '-manifest.json')
         atomic_json(target, clean)
         groups[kind + '/manifest'] = [(prefix + 'manifest.json', target, {})]
+    if args.include_studio:
+        from hi3d_workbench.studio.models import CATALOG
+        studio_groups, studio_catalogue, clean = studio_components(MODELS / 'studio', CATALOG)
+        groups.update(studio_groups)
+        catalogue.update(studio_catalogue)
+        target = output / 'studio-manifest.json'
+        atomic_json(target, clean)
+        groups['studio/manifest'] = [('studio/manifest.json', target, {})]
     atomic_json(output / 'model-catalogue.json', {'schema': 1, 'files': catalogue})
     groups['catalogue'] = [('model-catalogue.json', output / 'model-catalogue.json', {})]
-    licenses = [(f'licenses/{p.name}', p, {}) for p in (ROOT / 'licenses').iterdir() if p.is_file()]
+    licenses = [('licenses/' + p.relative_to(ROOT / 'licenses').as_posix(), p, {})
+                for p in (ROOT / 'licenses').rglob('*') if p.is_file()]
     licenses += [('LICENSE', MODELS / 'hi3d/LICENSE', {}), ('NOTICE', MODELS / 'hi3d/NOTICE', {})]
     if not args.models_only:
         licenses += [('README.md', ROOT / 'docs/HUGGINGFACE.md', {}),
                      ('README.zh-CN.md', ROOT / 'docs/HUGGINGFACE.zh-CN.md', {})]
     groups = {'licenses-and-docs': licenses, **groups}
+    if args.dry_run:
+        remote = {x.rfilename: x for x in api.model_info(REPO, files_metadata=True).siblings}
+        pending = []
+        for files in groups.values():
+            for name, path, meta in files:
+                if not meta:
+                    sha, git = hashes(path)
+                    meta = {'sha256': sha, 'git_sha1': git, 'bytes': path.stat().st_size}
+                if not matches(remote.get(name), meta):
+                    pending.append({'path': name, 'bytes': meta['bytes']})
+        report = {'repo': REPO, 'dry_run': True, 'model_files': len(catalogue),
+                  'model_bytes': sum(v['bytes'] for v in catalogue.values()), 'pending': pending}
+        atomic_json(output / 'dry-run.json', report)
+        print(json.dumps({'model_files': report['model_files'], 'model_bytes': report['model_bytes'],
+                          'changed_files': len(pending), 'changed_bytes': sum(v['bytes'] for v in pending)}), flush=True)
+        return
     preuploaded = {}
     if args.preupload:
         remote = {x.rfilename: x for x in api.model_info(REPO, files_metadata=True).siblings}

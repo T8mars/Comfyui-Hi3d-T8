@@ -2,7 +2,7 @@
 
 **English** | [简体中文](ASSET_STUDIO.zh-CN.md)
 
-**v0.6.0 candidate; final browser acceptance is pending.** The local complete folder includes the three Python runtimes, selected model weights and demos, and has passed offline cold probes, real HTTP tasks and EXE lifecycle checks. See the [portable validation](../validation/asset-studio-portable-0.6.0.json) and [roadmap](../roadmap.md). These features belong only to the standalone workbench; ComfyUI nodes continue to run Hi3D geometry refinement only.
+**v0.6.0; inspect each asset against the quality limits below.** The local complete folder includes the three Python runtimes, selected model weights and demos, with offline probes, real HTTP tasks and EXE lifecycle checks. The shared asset page, real model upload, bone display and one complete four-second Idol clip have now passed browser checks; this does not accept every example or deformation. See [browser evidence](../validation/idol-browser-2026-11-08.json), [portable validation](../validation/asset-studio-portable-0.6.0.json) and the [roadmap](../roadmap.md). ComfyUI nodes continue to run Hi3D geometry refinement only.
 
 | Operation | Backend | Result |
 | --- | --- | --- |

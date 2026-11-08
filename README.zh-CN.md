@@ -8,11 +8,11 @@
 
 [模型下载](https://huggingface.co/t8star/Hi3d-Comfy) · [画布工作流](examples/Hi3D-Refine.json) · [验证记录](VALIDATION.md) · [Hi3D 原项目](https://github.com/hi3d-official/Hi3Dv1.0)
 
-**v0.6.0 候选版：**已实现资产加工与单人动画；本地完整包通过离线环境／模型校验、真实上传加工下载及 EXE 启停检查。网页交互与整段动画播放仍待最终验收。[范围与操作](docs/ASSET_STUDIO.zh-CN.md) · [完整包验证](validation/asset-studio-portable-0.6.0.json)。这些功能属于独立工作台。
+**v0.6.0：**独立工作台加入 Idol 高斯建模、资产加工与单人动画。真实生成、离线环境／模型检查、上传加工下载及 EXE 启停已验证；网页实测覆盖百万高斯、网格／PBR、下载导出，以及一份完整的 4 秒 Idol 角色动作。[发行说明](docs/releases/v0.6.0.md) · [操作与质量边界](docs/ASSET_STUDIO.zh-CN.md) · [网页回执](validation/idol-browser-2026-11-08.json)。
 
 工作台新增 **Hunyuan3D-2mv 多视图建模**：正面为主参考，可另上传左侧、背面、右侧，支持三视图；权重独立下载。后续精修和现有 PBR 阶段使用正面参考。[操作与模型说明](docs/MULTIVIEW.zh-CN.md)。
 
-工作台另已接入 **Idol 单图生成高斯与彩色网格**：保留 PLY／SPZ／KSPLAT，支持独立高斯预览、环绕视频、官方转网格及后续 PBR／资产加工。模型与隔离依赖已准备，真实生成和加工记录见 [操作说明](docs/IDOL.zh-CN.md)；网页交互验收仍单独记录。
+工作台接入 **Idol 单图生成高斯与彩色网格**：保留 PLY／SPZ／KSPLAT，支持独立高斯预览、环绕视频、官方转网格及后续 PBR／资产加工。原始高斯外观与提取网格分别保存，真实生成和加工记录见 [操作说明](docs/IDOL.zh-CN.md)。
 
 ```mermaid
 flowchart LR
@@ -28,11 +28,13 @@ flowchart LR
 
 [GitHub Release](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/latest) · [完整更新说明](docs/UPDATES.zh-CN.md)
 
+**v0.6 运行时变更：**v0.5.x 旧完整版需要换成匹配的 v0.6 完整运行时整合包。更新器会拒绝不兼容的代码覆盖，不会直接替换 Python 依赖；已有模型可继续放在共享目录复用。
+
 独立整合包 v0.4.1 起默认空闲时自动检查并下载程序更新，校验后在下次启动安装；模型、Python、配置与历史任务保留。可在「模型与运行环境 → 程序自动更新」关闭，或关闭工作台后运行 `Update-Workbench.cmd`。旧 v0.4.0 需先手动覆盖一次代码更新包。需要更换 Python 依赖时会提示获取新版完整版，不自动替换环境。源码 Git 目录使用 Git 更新。
 
 ### Windows 整合包启动与关闭
 
-**v0.5.1 全模型整合包：**包含三个建模选项、四个贴图选项，其中 UltraTex 提供 **INT8 ConvRot Base 9B** 与 FP8 Base 9B 两种精度。完整覆盖需要 Hi3D 核心与 14 个扩展组件，模型及配置约 79.3 GB；只装默认组件的包不属于全模型版。「模型与环境 → 补齐全部引擎」会准备所有已注册依赖，并显示就绪数量。完整包清单应声明 `full_engine_coverage: true`。[按需下载与各引擎大小](https://huggingface.co/t8star/Hi3d-Comfy/blob/main/README.zh-CN.md#下载)。
+**v0.6.0 全模型覆盖：**五个建模选项、四个贴图选项，包含 Idol、Hunyuan3D-2mv，以及 UltraTex **INT8 ConvRot Base 9B** 与 FP8 Base 9B。Hi3D 核心与全部建模／贴图组件约 87.98GB，单独管理的资产加工组件另需 34.91GB。「补齐全部引擎」准备建模／贴图依赖，资产页按操作准备自己的组件；具体完整包内容记录在 `bundle-manifest.json`。[按需下载与各引擎大小](https://huggingface.co/t8star/Hi3d-Comfy/blob/main/README.zh-CN.md#下载方式)。
 
 制作全模型包时，`tools/build_release.py` 需同时使用 `--include-models --include-pipeline --all-engines`。INT8 底座采用 tsolful 发布并固定哈希的社区量化 **Base 9B**，不是蒸馏版或 KV 版；保留原始 FLUX 非商业许可，本项目不重新量化。不同 GPU 上 INT8 不保证比 FP8 更省显存或更快，应以实际报告为准。
 
@@ -74,10 +76,11 @@ TRELLIS.2 的稀疏注意力可选**自动／原生 FlashAttention／兼容 SDPA
 | Hi3D transformer 512＋VAE | 512 精修 | ComfyUI 和工作台共用 |
 | Hi3D transformer 1024＋同一 VAE | 1024、1536 精修；没有独立 1536 权重 | ComfyUI 和工作台共用 |
 | DINOv2 Large＋CLIP ViT-L/14 | Hi3D 必需图像编码器，不是额外 3D 模型 | ComfyUI 和工作台共用 |
-| Hunyuan3D-2mini-Turbo／Hunyuan3D 2.1／TRELLIS.2 | 可选的图片建模引擎 | 仅独立整合包 |
+| Hunyuan3D-2mini-Turbo／Hunyuan3D 2.1／Hunyuan3D-2mv／TRELLIS.2／Idol | 可选的图片建模引擎 | 仅独立整合包 |
 | TRELLIS.2 PBR／Hunyuan3D-Paint 2.1／UltraTex | 可选的已有模型 PBR 引擎 | 仅独立整合包 |
 | DINOv3、DINOv2 Giant、FLUX.2 Klein 9B 和 Qwen3 | 按所选扩展引擎安装的依赖 | 仅独立整合包 |
 | CPU U2Netp | 不透明图片的可选前景提取 | 仅独立整合包 |
+| P3-SAM／X-Part／SkinTokens／UniRig／Kimodo | 拆件、补全、绑定与单人动作 | 仅独立整合包 |
 
 [Hugging Face 模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)提供两版共用的 **Hi3D 核心权重与配置**，以及独立工作台的**全部扩展组件**。没有专供 ComfyUI 的另一套 Hi3D 权重；扩展放在 `models/extensions`，各自保留固定版本、校验值与许可。UltraTex 的 fp8 底座沿用上游发布，未由本项目重新量化。Registry / 节点包只包含**代码和画布工作流**；单独下载权重不等于具备推理环境。
 
@@ -87,7 +90,7 @@ TRELLIS.2 的稀疏注意力可选**自动／原生 FlashAttention／兼容 SDPA
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-以上只下载 Hi3D 核心。下载全部建模／贴图扩展请去掉 `--include`，全量约 79.3GB；目录和按需下载说明见[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy)。目录应为 `models/manifest.json`、`models/hi3d/`、`models/dino/`、`models/clip/`，扩展位于 `models/extensions/`。清单记录原始仓库版本与 SHA256。后端也支持直接从官方原仓库下载。
+以上只下载 Hi3D 核心。全部核心、建模／贴图与资产加工模型约 122.89GB，请按[模型仓库](https://huggingface.co/t8star/Hi3d-Comfy#download)中的组件组合下载；建模／贴图位于 `models/extensions/`，资产加工位于 `models/studio/`。清单记录原始版本与哈希；后端也支持直接从上游原仓库下载。
 
 **自定义模型目录：**在「模型与运行环境 → 模型目录」选择根目录，例如 `E:/AI-Models/Hi3D`，也可填相对工作台根目录的路径。目录内放 `hi3d/`、`dino/`、`clip/` 和可选的 `extensions/`。空闲时保存立即生效，无需重启；「恢复默认」回到 `models/`。程序不会自动移动模型，代码更新保留该设置。即使已有核心文件，也需点击「重新完整校验」，通过后才显示就绪。
 

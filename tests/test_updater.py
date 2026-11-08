@@ -7,7 +7,6 @@ from pathlib import Path
 import httpx
 import pytest
 from filelock import FileLock, Timeout
-from test_workbench import testroot
 from hi3d_workbench import updater as update
 from hi3d_workbench.common import atomic_json
 
@@ -22,7 +21,7 @@ def package(root, files=None, release=None):
     with zipfile.ZipFile(target, 'w') as bundle:
         for name, content in files.items():
             bundle.writestr(name, content)
-    value = {'schema': 1, 'repository': update.REPOSITORY, 'version': release, 'runtime_api': 1,
+    value = {'schema': 1, 'repository': update.REPOSITORY, 'version': release, 'runtime_api': update.RUNTIME_API,
              'minimum_version': '0.4.0', 'archive': target.name, 'bytes': target.stat().st_size,
              'sha256': update.sha256(target),
              'files': {name: {'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()} for name, content in files.items()}}
@@ -101,7 +100,15 @@ def test_symlink_archive_entry_is_rejected(tmp_path):
 
 def test_changed_runtime_requires_new_complete_bundle(tmp_path):
     _, manifest = package(tmp_path)
-    manifest['runtime_api'] = 2
+    manifest['runtime_api'] = update.RUNTIME_API + 1
+    with pytest.raises(ValueError, match='完整版'):
+        update.validate_manifest(manifest)
+
+
+def test_v06_update_requires_new_runtime_for_older_bundles(tmp_path, monkeypatch):
+    _, manifest = package(tmp_path)
+    assert manifest['runtime_api'] == 2
+    monkeypatch.setattr(update, 'RUNTIME_API', 1)
     with pytest.raises(ValueError, match='完整版'):
         update.validate_manifest(manifest)
 

@@ -8,7 +8,7 @@
 
 原生节点在 ComfyUI 自身 Python 内直接推理，无需启动工作台。上传图片和粗模后精修，使用相同原始核心权重；旧桥接画布需替换为新版示例。
 
-**工作台 v0.5.1 沿用全部现有模型权重。** `runtime-wheels/v0.4.9/` 是可选 Windows CUDA 加速代码组件，由工作台固定哈希安装，不属于模型权重或 Python 发行环境，随附上游 MIT 许可与修改说明。
+**工作台 v0.6.0 增加 Idol 和资产加工模型，保留已有核心权重。** 新功能需要匹配的 v0.6 运行时；下载模型或覆盖代码不能补齐旧版 Python 整包。`runtime-wheels/v0.4.9/` 是可选 Windows CUDA 加速代码，按固定哈希单独安装，不属于模型权重或 Python 发行环境。
 
 ## 包含哪些模型
 
@@ -19,20 +19,24 @@
 | `extensions/coarse/` | Hunyuan3D-2mini Turbo 图片建模 | 腾讯 Hunyuan 3D 2.0 社区许可 |
 | `extensions/coarse_hunyuan21/` | Hunyuan3D 2.1 图片建模 | 腾讯 Hunyuan 3D 2.1 社区许可 |
 | `extensions/coarse_hunyuan_mv/` | Hunyuan3D-2mv 多视图建模；正面＋左侧／背面／右侧 | 腾讯 Hunyuan 3D 2.0 社区许可 |
+| `extensions/coarse_idol/`、`extensions/idol_background/` | Idol 扩散／解码、DINO-H+、FLUX.2 VAE 和 BiRefNet | Apache-2.0／DINOv3 License／MIT |
 | `extensions/coarse_trellis2/`、`extensions/trellis_structure/` | TRELLIS.2 建模与结构解码器 | MIT |
 | `extensions/texture/`、`extensions/texture_encoder/` | TRELLIS.2 PBR 与 DINOv3 编码器 | MIT／DINOv3 License |
 | `extensions/texture_hunyuan21/`、`extensions/paint_dino/`、`extensions/paint_upscaler/` | Hunyuan3D-Paint 2.1、DINOv2 Giant、Real-ESRGAN | 腾讯／Apache-2.0／BSD-3-Clause |
 | `extensions/texture_ultratex/`、`extensions/ultratex_backbone/`、`extensions/ultratex_text_encoder/` | UltraTex 适配器与解码器、FLUX.2 Klein 9B fp8、Qwen3 与 VAE | MIT／FLUX 非商业／Apache-2.0 |
 | `extensions/ultratex_backbone_int8/` | tsolful 的 Klein Base 9B INT8 ConvRot；固定 CivitAI 版本 3080042／文件 2959286 | 原始 FLUX 非商业许可 |
 | `extensions/background/` | 可选 CPU U2Netp 抠图 | MIT／Apache-2.0 |
+| `studio/p3sam/`、`studio/parts_full/`、`studio/sonata/` | 智能拆件与 X-Part 部件补全 | 腾讯 Hunyuan 3D-Part 社区许可／Apache-2.0 |
+| `studio/skintokens/`、`studio/qwen_rig_config/`、`studio/unirig/` | 自动骨架与蒙皮 | MIT／Apache-2.0 |
+| `studio/kimodo/`、`studio/text_base/`、`studio/text_adapter/`、`studio/text_adapter_supervised/` | 单人文本动作与 LLM2Vec 编码器 | NVIDIA Open Model／Llama 3 社区许可 |
 
-`manifest.json` 记录共用核心；`extensions/manifest.json` 记录 15 个建模／贴图扩展组件及来源版本；`model-catalogue.json` 列出全部 **99 个权重／配置／许可文件，合计约 84.2GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
+`manifest.json`、`extensions/manifest.json`、`studio/manifest.json` 分别记录 3 个核心、17 个建模／贴图和 10 个资产加工组件。`model-catalogue.json` 列出全部 **169 个权重／配置／许可文件，合计约 122.89GB**，含文件大小与 SHA256。ComfyUI 与工作台共用同一 Hi3D 权重，没有专用的另一套模型。INT8 文件为社区发布的 **Base** 量化，不是蒸馏版或 KV 版，本项目未重新量化；FP8 版单独保留。
 
-**2026-11-07 更新：**新增官方多视图的 4 个文件，约 4.93GB；以上 99 个文件均与本地清单及远端哈希核对。工作台中选择 Hunyuan3D-2mv，正面放主图片位，再上传左侧、背面或右侧；后续精修和现有贴图使用正面参考。
+**2026-11-08 更新：**Idol 增加 7 个文件，约 3.78GB；资产加工增加 63 个文件，约 34.91GB。保留多视图建模：选择 Idol 生成原始高斯及可选彩色网格／PBR，或选择 Hunyuan3D-2mv 上传正面＋左侧／背面／右侧；后续精修和现有贴图使用正面参考。
 
-多视图入口需要 **0.6 候选版或更新的工作台**，旧版下载权重后不会自动增加入口。[候选代码](https://github.com/T8mars/Comfyui-Hi3d-T8/tree/codex/asset-studio-multiview)。
+新增入口需要 **v0.6.0 或更新的工作台及匹配的完整运行时**。[发行版和代码](https://github.com/T8mars/Comfyui-Hi3d-T8/releases/tag/v0.6.0)。GitHub 附件不含 Python 或模型；完整运行时整合包由作者另行提供。
 
-资产拆件、骨骼和动作等 `studio` 模型由工作台按固定官方版本另外管理，**不在本仓库这 99 个文件中**。运行时加速轮子也不计入模型清单。
+资产加工模型现已托管在 `studio/`，保留固定的上游来源、版本与许可。**Built with Meta Llama 3**：Kimodo 的 LLM2Vec 文本编码使用未改动的 Meta-Llama-3-8B-Instruct 底座及两组适配器；请保留 `studio/text_base/LICENSE`、`USE_POLICY.md` 与原始声明。运行时加速轮子不计入上述 169 个模型文件。
 
 ## 下载方式
 
@@ -44,10 +48,10 @@
 hf download t8star/Hi3d-Comfy --local-dir models --include "manifest.json" "hi3d/*" "dino/*" "clip/*" "licenses/*"
 ```
 
-下载本仓库全部核心与建模／贴图扩展（约 84.2GB，另留运行环境和任务空间）：
+下载本仓库全部核心、建模／贴图和资产加工模型（约 122.89GB，另留运行环境和任务空间）：
 
 ```bash
-hf download t8star/Hi3d-Comfy --local-dir models
+hf download t8star/Hi3d-Comfy --local-dir models --exclude "runtime-wheels/*"
 ```
 
 按需下载时，请取齐所选引擎**同一行的全部目录**：
@@ -57,6 +61,7 @@ hf download t8star/Hi3d-Comfy --local-dir models
 | Hunyuan3D-2mini Turbo 建模 | `coarse` | 3.82GB |
 | Hunyuan3D 2.1 建模 | `coarse_hunyuan21` | 7.37GB |
 | Hunyuan3D-2mv 多视图建模 | `coarse_hunyuan_mv` | 4.93GB |
+| Idol 高斯／彩色网格建模 | `coarse_idol`、`idol_background` | 3.78GB |
 | TRELLIS.2 建模 | `coarse_trellis2`、`trellis_structure`、`texture_encoder` | 10.06GB |
 | TRELLIS.2 PBR | `texture`、`texture_encoder` | 8.04GB |
 | Hunyuan3D-Paint 2.1 | `texture_hunyuan21`、`paint_dino`、`paint_upscaler` | 11.50GB |
@@ -64,6 +69,22 @@ hf download t8star/Hi3d-Comfy --local-dir models
 | UltraTex INT8 ConvRot | `texture_ultratex`、`ultratex_backbone_int8`、`ultratex_text_encoder` | 19.46GB |
 
 采用十进制 GB，包含每行所需的共享依赖，不含 Python、临时空间或可选加速包。共享目录只下载一次，不能将各行体积直接相加作为完整包大小。工作台中 Hi3D 精修可选，启用时才需额外下载核心。自动抠图另需 `extensions/background/`，约 4.6MB。
+
+| 资产加工操作 | `studio/` 下需要的目录 | 下载大小 |
+|---|---|---:|
+| P3-SAM 拆件 | `p3sam`、`sonata` | 0.89GB |
+| X-Part 部件补全 | `parts_full`、`p3sam`、`sonata` | 9.93GB |
+| SkinTokens 绑定 | `skintokens`、`qwen_rig_config` | 1.62GB |
+| UniRig 绑定 | `unirig` | 5.82GB |
+| Kimodo 文本动作 | `kimodo`、`text_base`、`text_adapter`、`text_adapter_supervised` | 17.55GB |
+
+例如只下载 Idol 和其专用前景模型：
+
+```bash
+hf download t8star/Hi3d-Comfy --local-dir models --include "extensions/manifest.json" "extensions/coarse_idol/*" "extensions/idol_background/*" "licenses/idol/*"
+```
+
+资产加工文件放在 `models/studio/`，同时下载 `studio/manifest.json` 和所选行的全部组件。减面和动作重定向无需新增神经模型权重。[操作与质量边界](https://github.com/T8mars/Comfyui-Hi3d-T8/blob/main/docs/ASSET_STUDIO.zh-CN.md)。
 
 例如同时使用 TRELLIS.2 建模与 PBR，下载其共享编码器及全部依赖：
 

@@ -1,6 +1,6 @@
 # Idol image to splats and meshes
 
-Idol is integrated into the standalone workbench with installed models and a private runtime. Real generation, processing, downloads, cancellation and recovery have passed. Browser interaction and full animation playback remain unverified because the browser interface is disconnected; no stable release is claimed. The ComfyUI-Hi3D custom nodes retain their Hi3D refinement scope.
+Idol is integrated into the standalone v0.6 workbench with a private runtime. Real generation, processing, downloads, cancellation and recovery have passed, along with native Gaussian browser interaction, mesh/PBR export and complete playback of one four-second character clip. See the linked receipts for the tested scope and quality limits. The ComfyUI-Hi3D custom nodes retain their Hi3D refinement scope.
 
 Select **Idol** in image modeling and upload one complete subject. Existing alpha is retained; automatic foreground extraction uses BiRefNet. Generated/rendered images use the official 1.2 crop margin; the photo option uses 1.7. The actual conditioning image and predicted input camera are saved.
 
@@ -39,7 +39,7 @@ Real checks on the RTX 5090 Laptop 24GB include:
 
 These scopes differ and do not form an equal-settings speed comparison. The default mesh still has 77 nonmanifold edges. Hi3D can alter the face and clothing; compare its result with the retained original colored mesh, and keep refinement optional. A few punch triangles reach the deformation diagnostic threshold; natural motion and collision quality are not broadly accepted.
 
-The latest full suite passed 928 tests. Browser checks covered the million-splat viewer, rotation/zoom/reset, settings reuse, all three native downloads with matching hashes, mesh/PBR stage switching and a downloaded 180 mm GLB. The missing upstream Three.js r180 HDR loader was added with an actual module-import and HDR-decoding regression. Chrome automation still requires its file-URL permission for uploads, and its download-event capture timed out; uploads and downloads were verified through IAB. See the [browser receipt](../validation/idol-browser-2026-11-08.json) and [integration receipt](../validation/idol-integration-2026-11-08.json) for the tested scope and remaining acceptance.
+The release suite passed 935 tests; [publication checks](../validation/v060-publication-checks.json) also record isolated updater validation. Browser checks covered the million-splat viewer, rotation/zoom/reset, settings reuse, all three native downloads with matching hashes, mesh/PBR stage switching and a downloaded 180 mm GLB. The missing upstream Three.js r180 HDR loader was added with an actual module-import and HDR-decoding regression. Chrome automation still requires its file-URL permission for uploads, and its download-event capture timed out; uploads and downloads were verified through IAB. See the [browser receipt](../validation/idol-browser-2026-11-08.json) and [integration receipt](../validation/idol-integration-2026-11-08.json) for the tested scope and remaining acceptance.
 
 The offline check moved the model and private runtime folders, preserving the user's original log console; it did not repeat moving the entire bundle root. Earlier complete-bundle relocation checks remain separately documented.
 

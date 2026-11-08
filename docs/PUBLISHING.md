@@ -15,7 +15,7 @@ Push a matching version tag (`v` + `common.VERSION` / `pyproject.toml` version).
 The [Hugging Face repository](https://huggingface.co/t8star/Hi3d-Comfy) hosts the shared core and all standalone extensions. Publish verified local models with the official Hub client:
 
 ```bash
-python tools/publish_models.py --include-extensions --preupload
+python tools/publish_models.py --include-extensions --include-studio --preupload
 ```
 
-The script checks every file against the pinned source manifest, makes resumable per-component commits, then verifies remote sizes and LFS SHA256 / Git blob IDs. `--models-only` skips README publication while bulk transfer is in progress. Credentials come from the existing Hub cache, never repository files. Preserve all component licenses, including DINOv3 and the FLUX Non-Commercial base terms. `data/model-publication-v041/` contains local transfer receipts and is excluded from Git.
+The script checks every file against pinned manifests/catalogs, makes resumable per-component commits, then verifies remote sizes and LFS SHA256 / Git blob IDs. `--include-studio` includes all pinned segmentation, completion, rigging and motion components plus their manifest; recursive original notices accompany them. `--dry-run` verifies and reports differences without publishing. `--models-only` skips README publication during bulk transfer. Credentials come from the existing Hub cache, never repository files. Preserve individual DINOv3, Llama 3, NVIDIA, Tencent and FLUX Non-Commercial terms. Transfer receipts under `data/model-publication-*` are excluded from Git.

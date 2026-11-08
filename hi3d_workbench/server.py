@@ -46,6 +46,7 @@ PREVIEW_EVENTS=[]
 ACCELERATION_INSTALL={'state':'idle','message':''}
 JOB_FILES={"coarse.glb","generated.glb","input.png","foreground.png","conditioning.png","refined.glb","refined.ply","refined.stl","refined.npz","textured.glb","report.json","pipeline-progress.json","request.json","worker.log","failure.json","output.glb","rig-original.glb","output.fbx","output.obj","parts.zip","parts.json","rig.json","motion.bvh","motion.npz","motion.json","original-segmentation.glb","original-parts.json","original-parts.zip"}
 JOB_FILES.update(view_filename(view) for view in AUXILIARY_VIEWS)
+JOB_FILES.update({'part-coverage.json', 'xpart-generation.json', 'xpart-surface-preparation.json'})
 JOB_FILES.update(f'foreground-{view}.png' for view in AUXILIARY_VIEWS)
 
 @contextmanager

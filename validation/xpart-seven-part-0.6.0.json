@@ -1,0 +1,448 @@
+{
+  "schema": 1,
+  "version": "0.6.0",
+  "quality_accepted": false,
+  "scope": "Real seven-part PBR character; two full diffusion runs, followed by a decoder-only replay of saved latents.",
+  "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+  "fixed_settings": {
+    "parts": 7,
+    "seed": 23,
+    "steps": 50,
+    "precision": "FP32",
+    "resolution": 512,
+    "texture_size": 2048,
+    "material_projection": "cage",
+    "uv_backend": "auto"
+  },
+  "coverage_guard_unchanged": {
+    "max_fraction_of_original_vertices": 0.05,
+    "distance_fraction_of_part_extent": 0.03
+  },
+  "runs": [
+    {
+      "guidance": 7.5,
+      "job": "86c16e2699e24a648761abd2ef246fd8",
+      "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+      "latent_sha256": "fbd397ef89fe32ebb0c7e84ccfcaad19441af682d460ee88cc9f6f74482b0dbb",
+      "new_diffusion_run": false,
+      "same_512_decode_settings": true,
+      "decode_seconds": 31.688000000000102,
+      "decode_peak_allocated_mib": 3308.32763671875,
+      "geometry_candidates": [
+        {
+          "file": "completed_0000.obj",
+          "sha256": "e62e243fadbf2eb2ec1436be89c0dcf0250b3054931621fde62e476cc91daba1",
+          "original_sha256": "e62e243fadbf2eb2ec1436be89c0dcf0250b3054931621fde62e476cc91daba1",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0001.obj",
+          "sha256": "0c7a0c2ce2bedb64af5be75cfacb23cb05a2f51b6a6d5969b7b4d988df429bb2",
+          "original_sha256": "0c7a0c2ce2bedb64af5be75cfacb23cb05a2f51b6a6d5969b7b4d988df429bb2",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0002.obj",
+          "sha256": "162eb5d499230a5b858471414c83977499f760caccde0185c58862cea1fc6616",
+          "original_sha256": "162eb5d499230a5b858471414c83977499f760caccde0185c58862cea1fc6616",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0003.obj",
+          "sha256": "ac88364affc35b9a5b3b3cbf50d858c040be7868561a8f8683c9ce9b71b821f6",
+          "original_sha256": "ac88364affc35b9a5b3b3cbf50d858c040be7868561a8f8683c9ce9b71b821f6",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0004.obj",
+          "sha256": "3e1a8c34f7607f8e0c976c6978f85558ebf083e95ce7b45f9230d36dbfc39697"
+        },
+        {
+          "file": "completed_0005.obj",
+          "sha256": "2dee9e2360e57b738d46cb86c199a8769536bcc00ccc727448cc8a14d356eaf1"
+        },
+        {
+          "file": "completed_0006.obj",
+          "sha256": "aec1189d6dfaf5e3b6ef8efb1538e4408e669b16faf29929cc7324009c433bd6"
+        }
+      ],
+      "coverage": [
+        {
+          "part": 0,
+          "name": "Glove A",
+          "coverage": {
+            "source_vertex_samples": 5149,
+            "normalized_distance_p95": 0.023219448328018182,
+            "normalized_distance_max": 0.06863553822040558,
+            "vertices_over_3_percent_extent": 90
+          },
+          "source_sha256": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+          "candidate_sha256": "e62e243fadbf2eb2ec1436be89c0dcf0250b3054931621fde62e476cc91daba1",
+          "status": "passed"
+        },
+        {
+          "part": 1,
+          "name": "Glove B",
+          "coverage": {
+            "source_vertex_samples": 5166,
+            "normalized_distance_p95": 0.021632034331560135,
+            "normalized_distance_max": 0.06887898594141006,
+            "vertices_over_3_percent_extent": 113
+          },
+          "source_sha256": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+          "candidate_sha256": "0c7a0c2ce2bedb64af5be75cfacb23cb05a2f51b6a6d5969b7b4d988df429bb2",
+          "status": "passed"
+        },
+        {
+          "part": 2,
+          "name": "Head",
+          "coverage": {
+            "source_vertex_samples": 18621,
+            "normalized_distance_p95": 0.002946163062006235,
+            "normalized_distance_max": 0.017542848363518715,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+          "candidate_sha256": "162eb5d499230a5b858471414c83977499f760caccde0185c58862cea1fc6616",
+          "status": "passed"
+        },
+        {
+          "part": 3,
+          "name": "Jacket",
+          "coverage": {
+            "source_vertex_samples": 42290,
+            "normalized_distance_p95": 0.11490696817636485,
+            "normalized_distance_max": 0.1772240549325943,
+            "vertices_over_3_percent_extent": 9811
+          },
+          "source_sha256": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+          "candidate_sha256": "ac88364affc35b9a5b3b3cbf50d858c040be7868561a8f8683c9ce9b71b821f6",
+          "status": "rejected",
+          "error": "X-Part 明显改变了原部件外形，已停止材质转移并保留原拆件；请调整部件划分后重试。"
+        },
+        {
+          "part": 4,
+          "name": "Boot A",
+          "coverage": {
+            "source_vertex_samples": 8998,
+            "normalized_distance_p95": 0.0026210737065412073,
+            "normalized_distance_max": 0.009718701243400574,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "3ce314df713083200cb86ad1072e25270a98c1aaeecf71153b51b97eb0d4852c",
+          "candidate_sha256": "3e1a8c34f7607f8e0c976c6978f85558ebf083e95ce7b45f9230d36dbfc39697",
+          "status": "passed"
+        },
+        {
+          "part": 5,
+          "name": "Trousers",
+          "coverage": {
+            "source_vertex_samples": 46778,
+            "normalized_distance_p95": 0.0008917607541661714,
+            "normalized_distance_max": 0.013652733527123928,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "68b92dd93cc3c2f3732a733826b076338dbe5cacb727356f98cadf8395ec230e",
+          "candidate_sha256": "2dee9e2360e57b738d46cb86c199a8769536bcc00ccc727448cc8a14d356eaf1",
+          "status": "passed"
+        },
+        {
+          "part": 7,
+          "name": "Boot B",
+          "coverage": {
+            "source_vertex_samples": 8812,
+            "normalized_distance_p95": 0.002726641262415795,
+            "normalized_distance_max": 0.007983091287314892,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "6c565b9160215649564d3e457b4eb5a7d92bc8f10bf72951b2562c20c8efb632",
+          "candidate_sha256": "aec1189d6dfaf5e3b6ef8efb1538e4408e669b16faf29929cc7324009c433bd6",
+          "status": "passed"
+        }
+      ],
+      "failure": "X-Part 原部件外形检查未通过：Jacket。已停止材质转移并保留原拆件；请调整部件划分后重试。",
+      "quality_accepted": false,
+      "material_baking_performed": false,
+      "original_job_not_modified": true,
+      "generation": {
+        "guidance_scale": 7.5,
+        "precision": "FP32",
+        "sampling": "separate CFG branches with shared part-embedding RNG",
+        "staged": true,
+        "seed": 23,
+        "steps": 50,
+        "resolution": 512,
+        "decode_chunks": 32768,
+        "semantic_matching": [
+          {
+            "context": "obj_cond",
+            "parts": 7,
+            "queries_per_part": 4096,
+            "reference_points_per_part": 81920,
+            "legacy_distance_matrix_bytes": 9395240960,
+            "max_distance_block_bytes": 8000000,
+            "precision": "torch.float32",
+            "all_reference_points_tested": true,
+            "distance_formula": "direct coordinate differences; first-index ties"
+          },
+          {
+            "context": "geo_cond",
+            "parts": 7,
+            "queries_per_part": 4096,
+            "reference_points_per_part": 81920,
+            "legacy_distance_matrix_bytes": 9395240960,
+            "max_distance_block_bytes": 8000000,
+            "precision": "torch.float32",
+            "all_reference_points_tested": true,
+            "distance_formula": "direct coordinate differences; first-index ties"
+          }
+        ],
+        "condition_seconds": 152.28099999999904,
+        "sampling_seconds": 342.67199999999866,
+        "decode_seconds": 34.04699999999866
+      },
+      "original_partition_sha256": "c1ddbeb66b4e1b30a4b36ae770e369bf3ce1e261d4e7dd4b3cd19f4d700f7dc0",
+      "source_donor_sha256": {
+        "Glove A": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+        "Glove B": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+        "Head": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+        "Jacket": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+        "Boot A": "3ce314df713083200cb86ad1072e25270a98c1aaeecf71153b51b97eb0d4852c",
+        "Trousers": "68b92dd93cc3c2f3732a733826b076338dbe5cacb727356f98cadf8395ec230e",
+        "Boot B": "6c565b9160215649564d3e457b4eb5a7d92bc8f10bf72951b2562c20c8efb632"
+      }
+    },
+    {
+      "guidance": 4,
+      "job": "da637099025044cfa46b057069ff67df",
+      "source_sha256": "86276dd5a96ed1fb681742db044b4881d8e1bcfeebc3265a4564f15fb196182e",
+      "latent_sha256": "bda70f41e5378bed67359929b37e614687f6daa3117eaf6cabd2e96c5466d48b",
+      "new_diffusion_run": false,
+      "same_512_decode_settings": true,
+      "decode_seconds": 31.17200000000048,
+      "decode_peak_allocated_mib": 3308.333984375,
+      "geometry_candidates": [
+        {
+          "file": "completed_0000.obj",
+          "sha256": "da9f0ca68d5f36e98dc958b682bae141997e3135aad91b1d098965b39daf7c61",
+          "original_sha256": "da9f0ca68d5f36e98dc958b682bae141997e3135aad91b1d098965b39daf7c61",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0001.obj",
+          "sha256": "15226671dfcbf5b40269eddb46d5bec06231f9a93bbcd6ac72a1779f14ef7a46",
+          "original_sha256": "15226671dfcbf5b40269eddb46d5bec06231f9a93bbcd6ac72a1779f14ef7a46",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0002.obj",
+          "sha256": "e1d8abc9d6e318d46a3e4267e4590cc62fb331c6b392115b6baf69d5f92a95dc",
+          "original_sha256": "e1d8abc9d6e318d46a3e4267e4590cc62fb331c6b392115b6baf69d5f92a95dc",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0003.obj",
+          "sha256": "ec68f50c57a4324a2e49a2005f98a01da0d39e8ae5da2e8e713b9974d869d35f",
+          "original_sha256": "ec68f50c57a4324a2e49a2005f98a01da0d39e8ae5da2e8e713b9974d869d35f",
+          "byte_exact": true,
+          "max_coordinate_delta": 0.0
+        },
+        {
+          "file": "completed_0004.obj",
+          "sha256": "ff5f78e9b677fcc1cec59342d5306b3a3287ecbfba79d9401d461f7734583275"
+        },
+        {
+          "file": "completed_0005.obj",
+          "sha256": "5fb4fc1d4c411fab46057bace4242b5195b35afb3947d58f104548c37935dc4d"
+        },
+        {
+          "file": "completed_0006.obj",
+          "sha256": "6cbdac45af0750b2450c47b0113b597ade6227c686eaa96d9568cd61ce03c1f8"
+        }
+      ],
+      "coverage": [
+        {
+          "part": 0,
+          "name": "Glove A",
+          "coverage": {
+            "source_vertex_samples": 5149,
+            "normalized_distance_p95": 0.02159115262329578,
+            "normalized_distance_max": 0.06481745839118958,
+            "vertices_over_3_percent_extent": 49
+          },
+          "source_sha256": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+          "candidate_sha256": "da9f0ca68d5f36e98dc958b682bae141997e3135aad91b1d098965b39daf7c61",
+          "status": "passed"
+        },
+        {
+          "part": 1,
+          "name": "Glove B",
+          "coverage": {
+            "source_vertex_samples": 5166,
+            "normalized_distance_p95": 0.02013763226568699,
+            "normalized_distance_max": 0.04541971534490585,
+            "vertices_over_3_percent_extent": 52
+          },
+          "source_sha256": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+          "candidate_sha256": "15226671dfcbf5b40269eddb46d5bec06231f9a93bbcd6ac72a1779f14ef7a46",
+          "status": "passed"
+        },
+        {
+          "part": 2,
+          "name": "Head",
+          "coverage": {
+            "source_vertex_samples": 18621,
+            "normalized_distance_p95": 0.0028120444621890783,
+            "normalized_distance_max": 0.018218601122498512,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+          "candidate_sha256": "e1d8abc9d6e318d46a3e4267e4590cc62fb331c6b392115b6baf69d5f92a95dc",
+          "status": "passed"
+        },
+        {
+          "part": 3,
+          "name": "Jacket",
+          "coverage": {
+            "source_vertex_samples": 42290,
+            "normalized_distance_p95": 0.12470775507390498,
+            "normalized_distance_max": 0.18981283903121948,
+            "vertices_over_3_percent_extent": 10316
+          },
+          "source_sha256": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+          "candidate_sha256": "ec68f50c57a4324a2e49a2005f98a01da0d39e8ae5da2e8e713b9974d869d35f",
+          "status": "rejected",
+          "error": "X-Part 明显改变了原部件外形，已停止材质转移并保留原拆件；请调整部件划分后重试。"
+        },
+        {
+          "part": 4,
+          "name": "Boot A",
+          "coverage": {
+            "source_vertex_samples": 8998,
+            "normalized_distance_p95": 0.0025215211207978423,
+            "normalized_distance_max": 0.009545077569782734,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "3ce314df713083200cb86ad1072e25270a98c1aaeecf71153b51b97eb0d4852c",
+          "candidate_sha256": "ff5f78e9b677fcc1cec59342d5306b3a3287ecbfba79d9401d461f7734583275",
+          "status": "passed"
+        },
+        {
+          "part": 5,
+          "name": "Trousers",
+          "coverage": {
+            "source_vertex_samples": 46778,
+            "normalized_distance_p95": 0.0008041421475354583,
+            "normalized_distance_max": 0.011380038224160671,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "68b92dd93cc3c2f3732a733826b076338dbe5cacb727356f98cadf8395ec230e",
+          "candidate_sha256": "5fb4fc1d4c411fab46057bace4242b5195b35afb3947d58f104548c37935dc4d",
+          "status": "passed"
+        },
+        {
+          "part": 7,
+          "name": "Boot B",
+          "coverage": {
+            "source_vertex_samples": 8812,
+            "normalized_distance_p95": 0.0022419603890739357,
+            "normalized_distance_max": 0.0071438332088291645,
+            "vertices_over_3_percent_extent": 0
+          },
+          "source_sha256": "6c565b9160215649564d3e457b4eb5a7d92bc8f10bf72951b2562c20c8efb632",
+          "candidate_sha256": "6cbdac45af0750b2450c47b0113b597ade6227c686eaa96d9568cd61ce03c1f8",
+          "status": "passed"
+        }
+      ],
+      "failure": "X-Part 原部件外形检查未通过：Jacket。已停止材质转移并保留原拆件；请调整部件划分后重试。",
+      "quality_accepted": false,
+      "material_baking_performed": false,
+      "original_job_not_modified": true,
+      "generation": {
+        "guidance_scale": 4.0,
+        "precision": "FP32",
+        "sampling": "separate CFG branches with shared part-embedding RNG",
+        "staged": true,
+        "seed": 23,
+        "steps": 50,
+        "resolution": 512,
+        "decode_chunks": 32768,
+        "semantic_matching": [
+          {
+            "context": "obj_cond",
+            "parts": 7,
+            "queries_per_part": 4096,
+            "reference_points_per_part": 81920,
+            "legacy_distance_matrix_bytes": 9395240960,
+            "max_distance_block_bytes": 8000000,
+            "precision": "torch.float32",
+            "all_reference_points_tested": true,
+            "distance_formula": "direct coordinate differences; first-index ties"
+          },
+          {
+            "context": "geo_cond",
+            "parts": 7,
+            "queries_per_part": 4096,
+            "reference_points_per_part": 81920,
+            "legacy_distance_matrix_bytes": 9395240960,
+            "max_distance_block_bytes": 8000000,
+            "precision": "torch.float32",
+            "all_reference_points_tested": true,
+            "distance_formula": "direct coordinate differences; first-index ties"
+          }
+        ],
+        "condition_seconds": 150.51600000000144,
+        "sampling_seconds": 342.84399999999914,
+        "decode_seconds": 33.34399999999914
+      },
+      "original_partition_sha256": "c1ddbeb66b4e1b30a4b36ae770e369bf3ce1e261d4e7dd4b3cd19f4d700f7dc0",
+      "source_donor_sha256": {
+        "Glove A": "7dd51d6ab29d0680c82c1a761018db47a8000464887d9180e1e8a736def90c08",
+        "Glove B": "623e0fffbdbba64fde85a75be792f0eb20c9e91e1cf51ce7d2ee39e9953344b7",
+        "Head": "766621f6608327d8fd1d64b7970624f8a0251b0ce36cbb861f8fe0f7931d5de6",
+        "Jacket": "6c84619fb66b6677cf19bfa48740bac200aa4b241edf4566dae47efdff6ca533",
+        "Boot A": "3ce314df713083200cb86ad1072e25270a98c1aaeecf71153b51b97eb0d4852c",
+        "Trousers": "68b92dd93cc3c2f3732a733826b076338dbe5cacb727356f98cadf8395ec230e",
+        "Boot B": "6c565b9160215649564d3e457b4eb5a7d92bc8f10bf72951b2562c20c8efb632"
+      }
+    }
+  ],
+  "saved_decoder_replay_sha256": "f193fab4dc747660df6e49e21da1a31d1dcea993199fd337ed193410efe4a2f0",
+  "visual_review": {
+    "image": "docs/assets/xpart-jacket-comparison.png",
+    "image_sha256": "f36769e3c64dde6717a3d117f02a1177a1497e523a4e61d575b9467934e424d7",
+    "render_manifest_sha256": "1363d7c9778fdab8ef420996d3a357f2f11f719d84e0004c0c6c1874d28fe7ec",
+    "column_order": [
+      "original surface partition",
+      "guidance 7.5",
+      "guidance 4"
+    ],
+    "finding": "Both generated jackets lose one sleeve and produce fragmented surfaces. Front/back views were inspected. Only static geometry was reviewed; no material bake or browser acceptance claimed."
+  },
+  "fix": "Export every decoded candidate before preparation, check every part before material transfer, retain per-part failures and offer diagnostics in downloads.",
+  "regression": {
+    "repository_tests": 888,
+    "failures": 0,
+    "junit_sha256": "1224731aaf9f8db964a47288018c08d75214103547fd89e57553d104ae2c2fd6"
+  },
+  "code_sha256": {
+    "hi3d_workbench/studio/parts_models.py": "ee0aba1fd78158922cb68f52db4289d2aae596550b31fbf30caaebcd48946980",
+    "hi3d_workbench/studio/api.py": "547e57b376b9522f11505b3fe71a1d7d65c1de43ad2ffb1cc121e113d5df67b4",
+    "hi3d_workbench/server.py": "715f271442412276aa48e643648c24ef78c63bbb3d0d330f9e1f36ad49299d0f",
+    "hi3d_workbench/web/studio.js": "279d9fd52d6e755b2b29eb45d3a0d7789f7047f5becb531810c441e6b9e9613e"
+  },
+  "browser": "IAB retried after Codex panel open; Browser is not available: iab. Actual report downloads verified separately over HTTP.",
+  "pending": [
+    "complex X-Part completion/material quality",
+    "real browser interaction and full animation playback",
+    "final complete-bundle acceptance"
+  ],
+  "http_download_validation_sha256": "5ea8d3f25dab15b7ecd0828274af3f2cf1e1bc1503a74c98a3a89d01add9f996"
+}

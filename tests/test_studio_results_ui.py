@@ -71,6 +71,22 @@ main().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>clea
 """)
 
 
+def test_failed_completion_exposes_actual_diagnostics_without_a_finished_model(tmp_path):
+    run_node(tmp_path, result_handler(), r"""
+async function main(){
+  const files=['part-coverage.json','xpart-generation.json','xpart-surface-preparation.json'];
+  await renderJob(job('failed-parts','failed',files));
+  const links=$('downloads').children;
+  assert.deepEqual(links.map(link=>link.textContent),['部件外形检查','补全推理报告','补全表面检查']);
+  assert.deepEqual(links.map(link=>link.href),files.map(name=>'/api/studio/jobs/failed-parts/files/'+name));
+  assert.equal(links.some(link=>link.textContent==='下载 GLB'),false);
+  await renderJob(job('no-report','failed'));
+  assert.equal($('downloads').children.length,0);
+}
+main().catch(error=>{console.error(error);process.exitCode=1;}).finally(()=>clearTimeout(watchdog));
+""")
+
+
 def test_new_model_selection_invalidates_completed_result_and_inflight_poll(tmp_path):
     source = WEB.read_text(encoding='utf-8')
     selection = source[source.index('async function sourceChanged('):source.index("$('source').onchange=")]

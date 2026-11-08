@@ -322,7 +322,7 @@ async function renderJob(job){
   const progress=job.progress||{},measured=Number.isFinite(progress.current)&&Number.isFinite(progress.total)&&progress.total>0;
   $('progress').hidden=!measured;if(measured){$('progress').max=progress.total;$('progress').value=progress.current;}
   $('progress-detail').textContent=[progress.device==='cuda'?'CUDA / GPU':progress.device==='cpu'?'CPU':'',measured?`${progress.current} / ${progress.total} ${progress.unit||''}`:'当前阶段未报告可量化总量',active&&job.last_progress_at?`距上次进展 ${Math.floor(Date.now()/1000-job.last_progress_at)} 秒`:''].filter(Boolean).join(' · ');
-  const names={'output.glb':'下载 GLB','rig-original.glb':'原始绑定 GLB','output.fbx':'下载 FBX','output.obj':'四边面 OBJ','parts.zip':'独立部件 ZIP','original-segmentation.glb':'原始拆件 GLB','original-parts.zip':'原始拆件 ZIP','motion.bvh':'动作 BVH','report.json':'运行报告'};
+  const names={'output.glb':'下载 GLB','rig-original.glb':'原始绑定 GLB','output.fbx':'下载 FBX','output.obj':'四边面 OBJ','parts.zip':'独立部件 ZIP','original-segmentation.glb':'原始拆件 GLB','original-parts.zip':'原始拆件 ZIP','motion.bvh':'动作 BVH','report.json':'运行报告','part-coverage.json':'部件外形检查','xpart-generation.json':'补全推理报告','xpart-surface-preparation.json':'补全表面检查'};
   $('downloads').replaceChildren(...Object.entries(names).filter(([name])=>job.available_files?.includes(name)).map(([name,label])=>{const link=document.createElement('a');link.href=`/api/studio/jobs/${job.id}/files/${name}`;link.download=`Hi3D-${job.id.slice(0,8)}-${name}`;link.textContent=label;return link;}));
   if(job.state==='succeeded'){
     const report=job.report||{},details=report.details||{};

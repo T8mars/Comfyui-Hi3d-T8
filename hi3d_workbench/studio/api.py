@@ -16,6 +16,7 @@ from . import models
 
 FILES = {'output.glb', 'rig-original.glb', 'output.fbx', 'output.obj', 'parts.zip', 'parts.json', 'rig.json',
          'original-segmentation.glb', 'original-parts.json', 'original-parts.zip',
+         'part-coverage.json', 'xpart-generation.json', 'xpart-surface-preparation.json',
          'motion.bvh', 'motion.npz', 'motion.json', 'kimodo.json', 'report.json', 'worker.log'}
 SOURCE_FILES = {'coarse.glb', 'refined.glb', 'textured.glb', 'generated.glb', 'output.glb', 'rig-original.glb', 'original-segmentation.glb'}
 

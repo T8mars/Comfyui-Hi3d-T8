@@ -24,7 +24,8 @@ def test_completion_guard_accepts_the_boundary_but_rejects_major_original_surfac
             parts_models.validate_completion_coverage(value)
 
 
-def test_all_parts_are_checked_before_baking_and_original_partition_survives_failure(tmp_path,monkeypatch):
+@pytest.mark.parametrize('rejected_part', [0, 1])
+def test_all_parts_are_checked_before_baking_and_original_partition_survives_failure(tmp_path,monkeypatch,rejected_part):
     pytest.importorskip('torch')
     source=tmp_path/'source.glb';document=source_model(source)
     labels=[np.arange(len(row.faces),dtype=np.int32)%2 for row in instances(document)]
@@ -39,11 +40,11 @@ def test_all_parts_are_checked_before_baking_and_original_partition_survives_fai
     monkeypatch.setattr(xpart_sampling,'generate',lambda pipe,**kwargs:(pipe()[0],{'fixture':True}))
     calls=[]
     def check(*args,**kwargs):
-        calls.append(kwargs['stage']);return coverage(0 if len(calls)==1 else 400)
+        calls.append(kwargs['stage']);return coverage(400 if len(calls)-1==rejected_part else 0)
     monkeypatch.setattr(retopology,'geometry_coverage',check)
     def unexpected_transfer(*args,**kwargs):raise AssertionError('Material baking ran before all parts passed')
     monkeypatch.setattr(material_transfer,'run',unexpected_transfer)
-    with pytest.raises(RuntimeError,match='原部件外形'):
+    with pytest.raises(RuntimeError,match='原部件外形.*'+['first','second'][rejected_part]):
         parts_models.complete(source,target,document,labels,{0:'first',1:'second'},
             {'part_steps':50,'part_resolution':256,'seed':23},lambda *a,**kw:None)
     assert calls==['asset_part_validation','asset_part_validation']
@@ -60,9 +61,24 @@ def test_all_parts_are_checked_before_baking_and_original_partition_survives_fai
     atomic_json(folder/'parts.json',{'schema':1,'mesh_sha256':'different completed mesh'})
     assert source_parts_path(folder/'original-segmentation.glb')==folder/'original-parts.json'
     saved=json.loads((folder/'part-coverage.json').read_text(encoding='utf-8'))
-    assert [item['status'] for item in saved]==['passed','rejected']
+    assert [item['status'] for item in saved]==['rejected' if index==rejected_part else 'passed' for index in range(2)]
     assert (folder/'stages/studio-blender/completed_0000.obj').is_file()
     assert (folder/'stages/studio-blender/completed_0001.obj').is_file()
+
+
+def test_all_decoded_parts_survive_an_early_surface_preparation_error(tmp_path,monkeypatch):
+    from hi3d_workbench.studio import generated_geometry
+    shapes=[trimesh.creation.box(),trimesh.creation.icosphere(subdivisions=1)]
+    metadata={'parts':[{'id':0,'name':'first'},{'id':7,'name':'last'}]}
+    def broken(*args):raise RuntimeError('Cannot prepare generated surface')
+    monkeypatch.setattr(generated_geometry,'prepare',broken)
+    with pytest.raises(RuntimeError,match='Cannot prepare'):
+        parts_models.validate_completed_surfaces(shapes,metadata,tmp_path/'original',tmp_path,
+            np.zeros(3),1,lambda *a,**kw:None)
+    for index,shape in enumerate(shapes):
+        saved=trimesh.load(tmp_path/'stages/studio-blender'/f'completed_{index:04d}.obj',process=False)
+        np.testing.assert_allclose(saved.vertices,shape.vertices,atol=1e-8)
+        np.testing.assert_array_equal(saved.faces,shape.faces)
 
 
 def test_failed_completion_original_partition_is_downloadable_and_editable_via_http(client,tmp_path):
@@ -81,8 +97,17 @@ def test_failed_completion_original_partition_is_downloadable_and_editable_via_h
     (folder/'parts.zip').replace(folder/'original-parts.zip')
     atomic_json(folder/'parts.json',{'schema':1,'mesh_sha256':'completed output identity'})
     atomic_json(folder/'state.json',{'id':jid,'created':time.time(),'state':'failed','options':{'mode':'studio'}})
+    diagnostics={'part-coverage.json':[{'part':0,'name':'body','status':'rejected','coverage':coverage(400)}],
+                 'xpart-generation.json':{'precision':'FP32','steps':50},
+                 'xpart-surface-preparation.json':[{'part':0,'removed_collapsed_faces':0}]}
+    for name,value in diagnostics.items():atomic_json(folder/name,value)
     job=client.get('/api/jobs/'+jid).json()
     assert {'original-segmentation.glb','original-parts.json','original-parts.zip'} <= set(job['available_files'])
+    assert set(diagnostics) <= set(job['available_files'])
+    for name,value in diagnostics.items():
+        response=client.get('/api/studio/jobs/'+jid+'/files/'+name)
+        assert response.status_code==200 and response.json()==value
+    assert client.get('/api/studio/jobs/'+jid+'/files/unpublished.json').status_code==404
     for name in ('original-segmentation.glb','original-parts.zip'):
         response=client.get('/api/studio/jobs/'+jid+'/files/'+name)
         assert response.status_code==200 and response.content==(folder/name).read_bytes()

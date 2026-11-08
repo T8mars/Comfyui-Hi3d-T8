@@ -209,6 +209,54 @@ def validate_completion_coverage(coverage):
         raise RuntimeError('X-Part 明显改变了原部件外形，已停止材质转移并保留原拆件；请调整部件划分后重试。')
 
 
+def validate_completed_surfaces(parts, metadata, original, folder, center, scale, emit):
+    """Keep every decoded candidate and diagnose all parts before any baking."""
+    from .generated_geometry import prepare
+    from .gltf import Document
+    from .retopology import geometry_coverage, visible_mesh
+    if len(parts) != len(metadata['parts']):
+        raise RuntimeError('X-Part 部分部件未生成，已保留原分割结果并拒绝不完整成品')
+    stage = folder / 'stages' / 'studio-blender'
+    stage.mkdir(parents=True, exist_ok=True)
+    candidates = []
+    # Export all decoded parts first. A rejection must not discard later parts
+    # that have already consumed sampling/decoding time.
+    for index, (part, info) in enumerate(zip(parts, metadata['parts'])):
+        part.vertices = part.vertices * scale + center
+        geometry = stage / f'completed_{index:04d}.obj'
+        part.export(geometry, include_color=False)
+        candidates.append((part, geometry, info))
+    geometries = []; coverage_reports = []; surface_reports = []; rejected = []
+    for part, geometry, info in candidates:
+        prepared, surface = prepare(part)
+        surface.update(part=info['id'], name=info['name'])
+        if surface['removed_collapsed_faces'] or surface['merged_float32_vertices']:
+            raw = geometry.with_name(geometry.stem + '.raw.obj')
+            atomic_copy(geometry, raw)
+            surface.update(raw_geometry=raw.name, raw_sha256=digest(raw))
+            emit('asset_part_validation', f'整理新生成部件的 GLB 精度：合并 {surface["merged_float32_vertices"]} 个重合顶点，移除 {surface["removed_collapsed_faces"]} 个坍缩面；原拆件不变', device='cpu')
+        prepared.export(geometry, include_color=False)
+        surface['prepared_sha256'] = digest(geometry); surface_reports.append(surface)
+        atomic_json(folder / 'xpart-surface-preparation.json', surface_reports)
+        donor = original / 'parts' / f'part_{info["id"]:04d}.glb'
+        coverage = geometry_coverage(visible_mesh(Document.load(donor)), prepared, emit, stage='asset_part_validation')
+        record = {'part': info['id'], 'name': info['name'], 'coverage': coverage,
+                  'source_sha256': digest(donor), 'candidate_sha256': digest(geometry), 'status': 'checking'}
+        coverage_reports.append(record)
+        try:
+            validate_completion_coverage(coverage)
+        except RuntimeError as error:
+            record.update(status='rejected', error=str(error)); rejected.append(info['name'])
+        else:
+            record['status'] = 'passed'
+        atomic_json(folder / 'part-coverage.json', coverage_reports)
+        geometries.append((geometry, donor, info))
+    if rejected:
+        raise RuntimeError('X-Part 原部件外形检查未通过：' + '、'.join(rejected)
+                           + '。已停止材质转移并保留原拆件；请调整部件划分后重试。')
+    return geometries, coverage_reports, surface_reports
+
+
 def complete(source, target, document, labels, names, request, emit):
     import torch
     import trimesh
@@ -265,44 +313,12 @@ def complete(source, target, document, labels, names, request, emit):
     paths = []
     transfer_reports=[]
     from .material_transfer import run as transfer_material
-    from .retopology import geometry_coverage, visible_mesh
-    geometries=[];coverage_reports=[];surface_reports=[]
     # Check every original surface before spending minutes baking a failed
     # reconstruction. New hidden surfaces remain allowed; lost outer surfaces
     # do not. Candidate geometry and the untouched partition remain on failure.
-    for index, (part, info) in enumerate(zip(parts, metadata['parts'])):
-        part.vertices = part.vertices * scale + center
-        stage = folder / 'stages' / 'studio-blender'
-        stage.mkdir(parents=True, exist_ok=True)
-        geometry = stage / f'completed_{index:04d}.obj'
-        # Retain a diagnostic candidate even if float32 preparation rejects it.
-        part.export(geometry, include_color=False)
-        from .generated_geometry import prepare
-        prepared,surface=prepare(part)
-        surface.update(part=info['id'],name=info['name'])
-        if surface['removed_collapsed_faces'] or surface['merged_float32_vertices']:
-            raw=stage/f'completed_{index:04d}.raw.obj'
-            atomic_copy(geometry,raw)
-            surface.update(raw_geometry=raw.name,raw_sha256=digest(raw))
-            emit('asset_part_validation',f'整理新生成部件的 GLB 精度：合并 {surface["merged_float32_vertices"]} 个重合顶点，移除 {surface["removed_collapsed_faces"]} 个坍缩面；原拆件不变',device='cpu')
-        part=prepared
-        part.export(geometry, include_color=False)
-        surface['prepared_sha256']=digest(geometry);surface_reports.append(surface)
-        atomic_json(folder/'xpart-surface-preparation.json',surface_reports)
-        donor=original/'parts'/f'part_{info["id"]:04d}.glb'
-        coverage=geometry_coverage(visible_mesh(Document.load(donor)),part,emit,stage='asset_part_validation')
-        record={'part':info['id'],'name':info['name'],'coverage':coverage,
-                'source_sha256':digest(donor),'candidate_sha256':digest(geometry),'status':'checking'}
-        coverage_reports.append(record)
-        try:
-            validate_completion_coverage(coverage)
-        except RuntimeError:
-            record['status']='rejected'
-            atomic_json(folder/'part-coverage.json',coverage_reports)
-            raise
-        record['status']='passed'
-        atomic_json(folder/'part-coverage.json',coverage_reports)
-        geometries.append((geometry,donor,info))
+    geometries,coverage_reports,surface_reports=validate_completed_surfaces(
+        parts,metadata,original,folder,center,scale,emit)
+    stage = folder / 'stages' / 'studio-blender'
     for index,(geometry,donor,info) in enumerate(geometries):
         output = stage / f'completed_{index:04d}.glb'
         emit('asset_material_transfer', f'转移部件 {index + 1}/{len(parts)} 的 PBR 材质', device='cpu')
